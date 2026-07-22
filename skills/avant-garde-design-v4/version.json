@@ -1,0 +1,48 @@
+{
+  "name": "avant-garde-design-v3",
+  "version": "3.0.0",
+  "description": "Elite web design skill for creating distinctive, production-grade frontend interfaces with Tailwind CSS v4, Next.js, and shadcn/ui. Implements the Meticulous Approach 6-Phase SOP with Anti-Generic philosophy, Intentionality Compass strategic positioning, WCAG AAA + ADA Title II accessibility, and avant-garde UI patterns.",
+  "author": "Frontend Architect & Avant-Garde UI Designer",
+  "license": "MIT",
+  "created": "2026-03-20",
+  "updated": "2026-03-20",
+  "classification": "Master Design Skill / Production-Ready",
+  "complexity": "Expert",
+  "stack": {
+    "framework": "Next.js 16.2+",
+    "react": "19.1+",
+    "typescript": "5.8+",
+    "tailwind": "4.1+",
+    "animation": "Motion 12.5+",
+    "ui": "shadcn/ui + Radix/Base UI"
+  },
+  "features": [
+    "Anti-Generic Design Philosophy",
+    "Intentionality Compass Strategic Positioning",
+    "Tailwind CSS v4 CSS-First Architecture",
+    "WCAG AAA + ADA Title II Compliance",
+    "Mobile Navigation Patterns",
+    "Performance Budgets by Quadrant",
+    "6-Phase Meticulous Approach SOP",
+    "16 Reference Files",
+    "2026 Design Trends Integration"
+  ],
+  "triggerPhrases": [
+    "create a beautiful website",
+    "design a landing page",
+    "build a luxury UI",
+    "make it distinctive",
+    "avoid generic design",
+    "mobile nav not working",
+    "tailwind v4 migration"
+  ],
+  "relatedSkills": [
+    "fullstack-dev",
+    "frontend-styling-expert",
+    "image-generation",
+    "verification-and-review-protocol",
+    "vulnerability-scanner",
+    "web-design-guidelines"
+  ],
+  "changelog": "CHANGELOG.md"
+}

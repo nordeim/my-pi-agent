@@ -1,0 +1,11 @@
+please meticulously review the content of `/home/pete/.pi/agent/skills/nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth/SKILL.md`, then meticulously plan to add key words/phrases in the description field in the yaml header. purpose of the 'description:' in the yaml header is to allow any coding agent to easily match this skill to a similar project given the project's specifications. make the description general so that any coding agent looking for guidance on programming standards and best practices on similar tech stack can find the knowledge and experiences useful.
+
+---
+
+awesome meticulous job so far. please keep up the good work. now, please meticulously plan to add this new skill to `/home/pete/.pi/agent/skills/skills-catalog.md` which is intended to serve as a quick-lookup kind of guide to help agents looking for suitable skills.
+
+---
+
+awesome meticulous job. now, please suitably add this new skill to the Pi agent's supplementary system prompt `/home/pete/.pi/agent/APPEND_SYSTEM.md`
+
+

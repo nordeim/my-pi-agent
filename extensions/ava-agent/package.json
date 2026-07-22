@@ -1,0 +1,10 @@
+{
+  "name": "ava-agent",
+  "version": "0.1.0",
+  "description": "AVA — Avant-Garde Visual Auditor for pi-coding-agent",
+  "type": "module",
+  "dependencies": {
+    "ts-morph": "^28.0.0",
+    "typebox": "^1.1.38"
+  }
+}

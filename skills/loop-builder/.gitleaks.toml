@@ -1,0 +1,24 @@
+# gitleaks config for loop-builder (public repo).
+#
+# Scope: SECRETS only (API keys, tokens, private keys) via gitleaks' built-in
+# ruleset. gitleaks deliberately allowlists machine-local paths like /home/...
+# and $HOME, so the "no local home paths" lint lives in a dedicated pygrep
+# hook in .pre-commit-config.yaml instead — the right tool for that job.
+#
+# This file is public and intentionally contains NO literal personal data.
+#
+# Scan locally:   gitleaks git --config .gitleaks.toml
+# Scan staged:    handled automatically by the pre-commit hook
+# Allowlist a false positive: add a path/regex below, or annotate the line
+#   with a trailing  # gitleaks:allow  comment.
+
+title = "loop-builder gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Regenerable scratch that never holds real secrets"
+paths = [
+  '''\.understand-anything/''',
+]

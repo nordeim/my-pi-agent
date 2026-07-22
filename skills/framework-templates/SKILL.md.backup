@@ -1,0 +1,2354 @@
+---
+name: Framework Templates
+description: Deep reference library for framework-specific CLAUDE.md sections. Contains production-ready templates for Next.js, Laravel, Rails, Django, React Native, Flutter, Go, Rust, and more. Use alongside the claude-md skill for complete CLAUDE.md generation.
+version: 1.0.0
+skills:
+  - claude-md
+  - clean-code
+  - testing-patterns
+trigger: "framework-templates"
+runtime: agent
+subservices:
+  get:
+    description: Get template for a specific framework
+    trigger: "framework-templates:get"
+  list:
+    description: List all available framework templates
+    trigger: "framework-templates:list"
+  detect:
+    description: Detect framework from codebase
+    trigger: "framework-templates:detect"
+  validate:
+    description: Validate framework-specific CLAUDE.md sections
+    trigger: "framework-templates:validate"
+---
+
+# Framework Templates
+
+A deep reference library for framework-specific CLAUDE.md sections. This skill provides production-ready templates, patterns, and conventions for generating accurate CLAUDE.md files across 15+ frameworks and platforms.
+
+**Use this skill alongside `claude-md`** - the `claude-md` skill handles the generation process while this skill provides the framework-specific content.
+
+## Purpose
+
+Each framework has unique patterns, conventions, commands, and pitfalls that must be captured in CLAUDE.md for agents to work effectively. This skill provides:
+
+- **Complete CLAUDE.md sections** for each framework
+- **Detection patterns** to identify the framework
+- **Command references** verified against actual framework tooling
+- **Common pitfalls** to document and avoid
+- **Version-specific guidance** for major releases
+
+## How to Use
+
+### Step 1: Identify the Framework
+
+Use the **Framework Index** below or run detection commands:
+
+```bash
+# Detect from package manager
+cat package.json 2>/dev/null | head -5
+cat composer.json 2>/dev/null | head -5
+cat requirements.txt 2>/dev/null | head -5
+cat pyproject.toml 2>/dev/null | head -5
+cat go.mod 2>/dev/null | head -5
+cat Cargo.toml 2>/dev/null | head -5
+cat pubspec.yaml 2>/dev/null | head -5
+
+# Detect from file structure
+find . -maxdepth 2 \( -name "next.config.*" -o -name "vite.config.*" -o -name "nuxt.config.*" -o -name "artisan" -o -name "manage.py" -o -name "pubspec.yaml" \) 2>/dev/null
+```
+
+### Step 2: Get Framework Template
+
+Navigate to the framework section in this skill and extract the relevant sections:
+
+1. **Detection Section**: Verify framework match
+2. **CLAUDE.md Sections**: Copy the complete sections
+3. **Commands Section**: Copy verified commands
+4. **Patterns Section**: Copy conventions and pitfalls
+
+### Step 3: Integrate into CLAUDE.md
+
+Combine framework sections with the base template from `claude-md` skill:
+
+```markdown
+## Implementation Standards
+
+### [Framework] Specific
+
+{[Paste framework-specific standards]}
+
+## Development Workflow
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| {[Paste commands]} |
+
+{[Continue with other framework sections]}
+```
+
+### Step 4: Validate
+
+Use the validation commands to verify commands exist:
+
+```bash
+# Verify package.json scripts
+cat package.json | jq '.scripts'
+
+# Verify composer.json scripts
+cat composer.json | jq '.scripts'
+
+# Verify Makefile targets (if used)
+grep "^[a-z]" Makefile 2>/dev/null | head -20
+```
+
+## Framework Index
+
+### Web Frameworks
+
+| Framework | Detection | Language | Complexity | Template Sections |
+|-----------|-----------|----------|------------|-------------------|
+| [Next.js](#nextjs) | `next.config.js` | TypeScript | High | App Router, Image, Metadata, Server Actions |
+| [Nuxt.js](#nuxtjs) | `nuxt.config.ts` | TypeScript | High | File-based routing, auto-imports, SSR |
+| [Vite + React](#vite--react) | `vite.config.js` | TypeScript | Medium | Component patterns, state management |
+| [Laravel](#laravel) | `artisan` | PHP | High | Form Requests, Policies, Jobs, Events |
+| [Rails](#rails) | `config.ru` | Ruby | High | MVC, ActiveRecord, Concerns |
+| [Django](#django) | `manage.py` | Python | High | Models, Views, Forms, Admin |
+| [FastAPI](#fastapi) | `pyproject.toml` | Python | Medium | Pydantic, Routers, Dependencies |
+| [Express/Fastify](#express--fastify) | `package.json` | JavaScript | Low | Middleware, routing patterns |
+
+### Mobile Frameworks
+
+| Framework | Detection | Language | Complexity | Template Sections |
+|-----------|-----------|----------|------------|-------------------|
+| [React Native](#react-native) | `App.tsx` + `app.json` | TypeScript | High | Navigation, Platform modules, Native |
+| [Flutter](#flutter) | `pubspec.yaml` | Dart | High | Widgets, State, Clean Architecture |
+
+### Desktop Frameworks
+
+| Framework | Detection | Language | Complexity | Template Sections |
+|-----------|-----------|----------|------------|-------------------|
+| [Electron](#electron) | `package.json` + `electron` | TypeScript | High | Main/Renderer, IPC, Native modules |
+| [Tauri](#tauri) | `Cargo.toml` + `src-tauri/` | Rust/JS | Medium | Rust backend, web frontend |
+
+### Backend/API Frameworks
+
+| Framework | Detection | Language | Complexity | Template Sections |
+|-----------|-----------|----------|------------|-------------------|
+| [Go](#go) | `go.mod` | Go | Medium | Project structure, error handling |
+| [Rust](#rust) | `Cargo.toml` | Rust | High | Ownership, error handling, traits |
+| [.NET](#net) | `*.csproj` | C# | Medium | Project structure, dependency injection |
+
+---
+
+# Web Frameworks
+
+## Next.js
+
+**Detection:** `next.config.js` or `next.config.ts` in project root
+
+### Detection Commands
+
+```bash
+cat package.json | jq '.dependencies.next' 2>/dev/null
+cat package.json | grep '"next":' 2>/dev/null
+find . -maxdepth 1 -name "next.config.*" 2>/dev/null
+```
+
+### Detection Patterns
+
+```json
+// package.json
+{
+  "dependencies": {
+    "next": "^14.0.0"  // Next.js 14+
+  }
+}
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Next.js 14+ Specific
+
+- **App Router**: Use `app/` directory for all routes and layouts
+- **Server Components**: Default to Server Components; add `'use client'` only when interactivity needed
+- **Next.js Image**: Use `<Image>` component for all images (optimization, lazy loading, CLS prevention)
+- **next/font**: Use `next/font` for Google Fonts (zero layout shift, self-hosted)
+- **Metadata API**: Use `generateMetadata()` and `export const metadata` for SEO
+- **Server Actions**: Use Server Actions for form submissions and mutations (no API routes needed)
+- **Route Handlers**: Use `app/api/*/route.ts` only for external API integrations
+- **Partial Prerendering (PPR)**: Use `dynamic()` with Suspense for streaming (Next.js 14.2+)
+
+### TypeScript Strict Mode
+
+- `strict: true` in `tsconfig.json`
+- Never use `any` - use `unknown` instead
+- Explicit types on all function parameters
+- Use `interface` for object shapes, `type` for unions/intersections
+- All API routes return typed responses
+- Use `next-safe-action` for type-safe Server Actions
+
+### Tailwind CSS
+
+- Use design tokens from `tailwind.config.js` (no arbitrary values)
+- Mobile-first responsive: `sm:` `md:` `lg:` `xl:` `2xl:`
+- Dark mode: Use `dark:` variant with `next-themes`
+- Component extraction: Extract repeated patterns into components
+- CSS Modules: Use `.module.css` for component-scoped styles when Tailwind insufficient
+
+### React Patterns
+
+- **Client Components**: Only when using `useState`, `useEffect`, event handlers
+- **Server Components**: Fetch data, render UI, access backend directly
+- **Composition**: Co-locate `Component.tsx` with `Component.test.tsx` and `Component.module.css`
+- **Error Handling**: Use `error.tsx` and `loading.tsx` at every route segment
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start development server (http://localhost:3000) |
+| `npm run build` | Production build with static optimization |
+| `npm run start` | Start production server |
+| `npm run lint` | ESLint + Prettier |
+| `npm run typecheck` | TypeScript type checking |
+| `npm run test` | Run Jest tests |
+| `npm run test:watch` | Watch mode for tests |
+| `npx prisma studio` | Open Prisma database GUI |
+| `npx prisma generate` | Generate Prisma client |
+| `npx prisma db push` | Push schema changes |
+| `npx prisma migrate dev` | Create and apply migrations |
+| `npx prisma db seed` | Seed database with sample data |
+
+### Environment Variables
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `DATABASE_URL` | PostgreSQL/MySQL connection | `postgresql://user:pass@localhost:5432/db` |
+| `NEXTAUTH_SECRET` | Auth.js token signing (32+ chars) | `openssl rand -base64 32` |
+| `NEXTAUTH_URL` | Auth callback URL | `http://localhost:3000` |
+| `NEXT_PUBLIC_*` | Client-exposed variables | `NEXT_PUBLIC_APP_URL` |
+| `UPLOADTHING_SECRET` | File upload (if using UploadThing) | From uploadthing.com |
+| `STRIPE_SECRET_KEY` | Payment processing | `sk_test_...` |
+| `RESEND_API_KEY` | Email sending | From resend.com |
+
+### Database Patterns
+
+**Prisma** (most common):
+```markdown
+### Prisma ORM
+
+- Schema location: `prisma/schema.prisma`
+- Always run `npx prisma generate` after schema changes
+- Use Prisma Studio for data exploration: `npx prisma studio`
+- Migrations: `npx prisma migrate dev --name descriptive_name`
+- Seed data: `npx prisma db seed` (configured in package.json)
+
+### Common Prisma Patterns
+
+- Use `select` to fetch only needed fields
+- Use `include` for relations (avoid N+1)
+- Use transactions for multi-table operations
+- Use raw queries only when necessary (Prisma client or raw)
+```
+
+### API Patterns
+
+```markdown
+### Route Handlers
+
+- Location: `app/api/{resource}/route.ts`
+- Method handlers: `GET`, `POST`, `PUT`, `DELETE` exports
+- Request validation: Zod schemas (use `next-safe-action`)
+- Response format: Consistent JSON structure
+
+### API Response Format
+
+```typescript
+// Success
+return Response.json({ data: result, meta?: { page, total } })
+
+// Error
+return Response.json(
+  { error: { code: 'NOT_FOUND', message: 'Resource not found' } },
+  { status: 404 }
+)
+```
+```
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Client Component overuse**: Default to Server Components; add interactivity only where needed
+2. **Missing error boundaries**: Create `error.tsx` at every route segment
+3. **No loading states**: Create `loading.tsx` for streaming UI
+4. **Inline styles**: Use Tailwind or CSS Modules, never style props
+5. **Importing Server Components in Client Components**: Creates boundary violations
+6. **Missing image optimization**: Use `<Image>` not `<img>` for all images
+7. **Unoptimized fonts**: Use `next/font` not `<link>` for Google Fonts
+8. **Client-side data fetching**: Use Server Components or Server Actions instead
+```
+
+### Version-Specific Notes
+
+```markdown
+**Next.js 14.1+**
+- CSS Modules in Server Components: Import directly (no barrel file imports)
+- Server Actions: Can now be nested in layout.tsx for form handling
+- Partial Prerendering: Use `dynamic()` with `loading` prop for suspense boundaries
+
+**Next.js 14.2+**
+- tRPC integration: Use `@trpc/server` with App Router adapter
+- Streaming: Native Suspense support for React Server Components
+```
+
+---
+
+## Nuxt.js
+
+**Detection:** `nuxt.config.ts` or `nuxt.config.js` in project root
+
+### Detection Commands
+
+```bash
+cat package.json | grep '"nuxt":' 2>/dev/null
+cat nuxt.config.ts 2>/dev/null | head -20
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Nuxt 3 Specific
+
+- **Auto-imports**: Components, composables, utils auto-imported (no explicit imports needed)
+- **File-based Routing**: `pages/` directory generates routes automatically
+- **Layouts**: `layouts/` directory for shared layouts
+- **Server Routes**: `server/api/` for API endpoints (Nitro server)
+- **useFetch**: Use `useFetch` and `useAsyncData` for data fetching (SSR-friendly)
+- **Composables**: Place reusable logic in `composables/` (auto-imported)
+- **Middleware**: Route middleware in `middleware/` (auto-registered)
+- **Plugins**: Run setup code in `plugins/` (client/server aware)
+
+### TypeScript
+
+- Enable `strict: true` in nuxt.config.ts
+- Use `defineProps`, `defineEmits` macros
+- Type `$fetch` responses explicitly
+- Use `ref<T>()` and `reactive<T>()` for typed state
+
+### Pinia State Management
+
+- Use `@pinia/nuxt` module
+- Define stores in `stores/` directory
+- Use `defineStore` with Setup Store syntax for TypeScript
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start development server (http://localhost:3000) |
+| `npm run build` | Production build |
+| `npm run generate` | Static site generation (SSG) |
+| `npm run preview` | Preview production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript checking |
+| `npx nuxi prepare` | Generate TypeScript types |
+| `npx nuxi info` | Debug Nuxt configuration |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Manual imports**: Nuxt auto-imports - don't import what you don't need to
+2. **Client-only code**: Use `onMounted` or `<ClientOnly>` component
+3. **Missing `useFetch` key**: Always provide unique key for caching
+4. **SSR hydration mismatch**: Use `ref`/`reactive` consistently (not plain objects)
+5. **API route testing**: Mock `$fetch` in unit tests
+```
+
+---
+
+## Vite + React
+
+**Detection:** `vite.config.js` or `vite.config.ts` + `package.json` with React
+
+### Detection Commands
+
+```bash
+cat package.json | jq '.dependencies.react' 2>/dev/null
+cat package.json | jq '.devDependencies.vite' 2>/dev/null
+find . -maxdepth 1 -name "vite.config.*" 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Vite Specific
+
+- **HMR**: Hot Module Replacement enabled by default
+- **Environment Variables**: `VITE_*` prefix for client-side vars
+- **Import Aliases**: Configure in vite.config.ts (e.g., `@/` → `src/`)
+- **Build Optimization**: Code splitting, lazy loading automatic
+- **TypeScript**: Use `vite-plugin-checker` for type checking in dev
+
+### React Patterns
+
+- **Functional Components**: Only functional components (no class components)
+- **Hooks**: Use hooks for all state and side effects
+- **Component Structure**:
+  ```tsx
+  // 1. Imports (external, then internal)
+  // 2. Types/interfaces
+  // 3. Component function
+  // 4. Sub-components (if needed)
+  // 5. Exports
+  ```
+- **Colocation**: Keep component, test, and styles together
+- **Custom Hooks**: Extract reusable logic to `hooks/` directory
+
+### State Management
+
+```typescript
+// Local state: useState
+const [state, setState] = useState<Type>(initial);
+
+// Derived state: useMemo
+const derived = useMemo(() => compute(state), [state]);
+
+// Side effects: useEffect (avoid when useQuery/useMutation available)
+useEffect(() => {
+  // effect
+  return () => { /* cleanup */ };
+}, [dependencies]);
+
+// Server state: TanStack Query
+const { data, isLoading, error } = useQuery({ queryKey: ['key'], queryFn: fn });
+
+// Global state: Zustand (lightweight) or Redux Toolkit (complex)
+```
+
+### Styling
+
+```typescript
+// CSS Modules (preferred for component styles)
+import styles from './Component.module.css';
+
+// Tailwind CSS (utility classes)
+import clsx from 'clsx';
+
+// Styled Components (if project requires)
+import styled from 'styled-components';
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start Vite dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run lint` | ESLint + Prettier |
+| `npm run typecheck` | TypeScript checking |
+| `npm test` | Run tests (Vitest/Jest) |
+| `npm run test:coverage` | Coverage report |
+```
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Prop drilling**: Use Context or Zustand instead
+2. **Callback hell**: Use React Query for server state
+3. **Over-fetching**: Specify exact fields needed
+4. **Missing dependencies**: Include all deps in useEffect/useCallback arrays
+5. **Memory leaks**: Always return cleanup from useEffect
+6. **Unused state**: Don't state what can be computed
+```
+
+---
+
+## Laravel
+
+**Detection:** `artisan` file in project root + `composer.json`
+
+### Detection Commands
+
+```bash
+ls artisan 2>/dev/null && echo "Laravel detected"
+cat composer.json | grep '"laravel/framework":' 2>/dev/null
+php artisan --version 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Laravel 11+ Specific
+
+- **Bootstrap Directory**: `bootstrap/app.php` for app configuration
+- **Rate Limiting**: Use RateLimiter facade (no middleware files)
+- **Health Check**: `/up` route built-in (monitor with this)
+- **Exception Handler**: `bootstrap/app.php` inline config
+- **API Scaffolding**: `php artisan install:api` for API-only setup
+
+### Core Conventions
+
+- **Routing**: Use `routes/web.php` and `routes/api.php`
+- **Controllers**: `app/Http/Controllers/` (use Form Request validation)
+- **Models**: `app/Models/` (Eloquent models only)
+- **Migrations**: `database/migrations/` (one table per migration)
+- **Views**: `resources/views/` (Blade templates)
+- **Lang**: `lang/` for localization
+
+### Form Request Validation
+
+```php
+// REQUIRED: Use Form Request classes for ALL validation
+class StorePostRequest extends FormRequest
+{
+    public function authorize(): bool { return true; }
+    public function rules(): array {
+        return [
+            'title' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+            'tags' => ['array'],
+            'tags.*' => ['exists:tags,id'],
+        ];
+    }
+}
+```
+
+**ANTI-PATTERN**: Do NOT use inline validation in controllers:
+```php
+// WRONG - Don't do this
+public function store(Request $request) {
+    $validated = $request->validate([...]);
+}
+```
+
+### Authorization Policies
+
+```php
+// REQUIRED: Use Policy classes for authorization
+class PostPolicy
+{
+    public function create(User $user): bool {
+        return $user->role === 'author';
+    }
+    public function update(User $user, Post $post): bool {
+        return $user->id === $post->user_id;
+    }
+}
+```
+
+**ANTI-PATTERN**: Do NOT use `$this->authorize()` in controllers.
+
+### Model Conventions
+
+```php
+// Eloquent relationships
+class Post extends Model
+{
+    // Explicit table name only if non-standard
+    protected $table = 'posts';
+
+    // Mass assignment protection
+    protected $fillable = ['title', 'content', 'user_id'];
+    protected $guarded = ['id'];
+
+    // Relationships
+    public function author(): BelongsTo { return $this->belongsTo(User::class, 'user_id'); }
+    public function comments(): HasMany { return $this->hasMany(Comment::class); }
+    public function tags(): BelongsToMany { return $this->belongsToMany(Tag::class); }
+
+    // Scopes
+    public function scopePublished($query) { return $query->whereNotNull('published_at'); }
+
+    // Accessors
+    public function getExcerptAttribute(): string {
+        return Str::limit($this->content, 150);
+    }
+}
+```
+
+### Service Layer Pattern
+
+```markdown
+### When to Use Services
+
+- Complex business logic spanning multiple models
+- External API integrations
+- Operations requiring transactions
+- Reusable business operations across controllers
+
+### Service Location
+
+- `app/Services/` - Application services
+- `app/Integrations/` - External API clients
+- `app/Billing/` - Payment processing (Stripe, etc.)
+- `app/Export/` - Data export services
+- `app/Import/` - Data import services
+
+### Service Example
+
+```php
+class PostService
+{
+    public function __construct(
+        private PostRepository $posts,
+        private TagRepository $tags,
+    ) {}
+
+    public function create(array $data): Post
+    {
+        return DB::transaction(function () use ($data) {
+            $post = $this->posts->create($data);
+            $this->tags->sync($post, $data['tags'] ?? []);
+            event(new PostCreated($post));
+            return $post;
+        });
+    }
+}
+```
+```
+
+### Jobs for Long-Running Operations
+
+```markdown
+### When to Use Jobs
+
+- Email sending
+- File processing (images, videos, documents)
+- Third-party API calls
+- Large database operations
+- Scheduled tasks
+
+### Job Example
+
+```php
+class ProcessPostMediaJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public int $tries = 3;
+    public int $backoff = 60;
+
+    public function __construct(public Post $post) {}
+
+    public function handle(MediaProcessor $processor): void
+    {
+        $processor->processImages($this->post);
+        $this->post->update(['media_processed' => true]);
+    }
+
+    public function failed(Throwable $e): void
+    {
+        Mail::to($this->post->author)->send(new MediaProcessingFailed($this->post));
+    }
+}
+```
+
+**ANTI-PATTERN**: Do NOT process media synchronously in controllers.
+
+### Events for Decoupled Side Effects
+
+```markdown
+### When to Use Events
+
+- Side effects that may grow over time
+- Multiple listeners for one action
+- Integration with external services
+- Audit logging
+
+### Event Example
+
+```php
+// Event
+class PostPublished
+{
+    use Dispatchable, SerializesModels;
+    public function __construct(public Post $post) {}
+}
+
+// Listener
+class SendPostNotification
+{
+    public function handle(PostPublished $event): void
+    {
+        Mail::to($event->post->author)->send(new PostPublishedMail($event->post));
+    }
+}
+```
+
+**ANTI-PATTERN**: Do NOT call notification services directly from controllers.
+
+### Eloquent Best Practices
+
+```markdown
+### Query Patterns
+
+```php
+// Always use relationships over raw queries
+$post->comments; // Good: uses relationship
+DB::table('comments')->where('post_id', $post->id)->get(); // Avoid
+
+// Use with() to prevent N+1
+Post::with('author', 'tags')->get();
+
+// Use whereHas for filtering by relationship
+Post::whereHas('tags', fn($q) => $q->where('name', 'php'))->get();
+
+// Use chunk for large datasets
+User::chunk(100, fn($users) => $users->each(processUser(...)));
+```
+
+### PHP 8.3+ Standards
+
+```markdown
+### Modern PHP Patterns
+
+```php
+// Constructor property promotion
+class PostService
+{
+    public function __construct(
+        private PostRepository $posts,
+        private TagRepository $tags,
+    ) {}
+}
+
+// Attributes over docblocks
+#[Route('/posts', methods: ['GET'])]
+class PostController
+{
+    #[OA\Get(path: '/posts')]
+    public function index(): JsonResponse {}
+}
+
+// Enums for fixed sets
+enum PostStatus: string
+{
+    case Draft = 'draft';
+    case Published = 'published';
+    case Archived = 'archived';
+}
+
+// Named arguments
+$post->update([
+    'title' => $title,
+    'content' => $content,
+]);
+
+// Match expression
+$status = match ($post->status) {
+    PostStatus::Draft->value => 'This is a draft',
+    PostStatus::Published->value => 'Published!',
+    default => 'Unknown status',
+};
+```
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `php artisan` | List all commands |
+| `php artisan serve` | Start development server |
+| `php artisan migrate` | Run migrations |
+| `php artisan migrate:fresh` | Drop and re-run all migrations |
+| `php artisan migrate:fresh --seed` | Fresh + seed |
+| `php artisan db:studio` | Open database GUI |
+| `php artisan make:controller` | Create controller |
+| `php artisan make:request` | Create Form Request |
+| `php artisan make:policy` | Create Policy |
+| `php artisan make:job` | Create Job |
+| `php artisan make:event` | Create Event |
+| `php artisan test` | Run Pest tests |
+| `php artisan test --parallel` | Parallel execution |
+| `php artisan test --coverage` | Coverage report |
+| `php artisan route:list` | List all routes |
+| `php artisan route:list --path=api` | API routes only |
+| `php artisan schedule:work` | Run scheduler locally |
+| `php artisan queue:work` | Process queue |
+| `php artisan queue:work --queue=high,default` | Priority queues |
+| `php artisan cache:clear` | Clear cache |
+| `php artisan config:clear` | Clear config cache |
+| `php artisan view:clear` | Clear view cache |
+| `php artisan optimize:clear` | Clear all caches |
+| `composer dump-autoload` | Regenerate autoload |
+| `composer test` | Run all tests (if configured) |
+
+### Environment Variables
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `APP_ENV` | Environment | `local`, `production` |
+| `APP_DEBUG` | Debug mode | `true`, `false` |
+| `APP_URL` | Application URL | `https://example.com` |
+| `DB_CONNECTION` | Database driver | `pgsql`, `mysql` |
+| `DB_HOST` | Database host | `127.0.0.1` |
+| `DB_PORT` | Database port | `5432` |
+| `DB_DATABASE` | Database name | `myapp` |
+| `DB_USERNAME` | Database user | `homestead` |
+| `DB_PASSWORD` | Database password | `secret` |
+| `CACHE_DRIVER` | Cache driver | `redis`, `file` |
+| `QUEUE_CONNECTION` | Queue driver | `redis`, `sync` |
+| `SESSION_DRIVER` | Session driver | `redis`, `database` |
+| `MAIL_MAILER` | Mail driver | `smtp`, `resend` |
+| `REDIS_HOST` | Redis host | `127.0.0.1` |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Inline validation**: Always use Form Request classes
+2. **Inline authorization**: Always use Policy classes
+3. **N+1 queries**: Always eager load relationships with `with()`
+4. **Synchronous processing**: Use Jobs for long-running tasks
+5. **Direct notifications**: Use Events + Listeners
+6. **Raw SQL**: Use Eloquent or Query Builder
+7. **Session usage in APIs**: Use stateless JWT/Sanctum tokens
+8. **Missing database transactions**: Wrap multi-model operations in `DB::transaction()`
+9. **.env in version control**: Always use `.env.example`
+```
+
+---
+
+## Rails
+
+**Detection:** `config.ru` + `Gemfile` with `rails` gem
+
+### Detection Commands
+
+```bash
+cat Gemfile | grep "gem 'rails'" 2>/dev/null
+ls config.ru 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Rails 7+ Conventions
+
+- **CoC**: Convention over Configuration (don't configure what Rails expects)
+- **DRY**: Don't Repeat Yourself (extract to concerns, helpers, services)
+- **RESTful**: Resources for all models; 7 standard actions per controller
+
+### Directory Structure
+
+```
+app/
+  assets/          # JS, CSS, images
+  channels/        # Action Cable channels
+  controllers/     # ApplicationController + resource controllers
+  helpers/         # View helpers
+ /javascript/      # JS packs (Webpacker/Propshaft)
+  jobs/            # Active Job classes
+  mailers/         # Action Mailer classes
+  models/          # ActiveRecord models
+  services/        # Service objects (custom)
+  views/           # Templates (ERB, Haml, Slim)
+config/
+  routes.rb        # Route definitions
+db/
+  migrate/         # Database migrations
+  schema.rb        # Schema definition
+  seeds.rb         # Seed data
+spec/              # RSpec tests
+  factories/       # FactoryBot factories
+  requests/        # Request specs
+  system/          # System/feature specs
+```
+
+### MVC Patterns
+
+```ruby
+# Models: Business logic + associations + validations
+class Post < ApplicationRecord
+  belongs_to :author, class_name: 'User', inverse_of: :posts
+  has_many :comments, dependent: :destroy
+  has_and_belongs_to_many :tags
+
+  validates :title, presence: true, length: { maximum: 255 }
+  validates :content, presence: true
+
+  scope :published, -> { where.not(published_at: nil) }
+  scope :by_tag, ->(tag) { joins(:tags).where(tags: { name: tag }) }
+
+  def publish!
+    update!(published_at: Time.current)
+  end
+
+  private
+
+  def ensure_slug
+    self.slug = title.parameterize if slug.blank?
+  end
+end
+```
+
+### Controllers
+
+```ruby
+# RESTful controller
+class PostsController < ApplicationController
+  before_action :set_post, only: [:show, :edit, :update, :destroy]
+
+  # GET /posts
+  def index
+    @posts = Post.published.includes(:author, :tags)
+                 .order(created_at: :desc)
+                 .page(params[:page])
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @posts }
+    end
+  end
+
+  # GET /posts/:id
+  def show
+    @post.increment!(:view_count)
+  end
+
+  # POST /posts
+  def create
+    @post = current_user.posts.build(post_params)
+
+    if @post.save
+      redirect_to @post, notice: 'Post was successfully created.'
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def post_params
+    params.require(:post).permit(:title, :content, tag_ids: [])
+  end
+
+  def set_post
+    @post = Post.friendly.find(params[:id])
+  end
+end
+```
+
+### Concerns Pattern
+
+```ruby
+# For shared behavior across models/controllers
+module Taggable
+  extend ActiveSupport::Concern
+
+  included do
+    has_and_belongs_to_many :tags, dependent: :destroy
+  end
+
+  def tag_list
+    tags.pluck(:name).join(', ')
+  end
+
+  def tag_list=(names)
+    self.tags = names.split(',').map(&:strip).map do |name|
+      Tag.find_or_create_by!(name: name)
+    end
+  end
+end
+
+# Usage
+class Article < ApplicationRecord
+  include Taggable
+end
+
+class Video < ApplicationRecord
+  include Taggable
+end
+```
+
+### Service Objects
+
+```ruby
+# For complex business logic
+class PublishPostService
+  def initialize(post)
+    @post = post
+  end
+
+  def call
+    Post.transaction do
+      @post.publish!
+      send_notifications
+      update_related_content
+    end
+  end
+
+  private
+
+  def send_notifications
+    @post.subscribers.each do |subscriber|
+      PostMailer.with(post: @post, subscriber: subscriber)
+                .published.deliver_later
+    end
+  end
+end
+
+# Usage in controller
+def publish
+  result = PublishPostService.new(@post).call
+  redirect_to @post, notice: 'Post published!'
+rescue => e
+  redirect_to @post, alert: "Failed to publish: #{e.message}"
+end
+```
+
+### Background Jobs (Sidekiq)
+
+```ruby
+class ProcessPostMediaJob
+  include Sidekiq::Job
+
+  sidekiq_options retry: 3, dead: true
+
+  def perform(post_id)
+    post = Post.find(post_id)
+    MediaProcessor.call(post)
+  end
+end
+
+# Enqueue
+ProcessPostMediaJob.perform_async(post.id)
+ProcessPostMediaJob.perform_in(1.hour, post.id)
+ProcessPostMediaJob.perform_at(2.hours.from_now, post.id)
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `rails server` or `rails s` | Start development server |
+| `rails console` or `rails c` | Rails console |
+| `rails db:migrate` | Run migrations |
+| `rails db:migrate:fresh` | Drop, create, migrate |
+| `rails db:migrate:fresh db:seed` | Fresh + seed |
+| `rails db:seed` | Seed database |
+| `rails db:studio` | Open database GUI |
+| `rails routes` | List routes |
+| `rails routes -c posts` | Filter by controller |
+| `rails test` | Run all tests |
+| `rails test:system` | System tests |
+| `rspec` | Run RSpec tests |
+| `rspec spec/features` | Run feature specs |
+| `rubocop` | Run linter |
+| `rubocop -A` | Auto-fix linting issues |
+| `bundle exec brakeman` | Security scanner |
+| `bundle exec bundler-audit` | Gem vulnerability scan |
+| `rails credentials:edit` | Edit encrypted credentials |
+| `rails runner "Model.count"` | Run Ruby code |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Fat controllers**: Extract logic to Service Objects
+2. **Fat models**: Extract logic to Concerns or Service Objects
+3. **N+1 queries**: Always eager load: `includes(:assoc)`
+4. **Callbacks in models**: Prefer explicit service methods
+5. **Direct SQL**: Use ActiveRecord, then Arel, then raw SQL
+6. **Global state in tests**: Use `let`, not instance variables
+7. **Skipping migrations**: Never modify migration files after merge
+```
+
+---
+
+## Django
+
+**Detection:** `manage.py` + `settings.py`
+
+### Detection Commands
+
+```bash
+ls manage.py 2>/dev/null && echo "Django detected"
+grep "django" requirements.txt 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Django 5.0+ Conventions
+
+- **MTV**: Model-Template-View architecture
+- **Explicit over implicit**: Import what you use
+- **Fat models, thin views**: Business logic in models/services
+- **Migrations always**: Never modify database directly
+
+### Project Structure
+
+```
+project/
+  manage.py
+  project/
+    settings.py      # Configuration
+    urls.py          # Root URL config
+    wsgi.py          # WSGI entry point
+  apps/
+    posts/
+      models.py
+      views.py
+      urls.py        # App URLs
+      admin.py
+      serializers.py # DRF
+      tests.py
+      services.py    # Business logic
+```
+
+### Models
+
+```python
+from django.db import models
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+
+User = get_user_model()
+
+class Post(models.Model):
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+    content = models.TextField()
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='posts'
+    )
+    tags = models.ManyToManyField('Tag', related_name='posts')
+    published_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-published_at', '-created_at']
+        indexes = [
+            models.Index(fields=['-published_at']),
+            models.Index(fields=['author', '-created_at']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse('posts:detail', kwargs={'slug': self.slug})
+
+    def publish(self):
+        self.published_at = timezone.now()
+        self.save()
+
+    @property
+    def excerpt(self):
+        return self.content[:150]
+```
+
+### Views (Class-Based)
+
+```python
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView
+)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'posts/list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Post.objects.published().select_related('author').prefetch_related('tags')
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'posts/detail.html'
+    query_pk_and_slug = True
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    template_name = 'posts/form.html'
+    fields = ['title', 'content', 'tags']
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    template_name = 'posts/form.html'
+    fields = ['title', 'content', 'tags']
+
+    def test_func(self):
+        return self.get_object().author == self.request.user
+```
+
+### Services Pattern
+
+```python
+# apps/posts/services.py
+class PostService:
+    @staticmethod
+    def create(author, title, content, tags=None):
+        post = Post.objects.create(
+            author=author,
+            title=title,
+            content=content,
+        )
+        if tags:
+            post.tags.set(tags)
+        return post
+
+    @staticmethod
+    def publish(post):
+        if not post.published_at:
+            post.publish()
+            PostMailer.post_published(post).send()
+        return post
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `python manage.py runserver` | Development server |
+| `python manage.py shell` | Django shell |
+| `python manage.py makemigrations` | Create migrations |
+| `python manage.py migrate` | Apply migrations |
+| `python manage.py migrate --fake-initial` | Initial migration marker |
+| `python manage.py showmigrations` | Show migration status |
+| `python manage.py createsuperuser` | Create admin user |
+| `python manage.py collectstatic` | Collect static files |
+| `python manage.py test` | Run tests |
+| `python manage.py test apps.posts` | Run specific app tests |
+| `python manage.py check` | Validate project |
+| `python manage.py lint` | Run linter (if configured) |
+| `flake8` | Run flake8 linter |
+| `black .` | Format code |
+| `isort .` | Sort imports |
+| `pytest` | Run pytest (if configured) |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Importing in views.py**: Use services layer for business logic
+2. **N+1 queries**: Use `select_related()` and `prefetch_related()`
+3. **Direct ORM in templates**: Prepare data in views
+4. **Global request access**: Use function arguments
+5. **Skipping migrations**: Always create migrations for DB changes
+```
+
+---
+
+## FastAPI
+
+**Detection:** `pyproject.toml` + `fastapi` dependency
+
+### Detection Commands
+
+```bash
+grep -i fastapi requirements.txt 2>/dev/null
+grep fastapi pyproject.toml 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### FastAPI Standards
+
+- **Pydantic**: All request/response models use Pydantic
+- **Dependency Injection**: Use FastAPI's `Depends()` for shared logic
+- **Async**: Default to async; use `run_in_executor` for sync code
+- **Type hints**: Required for all function parameters
+- **Status codes**: Explicit HTTP status codes
+
+### Project Structure
+
+```
+app/
+  main.py           # FastAPI app entry point
+  config.py         # Settings (Pydantic BaseSettings)
+  dependencies.py   # Shared dependencies
+  models/           # SQLAlchemy models
+  schemas/          # Pydantic models
+  routers/          # API routers
+  services/         # Business logic
+  crud/             # Database operations
+```
+
+### Pydantic Models
+
+```python
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
+from datetime import datetime
+from typing import Optional
+
+class PostBase(BaseModel):
+    title: str = Field(..., min_length=1, max_length=255)
+    content: str = Field(..., min_length=1)
+
+class PostCreate(PostBase):
+    tags: list[int] = []
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=255)
+    content: Optional[str] = Field(None, min_length=1)
+    published: Optional[bool] = None
+
+class PostResponse(PostBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    author_id: int
+    published_at: Optional[datetime]
+    created_at: datetime
+    tags: list[TagResponse]
+
+class PaginatedResponse(BaseModel):
+    items: list[PostResponse]
+    total: int
+    page: int
+    size: int
+    pages: int
+```
+
+### Routers
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy.orm import Session
+from typing import Annotated
+
+router = APIRouter(prefix="/posts", tags=["posts"])
+
+@router.get("/", response_model=PaginatedResponse)
+def list_posts(
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    posts, total = post_crud.paginate(db, page=page, size=size)
+    return PaginatedResponse(
+        items=posts,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size,
+    )
+
+@router.post("/", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
+def create_post(
+    data: PostCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    post = post_service.create(db, author_id=current_user.id, **data.model_dump())
+    return post
+
+@router.get("/{post_id}", response_model=PostResponse)
+def get_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+):
+    post = post_crud.get(db, id=post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `uvicorn app.main:app --reload` | Development server |
+| `uvicorn app.main:app --workers 4` | Production (Gunicorn) |
+| `python -m pytest` | Run tests |
+| `python -m pytest --cov` | Coverage report |
+| `black .` | Format code |
+| `ruff check .` | Lint code |
+| `ruff check --fix .` | Auto-fix linting |
+| `mypy app/` | Type checking |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Sync endpoints for async DB**: Use async SQLAlchemy or run sync in executor
+2. **Missing error handling**: Use custom exception handlers
+3. **No pagination**: Always paginate list endpoints
+4. **Missing validation**: Use Pydantic for all I/O
+5. **Large responses**: Use response_model carefully
+```
+
+---
+
+# Mobile Frameworks
+
+## React Native
+
+**Detection:** `App.tsx` + `app.json` + `package.json` with `react-native`
+
+### Detection Commands
+
+```bash
+cat package.json | grep '"react-native"' 2>/dev/null
+ls App.tsx app.json 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### React Native 0.76+ Specific
+
+- **New Architecture**: TurboModules enabled by default (no Bridge)
+- **TypeScript**: Required (no JavaScript)
+- **Hermes**: JS engine enabled by default
+- **Fabric**: New renderer enabled by default
+- **Auto-linking**: Native modules auto-linked
+
+### Directory Structure
+
+```
+src/
+  components/       # Reusable UI components
+    Button/
+      index.tsx
+      Button.test.tsx
+      Button.module.css
+  screens/          # Screen components
+  navigation/       # React Navigation config
+  hooks/            # Custom hooks
+  services/         # API, storage, etc.
+  store/            # State management
+  utils/            # Utilities
+  types/            # TypeScript types
+```
+
+### Navigation Patterns
+
+```typescript
+// navigation/RootNavigator.tsx
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+export type RootStackParamList = {
+  Main: undefined;
+  Details: { id: string };
+  Profile: undefined;
+};
+
+export type MainTabParamList = {
+  Home: undefined;
+  Search: undefined;
+  Notifications: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+function MainTabs() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Notifications" component={NotificationsScreen} />
+    </Tab.Navigator>
+  );
+}
+
+export function RootNavigator() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Details" component={DetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+```
+
+### Platform-Specific Code
+
+```typescript
+// Platform detection
+import { Platform, PlatformIOS } from 'react-native';
+
+// Platform.select for different values
+const padding = Platform.select({
+  ios: 16,
+  android: 12,
+  default: 16,
+});
+
+// Platform.OS for conditional logic
+if (Platform.OS === 'ios') {
+  // iOS-specific code
+}
+
+// Platform.Version for version checks
+const isIOS14 = Platform.OS === 'ios' && Platform.Version >= 14;
+
+// Native modules (TurboModules preferred)
+import { NativeModules } from 'react-native';
+
+// NativeEventEmitter for native events
+import { NativeEventEmitter } from 'react-native';
+```
+
+### State Management (Zustand)
+
+```typescript
+// store/authStore.ts
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      token: null,
+      isLoading: false,
+      login: async (email, password) => {
+        set({ isLoading: true });
+        try {
+          const response = await api.login(email, password);
+          set({ user: response.user, token: response.token, isLoading: false });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+      logout: () => set({ user: null, token: null }),
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ token: state.token }),
+    }
+  )
+);
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `npm start` or `npx react-native start` | Metro bundler |
+| `npx react-native run-ios` | Run on iOS simulator |
+| `npx react-native run-android` | Run on Android emulator |
+| `npx react-native bundle` | Create JS bundle |
+| `npx react-native bundle --platform ios` | iOS bundle |
+| `cd ios && pod install` | Install CocoaPods |
+| `npm test` | Run Jest tests |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript |
+
+### iOS Build
+
+| Command | Purpose |
+|---------|---------|
+| `xcodebuild -workspace ios/*.xcworkspace -scheme App -configuration Debug -destination "platform=iOS Simulator,name=iPhone 16" build` | Debug build |
+| `xcodebuild -workspace ios/*.xcworkspace -scheme App -configuration Release archive` | Release archive |
+
+### Android Build
+
+| Command | Purpose |
+|---------|---------|
+| `./gradlew assembleDebug` | Debug APK |
+| `./gradlew assembleRelease` | Release APK |
+| `./gradlew installRelease` | Install release on device |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Bridge modules**: Use TurboModules (RN 0.76+ default)
+2. **No TypeScript**: Always use TypeScript
+3. **Hardcoded dimensions**: Use StyleSheet.scale and dimensions with caution
+4. **Memory leaks**: Clean up subscriptions in useEffect cleanup
+5. **List rendering**: Use FlatList with proper keyExtractor and getItemLayout
+6. **AsyncStorage without error handling**: Always wrap in try/catch
+```
+
+---
+
+## Flutter
+
+**Detection:** `pubspec.yaml` + `lib/` directory
+
+### Detection Commands
+
+```bash
+cat pubspec.yaml | grep "flutter:" 2>/dev/null
+ls pubspec.yaml lib/main.dart 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Flutter 3.19+ Conventions
+
+- **Dart 3.4+**: Null safety required
+- **Clean Architecture**: UI → Domain → Data layers
+- **Immutable**: Use `final` and immutable data classes
+- **Widget-first**: Everything is a widget
+
+### Directory Structure
+
+```
+lib/
+  main.dart
+  app/
+    app.dart
+    router.dart
+  core/
+    constants/
+    errors/
+    utils/
+  data/
+    datasources/
+    models/
+    repositories/
+  domain/
+    entities/
+    repositories/
+    usecases/
+  presentation/
+    pages/
+    widgets/
+    bloc/  # or cubit, provider, riverpod
+```
+
+### Clean Architecture Layers
+
+```dart
+// domain/entities/post.dart
+class Post {
+  final String id;
+  final String title;
+  final String content;
+  final DateTime createdAt;
+
+  const Post({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.createdAt,
+  });
+}
+
+// domain/repositories/post_repository.dart
+abstract class PostRepository {
+  Future<List<Post>> getPosts();
+  Future<Post> getPost(String id);
+  Future<Post> createPost(CreatePostParams params);
+  Future<void> deletePost(String id);
+}
+
+// data/repositories/post_repository_impl.dart
+class PostRepositoryImpl implements PostRepository {
+  final PostRemoteDataSource remote;
+  final PostLocalDataSource local;
+
+  @override
+  Future<List<Post>> getPosts() async {
+    try {
+      final posts = await remote.getPosts();
+      local.cachePosts(posts);
+      return posts;
+    } catch (e) {
+      return local.getCachedPosts();
+    }
+  }
+}
+
+// presentation/bloc/post_bloc.dart
+class PostBloc extends Bloc<PostEvent, PostState> {
+  final GetPosts getPosts;
+
+  PostBloc({required this.getPosts}) : super(PostInitial()) {
+    on<LoadPosts>((event, emit) async {
+      emit(PostLoading());
+      try {
+        final posts = await getPosts();
+        emit(PostLoaded(posts));
+      } catch (e) {
+        emit(PostError(e.toString()));
+      }
+    });
+  }
+}
+```
+
+### Widget Patterns
+
+```dart
+// presentation/widgets/post_card.dart
+class PostCard extends StatelessWidget {
+  final Post post;
+  final VoidCallback? onTap;
+
+  const PostCard({
+    super.key,
+    required this.post,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                post.title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                post.content,
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### State Management (BLoC Pattern)
+
+```dart
+// Using flutter_bloc
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+// Events
+abstract class PostEvent {}
+class LoadPosts extends PostEvent {}
+class RefreshPosts extends PostEvent {}
+
+// States
+abstract class PostState {}
+class PostInitial extends PostState {}
+class PostLoading extends PostState {}
+class PostLoaded extends PostState {
+  final List<Post> posts;
+  PostLoaded(this.posts);
+}
+class PostError extends PostState {
+  final String message;
+  PostError(this.message);
+}
+
+// BLoC
+class PostBloc extends Bloc<PostEvent, PostState> {
+  final PostRepository repository;
+
+  PostBloc({required this.repository}) : super(PostInitial()) {
+    on<LoadPosts>(_onLoadPosts);
+    on<RefreshPosts>(_onRefreshPosts);
+  }
+
+  Future<void> _onLoadPosts(LoadPosts event, Emitter<PostState> emit) async {
+    emit(PostLoading());
+    try {
+      final posts = await repository.getPosts();
+      emit(PostLoaded(posts));
+    } catch (e) {
+      emit(PostError(e.toString()));
+    }
+  }
+}
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `flutter pub get` | Install dependencies |
+| `flutter run` | Run on connected device |
+| `flutter run -d <device_id>` | Run on specific device |
+| `flutter build apk --debug` | Debug APK |
+| `flutter build apk --release` | Release APK |
+| `flutter build ios --simulator --no-codesign` | iOS simulator build |
+| `flutter build ios --release` | iOS release build |
+| `flutter test` | Run widget tests |
+| `flutter analyze` | Static analysis |
+| `flutter format .` | Format code |
+| `flutter pub outdated` | Check for updates |
+| `flutter clean` | Clean build artifacts |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **BuildContext in async**: Pass required data explicitly
+2. **Memory leaks**: Dispose controllers, streams in dispose()
+3. **Rebuild storms**: Use `const` constructors, proper keys
+4. **Deeply nested widgets**: Extract to separate widgets
+5. **Missing null checks**: Use Dart's null safety fully
+```
+
+---
+
+# Desktop Frameworks
+
+## Electron
+
+**Detection:** `package.json` with `electron` dependency + main process file
+
+### Detection Commands
+
+```bash
+cat package.json | grep '"electron"' 2>/dev/null
+ls main.js main.ts 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Electron 28+ Patterns
+
+- **Main/Renderer separation**: Never access Node.js in renderer
+- **Preload scripts**: Bridge between main and renderer
+- **Context isolation**: Always enabled (security)
+- **IPC for all communication**: Between main and renderer
+
+### Main Process
+
+```typescript
+// main/index.ts
+import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+
+let mainWindow: BrowserWindow | null = null;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.loadURL('http://localhost:3000');
+    mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  }
+}
+
+app.whenReady().then(createWindow);
+
+ipcMain.handle('read-file', async (event, filePath) => {
+  const fs = await import('fs/promises');
+  return fs.readFile(filePath, 'utf-8');
+});
+```
+
+### Preload Script
+
+```typescript
+// main/preload.ts
+import { contextBridge, ipcRenderer } from 'electron';
+
+// Expose protected methods to renderer
+contextBridge.exposeInMainWorld('electronAPI', {
+  readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
+  saveFile: (filePath: string, content: string) =>
+    ipcRenderer.invoke('save-file', filePath, content),
+});
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `npm start` | Run in development |
+| `npm run build` | Build for production |
+| `npm run make` | Create distributable |
+| `electron-builder` | Package app |
+| `electron-builder --mac` | macOS only |
+| `electron-builder --win` | Windows only |
+| `electron-builder --linux` | Linux only |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **nodeIntegration**: Always use contextIsolation
+2. **remote module**: Deprecated, use contextBridge
+3. **No IPC**: Always communicate via IPC handlers
+```
+
+---
+
+## Tauri
+
+**Detection:** `Cargo.toml` with `tauri` dependency + `src-tauri/`
+
+### Detection Commands
+
+```bash
+grep "tauri" Cargo.toml 2>/dev/null
+ls src-tauri/tauri.conf.json 2>/dev/null
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Tauri 2.0+ Patterns
+
+- **Rust backend**: Core logic in Rust for performance
+- **Web frontend**: Any JS framework
+- **IPC via commands**: Rust functions callable from JS
+- **Security-first**: Scopes for file system, shell access
+
+### Rust Commands
+
+```rust
+// src-tauri/src/lib.rs
+use tauri::command;
+
+#[command]
+fn greet(name: &str) -> String {
+    format!("Hello, {}!", name)
+}
+
+#[command]
+async fn read_file(path: &str) -> Result<String, String> {
+    tokio::fs::read_to_string(path)
+        .await
+        .map_err(|e| e.to_string())
+}
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `cargo tauri dev` | Development |
+| `cargo tauri build` | Production build |
+| `cargo tauri build --debug` | Debug build |
+| `npm run tauri dev` | Via npm (frontend) |
+| `npm run tauri build` | Via npm |
+```
+
+---
+
+# Backend/API Frameworks
+
+## Go
+
+**Detection:** `go.mod` + `.go` files
+
+### Detection Commands
+
+```bash
+cat go.mod 2>/dev/null | head -5
+find . -maxdepth 2 -name "*.go" 2>/dev/null | head -5
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Go 1.22+ Conventions
+
+- **Error handling**: Explicit, never ignore errors
+- **Context propagation**: Always pass context.Context
+- **Project structure**: Standard Go layout or simplified
+- **Go modules**: Use `go.mod` for dependencies
+- **Generics**: Use where appropriate (Go 1.18+)
+
+### Project Structure
+
+```
+cmd/
+  server/
+    main.go
+internal/
+  handler/      # HTTP handlers
+  service/      # Business logic
+  repository/   # Data access
+  model/        # Domain models
+  middleware/   # HTTP middleware
+pkg/
+  validator/    # Shared packages
+api/
+  v1/           # API definitions
+```
+
+### Error Handling
+
+```go
+// Error wrapping
+if err != nil {
+    return fmt.Errorf("failed to get user: %w", err)
+}
+
+// Custom errors
+type NotFoundError struct {
+    Resource string
+    ID       string
+}
+
+func (e *NotFoundError) Error() string {
+    return fmt.Sprintf("%s not found: %s", e.Resource, e.ID)
+}
+
+// Error responses
+type APIError struct {
+    Code    string `json:"code"`
+    Message string `json:"message"`
+}
+
+func (c *Controller) handleError(w http.ResponseWriter, err error) {
+    switch e := err.(type) {
+    case *NotFoundError:
+        w.WriteHeader(http.StatusNotFound)
+        json.NewEncoder(w).Encode(APIError{Code: "NOT_FOUND", Message: e.Error()})
+    default:
+        w.WriteHeader(http.StatusInternalServerError)
+        json.NewEncoder(w).Encode(APIError{Code: "INTERNAL", Message: "An error occurred"})
+    }
+}
+```
+
+### Context Usage
+
+```go
+func (s *Service) GetUser(ctx context.Context, id string) (*User, error) {
+    user, err := s.repo.FindByID(ctx, id)
+    if err != nil {
+        return nil, fmt.Errorf("get user: %w", err)
+    }
+    return user, nil
+}
+
+func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
+    user, err := h.service.GetUser(r.Context(), chi.URLParam(r, "id"))
+    if err != nil {
+        h.handleError(w, err)
+        return
+    }
+    json.NewEncoder(w).Encode(user)
+}
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `go run cmd/server/main.go` | Run development |
+| `go build ./...` | Build all packages |
+| `go test ./...` | Run all tests |
+| `go test -v ./...` | Verbose tests |
+| `go test -race ./...` | Race detector |
+| `go test -cover ./...` | Coverage report |
+| `go mod tidy` | Clean up dependencies |
+| `go vet ./...` | Static analysis |
+| `golangci-lint run` | Run linter |
+| `swag init` | Generate Swagger docs |
+| `go build -o server` | Build binary |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Ignoring errors**: Always handle or explicitly ignore with `_`
+2. **No context**: Always pass context.Context
+3. **Goroutine leaks**: Use errgroup for concurrent operations
+4. **Global state**: Avoid package-level variables
+5. **Mutex contention**: Use sync.Map or fine-grained locking
+```
+
+---
+
+## Rust
+
+**Detection:** `Cargo.toml` + `.rs` files
+
+### Detection Commands
+
+```bash
+cat Cargo.toml 2>/dev/null | head -10
+find . -maxdepth 2 -name "*.rs" 2>/dev/null | head -5
+```
+
+### CLAUDE.md Sections
+
+```markdown
+## Implementation Standards
+
+### Rust 1.77+ Conventions
+
+- **Ownership**: Every value has one owner
+- **Borrowing**: Mutable OR immutable, never both
+- **Lifetimes**: Explicit when needed
+- **Error handling**: Result<T, E> for fallible operations
+- **No panics**: Use Result for expected failures
+
+### Project Structure
+
+```
+src/
+  main.rs          # Entry point
+  lib.rs           # Library root
+  config.rs        # Configuration
+  error.rs         # Error types
+  routes/          # HTTP handlers (Axum)
+  services/        # Business logic
+  repositories/    # Data access
+  models/          # Data structures
+```
+
+### Error Handling
+
+```rust
+// Custom error type
+#[derive(Debug)]
+pub enum AppError {
+    NotFound(String),
+    ValidationError(String),
+    DatabaseError(sqlx::Error),
+    InternalError(String),
+}
+
+impl std::fmt::Display for AppError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AppError::NotFound(id) => write!(f, "Not found: {}", id),
+            AppError::ValidationError(msg) => write!(f, "Validation: {}", msg),
+            AppError::DatabaseError(e) => write!(f, "Database: {}", e),
+            AppError::InternalError(msg) => write!(f, "Internal: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for AppError {}
+
+// Using Result
+pub async fn get_post(
+    repo: &PostRepository,
+    id: Uuid,
+) -> Result<Post, AppError> {
+    repo.find_by_id(id)
+        .await
+        .map_err(|e| AppError::DatabaseError(e))?
+        .ok_or_else(|| AppError::NotFound(id.to_string()))
+}
+```
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `cargo build` | Build project |
+| `cargo build --release` | Release build |
+| `cargo run` | Run development |
+| `cargo test` | Run tests |
+| `cargo test -- --nocapture` | Tests with output |
+| `cargo test --lib` | Library tests only |
+| `cargo clippy` | Lint with suggestions |
+| `cargo fmt` | Format code |
+| `cargo check` | Check without building |
+| `cargo doc --open` | Generate docs |
+| `cargo audit` | Security audit |
+| `cargo bench` | Run benchmarks |
+
+### Common Pitfalls
+
+```markdown
+### Pitfalls to Avoid
+
+1. **Mutable borrows**: Don't mutably borrow the same value multiple times
+2. **Lifetimes**: Don't fight the borrow checker; let it infer when possible
+3. **Panics in library**: Use Result for expected failures
+4. **Clone for performance**: Investigate why clone is needed
+```
+
+---
+
+# Utility Scripts
+
+## Framework Detection Script
+
+```bash
+#!/bin/bash
+# detect_framework.sh
+
+echo "Detecting framework..."
+
+# Next.js
+if [ -f "next.config.js" ] || [ -f "next.config.ts" ]; then
+    echo "Next.js detected"
+fi
+
+# Laravel
+if [ -f "artisan" ] && [ -f "composer.json" ]; then
+    echo "Laravel detected"
+fi
+
+# Rails
+if [ -f "config.ru" ] && [ -f "Gemfile" ]; then
+    echo "Rails detected"
+fi
+
+# Django
+if [ -f "manage.py" ]; then
+    echo "Django detected"
+fi
+
+# React Native
+if [ -f "App.tsx" ] && [ -f "app.json" ]; then
+    echo "React Native detected"
+fi
+
+# Flutter
+if [ -f "pubspec.yaml" ]; then
+    echo "Flutter detected"
+fi
+
+# Go
+if [ -f "go.mod" ]; then
+    echo "Go detected"
+fi
+
+# Rust
+if [ -f "Cargo.toml" ] && [ -f "src-tauri/tauri.conf.json" ]; then
+    echo "Tauri detected"
+elif [ -f "Cargo.toml" ]; then
+    echo "Rust detected"
+fi
+```
+
+## CLAUDE.md Section Validator
+
+```python
+#!/usr/bin/env python3
+# validate_claude_md.py
+
+import sys
+import re
+
+REQUIRED_SECTIONS = [
+    "Core Identity",
+    "Foundational Principles",
+    "Implementation Standards",
+    "Development Workflow",
+    "Testing Strategy",
+    "Code Quality",
+    "Git & Version Control",
+    "Error Handling",
+]
+
+def validate(file_path: str) -> tuple[int, list[str]]:
+    with open(file_path) as f:
+        content = f.read()
+
+    errors = []
+    for section in REQUIRED_SECTIONS:
+        pattern = rf"##\s+{section}"
+        if not re.search(pattern, content, re.IGNORECASE):
+            errors.append(f"Missing section: {section}")
+
+    return len(errors), errors
+
+if __name__ == "__main__":
+    path = sys.argv[1] if len(sys.argv) > 1 else "CLAUDE.md"
+    errors, messages = validate(path)
+
+    if errors == 0:
+        print(f"✅ CLAUDE.md is valid ({len(REQUIRED_SECTIONS)}/15 sections present)")
+    else:
+        print(f"❌ CLAUDE.md has {errors} issues:")
+        for msg in messages:
+            print(f"  - {msg}")
+
+    sys.exit(errors)
+```
+
+---
+
+## Changelog
+
+### 1.0.0 (2026-04-13)
+- Initial release
+- 15 framework templates (Next.js, Nuxt.js, Vite+React, Laravel, Rails, Django, FastAPI, Express, React Native, Flutter, Electron, Tauri, Go, Rust)
+- Detection commands for all frameworks
+- Complete CLAUDE.md sections
+- Build commands reference
+- Common pitfalls documentation
+- Utility scripts (detection, validation)
