@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **144 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **145 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -135,6 +135,7 @@
 | **vulnerability-scanner**            | Advanced vulnerability analysis: OWASP 2025, supply chain security, attack surface mapping, risk prioritization.               |
 | **clean-code**                       | Pragmatic coding standards: concise, direct, no over-engineering, no unnecessary comments.                                     |
 | **code-simplification**              | Refactor code for clarity without changing behavior. Reduce complexity, improve maintainability.                               |
+| **ponytail**                         | Minimalism-as-discipline coding methodology: ordered implementation ladder (skip speculative → reuse existing → stdlib → native features → installed deps → one line → minimum working code), shortest correct diff, root-cause bug fixes (grep all callers, fix once), YAGNI, one runnable self-check. Hard rails: never simplify away trust-boundary validation, data-loss error handling, security, or accessibility. lite/full/ultra intensity modes. |
 | **debugging-and-error-recovery**     | Systematic root-cause debugging. Use when tests fail, builds break, or behavior doesn't match expectations.                    |
 | **lint-and-validate**                | Automatic quality control: linting, static analysis, syntax correctness. Use after every code modification.                    |
 | **source-driven-development**        | Every framework decision backed by official docs. Source-cited, verified, no stale patterns.                                   |
@@ -264,12 +265,12 @@
 | 3   | Full-Stack & Backend Development               | 10      |
 | 4   | AI / ML / Multimodal SDK Skills                | 8       |
 | 5   | Testing, QA & Performance                      | 14      |
-| 6   | Code Quality, Security & Architecture          | 13      |
+| 6   | Code Quality, Security & Architecture          | 14      |
 | 7   | Planning, Workflow & Project Management        | 21      |
 | 8   | Documentation & Content Creation               | 14      |
 | 9   | Career, Learning & Personal Development        | 14      |
 | 10  | DevOps, Infrastructure & External Integrations | 21      |
-|     | **Total**                                      | **144** |
+|     | **Total**                                      | **145** |
 
 ---
 

@@ -10,7 +10,7 @@ Development & Engineering
 - UI/UX Design (ui-ux-pro-max, ui-styling, visual-design-foundations, claude-design, scaffold-ui)  
 - Version Control (git-workflow-and-versioning)  
 - CI/CD & Automation (ci-cd-and-automation, n8n-workflow-automation)  
-- Code Quality (code-quality-standards, code-review-and-audit, code-review-checklist, code-simplification, clean-code, lint-and-validate)
+- Code Quality (code-quality-standards, code-review-and-audit, code-review-checklist, code-simplification, ponytail, clean-code, lint-and-validate)
   
 Testing & QA  
 - Test-Driven Development (tdd-workflow, test-driven-development, testing-patterns)  
