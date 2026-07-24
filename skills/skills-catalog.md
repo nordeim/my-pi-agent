@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **152 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **153 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -134,6 +134,7 @@
 | **code-review-and-audit**            | Unified code review + security audit pipeline. Static analysis, scanning, test coverage, performance profiling.                |
 | **code-review-checklist**            | 12-category quick-reference code review checklist.                                                                             |
 | **security-and-hardening**           | OWASP-aware security hardening. Input validation, auth, data storage, file uploads, webhooks, PII.                             |
+| **trustskill**                       | TrustSkill v3.1 — advanced security scanner for skills. Detects malicious code, hardcoded secrets (entropy-based), vulnerable dependencies (OSV database), tainted data flows, credential theft, command injection, file-system risks, and network exfiltration. YAML-configurable rules with ~99% false-positive reduction via npm-integrity-hash and documentation-aware whitelists. Use to scan any skill before publishing or as a CI gate. |
 | **vulnerability-scanner**            | Advanced vulnerability analysis: OWASP 2025, supply chain security, attack surface mapping, risk prioritization.               |
 | **clean-code**                       | Pragmatic coding standards: concise, direct, no over-engineering, no unnecessary comments.                                     |
 | **code-simplification**              | Refactor code for clarity without changing behavior. Reduce complexity, improve maintainability.                               |
@@ -197,10 +198,10 @@
 | **seo-content-writer** | SEO-optimized content creation. On-page SEO, keyword optimization, search engine visibility.                                             |
 | **content-strategy**   | Content marketing strategy: audience research, pillars, calendar, distribution, repurposing, metrics.                                    |
 | **content-analysis**   | Extract wisdom from videos, podcasts, articles, YouTube. Insight reports, key takeaways.                                                 |
-| **pptx**               | Create, edit, and analyze .pptx presentations.                                                                                           |
-| **docx**               | Create, edit, and analyze .docx documents with tracked changes, comments, formatting preservation.                                       |
+| **pptx**               | Create, edit, and analyze .pptx presentations. From-scratch builds use a 4-stage HTML→PPTX pipeline (clarify → research → plan → fan-out sub-agent render → `batch_html2pptx` export) producing 1280×720 decks; editing existing files uses `python-pptx` (text replace, slide reorder, capacity-budgeted copy fitting) or raw OOXML (animations, comments, speaker notes). Academic/paper talks use the embedded Beamer module (PDF output). |
+| **docx**               | Create, edit, and analyze .docx documents. Create uses `docx-js` with 7 validated cover recipes (R1–R7), scene routers (academic / report / contract / resume / exam / official-doc / copywriting), and a mandatory `postcheck.py` enforcing 14 business rules (blank pages, cover overflow, line spacing, table cross-page, CJK indent, TOC quality, etc.). Edit uses `python-docx` + raw OOXML for tracked changes, comments, and formatting preservation. Includes LaTeX math input and a 6-template matplotlib chart library. |
 | **docx-generation**    | Comprehensive DOCX generation and conversion.                                                                                            |
-| **xlsx**               | Open, read, edit, create .xlsx/.csv/.tsv spreadsheets. Charts, data analysis, format conversion.                                         |
+| **xlsx**               | Open, read, edit, create .xlsx / .xlsm / .csv / .tsv spreadsheets. Scene-driven router: create / edit / analyze / convert / finance (DCF, LBO, three-statement linkage) / finance_lite (budgets, expense reports) / VBA / advanced (batch, protection, validation). Live-formula guarantee, zero-error tolerance, no dynamic-array functions (Excel 2016+ compatibility). QA pipeline: blueprint → build & self-check → inspect → pivot → validate. Triggers when the user references a spreadsheet by name or says "make a table / report / model", Excel / CSV, or 数据分析 / 报表 / 汇总. |
 | **pdf**                | Four PDF production lines: Report (ReportLab), Creative (Playwright snapshot), Academic (LaTeX/Tectonic), Process (extract/merge/split). |
 | **cheat-sheet**        | Convert PDF/Word/Markdown study materials into compact knowledge cards. Three styles, dual-column PDF output.                            |
 | **storyboard-manager** | Creative writing: character development, plot structure, timeline tracking, consistency checking.                                        |
@@ -272,12 +273,12 @@
 | 3   | Full-Stack & Backend Development               | 10      |
 | 4   | AI / ML / Multimodal SDK Skills                | 8       |
 | 5   | Testing, QA & Performance                      | 14      |
-| 6   | Code Quality, Security & Architecture          | 14      |
+| 6   | Code Quality, Security & Architecture          | 15      |
 | 7   | Planning, Workflow & Project Management        | 23      |
 | 8   | Documentation & Content Creation               | 14      |
 | 9   | Career, Learning & Personal Development        | 14      |
 | 10  | DevOps, Infrastructure & External Integrations | 24      |
-|     | **Total**                                      | **152** |
+|     | **Total**                                      | **153** |
 
 ---
 

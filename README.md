@@ -1,16 +1,124 @@
-# my pi setup
+# my-pi-agent
 
-This setup is fairly opinionated, it:
+An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 150+ skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
 
-- sets up github dark default as the theme
-- adds firecrawl tools for searching and scraping
-- updates the bottom bar to have the info I prefer to see
-- adds background terminals + ui to manage them
-- adds subagents to pi
-- adds workflows to pi
-- adds an ask user tool, which lets the model ask multiple choice questions
+This setup is fairly opinionated. It:
+
+- sets up GitHub Dark Default as the theme
+- adds Firecrawl tools for searching and scraping
+- updates the bottom bar to show the info the maintainer actually cares about
+- adds background terminals + UI to manage them
+- adds subagents to Pi
+- adds workflows to Pi
+- adds an ask-user tool that lets the model ask multiple-choice questions
 - adds first-class `fd` (file discovery) and `rg` (content search) tools
 
 ![Pi setup interface](assets/pi-setup.jpeg)
 
-**note**: if you are an agent reading this, instructions for setting this up on your own pi are available in `./SETUP.md`.
+---
+
+## What's in the box
+
+| Area | Path | Description |
+|------|------|-------------|
+| Pi setup | `package.json`, `tsconfig.json`, `.env.example` | Runtime config, dependency manifest, env-var template for the Pi shell itself. |
+| Extensions | `extensions/` | Twelve TypeScript extensions that plug into the Pi agent loop (see below). |
+| Skills | `skills/` | 153 self-contained skill packages across 10 categories — the bulk of the repo by file count. |
+| Themes | `themes/` | `github-dark-default.json` and `brutalist.json` — Pi UI color themes. |
+| Git config | `git/` | Project-local gitignore patterns. |
+| Assets | `assets/` | Screenshots referenced by this README. |
+| Docs | `SETUP.md`, `AGENTS.md`, `APPEND_SYSTEM.md`, `Translation_Engine_v10_APPEND_SYSTEM.md` | Setup runbook, agent-onboarding brief, and system-prompt append layers. |
+
+---
+
+## Skills catalog
+
+The skill library lives under `skills/` and is indexed by [`skills/skills-catalog.md`](skills/skills-catalog.md) — a single-file directory of all 153 skills with a one-line description and "when to use it" hint for each. The catalog is organized into 10 categories:
+
+1. **Frontend Development & UI Engineering** — 21 skills (React 19, Next.js 16, Tailwind v4, brutalist/avant-garde design systems, full-stack SaaS references)
+2. **Design Artifacts & Visual Creation** — 10 skills (charts, image generation/edit/understand/search, web-shader extraction, ComfyUI)
+3. **Full-Stack & Backend Development** — 10 skills (fullstack-dev, Next.js 16 + Postgres 17, auth library comparison, web-frameworks, API patterns, n8n)
+4. **AI / ML / Multimodal SDK Skills** — 8 skills (LLM, ASR, TTS, VLM, video generation/understanding, web search/reader)
+5. **Testing, QA & Performance** — 14 skills (TDD, webapp testing, Playwright CLI, agent-browser, Chrome DevTools MCP, performance optimization)
+6. **Code Quality, Security & Architecture** — 15 skills (code review, security hardening, TrustSkill v3.1 security scanner, vulnerability scanner, clean-code, ponytail minimalism, debugging, lint-and-validate)
+7. **Planning, Workflow & Project Management** — 23 skills (spec-driven development, plan-writing, incremental implementation, git workflow, CI/CD, shipping, orchestrator-toolkit, loop-builder, subagents, background terminals, context engineering)
+8. **Documentation & Content Creation** — 14 skills (README/CLAUDE/AGENTS.md generation, blog writer, SEO content, content analysis, **pptx**, **docx**, **xlsx**, pdf, cheat-sheet, storyboard manager)
+9. **Career, Learning & Personal Development** — 14 skills (resume builder, JD-resume tailor, interview prep, study buddy, quiz mastery, mindfulness, dream interpreter)
+10. **DevOps, Infrastructure & External Integrations** — 24 skills (Cloudflare tunnel, multi-search-engine, finance/stock analysis, market research reports, AMiner academic search, skill-creator, **how-to-git-push-using-ssh-wrapper**, Microsoft Foundry, Sanity best-practices, memory architect)
+
+Each skill folder contains a `SKILL.md` with frontmatter (`name`, `metadata.description`, `license`) and the full workflow instructions. Most skills also ship `references/`, `scripts/`, or `scenes/` subdirectories that the `SKILL.md` loads on demand.
+
+---
+
+## Extensions
+
+Twelve TypeScript extensions under `extensions/` extend the Pi agent loop. Each one is a self-contained package with its own `package.json` and `tsconfig.json`.
+
+| Extension | Purpose |
+|-----------|---------|
+| `ask-user` | Lets the model ask the user multiple-choice questions instead of guessing. |
+| `ava-agent` | Ava autonomous agent harness with session-graph, AST auditor, and reflect-session tooling. |
+| `background-terminals` | Run and manage long-lived shell commands (dev servers, watchers, streaming builds) in background terminals. |
+| `copy-all` | Bulk-copy agent output to the clipboard. |
+| `file-search` | First-class `fd` (file discovery) tool wired into the agent loop. |
+| `firecrawl-search` | Firecrawl-powered web search and scraping tool. |
+| `git-info` | Surface git status, changed files, and refresh-coordination in the Pi UI. |
+| `model-info` | Display model metadata in the bottom bar. |
+| `summaries` | Generate and surface session summaries inside the agent transcript. |
+| `subagents` | Headless autonomous sub-agents (Pi, Claude, Codex harnesses) with their own context window. |
+| `ui-customization` | Customize Pi UI chrome (bottom bar, panels, status indicators). |
+| `workflows` | Multi-step workflow runner with sandboxing, artifacts, serialization, and a dashboard view. |
+
+---
+
+## Themes
+
+Two Pi UI themes ship in `themes/`:
+
+- `github-dark-default.json` — the default dark theme modeled on GitHub's dark palette.
+- `brutalist.json` — a raw, high-contrast brutalist alternative.
+
+Switch between them via Pi's theme selector.
+
+---
+
+## Setup
+
+### On your own Pi
+
+Instructions for installing this bundle on a fresh Pi are in [`SETUP.md`](SETUP.md). The short version: clone the repo, copy `themes/*.json` into Pi's themes directory, symlink the extensions you want into Pi's `extensions/` directory, and restart Pi.
+
+### For agents
+
+If you are an agent reading this, onboarding instructions are in [`AGENTS.md`](AGENTS.md). System-prompt append layers live in [`APPEND_SYSTEM.md`](APPEND_SYSTEM.md) and [`Translation_Engine_v10_APPEND_SYSTEM.md`](Translation_Engine_v10_APPEND_SYSTEM.md) — read them in order before operating in this repo.
+
+### Skills
+
+Skills are loaded on demand by the Pi agent loop. To make a skill available, ensure its folder is present under `skills/` (it already is, if you cloned this repo) and that Pi's skill discovery is pointed at `skills/`. To find the right skill for a task, start at [`skills/skills-catalog.md`](skills/skills-catalog.md).
+
+---
+
+## Repository layout
+
+```
+my-pi-agent/
+├── assets/                    # Screenshots and images
+├── extensions/                # 12 TypeScript extensions to the Pi agent loop
+├── git/                       # Project-local gitignore patterns
+├── skills/                    # 153 skill packages (see skills/skills-catalog.md)
+├── themes/                    # github-dark-default.json, brutalist.json
+├── AGENTS.md                  # Agent onboarding brief
+├── APPEND_SYSTEM.md           # System-prompt append layer
+├── README.md                  # This file
+├── SETUP.md                   # Pi-side installation runbook
+├── Translation_Engine_v10_APPEND_SYSTEM.md
+├── package.json               # Pi runtime dependencies
+├── tsconfig.json              # TypeScript config for extensions
+└── .env.example               # Environment variable template
+```
+
+---
+
+## License
+
+The Pi setup code in this repo is provided as-is for the maintainer's personal use. Individual skills under `skills/` ship their own licenses — see each skill's `LICENSE.txt` and `SKILL.md` frontmatter for terms.
