@@ -7,6 +7,21 @@ cd ~/.pi/agent
 npm install
 ```
 
+## Extension dependencies
+
+Each extension declares its own npm dependencies in its `package.json`. These are not covered by the top-level `npm install` — you must install them separately:
+
+```sh
+for dir in ~/.pi/agent/extensions/*/; do
+  [ -f "$dir/package.json" ] && [ ! -d "$dir/node_modules" ] &&
+    (cd "$dir" && npm install --ignore-scripts)
+done
+```
+
+The `--ignore-scripts` flag skips the `prepare` script (`effect-tsgo patch`), which is a TypeScript language-service tool not needed at runtime. Without it, `npm install` exits with a non-zero code due to a missing platform binary (`@effect/tsgo-linux-x64@0.24.3` not yet published to npm).
+
+If you see `Cannot find module 'effect'` errors at startup, this step was missed.
+
 ## Firecrawl
 
 The search, scrape, and crawl tools require a Firecrawl API key. Follow [Firecrawl's Node.js getting-started guide](https://docs.firecrawl.dev/quickstarts/nodejs) to create one, then copy the example environment file:
