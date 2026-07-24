@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **145 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **152 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -15,6 +15,7 @@
 | **frontend-design**                                         | Design thinking for web UI — color, typography, layout, component design. Teaches principles, not fixed values.                                                                                                                                                                                                                                                                                                                                               |
 | **react19-ts6-vite8-tailwindv4-mvp**                        | MVP/production React 19 + Vite 8 + Tailwind v4. File-based routing, pnpm, Vitest + Playwright. Use for greenfield web apps with React + Vite (not Next.js).                                                                                                                                                                                                                                                                                                   |
 | **nextjs16-tailwind4**                                      | Next.js 16 + React + Tailwind v4 with Framer Motion. Luxury-grade, avant-garde UI, OWASP 2025, Core Web Vitals, WCAG AAA. Use for distinctive marketing sites with animated motion.                                                                                                                                                                                                                                                                           |
+| **nextjs16-full-stack**                                      | IRONFORGE Fitness Studio — Brutalist/Raw + Retro-Futuristic Design System & Next.js 16 Full-Stack Engineering Reference. Covers Tailwind v4 CSS-first @theme, App Router, Server Components, 5-layer architecture, Auth.js v5 + Drizzle ORM, SSE streaming, shadcn/ui, WCAG AAA, Vitest + Playwright. Use as a production codebase reference for Next.js 16 full-stack brutalist projects.                                                                         |
 | **nextjs16-react19-tailwind4-full-stack**                   | Next.js 16 + React 19 + Tailwind v4 full-stack marketing + booking + memberships + admin. Drizzle ORM, Auth.js v5 JWT, Inngest, Stripe, Replicate SDXL, Cloudflare R2. 5-layer architecture, CSS-only animations, brutalist dark-mode, WCAG AAA, OWASP hardening, Vitest + Playwright. Use for production marketing sites, membership platforms, booking systems, or any Next.js 16 full-stack project.                                                       |
 | **nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth** | Next.js 16 + React 19 + Tailwind v4 + tRPC v11 + Drizzle ORM + Better Auth (replaces Auth.js v5) in Turborepo monorepo. 50+ anti-patterns, 24 implementation lessons, production patterns (advisory-lock concurrency, idempotent webhooks, SSE streaming, fail-open rate limiting). Anti-generic avant-garde design, WCAG AAA, OWASP 2025, 8-gate CI/CD, TDD regression verification. Use for full-stack Next.js 16 SaaS with tRPC, Drizzle, and Better Auth. |
 | **nextjs16-react19-tailwind4-better-auth-monorepo** | Production-grade Stillwater yoga studio platform — Turborepo monorepo, Next.js 16.2, React 19, Tailwind v4.3, tRPC v11, Drizzle ORM 0.45, Better Auth 1.6.23, Stripe 22.3 (Dahlia), Trigger.dev v4, React Email 6.6, Resend, Sanity CMS v6. 651 tests, 11 ADRs, 93 lessons learned across 13 build phases. Booking with PostgreSQL advisory locks, SSE real-time seat availability, credit packs, RBAC (5 tiers), admin surface, 34 env vars with Zod validation. "Editorial Calm" design system (Warm Mineral palette, `--radius: 0`, Cormorant Garamond + DM Sans + JetBrains Mono). Use as a **production codebase reference** for Next.js 16 + Better Auth Turborepo monorepos — complements the generic `…trpcv11-drizzle-better-auth` skill with concrete file paths, working configurations, and battle-tested patterns. |
@@ -173,6 +174,8 @@
 | **context7-docs**                    | Search curated Context7 documentation for any library/tool. Avoid hallucinated or outdated docs.                                                                                                                                                                                                                                  |
 | **context7-mcp**                     | Programmatic Context7 docs via API/MCP. Priority: API → MCP → Browser fallback.                                                                                                                                                                                                                                                   |
 | **version-management**               | Frontend project lifecycle management. Git-based versioning, path enforcement, project switching.                                                                                                                                                                                                                                 |
+| **background-terminals**              | Run and manage long-lived shell commands in background terminals. Use for dev servers, watchers, streaming builds, and commands that should keep running while the agent continues working. Session-scoped, no stdin.                                                                                                                |
+| **subagents**                         | Invoke when the user asks to use subagents. Headless autonomous agents with own context window. Covers Pi, Claude, and Codex harnesses. Self-contained prompts, no recursive orchestration, no user interaction.                                                                                                                     |
 
 > **Cross-reference — Skill distillation (project knowledge → reusable skill):** Three skills capture hard-won project knowledge so future similar projects can leverage it.
 > - **`to-distill-project-into-skill`** — Meta-skill. Six-Phase Distillation (ANALYZE → PLAN → VALIDATE → IMPLEMENT → VERIFY → DELIVER) producing a comprehensive `SKILL.md` (20 sections: tech stack, architecture, design system, anti-patterns, debugging, lessons learned, etc.). Use after a full project completion, major update, security remediation, or architectural overhaul.
@@ -243,6 +246,8 @@
 | **aminer-academic-search**           | Academic search via AMiner Open Platform (27 APIs, 5 workflows). Papers, citations, scholars, patents.                           |
 | **aminer-daily-paper**               | Personalized academic paper recommendations. Topic/author extraction, Markdown results.                                          |
 | **skill-creator**                    | Guide for creating new skills. Workflows, tool integrations, specialized knowledge packaging.                                    |
+| **how-to-git-push-using-ssh-wrapper** | Push commits to GitHub via Paramiko-based SSH wrapper when OpenSSH is not installed. Use when `git push` fails with "Permission denied (publickey)" or in minimal containers, distroless images, or Python-only environments.                                     |
+| **microsoft-foundry**                 | Deploy, evaluate, fine-tune, and manage Foundry agents end-to-end with azd: hosted agent scaffold/run/deploy, batch eval, continuous eval, prompt optimizer, agent.yaml, dataset curation, model fine-tuning (SFT/DPO/RFT). USE FOR: azd ai agent, Foundry project, RBAC, knowledge index.                                             |
 | **skill-creator-zai**                | Create, edit, benchmark, and optimize skills. Eval-driven iteration with variance analysis.                                      |
 | **skill-finder-cn**                  | Discover and install ClawHub skills. "What skill can X?" queries.                                                                |
 | **using-agent-skills**               | Meta-skill for discovering and invoking the right skill for any task.                                                            |
@@ -253,6 +258,7 @@
 | **design**                           | Router for design-related HTML artifact tasks. Delegates to the correct artifact skill.                                          |
 | **template-skill**                   | Placeholder skill definition. Replace with actual skill content.                                                                 |
 | **sanity-best-practices** | Sanity development best practices: schema design (defineType/defineField), GROQ/defineQuery, TypeGen, Visual Editing (Stega, Presentation), images, Portable Text, Studio structure, localization, migrations, Sanity Functions, and Blueprints. Framework integration guides for Next.js, Nuxt, Astro, Remix, SvelteKit, Angular, Hydrogen, and the App SDK. Use whenever working with Sanity schemas, GROQ, content modeling, Sanity-powered frontend integrations, or reviewing/fixing a Sanity codebase. Companion to `sanity-io-deploy`. |
+| **sanity-migration** | CMS-to-Sanity migration: plans, implements, and reviews migrations from AEM, Contentful, Strapi, Webflow, WordPress, Payload, Drupal, Markdown/MDX. Covers extraction, transformation, Portable Text conversion, asset migration, redirects, validation, cutover workflows. Companion to `sanity-best-practices` and `sanity-io-deploy`. |
 | **sanity-io-deploy** | Connect an existing Next.js app to a standalone Sanity Studio — confirm/scaffold the Studio as a sibling folder (never embedded), migrate or author the content schema, deploy the schema and the Studio UI to Sanity hosting, mint a read token + webhook secret, wire env vars, add CORS origins, and verify the live deployment with a headless browser. Use when a task references a Sanity onboarding doc (“Get started with Sanity”), “connect Sanity to my existing Next.js app”, a standalone Studio in a sibling folder, or any of `npm create sanity`, `sanity deploy`, `sanity schema deploy`, `sanity cors`, `sanity tokens`. Companion to the `sanity-best-practices` skill. |
 
 ---
@@ -261,17 +267,17 @@
 
 | #   | Category                                       | Count   |
 | --- | ---------------------------------------------- | ------- |
-| 1   | Frontend Development & UI Engineering          | 20      |
+| 1   | Frontend Development & UI Engineering          | 21      |
 | 2   | Design Artifacts & Visual Creation             | 10      |
 | 3   | Full-Stack & Backend Development               | 10      |
 | 4   | AI / ML / Multimodal SDK Skills                | 8       |
 | 5   | Testing, QA & Performance                      | 14      |
 | 6   | Code Quality, Security & Architecture          | 14      |
-| 7   | Planning, Workflow & Project Management        | 21      |
+| 7   | Planning, Workflow & Project Management        | 23      |
 | 8   | Documentation & Content Creation               | 14      |
 | 9   | Career, Learning & Personal Development        | 14      |
-| 10  | DevOps, Infrastructure & External Integrations | 21      |
-|     | **Total**                                      | **146** |
+| 10  | DevOps, Infrastructure & External Integrations | 24      |
+|     | **Total**                                      | **152** |
 
 ---
 
