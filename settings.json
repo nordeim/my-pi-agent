@@ -1,0 +1,14 @@
+{
+  "lastChangelogVersion": "0.81.1",
+  "defaultThinkingLevel": "high",
+  "defaultProvider": "opencode",
+  "defaultModel": "mimo-v2.5-free",
+  "packages": [
+    "npm:pi-nvidia-nim",
+    "npm:pi-opencode",
+    "npm:pi-web-access",
+    "npm:pi-agent-browser-native",
+    "git:github.com/Kilo-Org/kilo-pi-provider"
+  ],
+  "theme": "dark"
+}
