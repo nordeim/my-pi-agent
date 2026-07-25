@@ -1,3 +1,9 @@
+> ⚠️ **DEPRECATED** — This file is no longer the canonical Creative brief. It has been split into:
+> - `briefs/creative-fixed-canvas.md` — Fixed-canvas designs (posters, infographics, certificates, presentations)
+> - `briefs/creative-flow.md` — Flowing documents (guides, handbooks, catalogs)
+>
+> **Do not load this file for new tasks.** Route via `SKILL.md` to the correct brief.
+
 # Brief: Creative Production (Art Director Blueprint Mode)
 
 **Core Paradigm Shift**: You are NO LONGER a frontend developer writing HTML/CSS. You are an elite Art Director and Editorial Designer.

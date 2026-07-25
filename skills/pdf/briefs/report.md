@@ -9,7 +9,7 @@ Structured documents via ReportLab: reports, proposals, contracts, white papers,
 > ReportLab renders emoji (📊🎯🔥💡 etc.) as **□ tofu squares**. This is unfixable.
 >
 > **If the user's content contains intentional emoji** → **STOP. Do NOT use this brief.**
-> Route to `briefs/creative.md` instead (Playwright renders emoji natively).
+> Route to `briefs/creative-fixed-canvas.md` instead (Playwright renders emoji natively).
 >
 > This applies even if the document is a "report" - emoji + ReportLab = broken output.
 

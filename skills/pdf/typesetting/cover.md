@@ -539,7 +539,7 @@ Government/institutional reports, legal documents, formal project deliverables, 
 
 # PART 2: TEMPLATE SELECTION GUIDE
 
-Template selection uses a two-dimensional matrix: **Intent** (from `visual_framework.md` 5-intent system) × **Document Type**. This replaces the old "Document Tone" classification and aligns with the Intent Mapping Table in `creative.md`.
+Template selection uses a two-dimensional matrix: **Intent** (from `visual_framework.md` 5-intent system) × **Document Type**. This replaces the old “Document Tone“ classification and aligns with the Intent Mapping Table in `creative-fixed-canvas.md`.
 
 | Intent | Document Type | Recommended Templates | Default |
 |--------|---------------|----------------------|---------|

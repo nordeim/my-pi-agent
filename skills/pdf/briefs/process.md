@@ -16,7 +16,7 @@ User request
   │     └─ DOCX with TOC?            → §DOCX Pipeline (5-step)
   ├─ "Redesign/reformat a document"   → §Reformat
   │     └─ With a reference template? → §Template-Guided Reformat
-  └─ Edge cases (OCR, encrypt, batch) → load briefs/process-advanced.md
+  └─ Edge cases (OCR, encrypt, batch) → load briefs/process.md §OCR / §Encrypted / §Batch
 ```
 
 ---
@@ -179,7 +179,7 @@ Take an existing document and rebuild it with a new visual design. Content is pr
 2. STRUCTURE → Organize into sections (headings, body, tables, lists)
 3. DELEGATE  → Route to appropriate brief:
                  Structured → briefs/report.md (ReportLab)
-                 Visual     → briefs/creative.md (Playwright)
+                 Visual     → briefs/creative-fixed-canvas.md (Playwright)
 4. BUILD     → Follow the delegated brief's full workflow
 5. DELIVER   → New PDF, same content, new design
 ```
@@ -316,4 +316,4 @@ Issues caught: `CONV_TOC_LOST` (TOC disappeared), `CONV_HINT_LEAKED` (placeholde
 | Split failure | Some page files may exist; inspect output dir |
 | Form fill | Original never modified; always writes new file |
 
-For edge cases (OCR, batch processing, poppler-utils, qpdf, performance tuning), load `briefs/process-advanced.md`.
+For edge cases (OCR, batch processing, poppler-utils, qpdf, performance tuning), see §OCR, §Encrypted PDFs, §Batch Processing, and §Performance Optimization sections within this file.

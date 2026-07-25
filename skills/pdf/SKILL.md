@@ -190,7 +190,7 @@ These are referenced by multiple briefs. Each brief tells you when and what to l
 | Asset | Path | Used By | Purpose |
 |-------|------|---------|---------|
 | Palette & Typography | `typesetting/palette.md` | Report, Fixed-Canvas, Flow | Color system, font rules, anti-patterns, spacing |
-| Cover Layout System V2.1 | `typesetting/cover.md` | **Report + Fixed-Canvas + Flow + Academic** | 5 industrial-grade templates with absolute anchor grid, Z-index layers, typography weight system, mandatory Summary Block, code-level safety (5 checks), base unit `U = W*0.05`. **Unified HTML/Playwright cover system for all routes.** |
+| Cover Layout System V2.1 | `typesetting/cover.md` | **Report + Fixed-Canvas + Flow + Academic** | 11 templates (01–07 general, 08–10 academic, 11 institutional) with absolute anchor grid, Z-index layers, typography weight system, mandatory Summary Block, code-level safety (5 checks), base unit `U = W*0.05`. **Unified HTML/Playwright cover system for all routes.** |
 | Chart Styling & Anti-Stacking | `typesetting/charts.md` | Report, Fixed-Canvas, Flow, Academic | Chart defaults, collision prevention, axis/grid/legend rules |
 | Overflow Prevention | `typesetting/overflow.md` | Report, Fixed-Canvas, Flow, Academic | Bounding box system, text/image/table overflow prevention, fallback strategies |
 | **Fill Engine (Anti-Void)** | `typesetting/fill-engine.md` | **Report + Fixed-Canvas + Academic** | **Anti-Void Engine V2.0: font floor enforcement, fill ratio calculation, paragraph inflation, component elevation, Y-axis golden-ratio anchoring** |
@@ -760,7 +760,7 @@ palette.cascade --title "..." --format reportlab           # Ready-to-paste Repo
 | Academic | Tectonic + pypdf | **Playwright (cover)** | ❌ (dropped) | Template-dependent |
 | Process | pikepdf, pdfplumber | LibreOffice (soffice) | N/A | N/A |
 
-> **Unified Cover System**: All routes generate covers via HTML/Playwright. Report uses Template 01, Academic uses Templates 03-04 (dark backgrounds, scholarly typography), Creative generates cover + body in one HTML document. Cover PDFs are merged with body PDFs via pypdf.
+> **Unified Cover System**: All routes generate covers via HTML/Playwright. Report/Academic use Templates 01–07 (general) + 08–10 (academic, dark backgrounds, scholarly typography) + 11 (institutional). Creative generates cover + body in one HTML document. Cover PDFs are merged with body PDFs via pypdf.
 >
 > **Fallback**: If Report brief content has emoji → reroute to Creative.
 

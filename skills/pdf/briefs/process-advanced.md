@@ -1,3 +1,6 @@
+> ⚠️ **DEPRECATED** — This file is no longer a separate brief. All content has been merged into `briefs/process.md`.
+> **Do not load this file for new tasks.** Route via `SKILL.md` to `process.md` and consult the relevant sections (§OCR, §Encrypted, §Batch, §Performance) within that file.
+
 # Process Brief: Advanced Reference
 
 Edge-case tools and techniques. **Load only when the main `process.md` doesn't cover the task.**

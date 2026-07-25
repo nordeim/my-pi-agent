@@ -2,7 +2,7 @@
 
 **When to use this brief:** Text-heavy documents that need design flair but content flows naturally across pages — guides, handbooks, catalogs, introductions, collections, illustrated manuals. The content is the star; design supports readability.
 
-**How it differs from `creative.md`:** `creative.md` (Blueprint Mode) treats each page as a self-contained fixed-size visual canvas. This brief lets content flow continuously, with Chromium's `@page` auto-paginating at page boundaries.
+**How it differs from `creative-fixed-canvas.md`:** `creative-fixed-canvas.md` (Blueprint Mode) treats each page as a self-contained fixed-size visual canvas. This brief lets content flow continuously, with Chromium's `@page` auto-paginating at page boundaries.
 
 **→ MUST READ: `typesetting/overflow.md`** for Playwright/HTML-specific overflow patterns.
 
@@ -180,7 +180,7 @@ Set `html, body { background }` to the document's dominant/darkest color. This p
 
 ---
 
-## Shared Rules with creative.md
+## Shared Rules with creative-fixed-canvas.md
 
 The following rules apply identically to both Creative Flow and Creative Blueprint pipelines:
 
