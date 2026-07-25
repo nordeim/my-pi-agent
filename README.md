@@ -1,6 +1,6 @@
 # my-pi-agent
 
-An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 150+ skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
+An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 170+ skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
 
 This setup is fairly opinionated. It:
 
