@@ -1,0 +1,6 @@
+interface:
+  display_name: "Pandoc DOCX Template"
+  short_description: "用 Pandoc 模板完成 Markdown 与 Word 互转"
+  default_prompt: "Use $pandoc-docx-template to convert Markdown to Word with the bundled Chinese DOCX templates."
+policy:
+  allow_implicit_invocation: true

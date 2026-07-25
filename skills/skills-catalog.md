@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **174 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **175 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -226,6 +226,7 @@
 | **pdf**                | Four PDF production lines: Report (ReportLab), Creative (Playwright snapshot), Academic (LaTeX/Tectonic), Process (extract/merge/split). |
 | **cheat-sheet**        | Convert PDF/Word/Markdown study materials into compact knowledge cards. Three styles, dual-column PDF output.                            |
 | **storyboard-manager** | Creative writing: character development, plot structure, timeline tracking, consistency checking.                                        |
+| **pandoc-docx-template** | Convert Markdown ↔ Word DOCX with Pandoc using bundled Chinese Word reference templates and Lua filters. 7 template variants (heading numbering on/off, list indentation on/off, no first-line indent, SCI paper layouts with double-spacing + line numbers), 5 Lua filters (`markdown-html-recognition` for `<sub>`/`<sup>`/`<img>`/`==highlight==` tags, `image-title-to-caption` using image title as Word caption with Figure style, `image-title-to-caption-add-number` for auto-numbering, `preserve_font_color` for `<span style="color:red">` font color preservation, `add-inline-code` for custom inline code styling), Python scripts (`md2docx.py` / `docx2md.py`) for repeatable conversions with template selection + extra Pandoc args passthrough, and the aggregate `markdown-to-docx.lua` filter that loads sub-filters via dynamic path resolution. Use when converting Markdown to Word or Word to Markdown — especially for Chinese-language documents where Pandoc's default styling is insufficient, or when you need HTML tag preservation, image captions from title text, font color retention, or SCI paper formatting. |
 
 ---
 
@@ -296,10 +297,10 @@
 | 5   | Testing, QA & Performance                      | 14      |
 | 6   | Code Quality, Security & Architecture          | 15      |
 | 7   | Planning, Workflow & Project Management        | 23      |
-| 8   | Documentation & Content Creation               | 14      |
+| 8   | Documentation & Content Creation               | 15      |
 | 9   | Career, Learning & Personal Development        | 14      |
 | 10  | DevOps, Infrastructure & External Integrations | 24      |
-|     | **Total**                                      | **174** |
+|     | **Total**                                      | **175** |
 
 ---
 
