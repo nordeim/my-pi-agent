@@ -279,6 +279,7 @@
 | **tools-cli**                        | Standalone CLI for file operations (read/glob/grep/edit/write) without a full Claude session.                                    |
 | **memory-architect**                 | Bootstrap/audit/recover OpenClaw 3-layer memory (workspace files, LCM database, QMD semantic index).                             |
 | **memory-architecture**              | OpenClaw memory system architecture reference. Setup, troubleshooting, workspace/LCM/QMD interaction.                            |
+| **mac-mlx-local-inference**          | Local LLM inference on Apple Silicon (M1-M5) using mlx-optiq with OpenAI/Anthropic-compatible API. Covers Qwen3.6-27B setup, mixed-precision KV cache, MTP speculative decoding, and coding agent integrations (OpenCode, Kilo Code, Pi Agent, Claude Code, Codex, Cursor). Fully offline, zero cloud dependency. |
 | **design**                           | Router for design-related HTML artifact tasks. Delegates to the correct artifact skill.                                          |
 | **template-skill**                   | Placeholder skill definition. Replace with actual skill content.                                                                 |
 | **sanity-best-practices** | Sanity development best practices: schema design (defineType/defineField), GROQ/defineQuery, TypeGen, Visual Editing (Stega, Presentation), images, Portable Text, Studio structure, localization, migrations, Sanity Functions, and Blueprints. Framework integration guides for Next.js, Nuxt, Astro, Remix, SvelteKit, Angular, Hydrogen, and the App SDK. Use whenever working with Sanity schemas, GROQ, content modeling, Sanity-powered frontend integrations, or reviewing/fixing a Sanity codebase. Companion to `sanity-io-deploy`. |
@@ -300,8 +301,8 @@
 | 7   | Planning, Workflow & Project Management        | 23      |
 | 8   | Documentation & Content Creation               | 16      |
 | 9   | Career, Learning & Personal Development        | 14      |
-| 10  | DevOps, Infrastructure & External Integrations | 24      |
-|     | **Total**                                      | **176** |
+| 10  | DevOps, Infrastructure & External Integrations | 25      |
+|     | **Total**                                      | **177** |
 
 ---
 
