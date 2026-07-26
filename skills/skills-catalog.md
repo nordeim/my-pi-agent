@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **195 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **196 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -222,6 +222,7 @@
 | **content-strategy**   | Content marketing strategy: audience research, pillars, calendar, distribution, repurposing, metrics.                                    |
 | **content-analysis**   | Extract wisdom from videos, podcasts, articles, YouTube. Insight reports, key takeaways.                                                 |
 | **pptx**               | Create, edit, and analyze .pptx presentations. From-scratch builds use a 4-stage HTML→PPTX pipeline (clarify → research → plan → fan-out sub-agent render → `batch_html2pptx` export) producing 1280×720 decks; editing existing files uses `python-pptx` (text replace, slide reorder, capacity-budgeted copy fitting) or raw OOXML (animations, comments, speaker notes). Academic/paper talks use the embedded Beamer module (PDF output). |
+| **pptx-unified**       | Unified practical recipe for impressive marketing-grade .pptx decks from scratch. Combines the canonical `pptx` skill's HTML-first 5-stage pipeline (Clarify → Research → Plan → Build → Export) with variant skills' distinctive strengths (cyber-ppt's confirmation gates, pptx-generator's PptxGenJS templates, codex-ppt's image-based fallback) + 20+ real-world lessons/anti-patterns distilled from building a 12-slide deck for the my-pi-agent repo. Ships 10 reference files (stage protocols, 12-layout catalog, 8-palette presets, 6-typography pairings, anti-patterns) + 2 scripts (`validate_brief.py` for slides_brief.json schema checks, `export_pptx.sh` wrapper that dynamically finds `batch_html2pptx.js` and handles the `skills/ppt/` vs `skills/pptx/` path typo). Use as the SINGLE STARTING POINT for any coding agent that needs to produce a polished .pptx — branches to variant skills only when a specific capability is needed (cyber-ppt for MBB consulting decks, pptx-generator for PptxGenJS-native shapes, codex-ppt for image-based full-slide decks). |
 | **docx**               | Create, edit, and analyze .docx documents. Create uses `docx-js` with 7 validated cover recipes (R1–R7), scene routers (academic / report / contract / resume / exam / official-doc / copywriting), and a mandatory `postcheck.py` enforcing 14 business rules (blank pages, cover overflow, line spacing, table cross-page, CJK indent, TOC quality, etc.). Edit uses `python-docx` + raw OOXML for tracked changes, comments, and formatting preservation. Includes LaTeX math input and a 6-template matplotlib chart library. |
 | **docx-generation**    | Comprehensive DOCX generation and conversion.                                                                                            |
 | **xlsx**               | Open, read, edit, create .xlsx / .xlsm / .csv / .tsv spreadsheets. Scene-driven router: create / edit / analyze / convert / finance (DCF, LBO, three-statement linkage) / finance_lite (budgets, expense reports) / VBA / advanced (batch, protection, validation). Live-formula guarantee, zero-error tolerance, no dynamic-array functions (Excel 2016+ compatibility). QA pipeline: blueprint → build & self-check → inspect → pivot → validate. Triggers when the user references a spreadsheet by name or says "make a table / report / model", Excel / CSV, or 数据分析 / 报表 / 汇总. |
@@ -317,10 +318,10 @@
 | 5   | Testing, QA & Performance                      | 14      |
 | 6   | Code Quality, Security & Architecture          | 15      |
 | 7   | Planning, Workflow & Project Management        | 23      |
-| 8   | Documentation & Content Creation               | 26      |
+| 8   | Documentation & Content Creation               | 27      |
 | 9   | Career, Learning & Personal Development        | 19      |
 | 10  | DevOps, Infrastructure & External Integrations | 26      |
-|     | **Total**                                      | **195** |
+|     | **Total**                                      | **196** |
 
 ---
 
