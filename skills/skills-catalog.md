@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **180 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **181 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -231,6 +231,7 @@
 | **translation-engine** | Deterministic Forensic Translation Engine v10.1 — bilingual (Chinese ↔ English) translation with L4 (Forensic Grade) precision and L3 (Strict Grade) professional publishing. 6-phase scratchpad protocol (IU definition → domain pack selection → draft-lock via successive versioning → audit → targeted repair → output), 5 pluggable domain packs (Engineering with RFC 2119/8174 markers, Legal with forensic modality markers, Medical with clinical modality markers, Financial with securities-disclosure markers, Academic with scientific publishing collocations), anti-enhancement protocol (prohibits ADDING elements not present in source), code-fence cryptographic seal, glossary management with 3-tier certainty levels (`locked-standard` / `locked-context` / `candidate`), 10 few-shot calibration examples, size-aware draft-lock tiers (full <800 words, segmented 800–3,000, mandatory segmentation >3,000), and a minimal Python wrapper (`TE10_wrapper_minimal.py`). Use when translating between Chinese and English — especially for legal, medical, financial, engineering, or academic documents where L3/L4 precision is required. |
 | **codex-ppt** | Generate visually unified image-based PPT/PPTX decks from articles, reports, papers, notes, or outlines. Each slide is a complete 16:9 AI-generated image assembled into .pptx. Uses approval-gated workflow with 7 mandatory phases, parallel sub-agent dispatch, script-recorded state tracking, and 13 built-in Chinese style references. Use for visually polished "final form" decks where text-in-image is acceptable — complements `pptx` (which produces editable-text HTML→PPTX output). |
 | **cyber-ppt** | Convert DOCX, PDF, TXT, XLSX, research reports, and business materials into MBB-grade, editable, consulting-style PPTX decks. Uses 3-phase pipeline: (1) evidence analysis with issue/hypothesis trees and 2-3 alternative storylines, (2) fixed 8 visual-style blueprint exploration with per-page ImageGen blueprints, (3) PptxGenJS hybrid reconstruction with dual-gate QA (editable information layer + visual semantics fidelity). Features 15-level typography scale, 11K+ bundled SVG icon library, spatial anchor system, curve precision tracking, page-by-page user confirmation, and mandatory `/visual_qa_gate.json` per slide. Complements `pptx` (editable HTML→PPTX) and `codex-ppt` (image-based). |
+| **pptx-generator** | Lightweight PptxGenJS-native slide generation from scratch and XML-based template editing. Create presentations as per-slide standalone JS modules with a strict theme object contract (`primary`, `secondary`, `accent`, `light`, `bg`). Features 18 curated color palettes, 4 style recipes (Sharp/Soft/Rounded/Pill), 5 page types (Cover, TOC, Section Divider, Content, Summary) with detailed layout specs, mandatory page number badges, and markitdown-based QA. No external dependencies beyond PptxGenJS and markitdown. Use for quick programmatic editable decks when you don't need the full MBB consulting pipeline (`cyber-ppt`) or the HTML→PPTX path (`pptx`). Also supports XML-based editing of existing template PPTX files. |
 
 ---
 
@@ -302,10 +303,10 @@
 | 5   | Testing, QA & Performance                      | 14      |
 | 6   | Code Quality, Security & Architecture          | 15      |
 | 7   | Planning, Workflow & Project Management        | 23      |
-| 8   | Documentation & Content Creation               | 18      |
+| 8   | Documentation & Content Creation               | 19      |
 | 9   | Career, Learning & Personal Development        | 14      |
 | 10  | DevOps, Infrastructure & External Integrations | 25      |
-|     | **Total**                                      | **180** |
+|     | **Total**                                      | **181** |
 
 ---
 
@@ -332,6 +333,10 @@
 | Scenario | Choose |
 |----------|--------|
 | Quick presentation from scratch, need editable output | `pptx` |
+| Simple programmatic deck from scratch — pick palette, generate, compile | `pptx-generator` |
+| Editing existing .pptx text via XML manipulation (no python-pptx needed) | `pptx-generator` |
+| Custom editable output with full design-system control (18 palettes, 4 styles) | `pptx-generator` |
+| Per-slide JS modules with standalone preview, subagent fan-out | `pptx-generator` |
 | Editing existing .pptx decks, reading comments/notes, OOXML work | `pptx` |
 | Academic presentations (Beamer/LaTeX → PDF) | `pptx` |
 | Visual polish, fast turnaround, text editing not required | `codex-ppt` |
