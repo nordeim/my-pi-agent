@@ -1038,3 +1038,22 @@ python scripts/validate_pptx.py path/to/deck.pptx --manifest path/to/slide_manif
 - PPT 重建时移动或拉伸图片资产，会破坏蓝图还原度。
 - 在 13.333 x 7.5 画布上套用 10 x 5.625 坐标，会造成右侧或底部异常空白。
 - 只检查第一页，会漏掉重复布局、标签和密度问题。
+
+---
+
+## Cross-References / 技能联动
+
+| Skill | 何时改用 |
+|---|---|
+| [`../pptx/`](../pptx/SKILL.md) | 规范 Z.AI pptx 技能 —— HTML-first 流水线（1280×720 独立 HTML 幻灯片 → Playwright 渲染 → `batch_html2pptx.js` 装配），支持 `ppt-expert` 子代理并行渲染。当不需要 MBB 级证据链与 SCR 论证、只要快速生成视觉统一的 deck 时改用。 |
+| [`../pptx-generator/`](../pptx-generator/SKILL.md) | PptxGenJS 原生流水线，含 5 种页面类型（Cover/TOC/Section Divider/Content/Summary）与 4 种风格 recipe（Sharp/Soft/Rounded/Pill）。当希望保留 PptxGenJS 原生 shape/chart 可编辑性、且不需要证据表时改用。 |
+| [`../codex-ppt/`](../codex-ppt/SKILL.md) | Image-based 全页图片 deck（每页一张 16:9 生成图，`assemble_ppt.py` 装配）。当视觉统一性优先于文字可编辑性、且接受不可编辑的整页图片时改用。 |
+| [`../charts/`](../charts/SKILL.md) | 独立图表/制图技能。当 deck 主要由图表承载、且不需要 SCR 论证与确认门时改用。 |
+
+### 跨 PPTX 技能共享规则
+
+- **画布尺寸不混用**：本技能使用 13.333 × 7.5 英寸（16:9 PowerPoint 标准），规范 `pptx` 技能使用 1280 × 720 像素，`pptx-generator` 使用 10 × 5.625 英寸。一个 deck 内不可混用，跨技能迁移时需重新映射坐标。
+- **文字对比度**：所有文字色与背景色组合必须满足 WCAG AA（4.5:1）。深色背景上不可依赖默认黑色文字。
+- **布局多样性**：相邻页面避免使用相同布局。轮换使用 cover / section header / split text+image / bento grid / stats / timeline / comparison / quote / closing。
+- **图片素材**：禁止编造图片 URL。只能使用 image-search 返回的真实 URL 或用户提供的素材。
+- **确认门不可跳过**：本技能的三段确认门（分析 / 蓝图 / 混合还原）是硬约束。用户要求修改时，回到对应阶段修订并重新确认，不可跨阶段直改。

@@ -1,6 +1,6 @@
 # my-pi-agent
 
-An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 175+ skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
+An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 184-skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
 
 This setup is fairly opinionated. It:
 
@@ -23,7 +23,7 @@ This setup is fairly opinionated. It:
 |------|------|-------------|
 | Pi setup | `package.json`, `tsconfig.json`, `.env.example` | Runtime config, dependency manifest, env-var template for the Pi shell itself. |
 | Extensions | `extensions/` | Twelve TypeScript extensions that plug into the Pi agent loop (see below). |
-| Skills | `skills/` | 181 self-contained skill packages across 10 categories — the bulk of the repo by file count. |
+| Skills | `skills/` | 184 self-contained skill packages across 10 categories — the bulk of the repo by file count. Each skill ships a `SKILL.md` with frontmatter (`name`, `metadata.description`, `license`) plus optional `references/`, `scripts/`, `scenes/`, `routes/`, or `engines/` subdirectories loaded on demand. |
 | Themes | `themes/` | `github-dark-default.json` and `brutalist.json` — Pi UI color themes. |
 | Git config | `git/` | Project-local gitignore patterns. |
 | Assets | `assets/` | Screenshots referenced by this README. |
@@ -33,7 +33,7 @@ This setup is fairly opinionated. It:
 
 ## Skills catalog
 
-The skill library lives under `skills/` and is indexed by [`skills/skills-catalog.md`](skills/skills-catalog.md) — a single-file directory of all 181 skills with a one-line description and "when to use it" hint for each. The catalog is organized into 10 categories:
+The skill library lives under `skills/` and is indexed by [`skills/skills-catalog.md`](skills/skills-catalog.md) — a single-file directory of all 184 skills with a one-line description and "when to use it" hint for each. The catalog is organized into 10 categories:
 
 1. **Frontend Development & UI Engineering** — 30 skills (React 19, Next.js 16, Tailwind v4, Svelte 5, Vue 3/Nuxt 4, Flutter, React Native/Expo, Astro 5, Tauri 2, HTMX, SolidStart, brutalist/avant-garde design systems, full-stack SaaS references, pixel-for-pixel web cloning)
 2. **Design Artifacts & Visual Creation** — 10 skills (charts, image generation/edit/understand/search, web-shader extraction, ComfyUI)
@@ -42,7 +42,7 @@ The skill library lives under `skills/` and is indexed by [`skills/skills-catalo
 5. **Testing, QA & Performance** — 14 skills (TDD, webapp testing, Playwright CLI, agent-browser, Chrome DevTools MCP, performance optimization)
 6. **Code Quality, Security & Architecture** — 15 skills (code review, security hardening, TrustSkill v3.1 security scanner, vulnerability scanner, clean-code, ponytail minimalism, debugging, lint-and-validate)
 7. **Planning, Workflow & Project Management** — 23 skills (spec-driven development, plan-writing, incremental implementation, git workflow, CI/CD, shipping, orchestrator-toolkit, loop-builder, subagents, background terminals, context engineering)
-8. **Documentation & Content Creation** — 19 skills (README/CLAUDE/AGENTS.md generation, blog writer, SEO content, content strategy, content analysis, **pptx**, **codex-ppt**, **cyber-ppt**, **pptx-generator**, **docx**, **docx-generation**, **xlsx**, pdf, cheat-sheet, storyboard manager, **pandoc-docx-template**, **translation-engine**)
+8. **Documentation & Content Creation** — 22 skills (README/CLAUDE/AGENTS.md generation, blog writer, SEO content, content strategy, content analysis, **pptx**, **codex-ppt**, **cyber-ppt**, **pptx-generator**, **docx**, **docx-generation**, **minimax-docx** (.NET OpenXML SDK + 13 style-guide recipes), **xlsx**, pdf, **minimax-pdf** (token-based design-system PDF with 14 doc types), **minimax-xlsx** (XML direct-edit pipeline), cheat-sheet, storyboard manager, **pandoc-docx-template**, **translation-engine**)
 9. **Career, Learning & Personal Development** — 14 skills (resume builder, JD-resume tailor, interview prep, study buddy, quiz mastery, mindfulness, dream interpreter)
 10. **DevOps, Infrastructure & External Integrations** — 25 skills (Cloudflare tunnel, multi-search-engine, finance/stock analysis, market research reports, AMiner academic search, AI news collectors, marketing-mode, skill-creator, skill-creator-zai, skill-finder-cn, **how-to-git-push-using-ssh-wrapper**, Microsoft Foundry, Sanity best-practices/migration/deploy, memory architect/architecture, mac-mlx local inference, tools-cli, system-prompt customization)
 
@@ -105,7 +105,7 @@ my-pi-agent/
 ├── assets/                    # Screenshots and images
 ├── extensions/                # 12 TypeScript extensions to the Pi agent loop
 ├── git/                       # Project-local gitignore patterns
-├── skills/                    # 181 skill packages (see skills/skills-catalog.md)
+├── skills/                    # 184 skill packages (see skills/skills-catalog.md)
 ├── themes/                    # github-dark-default.json, brutalist.json
 ├── AGENTS.md                  # Agent onboarding brief
 ├── APPEND_SYSTEM.md           # System-prompt append layer

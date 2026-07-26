@@ -131,3 +131,22 @@ python scripts/ats_check.py --resume <resume.md> \
 - 用户接着说"针对这家公司改一下" → 转 `jd-resume-tailor`
 - 用户接着说"准备面试" → 转 `interview-prep`
 - 用户没确定方向就来改简历 → 先反问"你打算投什么方向？"，必要时转 `job-intent-tracker`
+
+---
+
+## Cross-References / 技能联动
+
+| Skill | 何时改用 |
+|---|---|
+| [`../docx/`](../docx/SKILL.md) | 规范 Z.AI docx 技能 —— JS/docx-js 流水线，含 7 种封面 recipe（R1–R7）、`scenes/resume.md` 简历场景、`postcheck.py` 14 项自动校验。当需要在简历生成阶段精细控制字体/段落/缩进/Heading 层级时改用。 |
+| [`../pdf/`](../pdf/SKILL.md) | 规范 Z.AI pdf 技能 —— 四条产线（Report/Creative/Academic/Process），含 `briefs/resume.md` ATS-safe 简历模板与 `briefs/creative-fixed-canvas.md` 创意行业简历子路径。当需要 ATS-safe PDF 或创意行业视觉简历时改用。 |
+| [`../minimax-docx/`](../minimax-docx/SKILL.md) | C#/.NET OpenXML SDK 流水线，含 `Samples/AestheticRecipeSamples.cs` 13 种风格 recipe（含 ModernCorporate、ExecutiveBrief）。当需要在 .NET 端精细控制简历排版时改用。 |
+| [`../minimax-pdf/`](../minimax-pdf/SKILL.md) | Token-based 设计系统 PDF 流水线，含 `resume` 文档类型（typographic 封面 + DM Serif Display）。当需要设计感强的 PDF 简历时改用。 |
+| [`../jd-resume-tailor/`](../jd-resume-tailor/SKILL.md) | 针对特定 JD 改写简历 —— 当用户明确说"针对 X 公司 / X 岗位改简历"时改用，而非本技能的"通用简历优化"。 |
+
+### 跨技能共享规则
+
+- **格式选择**：中文求职市场默认 DOCX（HR 系统友好）；外企 / 创意行业默认 PDF（视觉一致性）；ATS 强约束场景用 ATS-safe 单列 PDF（`pdf` 技能的 `briefs/resume.md`）。
+- **STAR 法则统一**：所有简历技能（本技能、`jd-resume-tailor`、`docx` 的 `scenes/resume.md`、`pdf` 的 `briefs/resume.md`）都使用 STAR 法则改写经历 —— "通过 X 实现 Y，结果 Z"。不可仅替换为动词开头却无量化结果。
+- **ATS 关键词覆盖率**：所有 ATS-friendly 简历必须显式做关键词覆盖率检查，并报告命中率与缺失关键词。仅靠"看起来专业"不算 ATS 通过。
+- **多格式导出**：当用户要求"导出 PDF / docx 简历"时，必须同时输出可下载文件，不可只输出 Markdown。

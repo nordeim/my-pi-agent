@@ -136,3 +136,68 @@ python3 SKILL_DIR/scripts/xlsx_shift_rows.py /tmp/work/ insert 5 1  # shift rows
 python3 SKILL_DIR/scripts/xlsx_add_column.py /tmp/work/ --col G ... # add column with formulas
 python3 SKILL_DIR/scripts/xlsx_insert_row.py /tmp/work/ --at 6 ...  # insert row with data
 ```
+
+---
+
+## Cross-References & Best Practices
+
+### Related skills
+
+| Skill | When to prefer it |
+|---|---|
+| [`../xlsx/`](../xlsx/SKILL.md) | Canonical Z.AI xlsx skill — openpyxl + pandas workbench with scene router (create/edit/analyze/convert/finance/finance_lite/advanced/vba), complexity gate (LITE vs FULL), `templates/base.py` design-token single source of truth, and `quality/pipeline.md` integrity workflow. Use when you want the openpyxl-based pipeline with `Workbook(write_only=True)` for large writes and `load_workbook(read_only=True)` for large reads. |
+| [`../charts/`](../charts/SKILL.md) | Standalone chart/diagram generation. |
+| [`../finance/`](../finance/SKILL.md) | Domain knowledge for financial modeling (DCF, LBO, three-statement linkage). |
+| [`../stock-analysis/`](../stock-analysis/SKILL.md) | Equity analysis workflows that often produce xlsx outputs. |
+
+### Best practices cross-pollinated from the canonical `xlsx` skill
+
+These rules are universal to spreadsheet production regardless of pipeline (XML direct-edit here vs. openpyxl in the canonical skill). Apply them on top of the edit-integrity rules above.
+
+**Pre-flight intent gate (run BEFORE touching any code)**
+Confirm the user actually needs a spreadsheet:
+- Report / analysis summary → `docx` skill
+- Presentation / pitch deck → `pptx` skill
+- Formal print document / contract / certificate → `pdf` skill
+- Charts only, no data table needed → `charts` skill
+- User explicitly says a format → respect it
+
+**Request decomposition (every time)**
+- **Explicit needs**: sheets, columns, formulas, metrics the user stated
+- **Implicit needs**: business context, downstream use (filter? sort? input?)
+- **Multi-part requests**: generate ALL parts — never silently drop a component
+
+**Live formula guarantee**
+Every derived value SHOULD be an Excel formula so the spreadsheet stays dynamic. **Exception**: when the output file will be verified by Python (not opened in Excel), TOTAL/SUM rows should write **computed values** instead of formulas — openpyxl cannot evaluate formulas and `data_only=True` returns `None` for newly-written formulas. Optionally add the formula as a cell comment for reference.
+
+**Zero error tolerance**
+- All divisions wrapped with `IFERROR` or `IF(denom=0,...)`.
+- Absolute references (`$C$42`) for shared denominators.
+- Run `formula_check.py` before delivery; exit code 0 = safe.
+
+**Compatibility first (no dynamic array functions)**
+Forbidden: `FILTER`, `UNIQUE`, `XLOOKUP`, `SORT`, `SORTBY`, `XMATCH`, `SEQUENCE`, `LET`, `LAMBDA`, `RANDARRAY`. Also no implicit array formulas — use `SUMPRODUCT` alternatives. These functions break in Excel 2019 and earlier, Google Sheets, WPS, and LibreOffice.
+
+**Preserve & match (when editing existing files)**
+- Study and exactly match the existing format, style, conventions. Existing patterns always override defaults.
+- Text starting with `=` must be prefixed with `'` to prevent formula interpretation.
+- Never use openpyxl round-trip on existing files — it corrupts VBA, pivots, and sparklines. Use the XML unpack → edit → pack pipeline (which is exactly what this minimax-xlsx skill does).
+
+**Language mirror**
+Output language (sheet names, headers, labels) MUST match the user's input language. Chinese prompt → Chinese sheet names and headers.
+
+**Data consistency over instructions**
+When user instructions conflict with actual data patterns in the existing file:
+1. **First priority**: match the existing data pattern (e.g., if existing data uses `0` for empty, don't switch to `-`).
+2. **Second priority**: follow user instructions literally.
+3. Always flag the conflict to the user.
+
+**Workbook metadata**
+Set `wb.properties.creator = "Z.ai"` (or equivalent in XML direct-edit: `<dc:creator>Z.ai</dc:creator>` in `docProps/core.xml`). All code should import from a single source of truth for design tokens (colors, fonts, style helpers) — never hardcode hex values or font names.
+
+**Quality gate (every deliverable)**
+Run the integrity pipeline before delivery:
+```
+Blueprint → Build & Self-check (per-sheet) → Inspect → Pivot (if needed) → Release
+```
+For this skill: `xlsx_reader.py` inspect → `formula_check.py` validate → deliver.

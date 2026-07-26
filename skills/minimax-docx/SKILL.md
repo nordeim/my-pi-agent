@@ -272,3 +272,49 @@ Note: `Samples/` path is relative to `scripts/dotnet/MiniMaxAIDocx.Core/`.
 | `references/design_good_bad_examples.md` | **Good vs Bad comparisons**: 10 categories of typography mistakes with OpenXML values, ASCII mockups, and fixes |
 | `references/track_changes_guide.md` | Revision marks deep dive |
 | `references/troubleshooting.md` | **Symptom-driven fixes**: 13 common problems indexed by what you SEE (headings wrong, images missing, TOC broken, etc.) — search by symptom, find the fix |
+
+---
+
+## Cross-References & Best Practices
+
+### Related skills
+
+| Skill | When to prefer it |
+|---|---|
+| [`../docx/`](../docx/SKILL.md) | Canonical Z.AI docx skill — JavaScript / `docx` (npm) pipeline with 7 cover recipes (R1–R7), scene router (academic/report/contract/resume/exam/official/copywriting), `postcheck.py` 14-rule validator. Use when you want the JS-based pipeline instead of .NET. |
+| [`../docx-generation/`](../docx-generation/SKILL.md) | Bidirectional Markdown ↔ DOCX conversion with the same design-system rules. |
+| [`../pandoc-docx-template/`](../pandoc-docx-template/SKILL.md) | Pandoc-based DOCX with bundled Chinese reference templates and Lua filters. |
+| [`../resume-builder/`](../resume-builder/SKILL.md) | Resume-specific DOCX/PDF generation with STAR rewrites and ATS keyword checks. |
+
+### Best practices cross-pollinated from the canonical `docx` skill
+
+These rules are universal to DOCX production regardless of pipeline (C#/.NET here vs. JS/docx-js in the canonical skill). Apply them on top of the OpenXML rules above.
+
+**Cover page discipline**
+- Always use a validated cover recipe — never free-form cover code. The canonical `docx` skill ships 7 recipes (R1–R7) with `selectCoverRecipe(docType, industry)` and `calcTitleLayout()` / `calcCoverSpacing()` helpers; if you need design parity, port the recipe constants into your C# `AestheticRecipeSamples.cs`.
+- Cover content must not overflow: total height ≤ 15,638 twips for A4 with 1,200-twip safety margin. Use `rule: "exact"` on the wrapper table row, never `"atLeast"` for tall covers.
+- Every `TextRun` on a dark or colored cover background MUST have an explicit `color` set. Default black-on-dark is the #1 cover bug.
+- Cover section must have NO trailing PageBreak or empty paragraphs — that produces a blank page 2.
+
+**Line spacing & CJK typography**
+- Body line spacing = 1.3× (`w:spacing line="312"`). Scene overrides: resume 1.15×, official doc 28pt fixed, copywriting `line="400"`, contract 1.5×.
+- CJK body: justified + 2-character first-line indent (`firstLine: 480` SimSun / `420` YaHei).
+- For CJK heading chains, always set `OutlineLevel` on the style (H1→0, H2→1, H3→2). Without it, Word treats headings as plain styled text — TOC and navigation pane break.
+
+**Page-break & blank-page prevention**
+- When using `<w:sectPr w:type="nextPage"/>`, the preceding section MUST NOT end with a PageBreak (double break = blank page).
+- A PageBreak paragraph SHOULD contain visible text. Exception: a section-ending empty para + PageBreak is allowed as a normal section separator (e.g., after the cover).
+- Never more than 3 consecutive empty paragraphs — they create phantom blank pages.
+
+**TOC integrity**
+- TOC MUST live in its own section. Body section sets `pageNumbers: { start: 1, formatType: DECIMAL }` so page numbers start at the first body page, not at the TOC.
+- 3-section page numbering: Cover (no page#) → Front matter (Roman i, ii, iii, start=1) → Body (Arabic 1, 2, 3, start=1).
+- Footer instrText for Roman section: `PAGE \* ROMAN \* MERGEFORMAT`; for Arabic section: `PAGE \* arabic \* MERGEFORMAT`. **NEVER use `\* decimal`** — `decimal` is a docx-js API enum, not a Word field switch; it renders as literal `1decimal`, `2decimal`.
+- Strip the empty `<w:pgNumType/>` from the cover section — docx-js emits it empty and WPS misreads it.
+- Between the `TableOfContents` element and the PageBreak, insert an italic gray note paragraph telling the user to right-click → "Update Field" to refresh page numbers.
+
+**Quotation-mark escaping (the #1 silent bug)**
+CJK curly quotes (`“”` `‘’`) inside C# string literals MUST use Unicode escapes (`\u201c` `\u201d` `\u2018` `\u2019`); straight quotes use `\"` `\'` or alternate delimiters. CJK text frequently contains `“”` for emphasis or proper nouns (e.g., `“双11”`, `“618”`) — every occurrence must be escaped. Failure produces C# compile errors that silently break document generation.
+
+**Post-generation checklist (run every time)**
+After every write operation, run a structural + business-rule validation. The C# pipeline uses `$CLI validate --xsd assets/xsd/wml-subset.xsd` then `$CLI validate --business`; the JS pipeline uses `postcheck.py` (14 rules: blank pages, cover overflow, line-spacing consistency, table margins, cross-page control, image aspect ratio, font fallback, CJK indent, heading hierarchy, ShadingType misuse, TOC quality, document cleanliness, report content quality). Treat any ❌ as a hard blocker before delivery.

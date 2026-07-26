@@ -190,3 +190,58 @@ bash scripts/make.sh demo    # build a sample PDF
 | `pypdf` | fill, merge, reformat | `pip install pypdf` |
 | Node.js 18+ | `render_cover.js` | system |
 | `playwright` + Chromium | `render_cover.js` | `npm install -g playwright && npx playwright install chromium` |
+
+---
+
+## Cross-References & Best Practices
+
+### Related skills
+
+| Skill | When to prefer it |
+|---|---|
+| [`../pdf/`](../pdf/SKILL.md) | Canonical Z.AI PDF skill — four production lines (Report via ReportLab, Creative via JSON Blueprint + Playwright, Academic via Tectonic/LaTeX, Process for manipulate-existing). Use when you need LaTeX academic typesetting, the JSON Blueprint creative pipeline, or `pdf_qa.py` 12-rule automated QA. |
+| [`../resume-builder/`](../resume-builder/SKILL.md) | Resume-specific PDF generation with ATS keyword checks. |
+| [`../charts/`](../charts/SKILL.md) | Standalone chart/diagram generation when the PDF is just a chart carrier. |
+
+### Best practices cross-pollinated from the canonical `pdf` skill
+
+These rules are universal to PDF production regardless of pipeline. Apply them on top of the route-specific guidance above.
+
+**Pre-routing checks (run BEFORE matching route)**
+1. **Emoji check** — Scan user content for intentional emoji (📊🎯🔥, not OS-level input). If found, force Creative pipeline (Playwright); ReportLab renders emoji as `□` squares and LaTeX drops them entirely.
+2. **CJK check** — Chinese/Japanese/Korean content needs explicit font coverage. Probe with `ls /usr/share/fonts/truetype/chinese/` (Linux) before registering; prefer Noto Serif SC > Noto Sans SC. Never hardcode a font name without verifying it exists.
+3. **Size check** — Non-standard page sizes (not A4/Letter/A3) → prefer Playwright (handles any dimension natively); ReportLab requires manual pagination math.
+4. **Character safety check** — Scan content strings for Japanese kana (の、が、は) or unusual Unicode that may corrupt during heredoc/base64/LLM transit. Replace with plain CJK equivalents unless Japanese is required.
+
+**Vector rendering iron rule**
+The final PDF MUST be generated via `page.pdf()` (Playwright) or ReportLab/LaTeX native output — NEVER via screenshot-to-PDF. Screenshot PDFs are raster, blurry when zoomed, unsearchable, and 3–5× larger. The ONLY acceptable screenshot use is for diagrams/charts embedded as sub-elements inside a larger vector document.
+
+**HTML→PDF engine selection**
+- **Posters / single-page long-image / cover pages** → `html2poster.js` (auto `overflow:hidden`, dynamic height, zero margin).
+- **Multi-page documents / reports / academic** → `html2pdf-next.js` (Paged.js pagination, A4/custom size, pdf-lib metadata).
+- **Cover pages use absolute positioning** — ALWAYS use `html2poster.js`. `html2pdf-next.js` + Paged.js would re-layout absolute-positioned elements into flow and destroy the cover.
+
+**Full-bleed rule (no white margins)**
+Mandatory CSS for any HTML→PDF:
+```css
+@page { size: <width> <height>; margin: 0; }
+html, body { margin: 0; padding: 0; }
+```
+Common white-margin causes: missing `@page { margin: 0 }`, content width ≠ page width, missing `@page { size }`, content `max-width` narrower than page.
+
+**Background color consistency**
+`html` / `body` background MUST match the content canvas background. For multi-page docs with mixed dark/light pages, set `html, body { background }` to the darkest page's background so sub-pixel gaps at page edges stay invisible.
+
+**No `overflow: hidden` on fixed-size pages**
+Never set `overflow: hidden` on `html`, `body`, `.page`, or the main content container — it silently clips content that exceeds bounds and hides layout bugs. Paged.js handles pagination natively. (Exception: posters rendered via `html2poster.js` — that script auto-adds it to clip decorative overflow.)
+
+**Figures are block-level**
+Figures, diagrams, charts MUST be independent block elements at full width. NEVER float/wrap figures alongside body text — it causes text-diagram overlap. In ReportLab: `story.append(Image(...))` as standalone Flowable. In Playwright: `<figure style="display:block; width:100%; margin:2em auto">`.
+
+**Table overflow prevention (ReportLab)**
+Before building any `Table`: (1) calculate `available_width = page_width - left_margin - right_margin`, (2) use proportional `colWidths` summing to ≤ `available_width`, (3) long-text columns MUST use `Paragraph()` wrapping (plain strings don't wrap), (4) CJK text is wider — budget ~12pt per character at 10pt font size.
+
+**Quality checklist (mandatory after every PDF)**
+- Run `pdf_qa.py` — auto-detects metadata completeness, page size consistency, blank pages, CJK punctuation, color count, font embedding, content overflow, fill ratio, cover full-bleed, margin symmetry, table centering, formula overflow. PASS → deliver; WARN → evaluate; FAIL → must fix and regenerate.
+- For HTML→PDF paths, also run `poster_validate.py check-html <file>.html` BEFORE rendering — catches `overflow:hidden` containers, missing font fallbacks, contrast issues, background mismatches.
+- **Output cleanliness**: NEVER include version numbers, "DRAFT"/"CONFIDENTIAL" stamps, "Generated by AI", or any watermark the user didn't ask for. PDF metadata should reflect document content, not the generation process.

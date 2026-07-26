@@ -848,3 +848,18 @@ const parsed = parseMarkdown(mdContent);
 ---
 
 *This skill file consolidates knowledge from: Z.AI docx skill system (SKILL.md, design-system.md, common-rules.md, create.md, docx-js-core.md, docx-js-advanced.md, toc.md), postcheck.py, add_toc_placeholders.py, and real-world document generation experience from the Consolidated Remediation Plan Report 5.*
+
+---
+
+## Cross-References
+
+| Skill | When to use it instead |
+|---|---|
+| [`../docx/`](../docx/SKILL.md) | Canonical Z.AI docx skill — same JS/docx-js pipeline, route files (`routes/create.md`, `routes/edit.md`, `routes/format.md`, `routes/comment.md`, `routes/read.md`) and scene files (academic/report/contract/resume/exam/official/copywriting). Use when you don't need Markdown bidirectional conversion and want the canonical 7-recipe cover system + `postcheck.py` 14-rule validator. |
+| [`../minimax-docx/`](../minimax-docx/SKILL.md) | C#/.NET OpenXML SDK pipeline — use when you need .NET-side document manipulation, XSD validation gate-checks, or `Samples/*.cs` encyclopedia patterns. |
+| [`../pandoc-docx-template/`](../pandoc-docx-template/SKILL.md) | Pandoc-based DOCX with bundled Chinese reference templates (numbered/unnumbered headings, list-indent variants, SCI paper templates) and Lua filters. Use when you want Pandoc's reference-doc approach instead of programmatic generation. |
+| [`../resume-builder/`](../resume-builder/SKILL.md) | Resume-specific DOCX/PDF generation with STAR rewrites and ATS keyword coverage checks. |
+
+### Shared rules (apply across all DOCX skills)
+
+The formatting rules in §6 and the cover-recipe system in §7 of this skill are aligned with the canonical `docx` skill's `references/common-rules.md` and `references/design-system.md`. When in doubt, defer to the canonical skill's `postcheck.py` output as the source of truth for layout compliance.

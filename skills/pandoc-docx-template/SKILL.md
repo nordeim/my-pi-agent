@@ -94,3 +94,20 @@ Use `markdown-to-docx.lua` as the default aggregate filter for Markdown-to-DOCX 
 ## Validation
 
 After conversion, verify that the expected output file exists and that Pandoc did not report filter or reference-document errors. For DOCX output intended for final delivery, inspect it in Windows Microsoft Word because these templates were tested primarily with Windows Office and may render differently in WPS or macOS Word.
+
+---
+
+## Cross-References
+
+| Skill | When to use it instead |
+|---|---|
+| [`../docx/`](../docx/SKILL.md) | Canonical Z.AI docx skill — JavaScript / `docx` (npm) pipeline with 7 cover recipes (R1–R7), scene router (academic/report/contract/resume/exam/official/copywriting), `references/design-system.md` palette + chart colors, and `postcheck.py` 14-rule automated validator. Use when you need programmatic generation with full design control rather than Pandoc reference-doc styling. |
+| [`../minimax-docx/`](../minimax-docx/SKILL.md) | C#/.NET OpenXML SDK pipeline with three pipelines (Create / Fill-Edit / Format-Apply), XSD validation gate-check, and 13 aesthetic recipes (ModernCorporate, AcademicThesis, IEEE, ACM, APA 7th, MLA 9th, Chicago, Springer LNCS, Nature, HBR). Use when you need .NET-side document manipulation or authoritative style-guide compliance. |
+| [`../docx-generation/`](../docx-generation/SKILL.md) | Bidirectional Markdown ↔ DOCX conversion using the same Z.AI design-system rules. Use when you want programmatic Markdown→DOCX with the same cover-recipe system as the canonical `docx` skill (rather than Pandoc reference-doc). |
+| [`../resume-builder/`](../resume-builder/SKILL.md) | Resume-specific DOCX/PDF generation with STAR rewrites and ATS keyword coverage checks. |
+
+### When to choose Pandoc vs. programmatic generation
+
+- **Choose this skill (`pandoc-docx-template`)** when: the source is Markdown; you want repeatable, deterministic conversion; you need one of the bundled Chinese reference templates (numbered/unnumbered headings, SCI paper layouts); or you want to apply Lua filters for HTML tags, image captions, font color, and inline code styles.
+- **Choose `../docx/`** when: you need to generate a document programmatically (not from Markdown); you need the 7 cover recipes; you need TOC with 3-section page numbering (Roman → Arabic); or you need `postcheck.py` automated validation.
+- **Choose `../minimax-docx/`** when: you need .NET-side document manipulation, XSD validation gate-checks, or one of the 13 authoritative style-guide recipes (IEEE, ACM, APA, MLA, Chicago, Springer LNCS, Nature, HBR).

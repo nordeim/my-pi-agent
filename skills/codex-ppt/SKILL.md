@@ -156,3 +156,21 @@ Subagents must not edit `outline.md`, `deck_spec.json`, other slide jobs, `origi
 ## Documentation and Updates
 
 For source, docs, install, config, and examples, see [ningzimu/codex-ppt-skill](https://github.com/ningzimu/codex-ppt-skill).
+
+---
+
+## Cross-References
+
+| Skill | When to use it instead |
+|---|---|
+| [`../pptx/`](../pptx/SKILL.md) | Canonical Z.AI pptx skill — HTML-first pipeline (1280×720 standalone HTML slides → Playwright render → `batch_html2pptx.js` assembly) with `ppt-expert` sub-agent fan-out. Use when you need per-text-shape editability, dynamic text replacement on existing decks (`python-pptx`), or HTML/CSS design control instead of full-slide image generation. |
+| [`../pptx-generator/`](../pptx-generator/SKILL.md) | PptxGenJS-based pipeline with 5 slide page types (Cover, TOC, Section Divider, Content, Summary), 4 style recipes (Sharp/Soft/Rounded/Pill), and `references/editing.md` XML manipulation for template-based editing. Use when you want native PptxGenJS shapes/charts instead of image-based slides. |
+| [`../cyber-ppt/`](../cyber-ppt/SKILL.md) | Chinese consulting-style (MBB-grade) PPTX with SCR argumentation, evidence-chain tables, 8 fixed visual styles, and 3 mandatory confirmation gates. Use when the source is business/research material and the audience expects consulting-deck rigor. |
+| [`../image-generation/`](../image-generation/SKILL.md) | Standalone image generation skill — the codex-ppt pipeline prefers the built-in image backend but falls back to `scripts/image_gen.py`. Use the standalone skill when you need single-image generation outside of a deck context. |
+
+### Shared rules (apply across all image-based PPT pipelines)
+
+- **Backend lock**: once an image backend is confirmed for the sample slide, EVERY subsequent slide MUST use the same backend. Do not let subagents switch backend mid-deck.
+- **No local drawing fallbacks**: Pillow, SVG, HTML/CSS canvas screenshots, `python-pptx`/PptxGenJS layouts, and manual overlays are failure modes, not fallbacks. If the image backend is unavailable, stop and report a blocker.
+- **Slide dispatch must be recorded**: chat messages alone do not make a slide dispatched or complete. Always use the bundled state-recording scripts.
+- **Sample approval is binding**: after the user approves the sample slide, record how it was generated and pass that exact method to every slide subagent.

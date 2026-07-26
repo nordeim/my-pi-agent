@@ -247,3 +247,22 @@ slide.addText("03", {
 - `pip install "markitdown[pptx]"` — text extraction
 - `npm install -g pptxgenjs` — creating from scratch
 - `npm install -g react-icons react react-dom sharp` — icons (optional)
+
+---
+
+## Cross-References
+
+| Skill | When to use it instead |
+|---|---|
+| [`../pptx/`](../pptx/SKILL.md) | Canonical Z.AI pptx skill — HTML-first pipeline that renders 1280×720 standalone HTML slides via Playwright, then assembles them into `.pptx` with `batch_html2pptx.js`. 4-stage workflow (Clarify → Research → Plan → Build) with `AskUserQuestion` palette/typography gates, fan-out to `ppt-expert` sub-agents, and `slides_brief.json` as single source of truth. Use when you want HTML/CSS design freedom, parallel sub-agent rendering, or post-edit `python-pptx` text replacement on existing decks. |
+| [`../codex-ppt/`](../codex-ppt/SKILL.md) | Image-based PPT generation — each slide is a complete 16:9 generated image, assembled via `assemble_ppt.py`. Use when visual unity matters more than per-shape editability. |
+| [`../cyber-ppt/`](../cyber-ppt/SKILL.md) | Chinese consulting-style (MBB-grade) PPTX with SCR argumentation, evidence-chain tables, 8 visual styles, and 3 confirmation gates. Use for evidence-driven consulting decks from DOCX/PDF/XLSX source material. |
+| [`../charts/`](../charts/SKILL.md) | Standalone chart/diagram generation when the deck is mostly chart carriers. |
+
+### Shared rules (apply across all PPTX skills)
+
+- Slide canvas: 16:9 (10" × 5.625" in PptxGenJS or 1280×720 in HTML). Never mix canvas sizes within one deck.
+- Color values: 6-char hex without `#` in PptxGenJS (e.g., `"FF0000"`); CSS hex with `#` in HTML (e.g., `"#FF0000"`). Don't confuse the two.
+- Every text color on every background must pass WCAG AA (4.5:1 contrast). Dark backgrounds require explicit light TextRun colors — never rely on default black.
+- Diversify layouts across slides — never repeat the same layout back-to-back. Use cover / section header / split text+image / bento grid / stats / timeline / comparison / quote / closing as a rotation.
+- Never fabricate image URLs. Only embed images that came from a real image-search result or a user-supplied asset.
