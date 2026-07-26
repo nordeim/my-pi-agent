@@ -200,6 +200,7 @@ bash scripts/make.sh demo    # build a sample PDF
 | Skill | When to prefer it |
 |---|---|
 | [`../pdf/`](../pdf/SKILL.md) | Canonical Z.AI PDF skill — four production lines (Report via ReportLab, Creative via JSON Blueprint + Playwright, Academic via Tectonic/LaTeX, Process for manipulate-existing). Use when you need LaTeX academic typesetting, the JSON Blueprint creative pipeline, or `pdf_qa.py` 12-rule automated QA. |
+| [`../kimi-pdf/`](../kimi-pdf/SKILL.md) | Kimi (Moonshot AI) HTML+Paged.js (default) or LaTeX/Tectonic PDF pipeline with 11 cover styles, KaTeX math, Mermaid diagrams, three-line tables (三线表), GB/T 7714 + APA citation standards with per-language split, clickable cross-references, and search-before-write enforcement. Use when you want HTML-first pagination, academic three-line tables, or the unified `pdf.sh` CLI. |
 | [`../resume-builder/`](../resume-builder/SKILL.md) | Resume-specific PDF generation with ATS keyword checks. |
 | [`../charts/`](../charts/SKILL.md) | Standalone chart/diagram generation when the PDF is just a chart carrier. |
 

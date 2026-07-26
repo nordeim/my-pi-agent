@@ -146,6 +146,7 @@ python3 SKILL_DIR/scripts/xlsx_insert_row.py /tmp/work/ --at 6 ...  # insert row
 | Skill | When to prefer it |
 |---|---|
 | [`../xlsx/`](../xlsx/SKILL.md) | Canonical Z.AI xlsx skill — openpyxl + pandas workbench with scene router (create/edit/analyze/convert/finance/finance_lite/advanced/vba), complexity gate (LITE vs FULL), `templates/base.py` design-token single source of truth, and `quality/pipeline.md` integrity workflow. Use when you want the openpyxl-based pipeline with `Workbook(write_only=True)` for large writes and `load_workbook(read_only=True)` for large reads. |
+| [`../kimi-xlsx/`](../kimi-xlsx/SKILL.md) | Kimi (Moonshot AI) openpyxl/pandas + KimiXlsx CLI pipeline with 6-command validation tooling (`recheck` for formula errors + implicit array detection, `reference-check` for out-of-range/header/inconsistent patterns, `inspect` for structure → JSON, `pivot` for PivotTable + auto-chart via pure OpenXML SDK, `chart-verify`, `validate` for OpenXML schema compliance). Use when you need PivotTables, the most comprehensive validation tooling, cover pages with key metrics, or source-citation tracking for external data. |
 | [`../charts/`](../charts/SKILL.md) | Standalone chart/diagram generation. |
 | [`../finance/`](../finance/SKILL.md) | Domain knowledge for financial modeling (DCF, LBO, three-statement linkage). |
 | [`../stock-analysis/`](../stock-analysis/SKILL.md) | Equity analysis workflows that often produce xlsx outputs. |

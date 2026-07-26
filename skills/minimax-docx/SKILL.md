@@ -282,6 +282,7 @@ Note: `Samples/` path is relative to `scripts/dotnet/MiniMaxAIDocx.Core/`.
 | Skill | When to prefer it |
 |---|---|
 | [`../docx/`](../docx/SKILL.md) | Canonical Z.AI docx skill — JavaScript / `docx` (npm) pipeline with 7 cover recipes (R1–R7), scene router (academic/report/contract/resume/exam/official/copywriting), `postcheck.py` 14-rule validator. Use when you want the JS-based pipeline instead of .NET. |
+| [`../kimi-docx/`](../kimi-docx/SKILL.md) | Kimi (Moonshot AI) C# OpenXML SDK + Python+lxml pipeline with native Word charts (editable, small file size), Morandi/ink-wash background generators, pre-compiled OpenXML validator binary, and the most complete Track Changes + Comments Python API (`docx_lib.editing`). Use when you need native editable charts, designer-quality Morandi backgrounds, or programmatic track-changes editing. |
 | [`../docx-generation/`](../docx-generation/SKILL.md) | Bidirectional Markdown ↔ DOCX conversion with the same design-system rules. |
 | [`../pandoc-docx-template/`](../pandoc-docx-template/SKILL.md) | Pandoc-based DOCX with bundled Chinese reference templates and Lua filters. |
 | [`../resume-builder/`](../resume-builder/SKILL.md) | Resume-specific DOCX/PDF generation with STAR rewrites and ATS keyword checks. |
