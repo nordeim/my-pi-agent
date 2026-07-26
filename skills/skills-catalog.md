@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **179 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **180 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -230,6 +230,7 @@
 | **pandoc-docx-template** | Convert Markdown ↔ Word DOCX with Pandoc using bundled Chinese Word reference templates and Lua filters. 7 template variants (heading numbering on/off, list indentation on/off, no first-line indent, SCI paper layouts with double-spacing + line numbers), 5 Lua filters (`markdown-html-recognition` for `<sub>`/`<sup>`/`<img>`/`==highlight==` tags, `image-title-to-caption` using image title as Word caption with Figure style, `image-title-to-caption-add-number` for auto-numbering, `preserve_font_color` for `<span style="color:red">` font color preservation, `add-inline-code` for custom inline code styling), Python scripts (`md2docx.py` / `docx2md.py`) for repeatable conversions with template selection + extra Pandoc args passthrough, and the aggregate `markdown-to-docx.lua` filter that loads sub-filters via dynamic path resolution. Use when converting Markdown to Word or Word to Markdown — especially for Chinese-language documents where Pandoc's default styling is insufficient, or when you need HTML tag preservation, image captions from title text, font color retention, or SCI paper formatting. |
 | **translation-engine** | Deterministic Forensic Translation Engine v10.1 — bilingual (Chinese ↔ English) translation with L4 (Forensic Grade) precision and L3 (Strict Grade) professional publishing. 6-phase scratchpad protocol (IU definition → domain pack selection → draft-lock via successive versioning → audit → targeted repair → output), 5 pluggable domain packs (Engineering with RFC 2119/8174 markers, Legal with forensic modality markers, Medical with clinical modality markers, Financial with securities-disclosure markers, Academic with scientific publishing collocations), anti-enhancement protocol (prohibits ADDING elements not present in source), code-fence cryptographic seal, glossary management with 3-tier certainty levels (`locked-standard` / `locked-context` / `candidate`), 10 few-shot calibration examples, size-aware draft-lock tiers (full <800 words, segmented 800–3,000, mandatory segmentation >3,000), and a minimal Python wrapper (`TE10_wrapper_minimal.py`). Use when translating between Chinese and English — especially for legal, medical, financial, engineering, or academic documents where L3/L4 precision is required. |
 | **codex-ppt** | Generate visually unified image-based PPT/PPTX decks from articles, reports, papers, notes, or outlines. Each slide is a complete 16:9 AI-generated image assembled into .pptx. Uses approval-gated workflow with 7 mandatory phases, parallel sub-agent dispatch, script-recorded state tracking, and 13 built-in Chinese style references. Use for visually polished "final form" decks where text-in-image is acceptable — complements `pptx` (which produces editable-text HTML→PPTX output). |
+| **cyber-ppt** | Convert DOCX, PDF, TXT, XLSX, research reports, and business materials into MBB-grade, editable, consulting-style PPTX decks. Uses 3-phase pipeline: (1) evidence analysis with issue/hypothesis trees and 2-3 alternative storylines, (2) fixed 8 visual-style blueprint exploration with per-page ImageGen blueprints, (3) PptxGenJS hybrid reconstruction with dual-gate QA (editable information layer + visual semantics fidelity). Features 15-level typography scale, 11K+ bundled SVG icon library, spatial anchor system, curve precision tracking, page-by-page user confirmation, and mandatory `/visual_qa_gate.json` per slide. Complements `pptx` (editable HTML→PPTX) and `codex-ppt` (image-based). |
 
 ---
 
@@ -301,10 +302,10 @@
 | 5   | Testing, QA & Performance                      | 14      |
 | 6   | Code Quality, Security & Architecture          | 15      |
 | 7   | Planning, Workflow & Project Management        | 23      |
-| 8   | Documentation & Content Creation               | 17      |
+| 8   | Documentation & Content Creation               | 18      |
 | 9   | Career, Learning & Personal Development        | 14      |
 | 10  | DevOps, Infrastructure & External Integrations | 25      |
-|     | **Total**                                      | **179** |
+|     | **Total**                                      | **180** |
 
 ---
 
@@ -325,3 +326,18 @@
 - Next.js 16 + React + Tailwind v4 full-stack marketing/booking/memberships → `nextjs16-react19-tailwind4-full-stack`
 - Next.js 16 + React + Tailwind v4 + tRPC + Drizzle + Better Auth → `nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth`
 - Choosing between Auth.js v5 and Better Auth → `authjs-vs-better-auth`
+
+**📌 PPT/Presentation Skill Selection Guide:**
+
+| Scenario | Choose |
+|----------|--------|
+| Quick presentation from scratch, need editable output | `pptx` |
+| Editing existing .pptx decks, reading comments/notes, OOXML work | `pptx` |
+| Academic presentations (Beamer/LaTeX → PDF) | `pptx` |
+| Visual polish, fast turnaround, text editing not required | `codex-ppt` |
+| Consulting deliverables (MBB-grade): evidence chains, SCR, issue trees | `cyber-ppt` |
+| High-density data slides requiring pixel-precise layout replication | `cyber-ppt` |
+| Multi-format source analysis (PDF, DOCX, XLSX, TXT) → structured deck | `cyber-ppt` |
+| Board materials, investor pitch, premium brand deck (editable) | `cyber-ppt` |
+| Chinese-language consulting/business content decks | `cyber-ppt` or `pptx` |
+| Image-forward visual brand showcase (quick, image-based) | `codex-ppt` |
