@@ -914,3 +914,22 @@ export default async function handler(req, res) {
 - Validate and sanitize user inputs
 - Consider privacy and security when processing user videos
 - For very long videos, consider analyzing specific segments or key frames
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../VLM/`](../VLM/SKILL.md) | Vision-Language Model for static images. Use video-understand for temporal/motion analysis (sequences across time); use VLM for single-frame analysis (objects, text, composition in one image). |
+| [`../image-understand/`](../image-understand/SKILL.md) | Image understanding / description — extract key frames from a video (via ffmpeg) then use image-understand for per-frame metadata. |
+| [`../video-generation/`](../video-generation/SKILL.md) | When you need to create video content rather than analyze it. video-understand analyzes existing video; video-generation creates new video from text prompts. |
+| [`../ASR/`](../ASR/SKILL.md) | Automatic Speech Recognition — extract audio track from a video (via ffmpeg), then use ASR to transcribe speech. Combines with video-understand for full multimodal analysis (visual + audio). |
+| [`../TTS/`](../TTS/SKILL.md) | Text-to-Speech — when generating voiceover for video content. Use video-understand first to understand the existing visual flow, then TTS to generate matching narration. |
+
+### Shared best practices (apply across all video analysis workflows)
+
+- **Segment long videos**: For videos > 2 minutes, extract key segments or sample frames at fixed intervals (e.g., 1 frame per second) before analysis. Full-length video analysis is slow and may hit token limits.
+- **Audio track extraction**: Use `ffmpeg -i input.mp4 -vn -acodec pcm_s16le -ar 16000 -ac 1 audio.wav` to extract a clean 16kHz mono PCM audio track for ASR processing.
+- **Key frame extraction**: Use `ffmpeg -i input.mp4 -vf "fps=1" frame_%04d.png` to extract 1 frame per second for visual analysis. Adjust `fps` based on video tempo.
+- **Privacy and consent**: Video understanding may capture faces, license plates, and other PII. Validate that you have consent to analyze the video content before processing. For sensitive content, blur faces first with `ffmpeg -i input.mp4 -vf "faceblur" output.mp4`.

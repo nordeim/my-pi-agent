@@ -910,3 +910,21 @@ console.log('Sources:', result.sources);
 - Use specific query terms for better search results
 - Validate and filter results before displaying to users
 - Check `scripts/web_search.ts` for a quick start example
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../web-reader/`](../web-reader/SKILL.md) | When you need to extract full content from a search result URL — web-search returns snippets + URLs; web-reader fetches the full page HTML, title, and publish time. |
+| [`../multi-search-engine/`](../multi-search-engine/SKILL.md) | When you need to query multiple search engines (Google, Bing, Baidu, etc.) in parallel for broader coverage or cross-engine result comparison. |
+| [`../agent-browser/`](../agent-browser/SKILL.md) | When search results lead to JavaScript-heavy SPAs that web-reader can't extract — agent-browser renders the page, then extracts content. |
+| [`../content-analysis/`](../content-analysis/SKILL.md) | When you need to analyze the search results themselves (sentiment, topic clustering, entity extraction) rather than just list them. |
+| [`../image-search/`](../image-search/SKILL.md) | When you need images rather than text — the two skills share the `z-ai` CLI binary but serve different content types. |
+
+### Shared best practices (apply across all web-search workflows)
+
+- **Query specificity**: "React 19 Suspense" is better than "React". "React 19 Suspense fallback loading state 2025" is better still. Add version numbers, specific feature names, and time qualifiers to get relevant results.
+- **Result validation**: Search results may be outdated, biased, or inaccurate. For factual claims, cross-reference 2-3 sources before quoting. For technical claims, check the publication date — frontend best practices change quickly.
+- **Snippet vs full content**: Search snippets are truncated and may misrepresent the source. Always use web-reader to fetch the full page before quoting or summarizing a search result.

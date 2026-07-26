@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **184 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **192 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -63,6 +63,7 @@
 | **image-search**              | ZAI in-house image search. Retrieve real images with optional captions, OSS-hosted direct URLs.                                                          |
 | **web-shader-extractor**      | Extract WebGL/Canvas/Shader effects from live pages, deobfuscate, and port to standalone native JS projects.                                             |
 | **comfyui-workflow-scaffold** | Create valid ComfyUI workflow JSON templates for Apple Silicon image generation. Scaffold LoRA/ControlNet/VAE nodes, validate Mac MPS/MLX compatibility. |
+| **podcast-generate**          | Generate podcast episodes from user-provided content or by searching the web for specified topics. Dual-host dialogue (or single-host) format, 3-20 min duration (~240 chars/min). Uses z-ai-web-dev-sdk for LLM script generation + TTS audio synthesis. Outputs both Markdown script and WAV audio. Use for long-form content audio-ization, knowledge podcast creation, or hot-topic deep-dive discussion. |
 
 > **Cross-reference:** `aesthetic` and `visual-design-foundations` are also highly relevant to frontend development (Category 1).
 
@@ -235,6 +236,7 @@
 | **codex-ppt** | Generate visually unified image-based PPT/PPTX decks from articles, reports, papers, notes, or outlines. Each slide is a complete 16:9 AI-generated image assembled into .pptx. Uses approval-gated workflow with 7 mandatory phases, parallel sub-agent dispatch, script-recorded state tracking, and 13 built-in Chinese style references. Use for visually polished "final form" decks where text-in-image is acceptable — complements `pptx` (which produces editable-text HTML→PPTX output). |
 | **cyber-ppt** | Convert DOCX, PDF, TXT, XLSX, research reports, and business materials into MBB-grade, editable, consulting-style PPTX decks. Uses 3-phase pipeline: (1) evidence analysis with issue/hypothesis trees and 2-3 alternative storylines, (2) fixed 8 visual-style blueprint exploration with per-page ImageGen blueprints, (3) PptxGenJS hybrid reconstruction with dual-gate QA (editable information layer + visual semantics fidelity). Features 15-level typography scale, 11K+ bundled SVG icon library, spatial anchor system, curve precision tracking, page-by-page user confirmation, and mandatory `/visual_qa_gate.json` per slide. Complements `pptx` (editable HTML→PPTX) and `codex-ppt` (image-based). |
 | **pptx-generator** | Lightweight PptxGenJS-native slide generation from scratch and XML-based template editing. Create presentations as per-slide standalone JS modules with a strict theme object contract (`primary`, `secondary`, `accent`, `light`, `bg`). Features 18 curated color palettes, 4 style recipes (Sharp/Soft/Rounded/Pill), 5 page types (Cover, TOC, Section Divider, Content, Summary) with detailed layout specs, mandatory page number badges, and markitdown-based QA. No external dependencies beyond PptxGenJS and markitdown. Use for quick programmatic editable decks when you don't need the full MBB consulting pipeline (`cyber-ppt`) or the HTML→PPTX path (`pptx`). Also supports XML-based editing of existing template PPTX files. |
+| **qingyan-research** | Deep web research and HTML report generation. Multi-step search, deep reading, and logical reasoning for open-ended questions. Critical thinking with dynamic reflection to optimize search strategies. Outputs publication-quality HTML research reports with specific UI/UX standards (typography, colors, layout), interactive Chart.js data visualizations from extracted statistical data, automatic Table of Contents, and responsive design. Use for systematic information gathering and analysis that produces a polished HTML report — complements `market-research-reports` (LaTeX PDF) and `blog-writer` (prose articles). |
 
 ---
 
@@ -258,6 +260,11 @@
 | **gift-evaluator**         | Spring Festival gift analysis: visual perception, market valuation, social response generation.                  |
 | **dream-interpreter**      | AI dream interpretation from three perspectives (traditional/psychological/cyber). Structured JSON output.       |
 | **anti-pua**               | Psychological analysis of PUA/emotional manipulation. Personality profiling, toxic relationship detection.       |
+| **gaokao-collect-student-info** | 高考志愿填报信息采集（Step 1/5）: 收集省份、分数、选科等 API 必填项及兴趣、家庭、就业方向等辅助信息。以考生原生表述为准，尽量不做改写与过度归纳，输出结构化 `student.json`。仅负责信息收集，不调用 API、不做推荐。适用于高考志愿咨询开场、考生信息登记、志愿填报前的信息收集。 |
+| **gaokao-fetch-volunteers**     | 获取推荐志愿表（Step 2/5）: 读取 `student.json`，提取并映射考生倾向到 API 选填参数，调用高考智能推荐志愿表 API，获取冲稳保志愿列表，解析为 `parsed.json`。上游 `gaokao-collect-student-info`，下游 `gaokao-recommend-majors` / `gaokao-recommend-schools` / `gaokao-generate-report`。 |
+| **gaokao-recommend-majors**     | 推荐专业与就业方向（Step 3/5）: 纯 Agent 分析，无规则脚本。结合考生兴趣、成绩、就业意向与 `parsed.json` 中的真实专业，产出个性化专业推荐 `major_recommendation.json`。上游 `student.json` + `parsed.json`，下游 `gaokao-recommend-schools`。 |
+| **gaokao-recommend-schools**    | 推荐院校与理由（Step 4/5）: 在已确定专业方向的基础上，从 `parsed.json` 中推荐院校并说明个性化理由，输出 `school_recommendation.json`。上游 `student.json` + `parsed.json` + `major_recommendation.json`，下游 `gaokao-generate-report`。 |
+| **gaokao-generate-report**      | 生成志愿填报报告（Step 5/5）: 合并考生信息、志愿列表、专业推荐与院校推荐，渲染融合分析与冲稳保志愿列表的 HTML 志愿填报报告。上游 `parsed.json` + `major_recommendation.json` + `school_recommendation.json`。 |
 
 ---
 
@@ -275,6 +282,7 @@
 | **marketing-mode**                   | 23 marketing skills combined: strategy, psychology, content, SEO, conversion optimization, paid growth.                          |
 | **ai-news-collectors**               | AI news aggregation and trending. New products, research, funding, viral community content. Sorted by heat.                      |
 | **aminer-academic-search**           | Academic search via AMiner Open Platform (27 APIs, 5 workflows). Papers, citations, scholars, patents.                           |
+| **aminer-free-academic**             | Free-tier-only AMiner skill (7 free APIs, zero cost) for simple, single-step academic lookups. Use for: searching a paper by title to get its ID, checking first author / venue / year / citation bucket, identifying a scholar by name (interests, institution, citation count), normalizing institution names to canonical form + ID, checking if a venue is a conference or journal, scanning patent trends by keyword, and enriching paper IDs with lightweight metadata. Do NOT use for: full abstracts/keyword lists, multi-condition or semantic search, citation relationship analysis, scholar full profiles, scholar paper/patent/project lists, institution analysis, venue paper lists, or patent deep details — those require the paid `aminer-academic-search` skill (27 APIs). Routing rule: if the question can be fully answered by `paper_search`, `paper_info`, `person_search`, `organization_search`, `venue_search`, `patent_search`, or `patent_info` alone, use this free skill; otherwise route to `aminer-academic-search`. |
 | **aminer-daily-paper**               | Personalized academic paper recommendations. Topic/author extraction, Markdown results.                                          |
 | **skill-creator**                    | Guide for creating new skills. Workflows, tool integrations, specialized knowledge packaging.                                    |
 | **how-to-git-push-using-ssh-wrapper** | Push commits to GitHub via Paramiko-based SSH wrapper when OpenSSH is not installed. Use when `git push` fails with "Permission denied (publickey)" or in minimal containers, distroless images, or Python-only environments.                                     |
@@ -300,16 +308,16 @@
 | #   | Category                                       | Count   |
 | --- | ---------------------------------------------- | ------- |
 | 1   | Frontend Development & UI Engineering          | 30      |
-| 2   | Design Artifacts & Visual Creation             | 10      |
+| 2   | Design Artifacts & Visual Creation             | 11      |
 | 3   | Full-Stack & Backend Development               | 23      |
 | 4   | AI / ML / Multimodal SDK Skills                | 8       |
 | 5   | Testing, QA & Performance                      | 14      |
 | 6   | Code Quality, Security & Architecture          | 15      |
 | 7   | Planning, Workflow & Project Management        | 23      |
-| 8   | Documentation & Content Creation               | 19      |
-| 9   | Career, Learning & Personal Development        | 14      |
-| 10  | DevOps, Infrastructure & External Integrations | 25      |
-|     | **Total**                                      | **181** |
+| 8   | Documentation & Content Creation               | 23      |
+| 9   | Career, Learning & Personal Development        | 19      |
+| 10  | DevOps, Infrastructure & External Integrations | 26      |
+|     | **Total**                                      | **192** |
 
 ---
 

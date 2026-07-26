@@ -894,3 +894,20 @@ echo "Variations created successfully!"
 - Test edit prompts iteratively for best results
 - Consider creating variations to explore options
 - Base64 images need to be decoded before saving
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../image-generation/`](../image-generation/SKILL.md) | When you need to create an image from scratch rather than edit an existing one. Use image-generation first, then image-edit to refine. |
+| [`../image-search/`](../image-search/SKILL.md) | When you need a source image to edit — search for real stock photos, then apply edits (style transfer, partial redraw, variation). |
+| [`../VLM/`](../VLM/SKILL.md) | Vision-Language Model — use to understand the current content of an image before editing, so your edit prompt targets the right regions and attributes. |
+| [`../image-understand/`](../image-understand/SKILL.md) | Image understanding / description — use to extract structured metadata (objects, colors, composition) from an image before deciding what to edit. |
+
+### Shared best practices (apply across all image-edit workflows)
+
+- **Iterative refinement**: Image editing is rarely one-shot. Plan for 2-3 iterations: generate → evaluate → refine prompt → regenerate. Each iteration should change ONE variable (style, region, intensity) so you can attribute improvements correctly.
+- **Preserve original**: Always keep the source image. Edits are destructive — if the user doesn't like the result, you need the original to try a different approach.
+- **Base64 handling**: When passing images via base64, decode and save to disk before any further processing. Operating on raw base64 strings is error-prone and memory-intensive.

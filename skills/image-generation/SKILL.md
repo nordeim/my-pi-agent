@@ -581,3 +581,24 @@ echo "Assets generated successfully!"
 - Consider caching for repeated prompts
 - Implement retry logic for production applications
 - Use descriptive prompts for better results
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../image-edit/`](../image-edit/SKILL.md) | When the generated image needs modification — variation creation, partial redraw, style transfer. Use image-edit to refine a generated image rather than re-prompting from scratch. |
+| [`../image-search/`](../image-search/SKILL.md) | When you need real stock photos (not AI-generated). Use image-search first for authentic imagery; fall back to image-generation only when stock photos can't match the creative brief. |
+| [`../VLM/`](../VLM/SKILL.md) | Vision-Language Model — use to verify a generated image matches the prompt intent before delivery, or to describe what was actually generated. |
+| [`../charts/`](../charts/SKILL.md) | When generating infographic-style backgrounds or decorative illustrations that complement data charts — share the chart palette for visual consistency. |
+| [`../pptx/`](../pptx/SKILL.md) | When generating slide hero images — the pptx skill's `z-ai image-search` CLI has a 6-call hard limit per deck, so plan image needs up front and reuse URLs across slides. |
+| [`../pdf/`](../pdf/SKILL.md) | When generating images for PDF embedding — Creative pipeline supports emoji and custom dimensions natively; Report (ReportLab) renders emoji as `□` squares. |
+| [`../design/`](../design/SKILL.md) | For design-system consistency — borrow palette tokens and typography from the design skill so generated images match the project's visual identity. |
+
+### Shared best practices (apply across all image skills)
+
+- **Prompt specificity**: "A photo of a cat" produces generic output. "A close-up photograph of a Maine Coon cat with green eyes sitting on a sunlit windowsill, shallow depth of field, warm afternoon light" produces distinctive output. Always specify subject, framing, lighting, and mood.
+- **Aspect ratio awareness**: Match the image dimensions to the destination. Slide heroes: 16:9 (1280×720). Document figures: 4:3 or 1:1. Social cards: 1.91:1 (1200×630) for OG, 1:1 for Instagram. Generating at the wrong aspect ratio forces cropping that loses content.
+- **Caching for repeated prompts**: If the same prompt will be used multiple times (e.g., variations of a logo), cache the result. AI image generation is slow and costly — don't regenerate identical outputs.
+- **Retry logic**: Network and model availability fluctuate. Wrap image-generation calls in a retry loop (3 attempts with exponential backoff) for production reliability.

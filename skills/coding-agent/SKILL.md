@@ -118,3 +118,27 @@ This skill makes NO network requests.
 - Access files outside `~/code/` and user's project
 - Take autonomous actions without user awareness
 - Delegate to sub-agents without user's explicit request
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../tdd-workflow/`](../tdd-workflow/SKILL.md) | Red → Green → Refactor → Commit cycle. One cycle per commit. For bugs: write failing regression test first, then fix. |
+| [`../test-driven-development/`](../test-driven-development/SKILL.md) | Broader TDD methodology and test-first thinking patterns. |
+| [`../code-review-and-audit/`](../code-review-and-audit/SKILL.md) | Pre-merge code review checklist and audit patterns. |
+| [`../code-quality-standards/`](../code-quality-standards/SKILL.md) | Language-specific quality bar (TypeScript strict, no `any`, early returns, composition over inheritance). |
+| [`../clean-code/`](../clean-code/SKILL.md) | Refactoring patterns for reducing complexity — extract function, rename, inline, etc. |
+| [`../debugging-and-error-recovery/`](../debugging-and-error-recovery/SKILL.md) | Systematic diagnosis: symptoms → potential causes → root cause → solution → validation. |
+| [`../incremental-implementation/`](../incremental-implementation/SKILL.md) | Small-step delivery: each step leaves the codebase in a working state. |
+| [`../planning-and-task-breakdown/`](../planning-and-task-breakdown/SKILL.md) | Multi-step task decomposition with verifiable checkpoints. |
+| [`../verification-and-review-protocol/`](../verification-and-review-protocol/SKILL.md) | QA gate before delivery — success criteria, edge cases, accessibility, performance. |
+
+### Shared best practices (apply across all coding-workflow skills)
+
+- **State file discipline**: The `state.md` file is the single source of truth for session progress. Update it after every meaningful step, not at the end. A stale state file is worse than no state file.
+- **Planning before coding**: Read `planning.md` and produce a written plan before writing any code. The plan is a commitment device — it forces you to confront unknowns before they become bugs.
+- **Verification is not optional**: "It compiles" is never sufficient evidence of completion. Browser-verified interactivity (for web) or test-verified behavior (for libraries) is the required standard of done.
+- **Criteria-driven work**: Read `criteria.md` at the start of every task. If success criteria are ambiguous, ask the user before coding. Ambiguous criteria guarantee rework.
+- **Memory file for cross-session continuity**: Use `memory-template.md` to record decisions, rationale, and gotchas. This is how a coding agent becomes more effective over time rather than resetting each session.

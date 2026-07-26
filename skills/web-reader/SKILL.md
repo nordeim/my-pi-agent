@@ -1138,3 +1138,23 @@ console.log('Scheduled fetching started');
 - Respect website terms of service and rate limits
 - Process HTML content carefully to extract meaningful data
 - Monitor token usage for cost optimization
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../web-search/`](../web-search/SKILL.md) | When you need to discover URLs first — web-search finds pages, web-reader extracts their content. Use together for full research workflows. |
+| [`../agent-browser/`](../agent-browser/SKILL.md) | When the target page is a JavaScript-heavy SPA that requires rendering before content is visible. web-reader fetches raw HTML; agent-browser renders the DOM. |
+| [`../content-analysis/`](../content-analysis/SKILL.md) | When you need to analyze the extracted content (summarization, entity extraction, sentiment, topic modeling) rather than just store it. |
+| [`../blog-writer/`](../blog-writer/SKILL.md) | When researching source material for a blog post — web-reader extracts content from reference articles, then blog-writer synthesizes them into original prose. |
+| [`../seo-content-writer/`](../seo-content-writer/SKILL.md) | When writing SEO content — web-reader extracts competitor content for gap analysis and keyword research. |
+| [`../multi-search-engine/`](../multi-search-engine/SKILL.md) | When you need broader discovery — multi-search-engine queries multiple engines, then web-reader extracts content from the top results across all engines. |
+
+### Shared best practices (apply across all web-reader workflows)
+
+- **Rate limiting**: Respect `robots.txt` and per-site rate limits. A 1-2 second delay between requests to the same domain is courteous. Aggressive scraping gets your IP blocked and ruins the workflow for everyone.
+- **Content extraction priority**: Web-reader returns title, HTML, and publish time. For body content, strip navigation, sidebars, footers, and ads. Use readability-lib or trafilatura for boilerplate removal.
+- **Token budgeting**: Web page HTML can be 100KB+. Monitor token usage when feeding extracted content to an LLM — truncate or summarize before sending to avoid context overflow.
+- **Encoding detection**: Some sites declare UTF-8 but serve GBK or Latin-1. Detect encoding from `<meta charset>` and HTTP `Content-Type` headers; fall back to chardet for ambiguous cases.

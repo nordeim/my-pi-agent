@@ -852,3 +852,25 @@ agent-browser -p ios tap @e1                             # Touch element
 ## Reporting Issues
 
 - **CLI issues:** https://github.com/vercel-labs/agent-browser
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../browser-testing-with-devtools/`](../browser-testing-with-devtools/SKILL.md) | When browser automation is for testing (assertions, devtools protocol, network interception) rather than scraping or task automation. |
+| [`../web-shader-extractor/`](../web-shader-extractor/SKILL.md) | When the goal is extracting WebGL/shader effects from a live page — agent-browser navigates to the page, then web-shader-extractor analyzes the rendered DOM and bundle. |
+| [`../web-reader/`](../web-reader/SKILL.md) | When you need structured content extraction (title, HTML, publish time) from a page that agent-browser has navigated to. |
+| [`../e2e-testing-lessons/`](../e2e-testing-lessons/SKILL.md) | For E2E testing patterns and lessons learned — complements agent-browser's navigation/click/type primitives with test-structure guidance. |
+| [`../webapp-testing/`](../webapp-testing/SKILL.md) | For broader webapp testing strategy (test pyramids, fixture management, CI integration). |
+| [`../playwright-cli/`](../playwright-cli/SKILL.md) | When you need raw Playwright CLI access without the agent-browser abstraction layer. |
+| [`../chrome-devtools-mcp/`](../chrome-devtools-mcp/SKILL.md) | For Chrome DevTools Protocol via MCP — performance tracing, network throttling, CPU profiling. |
+
+### Shared best practices (apply across all browser-automation skills)
+
+- **Headless-first**: Default to headless mode (`--headless`) for CI/automation; only use headed mode for debugging or when a site has headless detection.
+- **Viewport consistency**: Always set an explicit viewport (`--viewport 1280x720` or similar). Default viewports vary across browser versions and cause flaky screenshots.
+- **Wait strategies**: Prefer `waitForSelector` / `waitForFunction` over fixed `sleep`. Fixed sleeps create race conditions; DOM-based waits are deterministic.
+- **Screenshot device scale factor**: Use `device_scale_factor=2` for 300dpi-equivalent quality when screenshots will be embedded in documents. Use `1.5` for very large canvases (3000px+) to keep file size manageable.
+- **Anti-detection hygiene**: When scraping, set a realistic User-Agent, disable `navigator.webdriver`, and add `--disable-blink-features=AutomationControlled`. Many sites block bare Playwright/Puppeteer fingerprints.

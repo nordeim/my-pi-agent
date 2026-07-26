@@ -161,3 +161,23 @@ Failure response (HTTP is still 200; check `success`):
 | `API request failed with status 401` / `403` | Auth issue at the gateway | Tell the user — credentials are managed outside this skill. |
 | `API request failed with status 502` | Upstream service unreachable | Retry; if it persists the in-house service is down. |
 | Empty `results` but `success: true` | Query too narrow or upstream filtered everything | Broaden the query, raise `--count`, or change `--gl`. |
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../image-generation/`](../image-generation/SKILL.md) | When stock photos can't match the creative brief — fall back to AI generation. Search first (authentic, free, fast); generate second (creative control, cost). |
+| [`../image-edit/`](../image-edit/SKILL.md) | When a found stock photo needs modification — crop, style transfer, partial redraw, or variation generation. |
+| [`../web-search/`](../web-search/SKILL.md) | When you need text-based web search results (not images). The two skills share the `z-ai` CLI binary but serve different content types. |
+| [`../blog-writer/`](../blog-writer/SKILL.md) | When writing blog posts that need cover images and inline illustrations — image-search provides authentic, license-clear photos. |
+| [`../seo-content-writer/`](../seo-content-writer/SKILL.md) | When writing SEO content that needs images for organic search ranking — image-search results include captions useful for alt text. |
+| [`../pptx/`](../pptx/SKILL.md) | When building slide decks — the pptx skill's `z-ai image-search` CLI has a 6-call hard limit per deck, so batch image needs and reuse URLs across slides. |
+
+### Shared best practices (apply across all image-search workflows)
+
+- **Natural-language queries**: The `--query` flag accepts full sentences, not keyword strings. "A photograph of a modern minimalist home office with natural light" returns better results than "home office modern minimalist". The ranking model is semantic.
+- **Inline URLs into briefs**: When dispatching slide-rendering sub-agents (pptx) or content sub-agents, bake the picked `original_url` directly into the `task_brief`. Sub-agents have no access to search results — the URL must be inlined.
+- **Reuse across consumers**: A single image-search call can return up to 10 results. Pick the best one for the primary use case and keep the others as alternates — don't re-search for the same concept.
+- **Hard limit awareness**: The pptx skill caps image-search at 6 calls per deck trajectory. Plan image needs up front: cover hero + section dividers + key content slides. Reuse URLs where possible.

@@ -236,3 +236,30 @@ You MUST use **Agent Browser** to perform end-to-end self-verification before re
    - If a specific flow genuinely cannot be verified in the browser, say so explicitly rather than claiming success.
 
 **CRITICAL:** "It compiles" / "the server is up" is never sufficient evidence of completion. Browser-verified interactivity is the required standard of done.
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../nextjs16-full-stack/`](../nextjs16-full-stack/SKILL.md) | Next.js 16 full-stack baseline — App Router, Server Components, API routes. Use as the default Next.js reference if no specific auth/DB stack is needed. |
+| [`../nextjs16-react19-tailwind4-full-stack/`](../nextjs16-react19-tailwind4-full-stack/SKILL.md) | Same stack as this skill (Next.js 16 + React 19 + Tailwind v4) without the Prisma/shadcn layer — lighter weight for rapid prototyping. |
+| [`../nextjs16-react19-postgres17/`](../nextjs16-react19-postgres17/SKILL.md) | When the database is PostgreSQL 17 specifically — includes migration patterns and connection pooling guidance. |
+| [`../nextjs16-react19-next-auth5-drizzle-orm/`](../nextjs16-react19-next-auth5-drizzle-orm/SKILL.md) | When using NextAuth v5 + Drizzle ORM instead of Prisma — Drizzle's SQL-first schema definition vs Prisma's declarative DSL. |
+| [`../nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth/`](../nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth/SKILL.md) | When using tRPC v11 + Better Auth + Drizzle — end-to-end type-safe API layer without manual type definitions. |
+| [`../nextjs16-react19-tailwind4-better-auth-monorepo/`](../nextjs16-react19-tailwind4-better-auth-monorepo/SKILL.md) | When the project is a monorepo (Turborepo) with Better Auth shared across packages. |
+| [`../nextjs16-tailwind4/`](../nextjs16-tailwind4/SKILL.md) | Next.js 16 + Tailwind v4 frontend-only — no auth, no DB. Use for marketing sites and landing pages. |
+| [`../frontend-development/`](../frontend-development/SKILL.md) | React/TypeScript guidelines: Suspense, lazy loading, features directory, performance patterns. |
+| [`../frontend-ui-engineering/`](../frontend-ui-engineering/SKILL.md) | Component architecture, state management, render optimization. |
+| [`../api-and-interface-design/`](../api-and-interface-design/SKILL.md) | REST/GraphQL/tRPC API design principles. |
+| [`../authjs-vs-better-auth/`](../authjs-vs-better-auth/SKILL.md) | Decision framework for choosing between NextAuth.js and Better Auth. |
+
+### Shared best practices (apply across all Next.js 16 full-stack skills)
+
+- **TypeScript strict mode**: Enable `"strict": true` in `tsconfig.json`. Never use `any` — use `unknown` and narrow with type guards. Prefer `interface` for structural definitions; `type` for unions/intersections.
+- **Tailwind v4 CSS-first config**: Tailwind v4 uses CSS variables (`@theme`) instead of `tailwind.config.ts` for theme tokens. Define custom colors, fonts, and spacing in your global CSS with `@theme inline { --color-brand: #...; }`.
+- **shadcn/ui installation**: Use `npx shadcn@latest init` then `npx shadcn@latest add <component>`. Components live in `components/ui/` and are fully owned by your project (not a dependency). Customize them freely.
+- **Prisma schema-first**: Define your schema in `prisma/schema.prisma`, then `npx prisma migrate dev --name <name>` to generate migrations. Never edit migrations manually after they're applied to production.
+- **WebSocket via Socket.io**: For real-time features, use Socket.io (not raw ws) — its auto-reconnect and room primitives save significant boilerplate. Server: `app/api/socket/io/route.ts`; Client: custom `useSocket` hook.
+- **Browser-verified done**: After every feature, open the page in a browser, perform the user flow, and confirm the expected outcome. "It compiles" is never done.

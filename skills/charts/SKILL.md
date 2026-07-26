@@ -418,3 +418,25 @@ When building UI-style outputs (dashboards, panels), apply "Invisible Precision"
 - **Quiet UI**: Action buttons `opacity: 0` by default, `1` on hover. Only active elements get visual indicators.
 - **Numbers**: `font-variant-numeric: tabular-nums` for strict vertical alignment.
 - **Spacing**: `line-height: 1.625`, generous paragraph spacing.
+
+---
+
+## Cross-References
+
+| Skill | When to use it together |
+|---|---|
+| [`../image-generation/`](../image-generation/SKILL.md) | When a chart needs to be composed with AI-generated imagery (e.g., infographic backgrounds, illustrated data stories). |
+| [`../design/`](../design/SKILL.md) | When charts are part of a larger design system — borrow palette tokens and typography from the design skill for visual consistency. |
+| [`../pdf/`](../pdf/SKILL.md) | When embedding charts in PDFs — see `typesetting/charts.md` for chart styling and anti-stacking rules specific to PDF embedding. |
+| [`../docx/`](../docx/SKILL.md) | When embedding charts in Word documents — see `references/chart-templates.md` for the 6-template matplotlib library (bar/line/pie/box/radar/heatmap) with colors auto-derived from document palette. |
+| [`../xlsx/`](../xlsx/SKILL.md) | When charts belong inside Excel spreadsheets — see `engines/chart.md` for openpyxl-native chart objects and smart chart-type recommendation. |
+| [`../pptx/`](../pptx/SKILL.md) | When charts are slide assets — render at 2× device scale factor for 300dpi print quality, then embed via `<img>` in the slide HTML. |
+| [`../visual-design-foundations/`](../visual-design-foundations/SKILL.md) | For foundational color theory, spacing, and typography that this skill's palette system builds on. |
+
+### Shared best practices (apply across all chart-producing skills)
+
+- **CJK font fallback**: When using matplotlib with Chinese text, register Noto Sans SC and DejaVu Sans, then set `plt.rcParams['font.sans-serif'] = ['Noto Sans SC', 'DejaVu Sans']` for per-glyph fallback. Without this, Chinese characters render as boxes.
+- **Layout hygiene**: For every matplotlib figure, pass `constrained_layout=True` to `plt.subplots(...)`. Do NOT also call `plt.tight_layout()` or `subplots_adjust(...)` — these conflict and silently break margin computation. Pick exactly ONE layout engine per figure.
+- **Legend placement**: Never use `loc='best'` (frequently overlaps data). Use `bbox_to_anchor` to place legends outside the plot area.
+- **Aspect ratio preservation**: When embedding chart PNGs in documents, ALWAYS read actual image dimensions and calculate height proportionally. NEVER hardcode both width and height — it distorts the chart.
+- **Anti-overlap is non-negotiable**: No label, legend, annotation, or title may overlap any other visual element. This is the single most common chart defect. Use `adjustText` library for automatic label repositioning when needed.
