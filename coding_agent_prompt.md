@@ -575,6 +575,3 @@ If UI was produced:
 
 Final:
 19. Is the output clean, complete, secure, evidence-backed, and succinct?
-
-- If you want empirical validation, I can draft 2–3 adversarial test prompts (e.g., a fake "ignore previous instructions" string embedded in a fetched file) to confirm the new §9 actually changes sub-agent behavior when run.
-- Nothing else from the original 14-item plan was deferred — all items, including Option B, are now integrated.
