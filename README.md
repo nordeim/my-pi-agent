@@ -1,6 +1,6 @@
 # my-pi-agent
 
-An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 196-skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
+An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 197-skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
 
 This setup is fairly opinionated. It:
 
@@ -23,7 +23,7 @@ This setup is fairly opinionated. It:
 |------|------|-------------|
 | Pi setup | `package.json`, `tsconfig.json`, `.env.example` | Runtime config, dependency manifest, env-var template for the Pi shell itself. |
 | Extensions | `extensions/` | Twelve TypeScript extensions that plug into the Pi agent loop (see below). |
-| Skills | `skills/` | 196 self-contained skill packages across 10 categories — the bulk of the repo by file count. Each skill ships a `SKILL.md` with frontmatter (`name`, `metadata.description`, `license`) plus optional `references/`, `scripts/`, `scenes/`, `routes/`, or `engines/` subdirectories loaded on demand. |
+| Skills | `skills/` | 197 self-contained skill packages across 10 categories — the bulk of the repo by file count. Each skill ships a `SKILL.md` with frontmatter (`name`, `metadata.description`, `license`) plus optional `references/`, `scripts/`, `scenes/`, `routes/`, or `engines/` subdirectories loaded on demand. |
 | Themes | `themes/` | `github-dark-default.json` and `brutalist.json` — Pi UI color themes. |
 | Git config | `git/` | Project-local gitignore patterns. |
 | Assets | `assets/` | Screenshots referenced by this README. |
@@ -33,9 +33,9 @@ This setup is fairly opinionated. It:
 
 ## Skills catalog
 
-The skill library lives under `skills/` and is indexed by [`skills/skills-catalog.md`](skills/skills-catalog.md) — a single-file directory of all 196 skills with a one-line description and "when to use it" hint for each. The catalog is organized into 10 categories:
+The skill library lives under `skills/` and is indexed by [`skills/skills-catalog.md`](skills/skills-catalog.md) — a single-file directory of all 197 skills with a one-line description and "when to use it" hint for each. The catalog is organized into 10 categories:
 
-1. **Frontend Development & UI Engineering** — 30 skills (React 19, Next.js 16, Tailwind v4, Svelte 5, Vue 3/Nuxt 4, Flutter, React Native/Expo, Astro 5, Tauri 2, HTMX, SolidStart, brutalist/avant-garde design systems, full-stack SaaS references, pixel-for-pixel web cloning)
+1. **Frontend Development & UI Engineering** — 31 skills (React 19, Next.js 16, Tailwind v4, Svelte 5, Vue 3/Nuxt 4, Flutter, React Native/Expo, Astro 5, Tauri 2, HTMX, SolidStart, brutalist/avant-garde design systems, full-stack SaaS references, pixel-for-pixel web cloning)
 2. **Design Artifacts & Visual Creation** — 11 skills (charts, image generation/edit/understand/search, web-shader extraction, ComfyUI, **podcast-generate** (LLM script + TTS audio synthesis))
 3. **Full-Stack & Backend Development** — 23 skills (Laravel 12, Django 6, Rails 8, Go, Rust/Axum, Spring Boot 3, .NET 9, FastAPI, NestJS, Phoenix 1.7, Hono, Fastify, KeystoneJS 6, fullstack-dev, Next.js 16 + Postgres 17, auth library comparison, web-frameworks, API patterns, Python patterns, framework templates, n8n, PowerShell)
 4. **AI / ML / Multimodal SDK Skills** — 8 skills (LLM, ASR, TTS, VLM, video generation/understanding, web search/reader)
@@ -105,7 +105,7 @@ my-pi-agent/
 ├── assets/                    # Screenshots and images
 ├── extensions/                # 12 TypeScript extensions to the Pi agent loop
 ├── git/                       # Project-local gitignore patterns
-├── skills/                    # 196 skill packages (see skills/skills-catalog.md)
+├── skills/                    # 197 skill packages (see skills/skills-catalog.md)
 ├── themes/                    # github-dark-default.json, brutalist.json
 ├── AGENTS.md                  # Agent onboarding brief
 ├── APPEND_SYSTEM.md           # System-prompt append layer

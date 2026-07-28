@@ -5,7 +5,7 @@ Below are some of the skills under `/home/pete/.pi/agent/skills/`:
 Development & Engineering  
 - Frontend Development (frontend-design, frontend-development, frontend-ui-engineering, super-frontend-design)  
 - Fullstack Development (fullstack-dev, web-frameworks, nextjs16-react19-postgres17, nextjs16-react19-next-auth5-drizzle-orm, nextjs16-react19-tailwind4-full-stack, nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth, nextjs16-react19-tailwind4-better-auth-monorepo)  
-- Framework-Specific Expertise (nextjs16-tailwind4, nextjs-react-expert, nextjs16-react19-tailwind4-full-stack, react19-ts6-vite8-tailwindv4-mvp, python-patterns, powershell-windows)  
+- Framework-Specific Expertise (nextjs16-tailwind4, nextjs-react-expert, nextjs-typescript-patterns, nextjs16-react19-tailwind4-full-stack, react19-ts6-vite8-tailwindv4-mvp, python-patterns, powershell-windows)  
 - API & Interface Design (api-and-interface-design, api-patterns)  
 - UI/UX Design (ui-ux-pro-max, ui-styling, visual-design-foundations, claude-design, scaffold-ui)  
 - Version Control (git-workflow-and-versioning)  
@@ -78,6 +78,7 @@ frontend-development             │ React/TypeScript guidelines — Suspense, l
 frontend-ui-engineering          │ Production-quality UIs — components, layouts, state management, polished output. 
 fullstack-dev                    │ Next.js 16 + React 19 + TypeScript strict, Tailwind CSS 4, shadcn/ui, Prisma ORM — full-stack web apps. 
 nextjs-react-expert              │ React 19 + Next.js 16 performance from Vercel Engineering. 57 rules, RSC streaming, Turbopack, Core Web Vitals. 
+nextjs-typescript-patterns       │ Monorepo troubleshooting handbook for pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle, Postgres, and third-party SDKs (tRPC, Trigger.dev, Stripe, Better Auth, Sanity, React Email, Vitest). v1.2 — canonical handbook with 40+ case-indexed anti-patterns across install/type/lint/format/test/build/migration/pre-commit gates; covers pnpm 10+ native-build approval, strict workspace isolation, tsconfig path aliases, Drizzle journal drift and silent spinner-masked migration failures, exactOptionalPropertyTypes, noUncheckedIndexedAccess, React 19 SubmitEvent migration, ESLint flat-config FlatCompat, Prettier ignore-path semantics, SDK drift, and the Surgical Change Discipline. 
 nextjs16-tailwind4               │ Next.js 16 + React 19 + TypeScript strict, Tailwind CSS v4 CSS-first @theme, Radix UI (shadcn), Framer Motion. 
 react19-ts6-vite8-tailwindv4-mvp │ React 19 + TS 6 strict + Vite 8 (Rolldown) + Tailwind CSS v4 CSS-first @theme, pnpm, Vitest + Playwright E2E. 
 web-frameworks                   │ Next.js 16 + React 19 (App Router, RSC, PPR, cacheComponents, async params, standalone output), Turborepo, RemixIcon. 
@@ -263,6 +264,7 @@ This matrix helps quickly select the right Next.js 16 skill for a given project.
 | **Production Better Auth monorepo** — Full codebase reference: Stillwater yoga studio, 651 tests, Sanity CMS, Stripe Dahlia, Trigger.dev v4, SSE booking, 5-tier RBAC | `nextjs16-react19-tailwind4-better-auth-monorepo` |
 | **SaaS with AI pipeline** — OpenAI, ElevenLabs, Replicate, Inngest, Stripe, R2, SSE | `nextjs16-react19-next-auth5-drizzle-orm` |
 | **Performance optimization** — RSC streaming, Turbopack, Core Web Vitals, 57 Vercel rules | `nextjs-react-expert` |
+| **Troubleshooting patterns** — pnpm lifecycle scripts, TypeScript anti-patterns, Drizzle/Postgres gotchas, monorepo methodology, tRPC, Better Auth | `nextjs-typescript-patterns` |
 | **Content/news platform** — PostgreSQL 17, BullMQ, RSS/Atom ingestion, web push | `nextjs16-react19-postgres17` |
 | **Greenfield without Next.js** — Vite 8, file-based routing, standalone SPA | `react19-ts6-vite8-tailwindv4-mvp` |
 
@@ -274,5 +276,6 @@ This matrix helps quickly select the right Next.js 16 skill for a given project.
 - **Production Better Auth Turborepo monorepo** (real codebase, Sanity, Stripe, Trigger.dev) → `nextjs16-react19-tailwind4-better-auth-monorepo`
 - **SaaS with AI pipeline (OpenAI, ElevenLabs, etc.)** → `nextjs16-react19-next-auth5-drizzle-orm`
 - **Performance audit & optimization** → `nextjs-react-expert`
+- **Troubleshooting monorepo patterns** (pnpm, TypeScript, Drizzle, Postgres anti-patterns, tRPC, Better Auth) → `nextjs-typescript-patterns`
 - **News/content platform with RSS** → `nextjs16-react19-postgres17`
 - **SPA without Next.js** → `react19-ts6-vite8-tailwindv4-mvp`
