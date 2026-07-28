@@ -641,3 +641,68 @@ Other languages:
 - Follow the project's established strictness and idiom conventions.
 - Where none exist, prefer the strictest practical typing the language
   supports.
+
+## Appendix B — Distilled Hard Lessons
+
+Pulled from 40+ production monorepo remediation sessions across
+Next.js/TypeScript/pnpm/Turborepo/Drizzle/Postgres/ESLint/Prettier and
+third-party SDK integrations. Apply these as universal prior-knowledge when
+debugging gate failures, dependency issues, or type/lint/format/migration
+breakdowns — the stack names below are illustrative; the rules generalize.
+
+**1. Reproduce before trusting.** Never patch from a pasted snippet or prior
+summary. Rerun the exact failing command in the exact workspace and package
+manager. A prior diagnosis is a hypothesis until reproduced.
+
+**2. Classify the gate, not the symptom.** Before fixing anything, determine
+the gate: install / type-check / lint / format / test / build / database
+migration / pre-commit hook. Then split *infrastructure failure* (tool cannot
+run) from *source-code debt* (tool runs, reports real violations). Do not
+fix lint when the failure is formatting.
+
+**3. Use authoritative, machine-readable diagnostics.** Registry metadata,
+package exports fields, tsc --traceResolution, eslint --format json,
+server logs, and cat -A for hidden bytes beat hand-copying from noisy
+terminal output. Never map truth from a wall of text when a structured
+source exists.
+
+**4. Fix root causes, not dozens of symptoms.** One canonical exported type,
+one journal registration, or one env-import-order fix can replace 30
+consumer edits. Probe the blast radius of a fix before touching files —
+if a single source change propagates to many consumers, fix at the source.
+
+**5. Never weaken a guardrail to make a gate pass.** Do not disable lint
+rules, loosen type strictness, skip hooks, relax migration checks, or
+remove tests to ship. A green gate achieved by weakening the gate is not
+a fix; state the debt explicitly and leave it for the caller to decide.
+
+**6. Respect inter-tool ordering.** Autofixers (lint --fix) can drift the
+formatter's fixed point; always run the formatter after lint autofix.
+Restage files after formatting so the git index matches the working tree.
+A pre-commit hook failure after formatting means the staged content — not
+the working tree — is what the gate checks.
+
+**7. Parser errors point after the defect, not at it.** A reported line-N
+syntax error almost always originates on line N−1 (unclosed delimiter,
+missing bracket). Count parentheses on preceding lines before editing the
+reported line. Use cat -A to surface hidden control characters (stray CRs,
+tabs, non-ASCII) when the source looks syntactically correct.
+
+**8. Verify state, not just exit codes.** A migrate or seed command can exit
+0 without applying the schema, loading env, or committing the journal.
+Query the actual objects (migration records, table list, enum rows, seed
+counts) before claiming success. If a CLI tool fails silently (spinner
+overwrites the error, output is ANSI-garbled), bypass it and run the
+underlying command directly to expose the real error.
+
+**9. Keep changes surgical; no speculative scaffolding.** One logical change
+per commit. Do not copy override/dependency/config blocks from a reference
+project for files the target does not yet have. Add only what the failing
+gate strictly requires — do not run repo-wide format, rewrite configs, or
+add abstractions to fix a single error. Large diffs hide intent and create
+review risk.
+
+**10. Hand off cleanly.** Record what was fixed, what was verified, what
+remains broken, deferred debt, runtime checks still needed, and commit
+grouping advice. A fix is not complete until the next agent or human knows
+exactly what remains and what was intentionally deferred.
