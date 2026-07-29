@@ -712,7 +712,14 @@ Now, please meticulously plan to review the two live websites at the following U
 1. https://v1uc168atjn1-d.space-z.ai/landing.html 
 2. https://scandi-haven-shop.lovable.app/
 
-Tasks:
+ToDo (tasks):
 - assess how each site presents its identity through color, typography, and layout, ensuring harmony between form and function.
 - examine navigation clarity, interactive feedback, and responsiveness to determine ease of use across devices.
 - compare these elements to identify which design better serves user needs while reflecting a cohesive and compelling digital experience.
+- assess how each site presents its visual identity, considering color harmony, typography, layout balance, and overall aesthetic cohesion.
+- examine user interaction patterns, navigation clarity, responsiveness, and accessibility to determine the effectiveness of their interface design.
+- through comparative analysis, I identify strengths and weaknesses in both experiences, focusing on how design choices influence usability and emotional engagement.
+- examine the underlying CSS architecture to uncover the nuanced interplay of color palettes, typographic hierarchy, and spatial dynamics.
+- assess layout frameworks and interactive elements to understand how structure and motion contribute to user experience.
+
+This deep dive reveals not just aesthetic choices but the intentional design systems shaping each site’s identity.
