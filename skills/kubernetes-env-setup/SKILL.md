@@ -1,6 +1,14 @@
 ---
 name: kubernetes-env-setup
-description: setup self-managed, CIS- and NSA/CISA-aligned Kubernetes cluster on Azure Linux, production environment for running agentic AI workloads.
+description: >-
+  Production-grade self-managed Kubernetes cluster on Azure Linux 3.0 (kubeadm)
+  with CIS/NSA/CISA-aligned hardening for agentic AI and LLM workloads. Covers
+  host hardening (SELinux, Trusted Launch, OS Guard IPE), containerd, Cilium eBPF
+  CNI, Kyverno policy-as-code, gVisor/Kata Containers sandboxing, cosign/Sigstore
+  supply chain security, Falco runtime detection, Pod Security Admission, RBAC,
+  secrets management, network segmentation, high availability (multi-AZ), backup
+  with Velero, and compliance validation (kube-bench, Kubescape). Includes OWASP
+  LLM Top 10 and MITRE ATLAS threat modeling for prompt injection defense.
 version: 1.0
 ---
 
