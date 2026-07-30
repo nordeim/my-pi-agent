@@ -1,3 +1,9 @@
+---
+name: kubernetes-env-setup
+description: setup self-managed, CIS- and NSA/CISA-aligned Kubernetes cluster on Azure Linux, production environment for running agentic AI workloads.
+version: 1.0
+---
+
 # Hardened Kubernetes on Azure Linux 3.0
 
 ## A Production Deployment Guide for Enterprise Agentic AI Workloads
