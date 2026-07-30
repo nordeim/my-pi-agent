@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **196 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **197 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -282,6 +282,7 @@
 | **cloudflare-tunnel**                | Add local services to Cloudflare Tunnel. Expose localhost securely to the public internet.                                       |
 | **multi-search-engine**              | 8 domestic (CN) search engines. Advanced operators, time filters, WeChat article search. No API keys.                            |
 | **finance**                          | Real-time/historical financial data: stock prices, market analysis, portfolio tracking, stock screening, technical analysis.     |
+| **kubernetes-env-setup**             | Production-grade self-managed Kubernetes on Azure Linux 3.0 (kubeadm). CIS/NSA/CISA-aligned hardening: SELinux, Trusted Launch, Cilium eBPF CNI, Kyverno policy-as-code, gVisor/Kata sandboxing, cosign/Sigstore supply chain security, Falco runtime detection, Pod Security Admission, RBAC, secrets management, network segmentation, multi-AZ HA, Velero backup, compliance validation (kube-bench, Kubescape). Threat models for agentic AI/LLM workloads (OWASP LLM Top 10, MITRE ATLAS). Use when setting up a hardened, self-managed Kubernetes cluster for AI workloads, compliance-sensitive deployments, or air-gapped environments on Azure. |
 | **stock-analysis**                   | A-share/HK/US stock analysis: buy/sell/hold signals, dashboards, dividend scoring, watchlist alerts, K-line pattern recognition. |
 | **market-research-reports**          | McKinsey/BCG/Gartner-style reports (50+ pages). LaTeX formatting, strategic frameworks (Porter, PESTLE, SWOT, BCG Matrix).       |
 | **marketing-mode**                   | 23 marketing skills combined: strategy, psychology, content, SEO, conversion optimization, paid growth.                          |
@@ -321,8 +322,8 @@
 | 7   | Planning, Workflow & Project Management        | 23      |
 | 8   | Documentation & Content Creation               | 27      |
 | 9   | Career, Learning & Personal Development        | 19      |
-| 10  | DevOps, Infrastructure & External Integrations | 26      |
-|     | **Total**                                      | **196** |
+| 10  | DevOps, Infrastructure & External Integrations | 27      |
+|     | **Total**                                      | **197** |
 
 ---
 

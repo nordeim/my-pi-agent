@@ -15,6 +15,8 @@ version: 1.0
 
 > **Scope.** This guide builds a self-managed, CIS- and NSA/CISA-aligned Kubernetes cluster on **Azure Linux 3.0** — Microsoft's Fedora-derived, FedRAMP-eligible, minimal-footprint Linux distribution that ships with a 6.6 LTS kernel, systemd 255, `tdnf` package management, SELinux in enforcing mode, and OS Guard (Integrity Policy Enforcement) for code integrity [1][2][3]. The cluster is sized, hardened, and isolated for running **agentic AI workloads** — LLM-driven agents that call tools, execute generated code, and reach external APIs — in an enterprise production setting. Every normative technical claim is grounded in current (2025–2026) upstream documentation, CNCF project sources, and Microsoft Learn; the numbered inline citations map to the consolidated bibliography in [Appendix F — Sources](#appendix-f--sources).
 
+> **Document Conventions.** This guide is written from the perspective of July 2026. Component versions (e.g., Kubernetes 1.36, Cilium 1.20, Kata Containers 4.0) and specific CVE references (e.g., CVE-2025-3248) are based on current upstream release trajectories and historical vulnerability patterns to illustrate threat modeling. Validate all version numbers against current releases before deployment. Where a component is noted as "in preview" (e.g., Azure Linux OS Guard), monitor the vendor's documentation for GA announcements.
+
 ---
 
 ## Table of Contents
@@ -563,7 +565,7 @@ sudo semodule -i my-k8s-policy.pp
 
 ### 5.6 OS Guard (IPE) — code integrity enforcement
 
-Azure Linux OS Guard integrates the **Integrity Policy Enforcement (IPE)** Linux Security Module to ensure only binaries from trusted, signed volumes can execute. This is the Linux-native equivalent of Windows Code Integrity and is the recommended host-level defense against post-compromise rootkit persistence [3]. OS Guard is GA as of 2026; on existing Azure Linux 3.0 images it ships in **audit mode** by default so operators can validate their workloads before flipping to enforcing.
+Azure Linux OS Guard integrates the **Integrity Policy Enforcement (IPE)** Linux Security Module to ensure only binaries from trusted, signed volumes can execute. This is the Linux-native equivalent of Windows Code Integrity and is the recommended host-level defense against post-compromise rootkit persistence [3]. **OS Guard is currently in public preview** on Azure Linux 3.0; on existing images it ships in **audit mode** by default so operators can validate their workloads before flipping to enforcing. Monitor the Microsoft Learn documentation [48] for GA announcements.
 
 ```bash
 # Check current IPE mode (audit vs enforcing)
@@ -654,6 +656,10 @@ sudo tee /etc/audit/rules.d/k8s-node.rules >/dev/null <<'EOF'
 -w /etc/shadow                     -p wa  -k identity
 -w /etc/sudoers                    -p wa  -k identity
 -w /etc/sudoers.d/                 -p wa  -k identity
+
+# Watch agentic sandbox runtime directories (MITRE T1611 escape attempts)
+-w /var/run/kata-containers/           -p wa  -k kata-runtime
+-w /var/run/containerd/io.containerd.runtime.v2.task/ -p wa -k containerd-tasks
 EOF
 sudo augenrules --load
 sudo systemctl enable --now auditd
@@ -875,18 +881,30 @@ apiServer:
     - "10.60.1.5"
     - "10.60.1.6"
   extraArgs:
-    authorization-mode: "Node,RBAC"
-    audit-log-path: "/var/log/kubernetes/audit/audit.log"
-    audit-log-maxage: "30"
-    audit-log-maxbackup: "10"
-    audit-log-maxsize: "100"
-    audit-policy-file: "/etc/kubernetes/audit-policy.yaml"
-    encryption-provider-config: "/etc/kubernetes/encryption-provider.yaml"
-    service-account-issuer: "https://kubernetes.default.svc.cluster.local"
-    service-account-signing-key-file: "/etc/kubernetes/pki/sa.key"
-    profiling: "false"
-    enable-aggregator-routing: "true"
-    feature-gates: "ValidatingAdmissionPolicy=true"
+    - name: authorization-mode
+      value: "Node,RBAC"
+    - name: audit-log-path
+      value: "/var/log/kubernetes/audit/audit.log"
+    - name: audit-log-maxage
+      value: "30"
+    - name: audit-log-maxbackup
+      value: "10"
+    - name: audit-log-maxsize
+      value: "100"
+    - name: audit-policy-file
+      value: "/etc/kubernetes/audit-policy.yaml"
+    - name: encryption-provider-config
+      value: "/etc/kubernetes/encryption-provider.yaml"
+    - name: service-account-issuer
+      value: "https://kubernetes.default.svc.cluster.local"
+    - name: service-account-signing-key-file
+      value: "/etc/kubernetes/pki/sa.key"
+    - name: profiling
+      value: "false"
+    - name: enable-aggregator-routing
+      value: "true"
+    - name: feature-gates
+      value: "ValidatingAdmissionPolicy=true"
   extraVolumes:
     - name: "audit-policy"
       hostPath: "/etc/kubernetes/audit-policy.yaml"
@@ -902,25 +920,36 @@ apiServer:
       readOnly: true
 controllerManager:
   extraArgs:
-    profiling: "false"
-    terminated-pod-gc-threshold: "50"
-    horizontal-pod-autoscaler-sync-period: "30s"
+    - name: profiling
+      value: "false"
+    - name: terminated-pod-gc-threshold
+      value: "50"
+    - name: horizontal-pod-autoscaler-sync-period
+      value: "30s"
 scheduler:
   extraArgs:
-    profiling: "false"
+    - name: profiling
+      value: "false"
 etcd:
   local:
     dataDir: "/var/lib/etcd"
     imageRepository: "registry.k8s.io"
     imageTag: "3.5.21-0"          # pin etcd version
     extraArgs:
-      listen-metrics-urls: "http://0.0.0.0:2381"
-      auto-compaction-retention: "5"
-      auto-compaction-mode: "periodic"
-      snapshot-count: "10000"
-      quota-backend-bytes: "8589934592"   # 8 GiB
-      election-timeout: "2000"
-      heartbeat-interval: "250"
+      - name: listen-metrics-urls
+        value: "http://0.0.0.0:2381"
+      - name: auto-compaction-retention
+        value: "5"
+      - name: auto-compaction-mode
+        value: "periodic"
+      - name: snapshot-count
+        value: "10000"
+      - name: quota-backend-bytes
+        value: "8589934592"   # 8 GiB
+      - name: election-timeout
+        value: "2000"
+      - name: heartbeat-interval
+        value: "250"
 networking:
   podSubnet: "10.244.0.0/16"
   serviceSubnet: "10.96.0.0/12"
@@ -1914,7 +1943,97 @@ spec:
 - **`automountServiceAccountToken: false`.** A pod that doesn't need to call the Kubernetes API should not have a token that lets it try.
 - **`resources.limits`.** Without limits, a runaway agent (or a prompt-injected agent in a tool-call loop) can starve the node. CPU and memory limits are mandatory for every workload in the cluster.
 
-### 13.4 Custom seccomp profiles with the Security Profiles Operator
+### 13.4 Namespace Resource Governance (ResourceQuotas and LimitRanges)
+
+Agentic AI workloads can enter infinite reasoning loops or tool-calling cycles that exhaust node resources before OOM killers trigger. **ResourceQuotas** and **LimitRanges** are mandatory for every namespace running agent workloads. They provide two complementary controls:
+
+- **ResourceQuota** — caps the total resource consumption per namespace, preventing a single tenant from starving others.
+- **LimitRange** — sets default and maximum resource limits per container, ensuring every pod has explicit bounds even if the deployment spec omits them.
+
+Apply these to every agentic namespace:
+
+```yaml
+# /tmp/resource-governance.yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: agent-workload-quota
+  namespace: agents-prod
+spec:
+  hard:
+    requests.cpu: "16"
+    requests.memory: "32Gi"
+    limits.cpu: "32"
+    limits.memory: "64Gi"
+    pods: "50"
+    secrets: "20"
+    configmaps: "20"
+    persistentvolumeclaims: "10"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: agent-limit-range
+  namespace: agents-prod
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "2"
+        memory: "4Gi"
+      defaultRequest:
+        cpu: "500m"
+        memory: "1Gi"
+      max:
+        cpu: "4"
+        memory: "8Gi"
+      min:
+        cpu: "100m"
+        memory: "128Mi"
+    - type: Pod
+      max:
+        cpu: "8"
+        memory: "16Gi"
+```
+
+```bash
+kubectl apply -f /tmp/resource-governance.yaml -n agents-prod
+kubectl apply -f /tmp/resource-governance.yaml -n agents-staging  # adjust limits per environment
+```
+
+Enforce limits at admission time with a Kyverno policy that rejects any container lacking explicit `resources.limits`:
+
+```yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resource-limits
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: check-container-resources
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+      validate:
+        message: "All containers must have explicit CPU and memory limits."
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  limits:
+                    cpu: "?"
+                    memory: "?"
+            =(initContainers):
+              - resources:
+                  limits:
+                    cpu: "?"
+                    memory: "?"
+```
+
+### 13.5 Custom seccomp profiles with the Security Profiles Operator
 
 For workloads that need a stricter seccomp profile than `RuntimeDefault`, the **Security Profiles Operator (SPO)** is the recommended tool. SPO is a Kubernetes operator that records, manages, and distributes seccomp profiles as `SecProfile` CRDs.
 
@@ -2817,6 +2936,8 @@ The GPU Operator installs: the NVIDIA driver (kernel module), the NVIDIA Contain
 
 > **Azure Linux driver compatibility caveat.** The NVIDIA GPU Operator typically installs the driver from NVIDIA's package repository, but driver availability for Azure Linux's kernel 6.6 LTS must be verified at install time. If the operator cannot install the driver, the workaround is to use an Azure Linux image with the driver preinstalled (Microsoft ships AKS-specific Azure Linux GPU images with the driver baked in; for self-managed clusters, you may need to build a custom image with `nvidia-driver` installed via the NVIDIA upstream `.run` installer). Validate on a non-production node first.
 
+> **Kata + GPU passthrough caveat.** Passing an NVIDIA GPU through a Kata microVM via VFIO is highly complex and requires specific Azure VM SKUs, custom Kata kernel configurations, and validated GPU passthrough support. For most GPU workloads, the recommended pattern is **`runc` + NVIDIA GPU Operator**, isolated via Node Affinity and Taints (`workload-class=gpu`). Use Kata for GPU workloads only if hardware-level multi-tenant GPU isolation is strictly required — for example, when multiple tenants share a single GPU via MIG and each tenant's workload must be fully sandboxed. In that case, verify Kata + VFIO compatibility on your specific Azure VM SKU before production deployment.
+
 ### 18.3 GPU RuntimeClass
 
 ```yaml
@@ -3503,7 +3624,7 @@ This pre-production checklist is organized by layer. Each item maps to a section
 - [ ] Secure Boot and vTPM enabled on every VM
 - [ ] `tdnf update -y` run; all packages current
 - [ ] `container-selinux` installed; SELinux in Enforcing mode (`getenforce` returns `Enforcing`)
-- [ ] OS Guard (IPE) installed; audit mode reviewed; enforcing mode planned
+- [ ] OS Guard (IPE) installed; audit mode reviewed; enforcing mode planned (note: OS Guard is currently in public preview)
 - [ ] `chronyd` enabled and synchronized
 - [ ] Kernel modules `overlay` and `br_netfilter` loaded at boot
 - [ ] Sysctls from §5.3 applied (`sysctl --system`)
@@ -3574,6 +3695,9 @@ This pre-production checklist is organized by layer. Each item maps to a section
 - [ ] RuntimeClass objects created for `gvisor`, `kata`, `nvidia-gpu`
 - [ ] All agentic workloads use a sandboxed RuntimeClass
 - [ ] All pods satisfy the reference hardened pod spec from §13.2
+- [ ] ResourceQuotas and LimitRanges applied to every agentic namespace (§13.4)
+- [ ] Kyverno policy enforcing resource limits on all containers (§13.4)
+- [ ] GPU nodes: Kata + GPU passthrough caveat reviewed; `runc` + GPU Operator recommended unless multi-tenant isolation required (§18)
 
 ### C.8 Observability
 

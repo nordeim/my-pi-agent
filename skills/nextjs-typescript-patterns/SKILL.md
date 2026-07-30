@@ -1,17 +1,17 @@
 ---
 name: nextjs-typescript-patterns
-description: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle ORM, Postgres, and third-party SDKs (tRPC, Trigger.dev, Stripe, Better Auth, Sanity, React Email, Vitest). v1.2 — canonical troubleshooting handbook with 40+ case-indexed anti-patterns across install, type-check, lint, format, test, build, migration, and pre-commit-hook gates. Covers pnpm 10+ native-build approval (allowBuilds, onlyBuiltDependencies), strict workspace isolation, tsconfig path aliases and inherited baseUrl, Drizzle migration journal drift and silent spinner-masked failures, exactOptionalPropertyTypes, noUncheckedIndexedAccess, React 19 SubmitEvent migration, ESLint flat-config FlatCompat, Prettier ignore-path semantics, SDK drift (subpath exports, hardcoded API versions, callback payload shapes), and the Surgical Change Discipline. Use when debugging failing gates, reproducing mysterious install/type/lint/format/hook failures, remediating monorepo tooling debt across Next.js + TypeScript + Drizzle + tRPC + Better Auth, or hardening a fresh monorepo against repeated mistakes — symptoms like ERR_PNPM_NO_MATCHING_VERSION, TS2307/TS2339, __esModule config errors, passWithNoTests, or silent DATABASE_URL/Drizzle migration failures.
-version: 1.2
+description: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle ORM, Postgres, and third-party SDKs (tRPC, Trigger.dev, Stripe, Better Auth, Sanity, React Email, Vitest). v1.4 — canonical troubleshooting handbook with 45+ case-indexed anti-patterns across install, type-check, lint, format, test, build, migration, and pre-commit-hook gates. Covers pnpm 10+ native-build approval (allowBuilds, onlyBuiltDependencies), strict workspace isolation, tsconfig path aliases and inherited baseUrl, Drizzle migration journal drift and silent spinner-masked failures, exactOptionalPropertyTypes, noUncheckedIndexedAccess, React 19 SubmitEvent migration, ESLint flat-config FlatCompat, Prettier ignore-path semantics, SDK drift (subpath exports, hardcoded API versions, callback payload shapes), runtime assertions that do not narrow TypeScript types, .prettierrignore as gate-silencer, and the Surgical Change Discipline. Use when debugging failing gates, reproducing mysterious install/type/lint/format/hook failures, remediating monorepo tooling debt across Next.js + TypeScript + Drizzle + tRPC + Better Auth, or hardening a fresh monorepo against repeated mistakes — symptoms like ERR_PNPM_NO_MATCHING_VERSION, TS2307/TS2339, TS18047 after runtime null-checks, __esModule config errors, passWithNoTests, or silent DATABASE_URL/Drizzle migration failures.
+version: 1.4
 ---
 
 # Consolidated Agent Briefing Document and Programming Handbook
 
 ## Agent Programming and Troubleshooting Handbook
 
-Version: 1.2  
+Version: 1.4  
 Scope: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle, Postgres, and third-party SDKs.  
 Purpose: Prevent repeated mistakes and provide a reusable troubleshooting methodology.  
-Reconciliation note: v1.2 absorbs the genuine deltas from `update.md` (parser-error line attribution + `cat -A`; `psql -f` fallback for spinner-masked silent Drizzle failures; the named "Surgical Change Discipline" and the Stillwater reference-copy caveat). The remainder of `update.md` was already present here in expanded form.
+Reconciliation note: v1.4 adds: (1) §4.2 TS Mistake 17 — runtime assertions (`expect().not.toBeNull()`) do not narrow TypeScript types; (2) §4.4 Prettier Mistake 8 + anti-pattern — `.prettierrignore` as gate-silencer vs. unowned-content marker; (3) §4.9 Testing Mistake 4 — async-deferred-to-null file reads in contract tests (Stillwater's `readFileSync` → `string` pattern); (4) §5.9 corrected both source-contract-test and meta-guard pattern blocks from async to synchronous null-free form; (5) §7 Playbook 17 — `TS18047` after runtime null-check, two-branch fix (preferred: non-null producer); (6) §10 four new case-index rows (TS-9, PRETTIER-6, TEST-1, RUNTIME-6); (7) §12 Lesson 13 sharpened — prior green-checkmarks are also hypotheses, not just prose conclusions. v1.3 added: (1) Playbook 16 Scenario B — auth-guarded route `DYNAMIC_SERVER_USAGE` warnings are expected + the `force-dynamic`/`cacheComponents` trap; (2) §5.9 Testing Patterns — source contract tests for architectural invariants + meta-guard pattern for caller modules; (3) §4.10 Mistake 7 — `.gitignore` `lib/` bleed in Python+JS monorepos; (4) §12 Lesson 14 — distinguishing public-route from auth-route warnings; (5) §4.8 Server/Client Boundary note — the `api()`/`apiPublic()` split is a Server Component concern. v1.2 absorbed the genuine deltas from `update.md` (parser-error line attribution + `cat -A`; `psql -f` fallback for spinner-masked silent Drizzle failures; the named "Surgical Change Discipline" and the Stillwater reference-copy caveat).
 
 ---
 
@@ -129,9 +129,11 @@ Examples:
 - deprecated event types,
 - console usage.
 
+**Third category: construction-time validation failures.** Some frameworks (like tRPC v11) validate code at router construction time, which runs at module load — not during static type analysis. A reserved word in a tRPC procedure name is not an infrastructure failure (the tool runs) nor a source-code debt issue (it's not a lint violation) — it's a **framework contract violation** that only surfaces when the module is actually loaded at build time. This is why `pnpm check-types` passes but `pnpm build` fails.
+
 ### Rule
 
-> Fix infrastructure first. Then remediate source-code debt deliberately.
+> Fix infrastructure first. Then remediate source-code debt deliberately. For construction-time validation failures (like tRPC reserved words), inspect the build gate output — the error message names the offending identifier.
 
 ---
 
@@ -1279,6 +1281,112 @@ Prevention:
 
 ---
 
+### Mistake 16: tRPC procedure named with a JavaScript reserved word
+
+Symptom:
+
+```text
+Error: Reserved words used in `router({})` call: apply
+```
+
+Root cause:
+
+- A tRPC procedure was named `apply` (`packages/api/src/routers/trade.ts`).
+- `apply` is `Function.prototype.apply` — a core JavaScript mechanism.
+- tRPC v11 validates all procedure names at router construction time against a list of JavaScript built-in reserved words.
+- The tRPC adapter route (`/api/trpc/[trpc]`) is statically analyzed by Next.js during `next build`, which triggers the router constructor and surfaces the error.
+
+Fix:
+
+```diff
+- apply: protectedProcedure
++ submitApplication: protectedProcedure
+```
+
+Lesson:
+
+> tRPC v11 rejects JavaScript reserved words (`apply`, `call`, `bind`, `constructor`, `toString`, `valueOf`, `hasOwnProperty`, `__proto__`, etc.) as procedure names. Use domain-specific verb-noun pairs instead.
+
+Prevention:
+
+- Name procedures with domain-specific verb-noun pairs: `submitApplication`, `listOrders`, `getProfile`.
+- Avoid any name that collides with `Object.prototype`, `Function.prototype`, or `Array.prototype` methods.
+- The `pnpm build` gate catches this — but only at build time, not at type-check time (the constructor runs at module load, not during static analysis).
+
+Pattern:
+
+```text
+good: submitApplication, createOrder, getProfile, listProducts
+bad:  apply, call, bind, constructor, toString, valueOf
+```
+
+Anti-pattern:
+
+> Naming a tRPC procedure after a common verb without checking for JavaScript built-in collisions.
+
+---
+
+### Mistake 17: Runtime assertions do not narrow TypeScript types
+
+Symptom:
+
+```text
+src/lib/__tests__/rendering-strategy.contract.test.ts:111:26 - error TS18047: 'src' is possibly 'null'.
+  111         const codeOnly = src
+                                ~~~
+```
+...appearing *immediately after* a line that reads:
+
+```ts
+expect(src, `… not found`).not.toBeNull();
+```
+
+Root cause:
+
+- The producer was typed `string | null` (`readFile(...).catch(() => null)`).
+- `expect(src).not.toBeNull()` is a **Vitest runtime assertion** — it throws at runtime if `src` is null. It is **not** a TypeScript type guard and does **not** narrow `src`'s compile-time type.
+- `tsc` keeps `src: string | null`, so the next line (`src.split('\n')`) derefs a maybe-null value → `TS18047` under `strict: true`.
+
+Bad:
+
+```ts
+const read = (rel: string) => readFile(join(APP_ROOT, rel), 'utf8').catch(() => null);
+// ...
+const src = await read(rel);            // string | null
+expect(src).not.toBeNull();             // runtime-only — does NOT narrow `src`
+const codeOnly = src.split('\n');        // TS18047: 'src' is possibly 'null'
+```
+
+Better (preferred — make the producer non-null so the null branch never exists):
+
+```ts
+const read = (rel: string): string => readFileSync(join(APP_ROOT, rel), 'utf8');
+// ...
+const src = read(rel);                   // string — no null branch, no TS18047
+const codeOnly = src.split('\n');
+```
+
+Acceptable (if you must keep a nullable producer — use a *real* type guard at the deref site):
+
+```ts
+if (src === null) throw new Error(`${rel} not found`);  // narrows `src` to string
+const codeOnly = src.split('\n');
+```
+
+The first fix (non-null producer) is preferred because it also improves the failure mode: a missing file throws a readable ENOENT at `readFileSync` instead of being swallowed to `null` and surfacing later as a confusing regex-assertion failure. See Testing Mistake 4.
+
+Lesson:
+
+> A runtime assertion (`expect(x).not.toBeNull()`, `assert(x)`, `console.assert`) does not narrow `x`'s TypeScript type. To clear `TS18047` you must either make the producer non-null, or use a construct `tsc` recognizes as narrowing (`if (x === null) …`, a user-defined `asserts x` guard, or `x ?? …`).
+
+Prevention:
+
+- Prefer producers that can't return `null` (synchronous `readFileSync`, `.then(x => x!)` with a known-non-null source, etc.) over deferred-to-null `.catch(() => null)`.
+- If you write `expect(x).not.toBeNull()` and then use `x`'s members, you are relying on a runtime check the compiler cannot see — restructure so the type reflects the truth.
+- Remember `strict: true` (and especially `noUncheckedIndexedAccess`) makes *every* nullable deref a hard error, not a warning.
+
+---
+
 ## TypeScript Troubleshooting Checklist
 
 When `check-types` fails:
@@ -1324,6 +1432,16 @@ When `check-types` fails:
    - rerun per-package checks,
    - rerun workspace check,
    - rerun Prettier on changed files.
+
+8. For `TS18047: 'x' is possibly 'null'` appearing right after a runtime null-check (`expect(x).not.toBeNull()`, `assert(x)`):
+   - **the check is not a type guard** — Vitest/Jest assertions narrow at runtime, not compile time,
+   - make the producer non-null (e.g. `readFileSync` instead of `readFile().catch(() => null)`),
+   - or use a *real* narrowing construct (`if (x === null) throw …` / `asserts x` guard).
+
+9. If `check-types` passes but `build` fails:
+   - inspect the build output for module initialization errors,
+   - tRPC v11 validates procedure names at router construction time (runtime, not type analysis),
+   - check for reserved words (`apply`, `call`, `bind`, `constructor`, etc.) in procedure definitions.
 
 ---
 
@@ -1903,6 +2021,50 @@ pnpm format:check
 
 ---
 
+### Mistake 8: Using .prettierrignore to silence a real [warn]
+
+Symptom:
+
+- A file emits `[warn] Code style issues found` on `prettier --check`.
+- Instead of running `prettier --write`, the file path is added to `.prettierrignore`.
+- The `[warn]` disappears from the gate, but the file remains genuinely mis-formatted.
+
+Root cause:
+
+- `.prettierrignore` is being used as a **gate-silencer**, not as a marker for genuinely-unformattable content.
+- This violates §2.5 Preserve Guardrails ("Never make a gate green by weakening it").
+- The symptom is the same as the Prettier mistake at §4.10 Tooling Mistake 7 (`.gitignore` hiding files from CI) — but on the Prettier side: the gate *passes* now, so the breakage is invisible until the next agent formats the file and sees a diff that has nothing to do with their change.
+
+Bad:
+
+```bash
+# Instead of fixing the file:
+echo 'apps/web/src/lib/__tests__/my-test.ts' >> .prettierrignore
+git add .prettierrignore
+```
+
+Better:
+
+```bash
+# Fix the file, then remove any bespoke exclusion:
+prettier --write apps/web/src/lib/__tests__/my-test.ts
+git add apps/web/src/lib/__tests__/my-test.ts
+# If .prettierrignore had a line for this file, remove it:
+# (the line should only exist for genuinely-unformattable content)
+```
+
+Lesson:
+
+> `.prettierrignore` is for content you **cannot or should not format** (vendored docs, generated files, binary-adjacent assets). It is never a substitute for `prettier --write`. If a file is owned by your project and is mis-formatted, the fix is formatting it — not hiding it from the gate.
+
+Prevention:
+
+- After adding any file to `.prettierrignore`, ask: "Is this genuinely unformattable, or am I silencing a `[warn]`?" If the answer is the latter, run `prettier --write` instead.
+- Verify `.prettierrignore` entries periodically: remove the entry and re-run `prettier --check` — if the file passes, the entry was masking real drift.
+- Reserve `.prettierrignore` for: files outside your control (docs/, skills/, generated content), or content that Prettier cannot parse.
+
+---
+
 ## Prettier Troubleshooting Checklist
 
 When Prettier fails:
@@ -1967,6 +2129,7 @@ This restores formatting fixed point.
 | Staged but unformatted | Hook fails | Format before commit |
 | ESLint fix without format | Prettier drift | Run format after lint:fix |
 | Treating parse error as formatting | Repeated failure | Fix syntax first |
+| Silencing `[warn]` via `.prettierrignore` | Real formatting drift hidden | Run `prettier --write`; reserve ignore for unowned content |
 
 ---
 
@@ -2598,6 +2761,72 @@ Lesson:
 
 ---
 
+### Mistake 3: Better Auth React hooks crash during SSR (react-server export condition)
+
+Symptom:
+
+```text
+TypeError: Cannot read properties of null (reading 'useRef')
+```
+
+Observed at runtime (`next start`) on any page that renders a Client Component calling Better Auth's `useSession()` (or any `authClient.useX()` hook) during the server render pass — e.g. the homepage ProductCard rendering a WishlistButton, or a PDP rendering a ReviewsSection.
+
+Root cause:
+
+- `better-auth/react`'s `useSession()` calls `useStore()` (from nanostores), which calls `useRef()`.
+- `react@19.2.x` ships a `"react-server"` export condition (./react.react-server.js), where hooks (useRef, useState, useSyncExternalStore) are null stubs by design (React Server Components forbid hooks).
+- When Turbopack bundles `better-auth/react` into an SSR server chunk (`[root-of-the-server]`), it selects the `react-server` export condition for the React import in that chunk.
+- `null.useRef()` throws `TypeError: Cannot read properties of null (reading 'useRef')`.
+- Client Components DO run on the server (SSR renders their initial HTML); the hooks execute, and the react-server build of React has no dispatcher (null).
+
+Why Stillwater does not hit this:
+
+- Stillwater never invokes `useSession` (or any Better Auth React hook) during SSR. It only uses `authClient.signIn.social()` / `.magicLink()` inside event handlers (dynamic imports). No Better Auth React hook runs during the server render pass — the null-hook path is never reached.
+
+Fix — use a ClientOnly boundary:
+
+```tsx
+// CORRECT: defer the component to the client pass via useSyncExternalStore
+import { useSyncExternalStore } from 'react';
+
+const emptySubscribe = () => noopUnsubscribe;
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+export function ClientOnly({ children, fallback = null }) {
+  const isHydrated = useSyncExternalStore(
+    emptySubscribe,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+  return isHydrated ? children : fallback;
+}
+
+// Usage: wraps any component that calls useSession() or other Better Auth hooks:
+<ClientOnly fallback={null}>
+  <WishlistButton productSlug={product.slug} productName={product.name} />
+</ClientOnly>
+```
+
+Why this works:
+
+- `useSyncExternalStore` with `getServerSnapshot: () => false` is SSR-safe — it returns false on the server, so children never render during SSR.
+- On the client after hydration, `getClientSnapshot` returns true → children mount, `useSession()` fires with the real React dispatcher.
+- Hooks are called unconditionally on every render → Rules of Hooks satisfied.
+- `useSyncExternalStore` does NOT call useRef/useState from a different package's bundled react — it is a React 18+ built-in primitive.
+
+Why `next/dynamic({ ssr: false })` is NOT the fix for Server Components:
+
+- Next.js 16 forbids `ssr: false` inside Server Components: the build fails with "ssr: false is not allowed with next/dynamic in Server Components."
+- The PDP (`/products/[slug]/page.tsx`) is a Server Component (it fetches via `api()` server caller). You cannot use `next/dynamic({ ssr: false })` directly in it.
+- `next/dynamic({ ssr: false })` IS valid inside Client Components (e.g. ProductCard). For consistency, use the ClientOnly pattern everywhere.
+
+Lesson:
+
+> Better Auth React hooks (`useSession`, `authClient.useX()`) must not execute during SSR. Wrap the calling component in a `ClientOnly` boundary. `next/dynamic({ ssr: false })` is only valid inside Client Components, not Server Components. See Stillwater SKILL Lesson 89.
+
+---
+
 ## Sanity Lessons
 
 ### Mistake: Putting `hotspot` on an array instead of the image member
@@ -2648,6 +2877,192 @@ Lesson:
 
 ---
 
+## tRPC Lessons
+
+### Mistake 1: Procedure named with a JavaScript reserved word
+
+Symptom:
+
+```text
+Error: Reserved words used in `router({})` call: apply
+```
+
+The tRPC adapter route (`/api/trpc/[trpc]/route.ts`) imports `appRouter` from the API package. During `next build`, Next.js statically analyzes this route to collect page data. The tRPC router constructor runs at module load time and throws immediately when it encounters a reserved word as a procedure name.
+
+Root cause:
+
+- A procedure was named `apply` in `packages/api/src/routers/trade.ts`.
+- `apply` is `Function.prototype.apply` — a core JavaScript mechanism.
+- tRPC v11 validates all router/procedure keys at construction time against a list of JavaScript built-in reserved words.
+- This error only surfaces at `next build` time, not at `pnpm check-types` time, because the router constructor executes at module load (runtime), not during static type analysis.
+
+Fix:
+
+```diff
+// packages/api/src/routers/trade.ts
+- apply: protectedProcedure
++ submitApplication: protectedProcedure
+
+// apps/web/src/app/(shop)/trade/page.tsx
+- const applyMutation = trpc.trade.apply.useMutation();
++ const applyMutation = trpc.trade.submitApplication.useMutation();
+```
+
+Lesson:
+
+> tRPC v11 rejects JavaScript reserved words as procedure names. Use domain-specific verb-noun pairs. The `pnpm build` gate catches this, but `pnpm check-types` does not — the constructor runs at module load, not during static analysis.
+
+Prevention:
+
+- Name procedures with domain-specific verb-noun pairs: `submitApplication`, `listOrders`, `getProfile`.
+- Avoid any name that collides with `Object.prototype`, `Function.prototype`, or `Array.prototype` methods.
+- Reserved words to avoid: `apply`, `call`, `bind`, `constructor`, `toString`, `valueOf`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `__proto__`.
+
+Pattern:
+
+```text
+good: submitApplication, createOrder, getProfile, listProducts
+bad:  apply, call, bind, constructor, toString, valueOf
+```
+
+### Mistake 2: Procedure naming too generic
+
+Example:
+
+```typescript
+export const someRouter = router({
+  get: publicProcedure.query(...),
+  create: protectedProcedure.mutation(...),
+  update: protectedProcedure.mutation(...),
+  delete: protectedProcedure.mutation(...),
+});
+```
+
+This works but creates ambiguity when procedures are called:
+
+```typescript
+trpc.some.get(...)    // what does "get" mean?
+trpc.some.create(...) // what is being created?
+```
+
+Better:
+
+```typescript
+export const someRouter = router({
+  getProfile: publicProcedure.query(...),
+  createOrder: protectedProcedure.mutation(...),
+  updateAddress: protectedProcedure.mutation(...),
+  deleteItem: protectedProcedure.mutation(...),
+});
+```
+
+Lesson:
+
+> Procedure names should be self-documenting. The tRPC procedure path (`some.getProfile`) is visible in network logs, error messages, and analytics. Generic names make debugging harder.
+
+---
+
+### Mistake 3: Routing public data through session-aware server caller forces routes dynamic
+
+Symptom:
+
+- `pnpm build` emits `DYNAMIC_SERVER_USAGE` warnings for public routes (`/`, `/collections`, `/products`).
+- The affected routes render as `ƒ` (Dynamic) instead of `○` (Static) in the build route table.
+- During the static-generation probe, the page's `try/catch` swallows the `DYNAMIC_SERVER_USAGE` error and renders an **empty shell** (e.g. an empty product grid on the homepage).
+- Prior handoff documents may misdiagnose these as "cosmetic" or "expected" — the build log explicitly names the failing route.
+
+Root cause:
+
+- The server-side tRPC caller (`api()`) unconditionally calls `headers()` from `next/headers` to build the request context.
+- In Next.js 16, any route whose render path touches `headers()`, `cookies()`, or `searchParams` is **forced dynamic** (`ƒ`) — the static-generation pass cannot prerender it.
+- If a **public, cacheable** page (homepage, collections, product listings) routes through this session-aware caller, it loses all static rendering benefits: no ISR, no PPR, no edge caching, and an empty shell during the static probe.
+- This is a **scaffolding gap** — the architectural boundary between public and auth-required data fetching is missing.
+
+Why it matters for DTC e-commerce:
+
+- The homepage is the highest-traffic route. An empty product grid in the prerender is a visible brand defect.
+- Static routes are edge-cacheable and return complete HTML on first paint. Dynamic routes require a server round-trip on every request.
+
+Fix — introduce a session-free public caller (`apiPublic`):
+
+```typescript
+// apps/web/src/lib/trpc/server.ts
+import { appRouter, createContext } from '@maison/api';
+
+const TRPC_ENDPOINT = 'http://localhost:3000/api/trpc';
+
+/** Session-aware caller — uses next/headers → forces route dynamic. */
+export async function api() {
+  const heads = new Headers(await headers());
+  const req = new Request(TRPC_ENDPOINT, { headers: heads });
+  const ctx = await createContext({ req });
+  return appRouter.createCaller(ctx);
+}
+
+/** Session-free caller — no next/headers → route can be static. */
+export async function apiPublic() {
+  const req = new Request(TRPC_ENDPOINT);
+  const ctx = await createContext({ req });
+  return appRouter.createCaller(ctx);
+}
+```
+
+Then switch the public page:
+
+```typescript
+// Before (forces dynamic):
+import { api } from '@/lib/trpc/server';
+const caller = await api();
+
+// After (can be static):
+import { apiPublic } from '@/lib/trpc/server';
+const caller = await apiPublic();
+```
+
+Why this works:
+
+- `apiPublic()` builds context with an empty `Request` — no `headers()` call, no `next/headers` import.
+- `createContext` runs `getSessionWithTimeout(req.headers)` against empty headers → returns `null` session.
+- `publicProcedure` never reads `ctx.session` — a null session is exactly correct.
+- Both callers reuse the **same `appRouter`** — zero duplicated query/shaping logic. Only the transport context differs.
+- The route is now `○ Static` in the build table; the `DYNAMIC_SERVER_USAGE` warning is eliminated.
+
+When to use each caller:
+
+| Caller | Use when | Route type |
+|---|---|---|
+| `api()` | Page needs a session (account, admin, cart, checkout) | `ƒ Dynamic` (by design) |
+| `apiPublic()` | Page only calls `publicProcedure`s (browse, search, collections) | `○ Static` (prerendered) |
+
+When to use `apiPublic()`:
+
+- Homepage product/collection grids
+- Collection listing pages
+- Product listing pages (PLP) — even though `searchParams` may still force dynamic, the caller should not add `headers()` on top
+- Search results pages
+- Any page that only calls `publicProcedure` and does not need auth context
+
+When `apiPublic()` is NOT sufficient:
+
+- Pages that call `protectedProcedure` or `adminProcedure` — these throw `UNAUTHORIZED` with a null session
+- Pages that need the user's session for personalized content (wishlist, loyalty points)
+- Pages that read cookies or headers directly
+
+Related `DYNAMIC_SERVER_USAGE` behavior:
+
+- `searchParams` access also forces a route dynamic (correct for filter/search pages that need URL state)
+- The `DYNAMIC_SERVER_USAGE` warning is non-fatal — the build completes — but it means the route is server-rendered on every request
+- For guarded routes (`/account/*`, `/admin/*`), `DYNAMIC_SERVER_USAGE` is expected and correct — those routes need `headers()` for session verification
+- For public routes, `DYNAMIC_SERVER_USAGE` is a **real bug** — it means an empty prerender or a lost static-rendering opportunity
+
+Pattern source: Stillwater ADR V16-1 ("No apiCaller() → no headers() → no streaming → complete HTML returned") and Stillwater's `index-routes-no-apiCaller.test.ts` regression tests.
+
+Lesson:
+
+> The server-side tRPC caller is the single architectural chokepoint for static vs dynamic rendering in Next.js 16. If a public page calls `api()`, it becomes dynamic — not because the page needs a session, but because the caller unconditionally imports `next/headers`. Split the caller into session-aware (`api()`) and session-free (`apiPublic()`) variants. Use `apiPublic()` for all public, cacheable content. This is the single highest-impact fix for Core Web Vitals on DTC storefronts.
+
+---
+
 ## Vitest Lessons
 
 ### Mistake: Config imports a plugin not declared
@@ -2680,6 +3095,8 @@ When an SDK import or type fails:
 8. Use conditional spreads for optional payloads.
 9. Verify with type-check and package tests.
 10. Record latent issues hidden by tsconfig include.
+11. For tRPC routers: verify procedure names are not JavaScript reserved words (`apply`, `call`, `bind`, etc.) — this error only surfaces at `pnpm build`, not `pnpm check-types`.
+12. For public pages: verify the server caller does not call `next/headers` unless the route genuinely needs a session — `headers()` forces the route dynamic, breaking static generation. Use a session-free caller (`apiPublic()`) for `publicProcedure`-only pages.
 
 ---
 
@@ -2910,6 +3327,92 @@ Lesson:
 
 ---
 
+## Server/Client Boundary: Better Auth React Hooks
+
+### Mistake: Calling `useSession()` during SSR in a Client Component
+
+Bad:
+
+```tsx
+'use client';
+import { useSession } from '@maison/auth/client';
+
+export function WishlistButton() {
+  const { data: session } = useSession(); // CRASH during SSR
+}
+```
+
+Better:
+
+```tsx
+// WishlistButton remains unchanged, but the PARENT wraps it:
+<ClientOnly fallback={null}>
+  <WishlistButton productSlug={product.slug} />
+</ClientOnly>
+```
+
+Why:
+
+- Client Components render on the server (SSR produces initial HTML).
+- `useSession()` → `useStore()` → `useRef()` — but Turbopack selects React's `react-server` export for the SSR chunk, where `useRef` is a null stub.
+- `null.useRef()` throws `TypeError: Cannot read properties of null (reading 'useRef')`.
+
+Lesson:
+
+> Any Client Component calling Better Auth React hooks (`useSession`, `authClient.useX()`) must be wrapped in a `ClientOnly` boundary at the call site. Do NOT use `next/dynamic({ ssr: false })` in Server Components — it is forbidden by Next.js 16.
+
+### Note: The `api()`/`apiPublic()` contract is a Server Component concern
+
+The rendering-strategy split (`api()` for session-aware pages, `apiPublic()` for session-free public pages) applies to **Server Components** that call the server-side tRPC caller. Client Components (`'use client'`) use the **client-side** tRPC caller (`trpc` from `@/lib/trpc/client`) with React Query — they never call `api()` or `apiPublic()`. When auditing rendering strategy, check whether the page is a Server Component or Client Component before asserting the caller contract. See Playbook 16 Scenario B for the full analysis.
+
+---
+
+## Next.js 16 Static/Dynamic Route Boundary
+
+In Next.js 16, routes are either **static** (`○`) or **dynamic** (`ƒ`). Static routes are prerendered at build time and served from edge/CDN. Dynamic routes are server-rendered on every request. The following APIs force a route dynamic:
+
+| API | Import | Effect |
+|---|---|---|
+| `headers()` | `next/headers` | Reads request headers → forces dynamic |
+| `cookies()` | `next/headers` | Reads request cookies → forces dynamic |
+| `searchParams` | Page prop `Promise<...>` | Reads URL query params → forces dynamic |
+| `useSearchParams()` | `next/navigation` | Client-side search params → forces dynamic |
+
+When a route is forced dynamic during the static-generation probe, Next.js emits:
+
+```text
+[route-name] Failed to fetch data: Error: Dynamic server usage: Route /path couldn't be rendered statically because it used `headers`.
+```
+
+### This warning is NOT always cosmetic
+
+A common misdiagnosis is to treat `DYNAMIC_SERVER_USAGE` warnings as "expected" or "cosmetic" for all routes. This is wrong when:
+
+- The affected route is **public and cacheable** (homepage, collections, product listings) — an empty prerender means a visible brand defect (e.g. empty product grid)
+- The route loses ISR/PPR/edge-caching benefits — every request hits the server
+- The route's data does not actually need request context (session, headers) — the dynamic forcing is caused by the server caller, not the page's own logic
+
+The warning IS expected and correct when:
+- The route is auth-guarded (`/account/*`, `/admin/*`) and needs `headers()` for session verification
+- The route reads `searchParams` for URL-driven state (filter/search pages)
+
+### Diagnosis
+
+To determine whether a `DYNAMIC_SERVER_USAGE` warning is a bug or expected:
+
+1. Check the route table in `pnpm build` output — is the route `○` or `ƒ`?
+2. If `ƒ`, check whether the page imports `api()` (session-aware caller) — if so, the caller's `headers()` call is the cause
+3. Check whether the page actually needs a session — if it only calls `publicProcedure`s, it should use `apiPublic()` instead
+4. Check whether the page reads `searchParams` — if so, `ƒ` is correct for that route
+
+### Prevention
+
+- Use `apiPublic()` for all public, cacheable pages (see §4.7 Mistake 3)
+- Use `api()` only for pages that genuinely need a session
+- Do not import the session-aware caller in pages that only browse public content
+
+---
+
 ## React/Next.js Checklist
 
 When React or Next.js lint/type issues appear:
@@ -2922,6 +3425,7 @@ When React or Next.js lint/type issues appear:
 6. Check console usage.
 7. Check server/client component boundaries.
 8. Verify route handler conventions.
+9. Wrap Better Auth React hooks (`useSession`) in a `ClientOnly` boundary — never let them execute during SSR.
 
 ---
 
@@ -2995,6 +3499,62 @@ Diagnostic patterns:
 - compare with sibling lines,
 - use TypeScript parser diagnostics,
 - inspect raw bytes.
+
+---
+
+### Mistake 4: Async-deferred-to-null file reads in contract tests
+
+Symptom:
+
+- A source-contract test's `read()` helper returns `string | null` via `readFile(...).catch(() => null)`.
+- Every assertion site now holds a `string | null`, even after runtime `expect(x).not.toBeNull()` (see TS Mistake 17).
+- A missing file is swallowed to `null` and surfaces as a confusing regex-assertion failure instead of a loud "file not found" error.
+
+Root cause:
+
+- `readFile(...).catch(() => null)` erases the ENOENT signal *and* widens the producer type to `string | null`.
+- The Stillwater reference (`index-routes-no-apiCaller.test.ts`) avoids this entirely: it uses **synchronous `readFileSync`** into `string`-typed module-scoped `const`s — no `Promise`, no `.catch(() => null)`, no null branch.
+
+Bad:
+
+```ts
+const read = (rel: string) =>
+  readFile(join(APP_ROOT, rel), 'utf8').catch(() => null);
+// ...
+for (const rel of PUBLIC_TRPC_PAGES) {
+  it(`${rel} imports apiPublic`, async () => {
+    const src = await read(rel);          // string | null
+    expect(src, `${rel} not found`).not.toBeNull(); // runtime-only — not a type guard
+    expect(src).toMatch(/import.*apiPublic/);        // TS18047 on any .method() call
+  });
+}
+```
+
+Better (synchronous, throwing, null-free — mirrors Stillwater):
+
+```ts
+const read = (rel: string): string =>
+  readFileSync(join(APP_ROOT, rel), 'utf8');
+// ...
+for (const rel of PUBLIC_TRPC_PAGES) {
+  it(`${rel} imports apiPublic`, () => {
+    const src = read(rel);                // string — always
+    expect(src).toMatch(/import.*apiPublic/);
+  });
+}
+```
+
+This also improves the failure mode: a missing file throws a readable `ENOENT` at `readFileSync` (the Vitest spec name + file path are in the stack trace) instead of being silently swallowed to `null`.
+
+Lesson:
+
+> Contract test file reads should be **synchronous and throwing**. Synchronous reads keep the producer type `string` (no null branch → no `TS18047`), throw loudly on missing files, and avoid async/await boilerplate in tests that need no I/O mocking.
+
+Prevention:
+
+- Use `readFileSync` (not `readFile().catch(() => null)`) for test sources.
+- Remove redundant `expect(x).not.toBeNull()` guards after switching to a throwing producer — the throw does that job.
+- If you need async reads (e.g. testing a network client), keep the producer's return type `Promise<T>` and narrow with `await` + a real null check before deref.
 
 ---
 
@@ -3124,11 +3684,40 @@ Rule:
 
 ## Mistake 6: Declaring completion before verification
 
-A batch can be “applied” but not “verified.”
+A batch can be "applied" but not "verified."
 
 Rule:
 
 > Do not report success until the relevant gate passes.
+
+---
+
+## Mistake 7: `.gitignore` `lib/` pattern hides Next.js `apps/*/src/lib/` in Python+JS monorepos
+
+Symptom: A newly created test file in `apps/web/src/lib/__tests__/` does not appear in `git status` as untracked, even though the file exists on disk. `git check-ignore -v` shows the Python `lib/` pattern is matching it.
+
+Root cause: The `.gitignore` has a `lib/` entry (for Python `lib/` directories — `.eggs/`, `dist/`, `sdist/`, etc.) that also matches `apps/web/src/lib/`. This is a common bleed in monorepos that mix Python tooling with JavaScript/TypeScript applications.
+
+Fix: Add negation rules immediately after the `lib/` entry:
+
+```gitignore
+lib/
+!apps/web/src/lib/
+!apps/web/src/lib/**
+```
+
+Why this happens: Git's `.gitignore` treats `lib/` as a directory pattern that matches any directory named `lib` at any depth. The negation `!apps/web/src/lib/` un-ignores the specific directory, and `!apps/web/src/lib/**` un-ignores its contents.
+
+Rule:
+
+> In mixed-language monorepos, audit `.gitignore` for patterns that bleed across ecosystems. Python's `lib/`, `dist/`, `build/`, `*.egg-info/` can hide JavaScript source files. Add negations for application source directories.
+
+Diagnostic:
+
+```bash
+git check-ignore -v apps/web/src/lib/__tests__/your-file.ts
+# If the output shows a Python-era pattern (lib/, dist/, build/), add negation
+```
 
 ---
 
@@ -3247,6 +3836,54 @@ Avoid explicit `undefined`.
 
 Use optional chaining and fallbacks.
 
+### Pattern: Name tRPC procedures with domain-specific verb-noun pairs
+
+```ts
+// Good — self-documenting, no reserved word collisions
+export const tradeRouter = router({
+  submitApplication: protectedProcedure.mutation(...),
+  myStatus: protectedProcedure.query(...),
+  list: adminProcedure.query(...),
+  approve: adminWriteProcedure.mutation(...),
+});
+
+// Bad — generic, ambiguous, potential reserved word collision
+export const tradeRouter = router({
+  apply: protectedProcedure.mutation(...),
+  get: protectedProcedure.query(...),
+  list: adminProcedure.query(...),
+});
+```
+
+Why:
+
+- Avoids JavaScript reserved words (`apply`, `call`, `bind`, `constructor`, etc.) which tRPC v11 rejects at router construction time.
+- Makes the tRPC procedure path self-documenting in network logs and error messages.
+- Prevents ambiguity when multiple routers have similar operations.
+
+### Pattern: Session-free public caller for cacheable routes
+
+Public pages that only call `publicProcedure`s should use a session-free server caller (`apiPublic()`) instead of the session-aware `api()`. This preserves static rendering (`○`) and avoids `DYNAMIC_SERVER_USAGE` warnings.
+
+```typescript
+// Good — public page uses session-free caller:
+import { apiPublic } from '@/lib/trpc/server';
+const caller = await apiPublic();
+const products = await caller.products.list({ limit: 8 });
+
+// Bad — public page uses session-aware caller:
+import { api } from '@/lib/trpc/server';
+const caller = await api();  // calls next/headers → forces route dynamic
+const products = await caller.products.list({ limit: 8 });
+```
+
+When to use each:
+
+- `api()` — page needs a session (account, admin, cart, checkout)
+- `apiPublic()` — page only calls `publicProcedure`s (browse, search, collections, homepage)
+
+See §4.7 Mistake 3 for the full pattern and rationale.
+
 ---
 
 ## 5.4 ESLint Patterns
@@ -3351,6 +3988,104 @@ Use `&apos;`, `&quot;`, etc.
 
 `q ?? ''` instead of `String(q)`.
 
+### Pattern: ClientOnly boundary for hooks unsafe in SSR
+
+Wrap Client Components that call hooks illegal during SSR (e.g. Better Auth's `useSession`) in a `ClientOnly` boundary that defers rendering to the client pass via `useSyncExternalStore`.
+
+```tsx
+<ClientOnly fallback={null}>
+  <WishlistButton productSlug={product.slug} />
+</ClientOnly>
+```
+
+Do NOT use `next/dynamic({ ssr: false })` in Server Components (forbidden by Next.js 16). Use `ClientOnly` everywhere for consistency.
+
+### Pattern: Format every new file before committing
+
+When creating a new file (not just editing an existing one), run Prettier on it before staging. The pre-commit hook checks **all** staged files, including newly created ones. A new file that was never formatted will fail the Prettier gate even if no editing tool touched its formatting.
+
+```bash
+pnpm --filter=@scope/pkg exec prettier --write src/components/new-file.tsx
+```
+
+This applies even when the file was written by a tool that produces "clean" output — Prettier's formatting rules (print width, trailing commas, semicolons, class sorting) may differ from the writer's defaults.
+
+---
+
+## 5.9 Testing Patterns
+
+### Pattern: Source contract tests for architectural invariants
+
+When an architectural rule (e.g. "public pages must use `apiPublic`, auth pages must use `api`") is enforced by convention rather than by the type system, write a **source contract test** that reads the page source and asserts the import contract.
+
+This is:
+- **Deterministic** — no build invocation, no mocks, no network, no React rendering
+- **Fast** — runs in <2s under Vitest
+- **Hermetic** — fails immediately if an agent migrates a page to the wrong caller
+- **Self-documenting** — the test file IS the specification of the architectural invariant
+
+```ts
+// apps/web/src/lib/__tests__/rendering-strategy.contract.test.ts
+const PUBLIC_TRPC_PAGES = ['(shop)/page.tsx', '(shop)/products/page.tsx', /* ... */];
+const read = (rel: string): string => readFileSync(join(APP_ROOT, rel), 'utf8');
+
+for (const rel of PUBLIC_TRPC_PAGES) {
+  it(`${rel} imports apiPublic (not api)`, () => {
+    const src = read(rel);                          // string — null-free
+    expect(src).toMatch(/import\s+\{\s*apiPublic\s*\}/);
+    // Strip comment lines before checking — api() in JSDoc is benign
+    const codeOnly = src.split('\n')
+      .filter((l) => !l.trimStart().startsWith('//') && !l.trimStart().startsWith('*'))
+      .join('\n');
+    expect(codeOnly).not.toMatch(/\bapi\(\s*\)/);
+  });
+}
+```
+
+Why synchronous `readFileSync` instead of async `readFile().catch(() => null)`:
+
+- Synchronous reads keep the producer type `string` — no null branch, no `TS18047` under `strict: true`.
+- A missing file throws `ENOENT` at `readFileSync` (readable failure) instead of being swallowed to `null` (confusing regex-assertion failure).
+- No async/await overhead in tests that need no I/O mocking.
+- Mirrors the Stillwater reference (`index-routes-no-apiCaller.test.ts`) pattern.
+
+Key design decisions:
+- Use `node:fs` `readFile` (not React rendering) — no mock harness needed
+- Strip comment lines before asserting `api()` absence — JSDoc mentions are benign
+- The test file lives alongside the module it tests (`lib/__tests__/` for `lib/trpc/server.ts`)
+- Use `// @vitest-environment node` per-file annotation if the test doesn't need DOM
+
+When to use this pattern:
+- The invariant is architectural (import contract), not behavioral (rendering output)
+- The invariant can't be enforced by TypeScript (both `api()` and `apiPublic()` have compatible types)
+- The invariant is high-stakes (a violation causes runtime `UNAUTHORIZED` or lost static rendering)
+
+Lesson:
+
+> When the type system can't enforce an architectural rule, a source contract test can. Read the source, assert the import, fail the build. This is faster and more reliable than build-output tests that parse the route table.
+
+### Pattern: Meta-guard for caller modules
+
+When a module exports split variants (e.g. `api()` and `apiPublic()`), add a test that asserts the module itself maintains its contract:
+
+```ts
+it('lib/trpc/server.ts maintains the api/apiPublic contract', () => {
+  const src = readFileSync(join(HERE, '..', 'trpc', 'server.ts'), 'utf8');
+  expect(src).toContain('export async function api()');
+  expect(src).toContain('export async function apiPublic()');
+  // api() must read headers()
+  expect(src).toMatch(/import\s+\{\s*headers\s*\}/);
+  // apiPublic() must NOT call headers() in its body
+  const apiPublicBody = src.slice(
+    src.indexOf('export async function apiPublic()'),
+    src.indexOf('export async function apiPublic()') + 400,
+  );
+  expect(apiPublicBody).not.toMatch(/\bheaders\(\)/);
+});
+```
+
+This catches the case where someone "simplifies" `apiPublic()` by reusing `api()` internally, or removes the `headers()` import from `api()`. The meta-guard is the last line of defense before the split-caller architecture collapses.
+
 ---
 
 # 6. Anti-Pattern Catalog
@@ -3402,6 +4137,8 @@ This catalog names recurring mistakes so future agents can recognize them early.
 | Hardcoded SDK literal | API version drift | Remove/update |
 | Outdated SDK API | Method/payload changed | Inspect installed types |
 | Hidden broken file | tsconfig include excludes it | Audit include |
+| tRPC reserved word procedure | `apply`/`call`/`bind` etc. as procedure name — rejected at build time | Use domain-specific verb-noun pairs |
+| Generic procedure names | `get`/`create`/`update`/`delete` — ambiguous in logs and error paths | Self-documenting names: `getProfile`, `createOrder` |
 
 ---
 
@@ -3430,6 +4167,7 @@ This catalog names recurring mistakes so future agents can recognize them early.
 | Blanket formatting | Huge diff churn | Scope or get approval |
 | Staged unformatted files | Hook fails | Format before commit |
 | Parse error as formatting | Syntax fault remains | Fix syntax first |
+| New file never formatted | Prettier gate fails on newly created file | Run Prettier on every new file before staging |
 
 ---
 
@@ -3458,6 +4196,8 @@ This catalog names recurring mistakes so future agents can recognize them early.
 | Hardcoded version | Type literal mismatch | Remove/update |
 | Explicit undefined | Strict optional failure | Conditional spread |
 | Hidden latent import | File excluded from type-check | Audit tsconfig include |
+| Routing public data through session-aware caller | `api()` calls `next/headers` → public route forced dynamic → empty prerender | Use `apiPublic()` for `publicProcedure`-only pages |
+| DYNAMIC_SERVER_USAGE misdiagnosed as cosmetic | Prior handoff says "expected, out of scope" when public route is empty | Verify against build log route table; check if route actually needs `headers()` |
 
 ---
 
@@ -3472,6 +4212,9 @@ This catalog names recurring mistakes so future agents can recognize them early.
 | `String(undefined)` | Bad metadata fallback | `?? ''` |
 | Unescaped JSX text | Lint error | Use entities |
 | Console.log | Logging hygiene | Use warn/error/logger |
+| Better Auth React hooks during SSR | `useSession`/`authClient.useX()` calls `useRef` in SSR chunk → `null.useRef()` | Wrap in `ClientOnly` boundary |
+| `next/dynamic({ ssr: false })` in Server Component | Next.js 16 forbids — build fails | Use `ClientOnly` wrapper instead |
+| Public route forced dynamic by server caller | `api()` calls `headers()` → public page loses static rendering → empty prerender | Use `apiPublic()` for session-free public data |
 
 ---
 
@@ -3951,6 +4694,409 @@ Cannot find module '@scope/sdk/v4'
 
 ---
 
+## Playbook 14: tRPC build failure — `Reserved words used in router({})` call
+
+### Symptoms
+
+- `pnpm build` fails.
+- Error message:
+  
+  ```text
+  Error: Reserved words used in `router({})` call: <word>
+  ```
+  
+  or:
+  
+  ```text
+  Error: Failed to collect page data for /api/trpc/[trpc]
+  ```
+
+### Likely Causes
+
+- A tRPC procedure was named with a JavaScript reserved word (`apply`, `call`, `bind`, `constructor`, `toString`, `valueOf`, `hasOwnProperty`, `__proto__`, etc.).
+- tRPC v11 validates all procedure names at router construction time.
+- The tRPC adapter route (`/api/trpc/[trpc]/route.ts`) imports `appRouter`, which triggers the constructor during `next build` static page collection.
+
+### Why It Only Fails at Build Time
+
+- `pnpm check-types` does not catch this because the router constructor runs at **module load time** (runtime), not during static type analysis.
+- `pnpm build` triggers Next.js page data collection, which imports the tRPC adapter route, which imports the root router, which runs the constructor and validates procedure names.
+- `pnpm dev` may or may not surface it depending on whether the route is eagerly loaded.
+
+### Steps
+
+1. Read the full error message — it names the offending word.
+2. Search the API package for the reserved word:
+   
+   ```bash
+   grep -rn "<word>" packages/api/src/routers/ --include="*.ts"
+   ```
+   
+3. Identify the procedure definition.
+4. Rename to a domain-specific verb-noun pair:
+   
+   ```diff
+   - apply: protectedProcedure
+   + submitApplication: protectedProcedure
+   ```
+   
+5. Update all callers:
+   
+   ```bash
+   grep -rn "trade\.apply" apps/web/src --include="*.ts" --include="*.tsx"
+   ```
+   
+6. Update the caller:
+   
+   ```diff
+   - trpc.trade.apply.useMutation()
+   + trpc.trade.submitApplication.useMutation()
+   ```
+   
+7. Update any related JSDoc comments.
+8. Run the verification gates:
+   
+   ```bash
+   pnpm check-types   # Gate 1
+   pnpm lint          # Gate 2
+   pnpm build         # Gate 5 — the original failure
+   ```
+   
+9. Confirm the build succeeds.
+
+### Prevention
+
+- Name tRPC procedures with domain-specific verb-noun pairs.
+- Avoid any name that collides with `Object.prototype`, `Function.prototype`, or `Array.prototype` methods.
+- The reserved words list includes: `apply`, `call`, `bind`, `constructor`, `toString`, `valueOf`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `__proto__`.
+- Add a lint rule or pre-commit check that scans procedure definitions for reserved words.
+
+### Pattern
+
+```text
+good: submitApplication, createOrder, getProfile, listProducts, updateAddress, deleteItem
+bad:  apply, call, bind, constructor, toString, valueOf, get, create, update, delete
+```
+
+### Adjacent Considerations
+
+- The "Dynamic server usage" warnings in the build output are expected for routes using `headers()` — they indicate correctly dynamic routes, not errors.
+- The `api/trpc/[trpc]` route must be dynamic (`ƒ`) because it handles authenticated requests.
+
+---
+
+## Playbook 15: Runtime `TypeError: Cannot read properties of null (reading 'useRef')` in SSR
+
+### Symptoms
+
+- `pnpm build` succeeds (37/37 pages).
+- `pnpm start` + HTTP request produces:
+
+```text
+TypeError: Cannot read properties of null (reading 'useRef')
+    at <unknown> (.next/server/chunks/ssr/[root-of-the-server]__<hash>._.js:1:<col>)
+```
+- The page returns HTTP 500 instead of 200.
+- `check-types` and `lint` pass.
+- No compile-time error — only a runtime crash during SSR of a Client Component.
+
+### Likely Causes
+
+- A Client Component calls a hook from `better-auth/react` (`useSession`, `authClient.useX()`) during the SSR pass.
+- `better-auth/react`'s `useSession()` internally calls `useStore()` (from nanostores), which calls `useRef()`.
+- Turbopack bundles `better-auth/react` into the SSR server chunk, where it selects React's `"react-server"` export condition (`./react.react-server.js`).
+- The `react-server` build of React has null stubs for all hooks (`useRef`, `useState`, `useSyncExternalStore`) — by design, since React Server Components cannot call hooks.
+- `null.useRef()` → `TypeError`.
+
+### Diagnostic Steps
+
+1. Identify the crashing chunk:
+
+```bash
+rg -l 'better-auth' .next/server/chunks/ssr/ | head
+```
+
+2. Open the chunk referenced in the stack trace and look for `useSession` or `useStore` or `useRef`.
+
+3. Search the web app for which components call `useSession`:
+
+```bash
+rg -rn 'useSession|authClient\.use' apps/web/src --glob '!*.test.*'
+```
+
+4. Check whether those components render during SSR (are they imported by a Server Component page or layout, or by another Client Component that renders during SSR).
+
+5. Confirm the crash by starting the server and curling the affected page:
+
+```bash
+cd apps/web && pnpm start &
+curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/
+# Expect: 500 (crash)
+```
+
+### Fix
+
+Wrap every component that calls a Better Auth React hook in a `ClientOnly` boundary at the call site.
+
+```tsx
+// At the call site (Server Component or Client Component):
+import { ClientOnly } from '@/components/shop/ClientOnly';
+import { WishlistButton } from '@/components/shop/WishlistButton';
+
+<ClientOnly fallback={null}>
+  <WishlistButton productSlug={product.slug} productName={product.name} />
+</ClientOnly>
+```
+
+`ClientOnly` uses `useSyncExternalStore` with `getServerSnapshot: () => false` — an SSR-safe primitive that defers children to the client pass.
+
+Do NOT use `next/dynamic({ ssr: false })` inside a Server Component — Next.js 16 forbids it and the build will fail with:
+
+```text
+`ssr: false` is not allowed with `next/dynamic` in Server Components.
+```
+
+### Verification
+
+```bash
+pnpm check-types   # Gate 1
+pnpm lint          # Gate 2
+pnpm build         # Gate 5
+```
+
+Then start the server and curl:
+
+```bash
+cd apps/web && pnpm start &
+curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/                # Expect: 200
+curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/products/some-slug  # Expect: 200
+```
+
+Confirm no `useRef` error in the server log.
+
+### Prevention
+
+- Any Client Component that calls Better Auth React hooks must be wrapped in `ClientOnly` at the call site.
+- Do NOT use `next/dynamic({ ssr: false })` in Server Components — use `ClientOnly` everywhere for consistency.
+- When adding new auth-gated UI, check whether `useSession` will be called during SSR before importing the component.
+
+---
+
+## Playbook 16: DYNAMIC_SERVER_USAGE warnings during build
+
+This playbook covers `DYNAMIC_SERVER_USAGE` warnings that appear when `next build` runs a static pre-render probe on each route. The probe tries to render every page statically; if the page calls a dynamic API (`headers()`, `cookies()`, `searchParams`), the probe throws `DYNAMIC_SERVER_USAGE`. **Whether this is a bug or expected depends on the route type.** This playbook covers both scenarios.
+
+### Symptoms
+
+- `pnpm build` succeeds but emits warnings:
+
+```text
+[route-name] Failed to fetch data: Error: Dynamic server usage: Route /path couldn't be rendered statically because it used `headers`.
+```
+
+- The affected route renders as `ƒ` (Dynamic) instead of `○` (Static) in the build route table.
+- Prior handoff documents may dismiss these as "cosmetic" or "expected" — verify against the actual build log.
+- During the static-generation probe, the page's `try/catch` may swallow the error and render an **empty shell** (e.g. empty product grid on homepage).
+
+### Likely Causes
+
+- The page imports the session-aware server caller (`api()`), which unconditionally calls `next/headers`.
+- In Next.js 16, `headers()`, `cookies()`, and `searchParams` access force a route dynamic.
+- The page only calls `publicProcedure`s — it does not need a session — but the caller's `headers()` call forces dynamic anyway.
+
+### Why This Is NOT Cosmetic
+
+- **Empty prerender**: The static probe tries to render the page, hits `DYNAMIC_SERVER_USAGE`, the `try/catch` swallows it, and the page renders with empty data. For e-commerce, this means an empty product grid — a visible brand defect.
+- **Lost static benefits**: The route loses ISR, PPR, edge caching, and CDN serving. Every request hits the server.
+- **Performance regression**: The homepage (highest-traffic route) becomes server-rendered on every request instead of being served from edge.
+
+### Diagnostic Steps
+
+1. Check the route table in `pnpm build` output — is the route `○` or `ƒ`?
+2. Search the build log for the route name:
+
+```bash
+grep "\[route-name]\" /tmp/build.log
+grep "DYNAMIC_SERVER_USAGE" /tmp/build.log | grep "Route /path"
+```
+
+3. Check whether the page imports `api()` (session-aware caller):
+
+```bash
+grep -n "from '@/lib/trpc/server'" apps/web/src/app/(shop)/path/page.tsx
+```
+
+4. Check whether the page only calls `publicProcedure`s — if so, it should use `apiPublic()` instead.
+5. Check whether the page reads `searchParams` — if so, `ƒ` is correct for that route (search/filter pages need URL state).
+
+### Fix
+
+Switch the page from `api()` to `apiPublic()`:
+
+```diff
+- import { api } from '@/lib/trpc/server';
++ import { apiPublic } from '@/lib/trpc/server';
+ 
+- const caller = await api();
++ const caller = await apiPublic();
+```
+
+### Verification
+
+```bash
+pnpm check-types          # Gate 1
+pnpm lint                 # Gate 2
+pnpm build                # Gate 5 — verify route table
+```
+
+Check the route table:
+
+```bash
+grep "○ /path" /tmp/build.log   # Should show static marker
+grep "\[route-name]\" /tmp/build.log   # Should show no warning
+grep "DYNAMIC_SERVER_USAGE" /tmp/build.log | grep "Route /path"  # Should be absent
+```
+
+### Prevention
+
+- Use `apiPublic()` for all public, cacheable pages (homepage, collections, product listings, search).
+- Use `api()` only for pages that genuinely need a session (account, admin, cart, checkout).
+- Do not import the session-aware caller in pages that only browse public content.
+- Document the caller choice in the page's JSDoc comment.
+
+### Pattern Source
+
+Stillwater ADR V16-1: "No apiCaller() → no headers() → no streaming → complete HTML returned." Stillwater's `index-routes-no-apiCaller.test.ts` regression tests assert that public marketing pages do NOT call `apiCaller()`.
+
+---
+
+### Scenario B: Auth-guarded routes — warnings are expected and correct
+
+The same `DYNAMIC_SERVER_USAGE` warnings on `/account/*` and `/admin/*` routes are **NOT a bug**. They are the correct and intended behavior.
+
+#### Why these routes are dynamic by design
+
+1. The `(account)/layout.tsx` and `(admin)/layout.tsx` call `auth.api.getSession({ headers: await headers() })` — the Layer 2 security boundary (per `PROJECT-ARCHITECTURE.md §6.3`). This is the *real* auth check; `proxy.ts` is only the cookie-existence optimistic gate.
+2. Each page under those groups calls `api()` (the headers-bound tRPC caller) to run `protectedProcedure` or `adminProcedure` — which require a session.
+3. `next/headers` is a dynamic API. When the static probe hits it, Next.js catches the `DYNAMIC_SERVER_USAGE` throw, opts the route into dynamic rendering, and the build completes.
+
+This is identical to the Stillwater pattern: Stillwater's `(admin)/layout.tsx` → `requireRole()` → `getSession()` → `headers()` — the same architecture.
+
+#### The `force-dynamic` trap
+
+The obvious "fix" to silence these warnings is `export const dynamic = 'force-dynamic'` on each page. **Do NOT do this.**
+
+- `force-dynamic` is **incompatible with `cacheComponents: true`** — a documented Next.js 16 *build error*, not a warning (Stillwater SKILL §6.10 Gotcha 7).
+- Maison does not enable `cacheComponents` today, but `next.config.ts` is structured to adopt it in a later phase.
+- Adding `force-dynamic` now creates a **time bomb**: the build breaks the day `cacheComponents` is turned on.
+- Stillwater's own remediation saga (C3 / V16-1) removed `force-dynamic` from routes for exactly this reason.
+
+The correct approach is to **let the dynamic API force the route dynamic naturally** — which Next.js does automatically. The warnings are informational, not actionable.
+
+#### When to add the guardrail note
+
+Document this in `AGENTS.md` under "Things that look wrong but aren't" so future agents don't re-chase the warnings:
+
+```markdown
+- **`DYNAMIC_SERVER_USAGE` warnings for `/account/*` + `/admin/*`** — These routes are `ƒ (Dynamic)` by design: the layouts call `auth.api.getSession({ headers: await headers() })`, which makes `next/headers` hit the static pre-render probe. Next.js catches the probe, marks the route dynamic, and emits a warning. The build completes. Do NOT add `export const dynamic = 'force-dynamic'` to silence them — that is incompatible with `cacheComponents: true`.
+```
+
+#### Regression test: source contract tests
+
+The architectural invariant (public routes use `apiPublic`, auth routes use `api`) can be locked with a source contract test that reads page source and asserts the import contract. This is:
+- **Deterministic** — no build invocation, no mocks, no network
+- **Fast** — runs in <2s under Vitest
+- **Hermetic** — fails if an agent migrates a public route to `api()` (forcing it dynamic) or an auth route to `apiPublic()` (nulling the session)
+
+See `apps/web/src/lib/__tests__/rendering-strategy.contract.test.ts` for the implementation. The test covers:
+1. Public TRPC pages import `apiPublic` (not `api`)
+2. Auth layouts call `auth.api.getSession({ headers })`
+3. Auth leaf pages import `api` (not `apiPublic`)
+4. Meta-guard: `lib/trpc/server.ts` maintains the `api`/`apiPublic` contract
+
+#### Client Components are exempt from the server-caller contract
+
+Some auth-guarded leaf pages (`account/addresses`, `account/loyalty`, `account/settings`, `admin/products/new`) are pure `'use client'` and use the **client-side** tRPC caller (`trpc` from `@/lib/trpc/client`), not the server-side `api()`. They don't import `api()` at all — and that's correct. They are still forced dynamic by the layout's `headers()` call, but they don't need to be in the source contract test's `AUTH_LEAF_PAGES` array because the server-import contract doesn't apply to them.
+
+Lesson:
+
+> The `api()`/`apiPublic()` split is a **Server Component concern**. Client Components use the client-side `trpc` caller with React Query — they never call `api()` or `apiPublic()`. When auditing rendering strategy, check whether the page is a Server Component or Client Component before asserting the caller contract.
+
+---
+
+## Playbook 17: check-types fails with TS18047 on a value "already null-checked" by a Vitest assertion
+
+### Symptoms
+
+```text
+src/lib/__tests__/some.contract.test.ts:111:26 - error TS18047: 'src' is possibly 'null'.
+  111         const codeOnly = src
+                                ~~~
+```
+
+...appearing immediately after:
+
+```ts
+expect(src, 'file not found').not.toBeNull();
+```
+
+Pre-commit hook fails at the `check-types` gate. The build itself may succeed — the error is in the test file, not the application.
+
+### Likely Causes
+
+1. The test's file reader returns `string | null` via `readFile(...).catch(() => null)`.
+2. `expect(x).not.toBeNull()` is a **runtime assertion**, not a TypeScript type guard — it does not narrow `x`'s compile-time type.
+3. `tsc` keeps `x: string | null`, so `.split()`, `.match()`, or `.indexOf()` derefs a maybe-null value → `TS18047`.
+
+### Diagnostic Steps
+
+```bash
+# 1. Confirm the failing file:
+find apps/web/src -name '*.test.ts' | xargs grep 'catch.*null'
+
+# 2. Confirm the type error:
+find apps/web/src -name '*.test.ts' | xargs grep 'expect.*not.toBeNull.*\.' | head
+# (look for expect(...).not.toBeNull() followed by .method() on the same value)
+```
+
+### Fix
+
+Two options, in order of preference:
+
+**Option A (preferred): make the producer non-null.** Switch from async `readFile(...).catch(() => null)` to synchronous `readFileSync` → `string` (mirrors the Stillwater reference pattern in `index-routes-no-apiCaller.test.ts`):
+
+```ts
+- const read = (rel: string) =>
+-   readFile(join(APP_ROOT, rel), 'utf8').catch(() => null);
++ const read = (rel: string): string =>
++   readFileSync(join(APP_ROOT, rel), 'utf8');
+```
+
+This eliminates the null branch at the type level, improves the missing-file failure mode (loud ENOENT instead of confusing regex failure), and removes async/await from tests that don't need it.
+
+**Option B (if you must keep a nullable producer): use a real type guard at the deref site.**
+
+```ts
+if (src === null) throw new Error(`${rel} not found`);  // narrows to string
+codeOnly = src.split('\n');
+```
+
+### Verification
+
+```bash
+pnpm --filter=@maison/web exec tsc --noEmit  # no TS18047
+pnpm --filter=@maison/web test                # all contract tests pass
+pnpm format:check                             # file is Prettier-conformant
+```
+
+### Prevention
+
+- **Never use `readFile(...).catch(() => null)` in contract tests.** Synchronous `readFileSync` → `string` is the canonical form.
+- **Never rely on `expect(x).not.toBeNull()` to narrow a type.** Use it for the runtime assertion, but also ensure the *type* is non-null via the producer.
+- **Before committing a new test file:** run `pnpm check-types` and `prettier --check` on it. Don't rely on the pre-commit hook catching everything — some gates run only on staged content.
+
+---
+
 # 8. Verification Matrices
 
 Verification is not optional. A fix is only real if proven.
@@ -3971,6 +5117,9 @@ Verification is not optional. A fix is only real if proven.
 | SDK fix | check-types, package tests, consumer regression |
 | Test fix | single test, package tests |
 | Runtime fix | dev/build/manual flow |
+| tRPC router change | check-types, lint, **build** (router constructor runs at build, not type-check) |
+| tRPC procedure rename | check-types, lint, build, grep callers for stale references |
+| Server caller change (api → apiPublic) | check-types, lint, **build** (verify route table: migrated routes should show `○` not `ƒ`), grep for remaining DYNAMIC_SERVER_USAGE on migrated routes |
 
 ---
 
@@ -4093,6 +5242,7 @@ This index summarizes the major incidents and their distilled lessons.
 | SDK-2 | Trigger.dev missing dep | pnpm strict isolation | Add dependency | Declare every import |
 | SDK-3 | Trigger.dev wrong API | Outdated client usage | Use `tasks.trigger` | Inspect installed types |
 | SDK-4 | Workers latent `/v4` | File outside tsconfig include | Deferred; audit include | Green check can hide latent errors |
+| RUNTIME-1 | `useRef` crash on all SSR pages | Better Auth `useSession` calls `useRef` during SSR; Turbopack selects `react-server` build | Wrap in `ClientOnly` boundary | Auth hooks must not execute during SSR |
 | TS-1 | Alias resolution broken | Inherited `baseUrl` | Local `baseUrl` | Trace module resolution |
 | TS-2 | Missing lib scaffolding | Files absent | Scaffold from contracts | Adapt reference carefully |
 | TS-3 | Async caller misuse | Property access on promise | Await caller | Await factories |
@@ -4114,6 +5264,16 @@ This index summarizes the major incidents and their distilled lessons.
 | TOOL-3 | Exit-code masking | Pipe status | Use `PIPESTATUS`/`pipefail` | Verify real exit codes |
 | HOOK-1 | 7-file Prettier failure | Staged unformatted files | Format 7 files | Staged content must pass gates |
 | HOOK-2 | Hook advances to lint | Format fixed, lint remains | Report next blocker | Simulate full hook |
+| TRPC-1 | Build fails with reserved word | `apply` as tRPC procedure name | Rename to `submitApplication` | tRPC v11 rejects JS reserved words at constructor time; only caught at build, not type-check |
+| TRPC-2 | Generic procedure names | `get`/`create`/`update`/`delete` — ambiguous | Self-documenting verb-noun pairs | Procedure paths visible in logs; generic names hinder debugging |
+| RUNTIME-2 | Homepage empty prerender | `api()` called `next/headers` → `/` forced dynamic → static probe swallowed error → empty product grid | `apiPublic()` (session-free caller) | `next/headers` is the architectural chokepoint for static vs dynamic in Next.js 16 |
+| RUNTIME-3 | DYNAMIC_SERVER_USAGE misdiagnosed as cosmetic | Prior handoff said "/ renders fine" when build log explicitly named `[home]` | Verify claims against actual error log | Prior diagnosis documents can be wrong — reproduce, don't trust the summary |
+| RUNTIME-4 | New file not formatted before commit | Prior remediation created ClientOnly.tsx but never ran Prettier | Format every new file before staging | New files are checked by pre-commit hook just like edited files |
+| RUNTIME-5 | apiPublic() migration of 5 public pages | Switched api() → apiPublic() on /, /collections, /products, /products/[slug], /search | `/` and `/collections` flipped from `ƒ` to `○`; warnings eliminated | Session-free caller reuses same appRouter — zero duplicated query logic |
+| RUNTIME-6 | Prior "all gates green" claim contradicted by error log | Verification table in handoff asserted `check-types 10/10 ✓` and `test 20/20 ✓` for a file that error.txt proved was type-broken at commit time | Reproduce the failing gate directly against the committed code | Treat prior *green checkmarks* as hypotheses too — stale cache or never-run verification produces false positives |
+| TS-9 | TS18047 after runtime `not.toBeNull` | `readFile().catch(()=>null)` widened producer to `string | null`; `expect().not.toBeNull()` is not a type guard | Null-free producer (`readFileSync` → `string`) or real type guard at deref site | Runtime assertions do not narrow TypeScript types |
+| PRETTIER-6 | `.prettierrignore` masking a real `[warn]` | File genuinely mis-formatted; exclusion added to silence the gate instead of fixing the file | `prettier --write` then remove exclusion from `.prettierrignore` | Ignore files are for unowned content, not gate-silencing |
+| TEST-1 | Contract test async null swallow | `readFile().catch(()=>null)` widens type + hides ENOENT into a confusing regex failure | Synchronous `readFileSync` → `string` (throws on missing, null-free) | Contract tests should throw on missing sources |
 
 ---
 
@@ -4209,6 +5369,31 @@ Large diffs hide intent and create review risk.
 
 A fix is not complete until the next agent or human knows exactly what remains.
 
+## 11. Build gate catches what type-check misses
+
+Some errors (like tRPC reserved word procedure names) only surface at `pnpm build` time because the router constructor runs at module load, not during static type analysis. If `check-types` passes but `build` fails, inspect the actual runtime imports — the error is in module initialization, not in type definitions.
+
+## 12. Runtime crashes can pass all static gates
+
+`check-types` passes. `lint` passes. `build` succeeds. The page still returns HTTP 500 at runtime. The `react-server` export condition in React 19 causes Better Auth React hooks (`useSession`) to call null-stub hooks (`useRef`) during SSR — a runtime-only failure that no static gate catches. Always verify with `pnpm start` + `curl` against the live server, not just the build output.
+
+## 13. Verify prior diagnoses against the actual error log
+
+A prior remediation document (`last_remediation.md`, a handoff from a previous session) may contain confidently stated but incorrect conclusions. In the original session, the prior document claimed: "`DYNAMIC_SERVER_USAGE` warnings are non-fatal… build still completes 37/37. Expected and correct; out of scope per Surgical Changes." The build log explicitly showed `[home] Failed to fetch data: Route / couldn't be rendered statically because it used headers` — the homepage was forced dynamic and rendered an empty product grid during the static probe. The prior document was wrong about `/` being fine. This was later fixed (public routes migrated to `apiPublic()`). A later remediation compound this: its verification table claimed `check-types 10/10 ✓` and `test 20/20 ✓` for a test file that the next `check-types` run proved was type-broken (`TS18047`) at commit time — the verification was either run against stale cache or never actually executed. Lesson: always verify a prior diagnosis against the actual error log, not the summary. Treat every prior conclusion — *and every prior green checkmark* — as a hypothesis until reproduced. (See RUNTIME-3, RUNTIME-6.)
+
+## 14. Distinguish public-route from auth-route DYNAMIC_SERVER_USAGE warnings
+
+Not all `DYNAMIC_SERVER_USAGE` warnings are equal. The same warning message means different things depending on the route:
+
+- **Public routes** (`/`, `/collections`, `/products`, `/search`) — the warning is a **real bug**. The page doesn't need a session, but `api()` calls `headers()` anyway. The route is forced dynamic, loses static rendering, and the static probe may render an empty shell (e.g. empty product grid). Fix: migrate to `apiPublic()`.
+- **Auth-guarded routes** (`/account/*`, `/admin/*`) — the warning is **expected and correct**. The layout calls `auth.api.getSession({ headers: await headers() })` (the Layer 2 security boundary), which correctly forces the route dynamic. Fix: none. Do NOT add `export const dynamic = 'force-dynamic'` to silence them — that is incompatible with `cacheComponents: true`.
+
+The diagnostic is simple: check the route table. If the route is `ƒ` and it's an auth-guarded route, that's by design. If it's `ƒ` and it's a public route, that's a bug.
+
+Lesson:
+
+> When you see `DYNAMIC_SERVER_USAGE`, ask: "Does this route actually need a session?" If yes, the warning is correct. If no, it's a real bug. Never blanket-fix all warnings without distinguishing the two cases.
+
 ---
 
 # 13. One-Page Agent Field Card
@@ -4231,9 +5416,17 @@ Use this during live troubleshooting.
 13. If SDK: inspect exports and installed types.
 14. If parser error: inspect previous line.
 15. If script edit: validate before mutating.
-16. Check git status and staged state.
-17. Record outstanding issues.
-18. Do not claim success before verification.
+16. If tRPC build fails: check procedure names for JS reserved words.
+17. Check git status and staged state.
+18. Record outstanding issues.
+19. Do not claim success before verification.
+20. If `useRef`/`useState` crash in SSR: Better Auth React hooks must not run during SSR — wrap in `ClientOnly` boundary, never use `next/dynamic ssr:false` in Server Components.
+21. If public page shows empty prerender: check whether server caller calls `next/headers` — use `apiPublic()` for session-free public data.
+22. If build warns `DYNAMIC_SERVER_USAGE` on a public route: this is a real bug (empty prerender + lost static benefits), not cosmetic.
+23. Before trusting a prior remediation document: verify its claims against the actual error log.
+24. If build warns `DYNAMIC_SERVER_USAGE` on an auth-guarded route (`/account/*`, `/admin/*`): this is expected and correct — the layout calls `headers()` for session verification. Do NOT add `force-dynamic` to silence it (incompatible with `cacheComponents: true`).
+25. The `api()`/`apiPublic()` split is a Server Component concern. Client Components use `trpc` from `@/lib/trpc/client` — they never call `api()` or `apiPublic()`.
+26. Source contract tests (read source, assert import) lock architectural invariants faster and more reliably than build-output tests.
 ```
 
 ---
