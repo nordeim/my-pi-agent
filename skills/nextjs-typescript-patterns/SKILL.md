@@ -1,17 +1,17 @@
 ---
 name: nextjs-typescript-patterns
 description: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle ORM, Postgres, and third-party SDKs (tRPC, Trigger.dev, Stripe, Better Auth, Sanity, React Email, Vitest). v1.4 — canonical troubleshooting handbook with 45+ case-indexed anti-patterns across install, type-check, lint, format, test, build, migration, and pre-commit-hook gates. Covers pnpm 10+ native-build approval (allowBuilds, onlyBuiltDependencies), strict workspace isolation, tsconfig path aliases and inherited baseUrl, Drizzle migration journal drift and silent spinner-masked failures, exactOptionalPropertyTypes, noUncheckedIndexedAccess, React 19 SubmitEvent migration, ESLint flat-config FlatCompat, Prettier ignore-path semantics, SDK drift (subpath exports, hardcoded API versions, callback payload shapes), runtime assertions that do not narrow TypeScript types, .prettierrignore as gate-silencer, and the Surgical Change Discipline. Use when debugging failing gates, reproducing mysterious install/type/lint/format/hook failures, remediating monorepo tooling debt across Next.js + TypeScript + Drizzle + tRPC + Better Auth, or hardening a fresh monorepo against repeated mistakes — symptoms like ERR_PNPM_NO_MATCHING_VERSION, TS2307/TS2339, TS18047 after runtime null-checks, __esModule config errors, passWithNoTests, or silent DATABASE_URL/Drizzle migration failures.
-version: 1.4
+version: 1.5
 ---
 
 # Consolidated Agent Briefing Document and Programming Handbook
 
 ## Agent Programming and Troubleshooting Handbook
 
-Version: 1.4  
+Version: 1.5  
 Scope: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle, Postgres, and third-party SDKs.  
 Purpose: Prevent repeated mistakes and provide a reusable troubleshooting methodology.  
-Reconciliation note: v1.4 adds: (1) §4.2 TS Mistake 17 — runtime assertions (`expect().not.toBeNull()`) do not narrow TypeScript types; (2) §4.4 Prettier Mistake 8 + anti-pattern — `.prettierrignore` as gate-silencer vs. unowned-content marker; (3) §4.9 Testing Mistake 4 — async-deferred-to-null file reads in contract tests (Stillwater's `readFileSync` → `string` pattern); (4) §5.9 corrected both source-contract-test and meta-guard pattern blocks from async to synchronous null-free form; (5) §7 Playbook 17 — `TS18047` after runtime null-check, two-branch fix (preferred: non-null producer); (6) §10 four new case-index rows (TS-9, PRETTIER-6, TEST-1, RUNTIME-6); (7) §12 Lesson 13 sharpened — prior green-checkmarks are also hypotheses, not just prose conclusions. v1.3 added: (1) Playbook 16 Scenario B — auth-guarded route `DYNAMIC_SERVER_USAGE` warnings are expected + the `force-dynamic`/`cacheComponents` trap; (2) §5.9 Testing Patterns — source contract tests for architectural invariants + meta-guard pattern for caller modules; (3) §4.10 Mistake 7 — `.gitignore` `lib/` bleed in Python+JS monorepos; (4) §12 Lesson 14 — distinguishing public-route from auth-route warnings; (5) §4.8 Server/Client Boundary note — the `api()`/`apiPublic()` split is a Server Component concern. v1.2 absorbed the genuine deltas from `update.md` (parser-error line attribution + `cat -A`; `psql -f` fallback for spinner-masked silent Drizzle failures; the named "Surgical Change Discipline" and the Stillwater reference-copy caveat).
+Reconciliation note: v1.5 adds: (1) §4.8 four new Mistakes — IntersectionObserver timing in useEffect (V12), next/image fill + CSS Grid anti-pattern (V13), useSearchParams() without Suspense breaks static prerendering (V15), useEffect([]) misses client-side navigation (V14); (2) §5.8 ScrollRevealTrigger pattern — thin Client Component mounting a side-effect hook in a shared layout; (3) §6.8 three React anti-patterns — grid placement on absolutely-positioned Image fill, raw JSON.stringify in dangerouslySetInnerHTML for JSON-LD, hooks defined but never called; (4) §10 six new case-index rows (RENDER-1 through RENDER-5, SECURITY-1); (5) §12 four new lessons ranked 15–18 (hooks called not just defined, IntersectionObserver timing, image fill + grid flow, useSearchParams Suspense). v1.4 adds: (1) §4.2 TS Mistake 17 — runtime assertions (`expect().not.toBeNull()`) do not narrow TypeScript types; (2) §4.4 Prettier Mistake 8 + anti-pattern — `.prettierrignore` as gate-silencer vs. unowned-content marker; (3) §4.9 Testing Mistake 4 — async-deferred-to-null file reads in contract tests (Stillwater's `readFileSync` → `string` pattern); (4) §5.9 corrected both source-contract-test and meta-guard pattern blocks from async to synchronous null-free form; (5) §7 Playbook 17 — `TS18047` after runtime null-check, two-branch fix (preferred: non-null producer); (6) §10 four new case-index rows (TS-9, PRETTIER-6, TEST-1, RUNTIME-6); (7) §12 Lesson 13 sharpened — prior green-checkmarks are also hypotheses, not just prose conclusions. v1.3 added: (1) Playbook 16 Scenario B — auth-guarded route `DYNAMIC_SERVER_USAGE` warnings are expected + the `force-dynamic`/`cacheComponents` trap; (2) §5.9 Testing Patterns — source contract tests for architectural invariants + meta-guard pattern for caller modules; (3) §4.10 Mistake 7 — `.gitignore` `lib/` bleed in Python+JS monorepos; (4) §12 Lesson 14 — distinguishing public-route from auth-route warnings; (5) §4.8 Server/Client Boundary note — the `api()`/`apiPublic()` split is a Server Component concern. v1.2 absorbed the genuine deltas from `update.md` (parser-error line attribution + `cat -A`; `psql -f` fallback for spinner-masked silent Drizzle failures; the named "Surgical Change Discipline" and the Stillwater reference-copy caveat).
 
 ---
 
@@ -3413,6 +3413,167 @@ To determine whether a `DYNAMIC_SERVER_USAGE` warning is a bug or expected:
 
 ---
 
+### Mistake: IntersectionObserver callback does not fire for already-visible elements
+
+Symptom:
+
+- A page renders elements with a `.reveal` class (initially `opacity: 0` via CSS).
+- An `IntersectionObserver` in a `useEffect` is supposed to add `.visible` (`opacity: 1`) when elements enter the viewport.
+- Elements below the fold animate in correctly on scroll.
+- The first few elements in the initial viewport stay at `opacity: 0` forever — the page appears blank.
+
+Root cause:
+
+- `IntersectionObserver` does not reliably fire `isIntersecting: true` for elements already in the viewport when the observer is constructed inside a post-hydration `useEffect`.
+- This is a timing issue: React hydrates the DOM, `useEffect` runs, the observer is constructed — but the browser has already computed which elements are visible, and the observer's initial callback does not fire for them.
+
+Fix:
+
+```ts
+useEffect(() => {
+  const observer = new IntersectionObserver(/* ... */);
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+  // Fallback: check elements already in viewport after first paint
+  requestAnimationFrame(() => {
+    const vh = window.innerHeight;
+    document.querySelectorAll('.reveal:not(.visible)').forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < vh && rect.bottom > 0) {
+        el.classList.add('visible');
+        observer.unobserve(el);
+      }
+    });
+  });
+
+  return () => observer.disconnect();
+}, [/* deps */]);
+```
+
+Lesson:
+
+> Do not strip the `requestAnimationFrame` fallback as "redundant" with the observer — it covers a real first-paint timing gap that the observer cannot detect.
+
+---
+
+### Mistake: `next/image fill` with grid placement on the `<Image>` element
+
+Symptom:
+
+- A CSS Grid layout has 3 images in an asymmetric arrangement.
+- Each `<Image>` has `fill` plus `style={{ gridColumn: '1 / 2', gridRow: '1 / 3' }}`.
+- All 3 images overlap at full section size (e.g. 1280×577px), filling the entire grid area as a single broken mess.
+- No images appear in their intended grid cells.
+
+Root cause:
+
+- `<Image fill>` renders the `<img>` with `position: absolute` (so it stretches to fill its nearest positioned ancestor).
+- An absolutely-positioned element is **removed from CSS Grid flow** — `gridColumn` and `gridRow` set on the `<Image>` style have no effect.
+- The images position themselves relative to a distant ancestor (typically the section root) instead of their intended grid cell.
+
+Fix:
+
+```tsx
+// ❌ Wrong — grid placement on the absolutely-positioned Image
+<Image src={...} fill style={{ gridColumn: '1 / 2', gridRow: '1 / 3' }} />
+
+// ✅ Correct — wrapper div IS the grid item, Image fills it
+<div style={{ position: 'relative', gridColumn: '1 / 2', gridRow: '1 / 3', overflow: 'hidden' }}>
+  <Image src={...} fill style={{ objectFit: 'cover' }} />
+</div>
+```
+
+The wrapper `<div>` must have:
+- `position: 'relative'` (or `'absolute'` inside a positioned ancestor) — so the `fill` Image fills the div, not a distant ancestor.
+- `gridColumn` / `gridRow` — grid placement on the div (a normal flow element), not the Image.
+- `overflow: 'hidden'` — standard practice for cropped fill images.
+
+Lesson:
+
+> `fill` removes `<Image>` from grid flow. Grid placement must be on a wrapper div, never on the `<Image>` itself.
+
+---
+
+### Mistake: `useSearchParams()` without `<Suspense>` breaks static prerendering
+
+Symptom:
+
+- A page that previously rendered as `○ Static` now renders as `ƒ Dynamic` after adding a Client Component that calls `useSearchParams()`.
+- Or, the build fails outright with:
+
+```text
+⨯ useSearchParams() should be wrapped in a suspense boundary at page "/cart"
+```
+
+Root cause:
+
+- In Next.js 16, `useSearchParams()` in a Client Component causes a **CSR bailout** during static prerendering.
+- If the component is not wrapped in a `<Suspense>` boundary, Next.js either:
+  - Fails the build (hard error for statically-prerendered pages like `/cart`), or
+  - Silently downgrades the route from `○ Static` to `ƒ Dynamic` (no build error, but the page loses static rendering and edge caching).
+- A `<Suspense>` boundary in a **layout** only protects the specific component it wraps — other `useSearchParams()` consumers on individual pages still need their own Suspense wrappers.
+
+Fix:
+
+```tsx
+// Layout level — protects the ScrollRevealTrigger
+<Suspense fallback={null}>
+  <ScrollRevealTrigger />
+</Suspense>
+
+// Page level — protects SortSelect on /products
+<Suspense fallback={null}>
+  <SortSelect currentSort={sort} />
+</Suspense>
+```
+
+`fallback={null}` is correct for components that render nothing visible (side-effect-only triggers) or whose initial state is non-critical.
+
+Lesson:
+
+> Every `useSearchParams()` consumer in a statically-prerendered page needs its own `<Suspense>` boundary. A layout-level Suspense does not protect other consumers on child pages.
+
+---
+
+### Mistake: `useEffect([])` misses client-side navigation
+
+Symptom:
+
+- A page sets up an `IntersectionObserver` or DOM watcher in `useEffect` with an empty dependency array `[]`.
+- On initial page load, elements below the fold animate in correctly.
+- When the user navigates to a different URL via `<Link>` (client-side navigation), new elements render with the expected class names but never animate — they stay hidden until a full page reload.
+
+Root cause:
+
+- Client-side navigation via `<Link>` changes the URL and renders new page content **without remounting the layout**.
+- `useEffect(() => { ... }, [])` only runs once on mount — it never re-runs when the URL changes.
+- New `.reveal` elements (or other hook-managed DOM elements) render after the effect has already set up its observer, so they are never observed.
+
+Fix:
+
+```ts
+import { usePathname, useSearchParams } from 'next/navigation';
+
+export function useScrollReveal() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(/* ... */);
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [pathname, searchParams]); // ← re-runs on every route/query change
+}
+```
+
+The cleanup function (returning `() => observer.disconnect()`) is essential: it tears down the old observer before the new one is constructed.
+
+Lesson:
+
+> `useEffect([])` in a shared layout component misses client-side navigations. Add `usePathname()` and `useSearchParams()` as dependencies so the effect re-runs on every route change.
+
+---
+
 ## React/Next.js Checklist
 
 When React or Next.js lint/type issues appear:
@@ -3426,6 +3587,8 @@ When React or Next.js lint/type issues appear:
 7. Check server/client component boundaries.
 8. Verify route handler conventions.
 9. Wrap Better Auth React hooks (`useSession`) in a `ClientOnly` boundary — never let them execute during SSR.
+10. For `next/image fill` in CSS Grid layouts: verify grid placement is on a wrapper `<div>`, not the `<Image>` itself.
+11. For `useSearchParams()` consumers: verify each is wrapped in `<Suspense>` if the page is statically prerendered.
 
 ---
 
@@ -4010,6 +4173,36 @@ pnpm --filter=@scope/pkg exec prettier --write src/components/new-file.tsx
 
 This applies even when the file was written by a tool that produces "clean" output — Prettier's formatting rules (print width, trailing commas, semicolons, class sorting) may differ from the writer's defaults.
 
+### Pattern: ScrollRevealTrigger — side-effect-only Client Component in a shared layout
+
+When a hook needs to run as a side effect (e.g. `IntersectionObserver` setup) on every page under a layout, but renders no visible DOM, use a thin Client Component that:
+
+1. Is marked `'use client'`.
+2. Calls the hook in its body (no JSX return — renders `null`).
+3. Is imported and rendered once in the shared layout.
+4. Is wrapped in `<Suspense fallback={null}>` if the hook uses `useSearchParams()` or other APIs that break static prerendering.
+
+```tsx
+// ScrollRevealTrigger.tsx
+'use client';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
+export function ScrollRevealTrigger() {
+  useScrollReveal();
+  return null;
+}
+
+// (shop)/layout.tsx
+<Suspense fallback={null}>
+  <ScrollRevealTrigger />
+</Suspense>
+```
+
+Why this pattern:
+- Separates the hook's lifecycle from the page's render — the hook runs on mount, not per-page.
+- Avoids re-running `IntersectionObserver` setup in every `ProductCard` (which would be per-card overhead and miss dynamically-loaded cards).
+- The `<Suspense>` boundary satisfies Next.js 16's requirement for `useSearchParams()` in statically-prerendered pages.
+- `fallback={null}` is correct because the trigger renders nothing visible.
+
 ---
 
 ## 5.9 Testing Patterns
@@ -4215,6 +4408,9 @@ This catalog names recurring mistakes so future agents can recognize them early.
 | Better Auth React hooks during SSR | `useSession`/`authClient.useX()` calls `useRef` in SSR chunk → `null.useRef()` | Wrap in `ClientOnly` boundary |
 | `next/dynamic({ ssr: false })` in Server Component | Next.js 16 forbids — build fails | Use `ClientOnly` wrapper instead |
 | Public route forced dynamic by server caller | `api()` calls `headers()` → public page loses static rendering → empty prerender | Use `apiPublic()` for session-free public data |
+| Grid placement on `<Image fill>` | `position: absolute` (from `fill`) removes Image from grid flow; `gridColumn`/`gridRow` silently ignored | Wrap in `<div position:relative>` that carries grid placement |
+| Raw `JSON.stringify` in `dangerouslySetInnerHTML` for JSON-LD | XSS vector if data contains `</script>` | Escape with `escapeForScriptContext()` (5-char canonical set: `<>&` + U+2028 + U+2029) |
+| Hook defined but never called | Hook file exists, compiles, exports — but no component imports or invokes it; feature silently does nothing | Verify hook is imported AND invoked in a component tree |
 
 ---
 
@@ -5274,6 +5470,12 @@ This index summarizes the major incidents and their distilled lessons.
 | TS-9 | TS18047 after runtime `not.toBeNull` | `readFile().catch(()=>null)` widened producer to `string | null`; `expect().not.toBeNull()` is not a type guard | Null-free producer (`readFileSync` → `string`) or real type guard at deref site | Runtime assertions do not narrow TypeScript types |
 | PRETTIER-6 | `.prettierrignore` masking a real `[warn]` | File genuinely mis-formatted; exclusion added to silence the gate instead of fixing the file | `prettier --write` then remove exclusion from `.prettierrignore` | Ignore files are for unowned content, not gate-silencing |
 | TEST-1 | Contract test async null swallow | `readFile().catch(()=>null)` widens type + hides ENOENT into a confusing regex failure | Synchronous `readFileSync` → `string` (throws on missing, null-free) | Contract tests should throw on missing sources |
+| RENDER-1 | `/products` blank screen — cards rendered but invisible | `useScrollReveal` hook defined but never called; `.reveal` CSS sets `opacity: 0` | Wire hook via `ScrollRevealTrigger` Client Component in shop layout | Verify hooks are called, not just defined |
+| RENDER-2 | Initial product cards stay `opacity: 0` on page load | IntersectionObserver doesn't fire for already-visible elements when constructed in post-hydration `useEffect` | `requestAnimationFrame` fallback with `getBoundingClientRect()` check | IntersectionObserver timing issue with useEffect |
+| RENDER-3 | Philosophy section images missing | `next/image fill` (`position: absolute`) with `gridColumn`/`gridRow` on `<Image>` — grid placement silently ignored | Wrap Image in `position: relative` div that IS the grid item | `fill` removes elements from grid flow |
+| RENDER-4 | Collection filter pages blank on client-side navigation | `useEffect([])` in `useScrollReveal` never re-runs when URL changes via `<Link>` | Add `usePathname`/`useSearchParams` as `useEffect` dependencies | Client-side nav doesn't re-run empty-deps effects |
+| RENDER-5 | Build fails: `useSearchParams() should be wrapped in a suspense boundary` | V14 added `useSearchParams()` to `useScrollReveal`; no Suspense boundary in shop layout | Wrap `<ScrollRevealTrigger />` in `<Suspense fallback={null}>` | `useSearchParams()` needs Suspense in statically-prerendered pages |
+| SECURITY-1 | JSON-LD script tag XSS vector | `dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}` — if product data contains `</script>`, attacker-controlled script runs | Apply `escapeForScriptContext()` (5-char canonical set) before `dangerouslySetInnerHTML` | Always escape script context in inline JSON-LD |
 
 ---
 
@@ -5393,6 +5595,22 @@ The diagnostic is simple: check the route table. If the route is `ƒ` and it's a
 Lesson:
 
 > When you see `DYNAMIC_SERVER_USAGE`, ask: "Does this route actually need a session?" If yes, the warning is correct. If no, it's a real bug. Never blanket-fix all warnings without distinguishing the two cases.
+
+## 15. Verify hooks are called, not just defined
+
+A hook file exists, exports cleanly, and compiles without error — but no component imports or calls it. The feature silently does nothing. After defining a hook, verify it is imported AND invoked in a component tree (not just referenced in a CSS comment or type definition). This was the root cause of the `/products` blank-screen defect: `useScrollReveal` was defined but had zero consumers. The `.reveal` CSS set `opacity: 0`, the `.reveal.visible` CSS set `opacity: 1`, but the bridge between them (the hook that adds the `visible` class) was never executed.
+
+## 16. IntersectionObserver may not fire for already-visible elements
+
+When an `IntersectionObserver` is constructed inside a post-hydration `useEffect`, it may not fire the `isIntersecting` callback for elements already in the viewport on page load. The browser has already computed which elements are visible, and the observer's initial check does not trigger for them. Add a `requestAnimationFrame` fallback that checks `getBoundingClientRect()` and manually adds the visible class to elements whose bounding box overlaps the viewport. Do not remove this fallback as "redundant" — it covers a real first-paint timing gap that the observer cannot detect.
+
+## 17. `next/image fill` renders `position: absolute` — grid placement must be on a wrapper div
+
+`<Image fill>` renders the `<img>` with `position: absolute` so it stretches to fill its nearest positioned ancestor. An absolutely-positioned element is removed from CSS Grid flow — so `gridColumn` / `gridRow` set on the `<Image>` style have no effect. The image positions itself relative to a distant ancestor instead of its intended grid cell, producing broken or invisible images. Fix: wrap each `<Image fill>` in a `<div style={{ position: 'relative', gridColumn, gridRow, overflow: 'hidden' }}>` that IS the grid item.
+
+## 18. `useSearchParams()` in a Client Component requires `<Suspense>` for static pages
+
+In Next.js, a Client Component calling `useSearchParams()` during static prerendering causes either a hard build error (`useSearchParams() should be wrapped in a suspense boundary`) or a silent downgrade from `○ Static` to `ƒ Dynamic`. Wrap the consumer in `<Suspense fallback={null}>`. This applies to **every** `useSearchParams()` consumer — not just one instance. A layout-level Suspense boundary only protects the component it wraps; other consumers on individual pages need their own Suspense wrappers.
 
 ---
 
