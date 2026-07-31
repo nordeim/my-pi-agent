@@ -69,7 +69,7 @@ Agentic AI workloads are qualitatively different from ordinary microservices. Th
 
 **Third, secrets sprawl is structurally worse.** Agents need API keys (LLM providers, vector DBs, internal services, MCP tool servers) at runtime, and they need them in a context where the agent itself may be partially untrusted. Hardcoding these keys in ConfigMaps, baking them into images, or passing them as environment variables creates a sprawling, unrotated, unaudited secret surface that is the operational antithesis of least privilege.
 
-This guide implements defense in depth across five layers — host hardening, Kubernetes hardening, workload sandboxing, policy enforcement, and runtime detection — so that no single control failure yields full compromise. It uses the **current, actively maintained cloud-native stack** as of July 2026: Kubernetes v1.36.x (released June 2026) [6], containerd 2.3.x [7], Cilium 1.20.x (CNCF graduated October 2023) [8], Kyverno (CNCF graduated March 2026) [9], Falco 0.44.x (CNCF graduated May 2024) [10], gVisor and Kata Containers 4.0 [11], and Sigstore/cosign 2.x (CNCF graduated October 2024) [12]. Every component is installed from its official 2025/2026 release channel.
+This guide implements defense in depth across five layers — host hardening, Kubernetes hardening, workload sandboxing, policy enforcement, and runtime detection — so that no single control failure yields full compromise. It uses the **current, actively maintained cloud-native stack** as of July 2026: Kubernetes v1.36.x (released June 2026) [6], containerd 2.3.x [7], Cilium 1.20.x (CNCF graduated October 2023) [8], Kyverno (CNCF graduated March 2026) [9], Falco 0.44.x (CNCF graduated May 2024) [10], gVisor and Kata Containers 4.0 [11], and Sigstore/cosign 2.x (OpenSSF graduated October 2024) [12]. Every component is installed from its official 2025/2026 release channel.
 
 The reference architecture deploys **three control-plane nodes** spread across Azure availability zones, behind an internal Standard Load Balancer, with **two or more worker nodes** for agentic workloads. This is the smallest topology that delivers true high availability: a single control-plane node is a single point of failure for the API server, scheduler, controller manager, and etcd, and should not be used in production. The original two-node baseline requested in the brief (one control-plane + one worker) is documented in §4.4 as a **minimum-viable, risk-accepted fallback** for lab, staging, or compliance-waivered environments only.
 
@@ -165,7 +165,7 @@ The reference deployment is a self-managed Kubernetes cluster installed with `ku
 | Secrets CSI | Azure Key Vault Provider for Secrets Store CSI Driver | latest from Azure/secrets-store-csi-driver-provider-azure | GA [19] |
 | Secret sync | External Secrets Operator | latest (supports Entra Workload Identity) | external-secrets.io [20] |
 | Identity | Microsoft Entra Workload Identity | GA (replaced AAD Pod Identity) | learn.microsoft.com [21] |
-| Supply chain | cosign / Sigstore | cosign 2.x; Sigstore CNCF graduated Oct 2024 | sigstore.dev [12] |
+| Supply chain | cosign / Sigstore | cosign 2.x; Sigstore OpenSSF graduated Oct 2024 | sigstore.dev [12] |
 | Backup | Velero + Azure plugin | 1.17.x | vmware-tanzu/velero [22] |
 | GPU (optional) | NVIDIA GPU Operator | latest | docs.nvidia.com [23] |
 | Compliance scan | kube-bench | CIS Kubernetes Benchmark v1.10.0 | aquasecurity/kube-bench [14] |
@@ -266,8 +266,8 @@ export WK_VM_PREFIX="node-wk-"           # node-wk-01, node-wk-02
 export GPU_VM_PREFIX="node-gpu-"         # node-gpu-01 (optional)
 export ADMIN_USER="k8sadmin"
 export KV_NAME="kv-agentic-k8s-${LOC}"
-export ACR_NAME="acragentick8s${LOC}"
-export STORAGE_NAME="stagentic k8s${LOC}"
+export ACR_NAME="acragentick8s${LOC}"            # alphanumeric only, no spaces
+export STORAGE_NAME="stagentickeastus${LOC}"       # lowercase alphanumeric only, no spaces
 export LA_WS="log-agentic-k8s"
 export ENTRA_TENANT_ID="$(az account show --query tenantId -o tsv)"
 
@@ -338,14 +338,14 @@ az network lb create -g "$RG" -n "$CP_LB" --sku Standard \
   --vnet-name "$VNET" --subnet cp-subnet --frontend-ip-name fe-apiserver \
   --private-ip-address "$CP_LB_IP" --backend-pool-name be-apiserver
 az network lb probe create -g "$RG" --lb-name "$CP_LB" -n probe-apiserver \
-  --protocol Https --path /healthz --port 6443 --interval 5
+  --protocol Tcp --port 6443 --interval 5
 az network lb rule create -g "$RG" --lb-name "$CP_LB" -n rule-apiserver \
   --frontend-ip-name fe-apiserver --backend-pool-name be-apiserver \
   --frontend-port 6443 --backend-port 6443 --protocol Tcp \
   --probe-name probe-apiserver --idle-timeout 4 --load-distribution SourceIP
 ```
 
-The control-plane VMs (created in §4.5) are added to `be-apiserver` so that the LB health probe (`/healthz` on 6443) only routes traffic to a healthy API server.
+The control-plane VMs (created in §4.5) are added to `be-apiserver` so that the LB health probe (TCP handshake on 6443) only routes traffic to a healthy API server. A TCP probe is used instead of an HTTPS probe because kubeadm generates self-signed certificates, which would fail the HTTPS probe's TLS validation.
 
 ### 4.4 VM sizing guidance
 
@@ -575,6 +575,8 @@ sudo semodule -i my-k8s-policy.pp
 
 Azure Linux OS Guard integrates the **Integrity Policy Enforcement (IPE)** Linux Security Module to ensure only binaries from trusted, signed volumes can execute. This is the Linux-native equivalent of Windows Code Integrity and is the recommended host-level defense against post-compromise rootkit persistence [3]. **OS Guard is currently in public preview** on Azure Linux 3.0; on existing images it ships in **audit mode** by default so operators can validate their workloads before flipping to enforcing. Monitor the Microsoft Learn documentation [48] for GA announcements.
 
+> **Note on kernel version.** The IPE LSM was merged into **mainline Linux kernel 6.8**. Azure Linux 3.0 ships with the **6.6 LTS** kernel; therefore, OS Guard's IPE functionality relies on a Microsoft-maintained backport. Verify IPE availability via `cat /sys/kernel/security/ipe/active_policy` before relying on it for strict enforcement.
+
 ```bash
 # Check current IPE mode (audit vs enforcing)
 sudo cat /sys/kernel/security/ipe/active_policy 2>/dev/null \
@@ -760,7 +762,7 @@ sudo sed -i 's#sandbox_image = .*#sandbox_image = "registry.k8s.io/pause:3.10"#'
 
 ### 6.3 Pre-stage RuntimeClass support (gVisor, Kata)
 
-To support gVisor and Kata Containers as `RuntimeClass` options later (§14), pre-register them in containerd's `[plugins."io.containerd.grpc.v1.cri".containerd.runtimes]` section. The full binary installation for gVisor and Kata is in §14; here we only add the containerd config so the runtime classes can be added once the binaries exist.
+To support gVisor and Kata Containers as `RuntimeClass` options later (§14), pre-register them in containerd's `[plugins."io.containerd.cri.v1.runtime".runtimes]` section (containerd 2.x uses `io.containerd.cri.v1.runtime`, not the legacy `io.containerd.grpc.v1.cri`). The full binary installation for gVisor and Kata is in §14; here we only add the containerd config so the runtime classes can be added once the binaries exist.
 
 ```bash
 # Append RuntimeClass entries for runsc (gVisor) and kata (Kata Containers)
@@ -768,14 +770,15 @@ To support gVisor and Kata Containers as `RuntimeClass` options later (§14), pr
 sudo tee -a /etc/containerd/config.toml >/dev/null <<'EOF'
 
 # ---- RuntimeClass: gVisor (runsc) ----
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
+# containerd 2.x uses io.containerd.cri.v1.runtime (NOT the legacy io.containerd.grpc.v1.cri)
+[plugins."io.containerd.cri.v1.runtime".runtimes.runsc]
   runtime_type = "io.containerd.runsc.v1"
   sandbox_type = "pod"
   pod_annotations = []
   container_annotations = []
 
 # ---- RuntimeClass: Kata Containers ----
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata]
+[plugins."io.containerd.cri.v1.runtime".runtimes.kata]
   runtime_type = "io.containerd.kata.v2"
   privileged_without_host_devices = true
   pod_annotations = []
@@ -870,8 +873,10 @@ nodeRegistration:
     - key: "node-role.kubernetes.io/control-plane"
       effect: "NoSchedule"
   kubeletExtraArgs:
-    cloud-provider: "external"      # Azure cloud provider (optional; see §8.5)
-    rotate-server-certificates: "true"
+    - name: cloud-provider
+      value: "external"             # Azure cloud provider (optional; see §8.5)
+    - name: rotate-server-certificates
+      value: "true"
 ---
 apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
@@ -911,8 +916,6 @@ apiServer:
       value: "false"
     - name: enable-aggregator-routing
       value: "true"
-    - name: feature-gates
-      value: "ValidatingAdmissionPolicy=true"
   extraVolumes:
     - name: "audit-policy"
       hostPath: "/etc/kubernetes/audit-policy.yaml"
@@ -972,7 +975,6 @@ rotateCertificates: true
 serverTLSBootstrap: true
 protectKernelDefaults: true
 featureGates:
-  ValidatingAdmissionPolicy: true
   KubeletTracing: true
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
@@ -1460,6 +1462,8 @@ apiServer:
 ```
 
 After `kubeadm init` is run, the only way to add `oidc-*` flags is to edit the static pod manifest at `/etc/kubernetes/manifests/kube-apiserver.yaml` on each control-plane node and let `kubelet` restart the API server. For a fresh cluster, set the flags in the kubeadm config before `kubeadm init` (as in §8.1).
+
+> **Note.** When adding these flags to the kubeadm v1beta4 config file (§8.1), they must use the `name`/`value` list format, not the map format shown above for conceptual clarity. For example: `- name: oidc-issuer-url\n  value: "https://login.microsoftonline.com/<tenant-id>/v2.0"`.
 
 ### 11.2 Entra ID app registration for kubectl
 
@@ -2067,7 +2071,7 @@ kubectl get profile recording-my-agent -n agents-prod -o yaml
 
 The resulting `SeccompProfile` can be referenced in the pod's `securityContext.seccompProfile.localhostProfile` field for a workload-specific least-privilege seccomp profile.
 
-### 13.5 AppArmor vs SELinux on Azure Linux
+### 13.6 AppArmor vs SELinux on Azure Linux
 
 AppArmor is GA in Kubernetes 1.30, but **Azure Linux uses SELinux, not AppArmor** [3]. AppArmor `NodeProfile` annotations on pods are no-ops on Azure Linux nodes. The host-level MAC control is SELinux enforcing (§5.5); pod-level SELinux labels can be set via the pod's `securityContext.seLinuxOptions` field, but this is rarely necessary because containerd's default SELinux labeling is already correct for the `restricted` PSS.
 
@@ -2100,7 +2104,7 @@ gVisor is distributed as a binary from google/gvisor. The install steps below ar
 
 ```bash
 # Run on every worker node that should support the gvisor RuntimeClass
-RUNSC_VERSION=$(curl -s https://api.github.com/repos/google/gvisor/releases/latest | jq -r .tag_name)
+RUNSC_VERSION=$(curl -s https://api.github.com/repos/google/gvisor/releases/latest | jq -r '.tag_name | split(".")[0]')
 curl -fsSL -o runsc \
   "https://storage.googleapis.com/gvisor/releases/release/${RUNSC_VERSION}/x86_64/runsc"
 sudo install -m 0755 runsc /usr/local/bin/runsc
@@ -2348,9 +2352,9 @@ spec:
             runtimeClassName: "gvisor | kata"
 ```
 
-**Policy 2: Forbid egress to anywhere except the FQDN allow-list.**
+**Policy 2: Require network-policy acknowledgment annotation.**
 
-This is a redundant control on top of Cilium's `CiliumNetworkPolicy` from §10.7 — the Cilium policy enforces egress at the network layer; this Kyverno policy enforces it at admission time so that a misconfigured pod never schedules without a NetworkPolicy referencing it.
+This is a redundant control on top of Cilium's `CiliumNetworkPolicy` from §10.7 — the Cilium policy enforces egress at the network layer; this Kyverno policy enforces at admission time that every agentic pod carries an annotation confirming that egress rules have been applied. The annotation `network-policy.ack: "true"` must be set by the deployment pipeline after the NetworkPolicy is created.
 
 ```yaml
 apiVersion: kyverno.io/v1
@@ -2373,15 +2377,11 @@ spec:
             operator: Equals
             value: "agentic"
       validate:
-        message: "Agentic pods must be selected by a NetworkPolicy in their namespace."
-        foreach:
-          - list: "request.object.metadata.labels"
-            deny:
-              conditions:
-                any:
-                  - key: "{{ lookup_foreach('networking.k8s.io/v1', 'NetworkPolicy', '', 'spec.podSelector.matchLabels.app').contains(request.object.metadata.labels.app) }}"
-                    operator: Equals
-                    value: false
+        message: "Agentic pods must have the 'network-policy.ack: true' annotation confirming egress rules are applied."
+        pattern:
+          metadata:
+            annotations:
+              network-policy.ack: "true"
 ```
 
 **Policy 3: Require image signature verification.**
@@ -2505,7 +2505,7 @@ The agentic-workload supply chain has four layers, each with its own threats:
 
 | Layer | Tool | Status |
 |---|---|---|
-| Image signing | cosign 2.x | GA; Sigstore CNCF graduated Oct 2024 [12] |
+| Image signing | cosign 2.x | GA; Sigstore OpenSSF graduated Oct 2024 [12] |
 | Transparency log | Rekor | GA (public-good instance at rekor.sigstore.dev) |
 | Certificate authority | Fulcio | GA (issues short-lived certs based on OIDC identity) |
 | SBOM generation | Syft | GA |
@@ -2973,9 +2973,9 @@ spec:
     matchLabels: { app: vllm-llama-70b }
   template:
     metadata:
-      labels: { app: vllm-llama-70b, workload-type: agentic, sandbox: kata }
+      labels: { app: vllm-llama-70b, workload-type: agentic, sandbox: nvidia-gpu }
     spec:
-      runtimeClassName: nvidia-gpu       # uses nvidia-container-runtime
+      runtimeClassName: nvidia-gpu       # uses nvidia-container-runtime; see §14.1 for GPU passthrough caveat
       serviceAccountName: vllm-sa
       automountServiceAccountToken: false
       securityContext:
@@ -3606,8 +3606,8 @@ The variables below are used throughout this guide. Replace with your own values
 | `GPU_VM_PREFIX` | `node-gpu-` | GPU node prefix |
 | `ADMIN_USER` | `k8sadmin` | SSH admin user |
 | `KV_NAME` | `kv-agentic-k8s-eastus2` | Azure Key Vault |
-| `ACR_NAME` | `acragentic k8seastus2` | Azure Container Registry |
-| `STORAGE_NAME` | `stagentic k8seastus2` | Azure Storage Account |
+| `ACR_NAME` | `acragentick8seastus2` | Azure Container Registry |
+| `STORAGE_NAME` | `stagentickeastus2` | Azure Storage Account |
 | `LA_WS` | `log-agentic-k8s` | Log Analytics Workspace |
 | `ENTRA_TENANT_ID` | (from `az account show`) | Entra tenant ID |
 | `K8S_MINOR` | `1.36` | Kubernetes minor version |
@@ -4013,7 +4013,7 @@ All URLs were retrieved on 2026-07-30.
 
 11. **Kata Containers 4.0.0 release** — kata-containers/kata-containers GitHub. https://github.com/kata-containers/kata-containers/releases — Tier 2. (Retrieved 2026-07-30.) Kata Containers 4.0.0 brings the new Rust runtime, October 2025.
 
-12. **Sigstore — graduated project** — sigstore.dev and blog.sigstore.dev. https://blog.sigstore.dev/sigstore-openssf-graduation — Tier 1. (Retrieved 2026-07-30.) Sigstore CNCF graduated October 2024; cosign 2.x current.
+12. **Sigstore — graduated project** — sigstore.dev and blog.sigstore.dev. https://blog.sigstore.dev/sigstore-openssf-graduation — Tier 1. (Retrieved 2026-07-30.) Sigstore OpenSSF graduated October 2024; cosign 2.x current.
 
 13. **pkgs.k8s.io: Introducing Kubernetes Community-Owned Package Repositories** — Kubernetes blog. https://kubernetes.io/blog/2023/08/15/pkgs-k8s-io-introduction — Tier 1. (Retrieved 2026-07-30.) Legacy apt.kubernetes.io and yum.kubernetes.io frozen March 4, 2024; pkgs.k8s.io is the official source.
 
