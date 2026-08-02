@@ -1,17 +1,17 @@
 ---
 name: nextjs-typescript-patterns
-description: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle ORM, Postgres, and third-party SDKs (tRPC, Trigger.dev, Stripe, Better Auth, Sanity, React Email, Vitest). v1.4 — canonical troubleshooting handbook with 45+ case-indexed anti-patterns across install, type-check, lint, format, test, build, migration, and pre-commit-hook gates. Covers pnpm 10+ native-build approval (allowBuilds, onlyBuiltDependencies), strict workspace isolation, tsconfig path aliases and inherited baseUrl, Drizzle migration journal drift and silent spinner-masked failures, exactOptionalPropertyTypes, noUncheckedIndexedAccess, React 19 SubmitEvent migration, ESLint flat-config FlatCompat, Prettier ignore-path semantics, SDK drift (subpath exports, hardcoded API versions, callback payload shapes), runtime assertions that do not narrow TypeScript types, .prettierrignore as gate-silencer, and the Surgical Change Discipline. Use when debugging failing gates, reproducing mysterious install/type/lint/format/hook failures, remediating monorepo tooling debt across Next.js + TypeScript + Drizzle + tRPC + Better Auth, or hardening a fresh monorepo against repeated mistakes — symptoms like ERR_PNPM_NO_MATCHING_VERSION, TS2307/TS2339, TS18047 after runtime null-checks, __esModule config errors, passWithNoTests, or silent DATABASE_URL/Drizzle migration failures.
-version: 1.5
+description: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle ORM, Postgres, and third-party SDKs (tRPC, Trigger.dev, Stripe, Better Auth, Sanity, React Email, Vitest)
+version: 1.6
 ---
 
 # Consolidated Agent Briefing Document and Programming Handbook
 
 ## Agent Programming and Troubleshooting Handbook
 
-Version: 1.5  
+Version: 1.6  
 Scope: Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle, Postgres, and third-party SDKs.  
 Purpose: Prevent repeated mistakes and provide a reusable troubleshooting methodology.  
-Reconciliation note: v1.5 adds: (1) §4.8 four new Mistakes — IntersectionObserver timing in useEffect (V12), next/image fill + CSS Grid anti-pattern (V13), useSearchParams() without Suspense breaks static prerendering (V15), useEffect([]) misses client-side navigation (V14); (2) §5.8 ScrollRevealTrigger pattern — thin Client Component mounting a side-effect hook in a shared layout; (3) §6.8 three React anti-patterns — grid placement on absolutely-positioned Image fill, raw JSON.stringify in dangerouslySetInnerHTML for JSON-LD, hooks defined but never called; (4) §10 six new case-index rows (RENDER-1 through RENDER-5, SECURITY-1); (5) §12 four new lessons ranked 15–18 (hooks called not just defined, IntersectionObserver timing, image fill + grid flow, useSearchParams Suspense). v1.4 adds: (1) §4.2 TS Mistake 17 — runtime assertions (`expect().not.toBeNull()`) do not narrow TypeScript types; (2) §4.4 Prettier Mistake 8 + anti-pattern — `.prettierrignore` as gate-silencer vs. unowned-content marker; (3) §4.9 Testing Mistake 4 — async-deferred-to-null file reads in contract tests (Stillwater's `readFileSync` → `string` pattern); (4) §5.9 corrected both source-contract-test and meta-guard pattern blocks from async to synchronous null-free form; (5) §7 Playbook 17 — `TS18047` after runtime null-check, two-branch fix (preferred: non-null producer); (6) §10 four new case-index rows (TS-9, PRETTIER-6, TEST-1, RUNTIME-6); (7) §12 Lesson 13 sharpened — prior green-checkmarks are also hypotheses, not just prose conclusions. v1.3 added: (1) Playbook 16 Scenario B — auth-guarded route `DYNAMIC_SERVER_USAGE` warnings are expected + the `force-dynamic`/`cacheComponents` trap; (2) §5.9 Testing Patterns — source contract tests for architectural invariants + meta-guard pattern for caller modules; (3) §4.10 Mistake 7 — `.gitignore` `lib/` bleed in Python+JS monorepos; (4) §12 Lesson 14 — distinguishing public-route from auth-route warnings; (5) §4.8 Server/Client Boundary note — the `api()`/`apiPublic()` split is a Server Component concern. v1.2 absorbed the genuine deltas from `update.md` (parser-error line attribution + `cat -A`; `psql -f` fallback for spinner-masked silent Drizzle failures; the named "Surgical Change Discipline" and the Stillwater reference-copy caveat).
+Reconciliation note: v1.6 adds: (1) §16 v15-v18 supplement — 8 new lessons (dep hygiene contract test, tsconfig.config.json for root configs, ESLint flat config per-package, Zod v4 native API migration, non-null assertion TRPCError guards, ||→?? for empty-string preservation, PII-redacted logging + email escaping, React 19 SubmitEvent); (2) §17 new anti-patterns; (3) §18 new patterns; (4) §19 updated 34-item field card. v1.5 adds: (1) §4.8 four new Mistakes — IntersectionObserver timing in useEffect (V12), next/image fill + CSS Grid anti-pattern (V13), useSearchParams() without Suspense breaks static prerendering (V15), useEffect([]) misses client-side navigation (V14); (2) §5.8 ScrollRevealTrigger pattern — thin Client Component mounting a side-effect hook in a shared layout; (3) §6.8 three React anti-patterns — grid placement on absolutely-positioned Image fill, raw JSON.stringify in dangerouslySetInnerHTML for JSON-LD, hooks defined but never called; (4) §10 six new case-index rows (RENDER-1 through RENDER-5, SECURITY-1); (5) §12 four new lessons ranked 15–18 (hooks called not just defined, IntersectionObserver timing, image fill + grid flow, useSearchParams Suspense). v1.4 adds: (1) §4.2 TS Mistake 17 — runtime assertions (`expect().not.toBeNull()`) do not narrow TypeScript types; (2) §4.4 Prettier Mistake 8 + anti-pattern — `.prettierrignore` as gate-silencer vs. unowned-content marker; (3) §4.9 Testing Mistake 4 — async-deferred-to-null file reads in contract tests (Stillwater's `readFileSync` → `string` pattern); (4) §5.9 corrected both source-contract-test and meta-guard pattern blocks from async to synchronous null-free form; (5) §7 Playbook 17 — `TS18047` after runtime null-check, two-branch fix (preferred: non-null producer); (6) §10 four new case-index rows (TS-9, PRETTIER-6, TEST-1, RUNTIME-6); (7) §12 Lesson 13 sharpened — prior green-checkmarks are also hypotheses, not just prose conclusions. v1.3 added: (1) Playbook 16 Scenario B — auth-guarded route `DYNAMIC_SERVER_USAGE` warnings are expected + the `force-dynamic`/`cacheComponents` trap; (2) §5.9 Testing Patterns — source contract tests for architectural invariants + meta-guard pattern for caller modules; (3) §4.10 Mistake 7 — `.gitignore` `lib/` bleed in Python+JS monorepos; (4) §12 Lesson 14 — distinguishing public-route from auth-route warnings; (5) §4.8 Server/Client Boundary note — the `api()`/`apiPublic()` split is a Server Component concern. v1.2 absorbed the genuine deltas from `update.md` (parser-error line attribution + `cat -A`; `psql -f` fallback for spinner-masked silent Drizzle failures; the named "Surgical Change Discipline" and the Stillwater reference-copy caveat).
 
 ---
 
@@ -1735,7 +1735,7 @@ React.FormEvent<HTMLFormElement>
 Fix:
 
 ```ts
-React.SubmitEvent<HTMLFormElement>
+React.SubmitEvent
 ```
 
 Why:
@@ -3164,7 +3164,7 @@ function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 Better:
 
 ```ts
-function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+function onSubmit(e: React.SubmitEvent) {
   e.preventDefault();
 }
 ```
@@ -5447,9 +5447,14 @@ This index summarizes the major incidents and their distilled lessons.
 | TS-6 | Better Auth drift | API changed | Use new methods/payloads | Verify installed SDK |
 | TS-7 | Stripe drift | Hardcoded version/types | Remove literal, local types | Avoid hardcoded SDK literals |
 | TS-8 | Missing API deps | Undeclared imports | Add workspace deps | pnpm isolation requires declaration |
+| TS-9 | TS18047 after runtime `not.toBeNull` | `readFile().catch(()=>null)` widened producer to `string \| null`; `expect().not.toBeNull()` is not a type guard | Null-free producer (`readFileSync` → `string`) or real type guard at deref site | Runtime assertions do not narrow TypeScript types |
+| TS-10 | `z.string().email()` in Zod v4 | Zod v4 deprecated method; 43 sites across 12 files | Migrate to native `z.email()`, `z.uuid()`, `z.url()`, `z.iso.datetime()` | SDK method drift requires systematic migration |
+| TS-11 | Residual non-null assertions in payment routers | `!` postfix on possibly-null values in checkout/gift-cards/cart/trade | Replace with explicit `if (!x) throw new TRPCError(...)` guards | Non-null assertions hide runtime null risk; use proper guards |
 | ESLINT-1 | `__esModule` config error | FlatCompat with flat config | Direct flat import | Use modern ESLint correctly |
 | ESLINT-2 | Lint autofix drift | Prettier not rerun | Format after lint:fix | Tool ordering matters |
 | ESLINT-3 | 89 lint violations | Source-code debt | Batched remediation | Separate infra from debt |
+| ESLINT-4 | Type-aware rule noise on Drizzle | `@typescript-eslint/no-unnecessary-condition`, `no-deprecated` false positives | Downgrade to `warn` in per-package overrides | Some type-aware rules are incompatible with Drizzle patterns |
+| ESLINT-5 | `require-await` on async-no-await | Async functions without await in email/stripe webhooks | Remove `async` or add await | `async` without `await` is dead code |
 | REACT-1 | Deprecated FormEvent | React 19 deprecation | Use SubmitEvent | Use handler-specific events |
 | REACT-2 | Floating promises | Unhandled promises | Await or void | Handle promises explicitly |
 | REACT-3 | OG require-await | Async without await | Remove async | Do not use needless async |
@@ -5668,3 +5673,488 @@ This handbook should be used as a living guide:
 
 The ultimate goal is not merely to fix the current project, but to make future agents **less likely to repeat the same class of mistakes** and **more likely to troubleshoot with discipline, precision, and clean handoffs**.
 
+
+---
+
+# 15. v12-v14 Remediation Arc Lessons (v1.6 Supplement)
+
+**Date:** 2026-08-01
+**Source:** Maison e-commerce monorepo remediation (commits `5eee3370` through `ee397b2e`)
+
+This supplement documents 10 lessons from the v12-v14 remediation arc that are not covered in the main handbook (§1-§14). Each lesson follows the same structure: **Symptom → Root Cause → Fix → Contract Test**.
+
+## 15.1 ENV-1: createEnv() proxy throws on client at module load
+
+**Symptom:** Live site shows "This page couldn't load" — server returns HTTP 200 with correct HTML, but React fails to hydrate.
+
+**Root cause:** `@t3-oss/env-core`'s `createEnv()` uses a proxy that throws when server-side env vars (like `BETTER_AUTH_URL`) are accessed on the client (`isServer=false`). If a module-load-time statement accesses `env.BETTER_AUTH_URL`, the entire client bundle crashes.
+
+**Fix:** Guard all server-side env access with `typeof window === 'undefined'` (or `typeof globalThis.window === 'undefined'`).
+
+```ts
+// BAD — throws on client
+export const env = loadEnv();
+warnOnAuthUrlMismatch(env.BETTER_AUTH_URL, env.NEXT_PUBLIC_APP_URL);
+
+// GOOD — server-only
+export const env = loadEnv();
+if (typeof globalThis !== 'undefined' && typeof (globalThis as { window?: unknown }).window === 'undefined') {
+  warnOnAuthUrlMismatch(env.BETTER_AUTH_URL, env.NEXT_PUBLIC_APP_URL);
+}
+```
+
+**Contract test:** `env-server-only.contract.test.ts` — asserts the guard exists and `env.BETTER_AUTH_URL` is not accessed unguarded.
+
+## 15.2 DB-4: server-only guard on db client breaks tsx CLI scripts
+
+**Symptom:** `pnpm db:seed` fails with `"This module cannot be imported from a Client Component module"`.
+
+**Root cause:** `import 'server-only'` was added to `packages/db/src/index.ts`. The seed script (`tsx src/seed/index.ts`) imports `db` from `../index`. The `tsx` runtime doesn't set the `react-server` export condition, so the `server-only` package resolves to its `index.js` (which throws) instead of `empty.js` (which is a no-op).
+
+**Fix:** The `server-only` guard belongs at the **API/server boundary consumer** (like `api/context.ts`, `api/trpc.ts`, `auth/config.ts`), NOT the low-level db utility layer. The db client is consumed by both server code AND CLI scripts.
+
+**Contract test:** `db-seed-runnable.contract.test.ts` — asserts `packages/db/src/index.ts` does NOT contain `import 'server-only'`.
+
+## 15.3 DB-5: Compound cursor must be USED in WHERE, not just accepted
+
+**Symptom:** Product listing pagination returns the same first N items on every "next page" request.
+
+**Root cause:** The `cursor` input was accepted by the query schema but never used in the WHERE clause. The `conditions` array only had `isActive` and `collection` filters — the cursor was computed and returned as `nextCursor`, but when the client passed it back, it was silently ignored.
+
+**Fix:** Implement compound cursor pagination:
+1. Change cursor schema from `z.string().uuid()` to `z.string()` (opaque encoded cursor)
+2. Decode cursor as `${sortValue}|${id}`
+3. Add cursor-based WHERE clause for each sort option (using `OR` for tie-breaking)
+4. Encode `nextCursor` from the last row's sort value + id
+
+**Contract test:** `cursor-pagination.contract.test.ts` — asserts the cursor is decoded and used in a WHERE condition.
+
+## 15.4 SDK-5: Stripe webhook returning 500 on handler errors → infinite retries
+
+**Symptom:** Transient errors (DB connection blip) cause Stripe to retry webhooks for up to 3 days.
+
+**Root cause:** The webhook route returned HTTP 500 on any handler error after signature verification. Stripe interprets non-200 responses as "retry later" and retries for 3 days.
+
+**Fix:** Return HTTP 200 for ALL handler errors after signature verification passes. The idempotency layer (`payment_events.stripe_event_id` UNIQUE + `pg_advisory_xact_lock`) ensures duplicate events are safe to re-process.
+
+```ts
+// BAD — Stripe retries forever
+return NextResponse.json({ error: message }, { status: 500 });
+
+// GOOD — Stripe stops retrying
+console.error('[stripe-webhook] Handler error:', message);
+return NextResponse.json({ received: true, error: message });
+```
+
+**Contract test:** `webhook-error-handling.contract.test.ts` — asserts the route does not return status 500 in the handler-error catch block.
+
+## 15.5 DB-6: Non-atomic multi-row writes (must use db.transaction())
+
+**Symptom:** A mid-flow failure (e.g., line-items insert fails) leaves an orphaned pending order in the database.
+
+**Root cause:** `checkout.createPaymentIntent` inserted the order and then inserted line items as two separate queries without wrapping in `db.transaction()`.
+
+**Fix:** Wrap multi-row writes in `db.transaction()`.
+
+```ts
+const order = await ctx.db.transaction(async (tx) => {
+  const [newOrder] = await tx.insert(orders).values({...}).returning({...});
+  if (!newOrder) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+  await tx.insert(lineItems).values(cartItemsList.map(item => ({ orderId: newOrder.id, ... })));
+  return newOrder;
+});
+```
+
+## 15.6 SDK-6: Missing Stripe idempotencyKey in stripe.paymentIntents.create()
+
+**Symptom:** A retry creates duplicate Payment Intents for the same order.
+
+**Root cause:** The code generated an idempotency key and stored it on the order, but never passed it to the Stripe SDK call.
+
+**Fix:** Pass `{ idempotencyKey }` as the second argument to `stripe.paymentIntents.create()`.
+
+```ts
+const paymentIntent = await stripe.paymentIntents.create(
+  { amount, currency: 'usd', metadata: {...} },
+  { idempotencyKey },
+);
+```
+
+**Contract test:** `stripe-idempotency.contract.test.ts` — asserts the 2nd argument shape.
+
+## 15.7 TRPC-3: rateLimitMiddleware loses session type narrowing
+
+**Symptom:** Adding `.use(rateLimitMiddleware)` after `protectedProcedure` causes TS18047: `'ctx.session' is possibly 'null'`.
+
+**Root cause:** The standalone `rateLimitMiddleware` (created via `t.middleware()`) doesn't preserve the session type narrowing that `protectedProcedure` establishes via `next({ ctx: { ...ctx, session: ctx.session } })`.
+
+**Fix:** Define a `protectedRateLimitedProcedure` builder that composes the rate-limit step inside the narrowed context via inline `.use()`:
+
+```ts
+export const protectedRateLimitedProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    // rate limiting logic here — ctx.session is narrowed to Session (not null)
+    return next({ ctx });
+  },
+);
+```
+
+**Contract test:** `rate-limited-procedures.contract.test.ts` — asserts the 3 payment mutations use `protectedRateLimitedProcedure`.
+
+## 15.8 AUTH-1: Missing BETTER_AUTH_URL host-mismatch warning
+
+**Symptom:** Session cookies set for the wrong domain → P0 auth outage (users can't log in).
+
+**Root cause:** No runtime check comparing `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` hosts.
+
+**Fix:** Add a `warnOnAuthUrlMismatch()` helper in `packages/config/src/env.ts`, guarded by `typeof window === 'undefined'` (see ENV-1 above).
+
+**Contract test:** `auth-url-warning.contract.test.ts` — asserts the check exists.
+
+## 15.9 TEST-2: vitest server-only stub alias required
+
+**Symptom:** Tests that transitively import a `server-only`-guarded module fail with `"This module cannot be imported from a Client Component module"`.
+
+**Root cause:** The `server-only` package throws in non-`react-server` contexts. Vitest runs in Node, not React Server Components.
+
+**Fix:** Add a `server-only` stub alias to every `vitest.config.ts`:
+
+```ts
+resolve: {
+  alias: {
+    'server-only': resolve(__dirname, '../../scripts/server-only-stub.js'),
+  },
+},
+```
+
+The stub file (`scripts/server-only-stub.js`) is a 1-line no-op: `// Stub for vitest — server-only is a no-op in test environments`.
+
+## 15.10 Lesson Summary: server-only guard placement principle
+
+The `server-only` guard is a **build-time** tool to prevent accidental client-side bundling. Its placement follows a simple principle:
+
+| Layer | Guard? | Why |
+|---|---|---|
+| **API/server boundary consumer** (`api/context.ts`, `api/trpc.ts`, `auth/config.ts`) | ✅ YES | These modules are only imported by server code; the guard prevents accidental client imports |
+| **Low-level utility** (`db/index.ts`) | ❌ NO | These modules are consumed by both server code AND CLI scripts (`tsx`); the guard breaks CLI scripts |
+| **Client Component** (`'use client'` files) | ❌ NO | These are explicitly client-side |
+
+**The guard belongs at the consumer, not the utility.**
+
+---
+
+# 16. v15-v18 Remediation Arc Lessons (v1.6 Supplement)
+
+**Date:** 2026-08-02  
+**Source:** Maison e-commerce monorepo remediation (commits `e1eccdc` through `64728de6`)
+
+This supplement documents 8 lessons from the v15-v18 remediation arc.
+
+## 16.1 DEP-7: Systematic unused-dependency audit with contract tests
+
+**Symptom:** 38 unused dependencies across 6 packages bloated install tree (166 packages removed on cleanup).
+
+**Root cause:** Dependencies accumulated over time without import audits. Some were transitive type deps (e.g., `zod` in `@maison/auth` for Better Auth inferred types) — these must be kept with documentation.
+
+**Fix:** 
+1. Write a contract test (`deps-hygiene.contract.test.ts`) that parses each package's `package.json` + scans its `src/` for imports, then asserts declared deps match used imports.
+2. Remove unused deps via script.
+3. Re-add transitive type deps with explicit comments (e.g., `// Transitive Better Auth type dependency`).
+
+**Contract test:** `deps-hygiene.contract.test.ts` — 37 tests, asserts no unused deps in any `@maison/*` package.
+
+**Lesson:**
+> Unused dependencies are silent debt. A contract test that compares `package.json` deps against actual imports catches drift automatically. Transitive type deps (like `zod` for Better Auth) must be documented, not deleted.
+
+## 16.2 DEP-8: tsconfig.config.json for root-config type-checking
+
+**Symptom:** Root config files (`next.config.ts`, `tailwind.config.ts`, `drizzle.config.ts`, `proxy.ts`, etc.) were outside `tsconfig.json` `include` globs — type errors in them were invisible.
+
+**Root cause:** Each package's `tsconfig.json` only included `src/**/*.ts`. Root configs were never type-checked.
+
+**Fix:**
+1. Add `tsconfig.config.json` to each package with `"include": ["*.config.ts", "*.config.tsx"]`.
+2. Update `check-types` script to run both: `"tsc -p tsconfig.config.json --noEmit && tsc --noEmit"`.
+
+**Contract test:** `tsconfig-include.contract.test.ts` — 9 tests, asserts tsconfig.config.json include globs cover every root config file. Type-check cleanliness is enforced by the per-package `check-types` script, not this test.
+
+**Lesson:**
+> A green `check-types` can hide latent errors if include globs are too narrow. Always add a `tsconfig.config.json` + dual-check script for root config files.
+
+## 16.3 DEP-9: ESLint flat config for all packages with per-package overrides
+
+**Symptom:** Only 1 of 12 packages had `eslint.config.mjs`; the rest relied on a shared config that couldn't be extended correctly.
+
+**Root cause:** ESLint flat config requires each package to have its own config file that imports the shared config directly (no `FlatCompat`). The shared config (`@maison/eslint-config`) must export a flat array with proper `exports`.
+
+**Fix:**
+1. Create `eslint.config.mjs` in each of 11 consumer packages (7 `@maison/*` + `tooling/tailwind` + `services/workers` + `apps/web` + `apps/studio`).
+2. Import shared config directly: `import sharedConfig from '@maison/eslint-config'; export default [...sharedConfig];`
+3. Add per-package override blocks downgrading noisy type-aware rules to `warn` (Drizzle `or()`/`and()` false positives, `@typescript-eslint/no-unnecessary-condition` on nullish coalescing, etc.).
+
+**Lesson:**
+> Flat config cannot be shared via `extends` — each package needs its own config file. Per-package overrides for framework-specific noise (Drizzle, tRPC) are essential; don't disable rules globally.
+
+## 16.4 TS-12: Zod v4 native API migration — systematic pattern
+
+**Symptom:** Pre-migration inventory showed 40 deprecated `z.string().uuid()` / `.url()` / `.email()` / `.datetime()` calls across 12 files; Zod v4 mandates native top-level forms. Post-migration state: zero deprecated calls, 40 v4-native API sites across 12 files.
+
+**Root cause:** Zod v4 deprecated the chained-string methods in favor of native string-format validators: `z.uuid()`, `z.url()`, `z.email()`, `z.iso.datetime()`.
+
+**Fix:** Mechanical migration via script:
+- `z.string().uuid()` → `z.uuid()`
+- `z.string().url()` → `z.url()`
+- `z.string().email()` → `z.email()`
+- `z.string().datetime()` → `z.iso.datetime()`
+- `z.string().uuid().optional()` → `z.uuid().optional()` (preserve chains)
+
+**Contract tests:**
+- `zod-email.contract.test.ts` — asserts 4 email-validating files use `z.email()`, not `z.string().email()`.
+- `zod-v4-native-api.contract.test.ts` — 167 tests, walks all prod files and asserts zero deprecated forms across all 4 patterns.
+
+**Lesson:**
+> SDK method drift requires systematic migration with contract tests. Don't manually fix — script it, then lock with a test that scans the entire source tree.
+
+## 16.5 TS-13: Non-null assertion cleanup with TRPCError guards
+
+**Symptom:** 18 residual `!` postfix assertions in 7 router files (`loyalty`, `admin`, `account`, `reviews`, `discounts`, `trade`, `cart`) — `TS18047` under strict mode.
+
+**Root cause:** `!` postfix is not a type guard — it asserts non-null to the compiler but crashes at runtime if wrong. The v12 cleanup fixed checkout/gift-cards/cart; v16 extended to 6 more routers.
+
+**Fix:** Replace every `value!` with explicit guard:
+```ts
+// BAD
+const x = value!;
+// GOOD
+if (!value) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '...' });
+const x = value;
+```
+
+**Contract test:** `non-null-assertion-cleanup.contract.test.ts` — 6 tests, audits 6 router files with regex that catches postfix `!` (excluding prefix `!` logical-NOT and Drizzle `or()`/`and()` intentional `)!`).
+
+**Lesson:**
+> Non-null assertions are a runtime hazard. Replace with explicit `TRPCError` guards that fail loudly with context. Lock with a contract test that scans for the regex pattern.
+
+## 16.6 REACT-7: `||` → `??` for empty-string preservation in form fields
+
+**Symptom:** 3 sites in `trade.ts` used `input.field || null` where `field` was an optional string (`z.string().optional()` for instagram/projectTypes, `z.url().optional().or(z.literal(''))` for website) — empty string `''` is a valid input, but `||` coerces it to `null`.
+
+**Root cause:** JavaScript's `||` treats `''` as falsy. The nullish coalescing operator `??` only falls through on `null`/`undefined`, preserving `''`.
+
+**Fix:** Replace `|| null` with `?? null` for optional string fields where empty string is semantically valid.
+
+**Lesson:**
+> When a schema accepts `z.literal('')` (empty string as valid), `||` is a bug. Use `??` for nullish coalescing. This is a real logic error, not just style.
+
+## 16.7 SECURITY-3: Email template apostrophe escaping + PII-redacted logging
+
+**Symptom:** 5 unescaped apostrophes in `OrderConfirmation.tsx` / `WelcomeMember.tsx` were remediated (now use `&apos;`). Separately, 3 production runtime sites logged PII (email, message body, Stripe payload) — remediated to `console.warn` with `(PII redacted)` markers.
+
+**Fix:**
+1. Replace `'` → `&apos;` in all JSX text nodes (mechanical).
+2. Adopt `(PII redacted)` logging pattern:
+   ```ts
+   // Contact form
+   console.warn('[contact] Submission received (PII redacted)');
+   // Newsletter
+   console.warn('[newsletter] New subscriber from ${input.source} (PII redacted)');
+   // Stripe webhook
+   console.warn('[stripe] Order ${order.orderNumber} confirmed + email sent (PII redacted)');
+   ```
+
+**Lesson:**
+> Skill §13.10 mandates PII redaction. Never log user-supplied data. Email templates must escape `'` → `&apos;` in JSX text — not `'` (both work but `&apos;` is the HTML5 named entity).
+
+## 16.8 REACT-8: React 19 `SubmitEvent` migration — handler-specific types
+
+**Symptom:** 11 form handlers used deprecated `React.FormEvent<HTMLFormElement>` (or `React.SyntheticEvent<HTMLFormElement>`).
+
+**Fix:** Migrate to `React.SubmitEvent` — matches the `onSubmit` handler type exactly and retains `.preventDefault()`.
+
+**Contract test:** `react-submit-event.contract.test.ts` — 1 test, asserts zero `React.SyntheticEvent<HTMLFormElement>` in `apps/web/src` production code. (Note: test only asserts absence; a positive-presence assertion for `React.SubmitEvent` is a future enhancement.)
+
+**Lesson:**
+> React 19 deprecates `FormEvent`. Use handler-specific event types: `SubmitEvent` for `onSubmit`, `ChangeEvent` for `onChange`, etc. This is both a lint fix and a semantic correctness fix.
+
+---
+
+# 17. Additional Anti-Patterns (v15-v18)
+
+## 17.1 Dependency Anti-Patterns
+
+| Anti-Pattern | Description | Prevention |
+|---|---|---|
+| Unused transitive type dep deleted | `zod` removed from `@maison/auth` broke Better Auth inferred types | Document transitive type deps with comments; contract test validates |
+| Root config outside type-check | `next.config.ts`, `drizzle.config.ts` never type-checked | Add `tsconfig.config.json` + dual-check script |
+| Single ESLint config for all packages | Flat config can't be `extends`'ed; each package needs own file | Create per-package `eslint.config.mjs` importing shared config |
+| No per-package override block | Type-aware rules fire false positives on Drizzle/tRPC patterns | Add override block downgrading noisy rules to `warn` |
+
+## 17.2 TypeScript Anti-Patterns
+
+| Anti-Pattern | Description | Prevention |
+|---|---|---|
+| Deprecated Zod chained methods | `z.string().uuid()` / `.email()` / `.url()` / `.datetime()` in v4 | Migrate to native `z.uuid()` / `z.email()` / `z.url()` / `z.iso.datetime()` |
+| Non-null assertion on nullable value | `value!` crashes at runtime if wrong | Replace with `if (!value) throw TRPCError(...)` |
+| `||` on empty-string-valid field | `field || null` coerces `''` → `null` | Use `??` for nullish coalescing |
+| Missing transitive type dep | Better Auth infers types from `zod` but `zod` not declared | Declare transitive type deps with comments |
+
+## 17.3 React Anti-Patterns
+
+| Anti-Pattern | Description | Prevention |
+|---|---|---|
+| Unescaped apostrophe in JSX | `We've` in JSX text | Replace `'` → `&apos;` |
+| PII in structured logs | `console.log(user.email, message)` | Use `(PII redacted)` pattern; log only IDs/types/source |
+| Deprecated `FormEvent` | React 19 warns on `React.FormEvent<HTMLFormElement>` | Use `React.SubmitEvent` |
+
+## 17.4 Security Anti-Patterns
+
+| Anti-Pattern | Description | Prevention |
+|---|---|---|
+| Raw `JSON.stringify` in `dangerouslySetInnerHTML` | XSS if data contains `</script>` | Apply `escapeForScriptContext()` (5-char canonical: `<>&` + U+2028 + U+2029) |
+| PII in console logs | Email, message body, Stripe payload leaked | Skill §13.10: `(PII redacted)` pattern mandatory |
+
+---
+
+# 18. Additional Patterns (v15-v18)
+
+## 18.1 Dependency Patterns
+
+### Pattern: Contract test for dependency hygiene
+```ts
+// deps-hygiene.contract.test.ts
+for (const pkg of MAISON_PACKAGES) {
+  it(`${pkg} declares only used deps`, () => {
+    const pkgJson = JSON.parse(readFileSync(join(pkg, 'package.json'), 'utf8'));
+    const imports = scanImports(join(pkg, 'src'));
+    const declared = new Set([...Object.keys(pkgJson.dependencies || {}), ...Object.keys(pkgJson.devDependencies || {})]);
+    const unused = [...declared].filter(d => !imports.has(d) && !isTransitiveTypeDep(d));
+    expect(unused, `Unused deps: ${unused.join(', ')}`).toEqual([]);
+  });
+}
+```
+
+### Pattern: Dual check-types script for root configs
+```json
+"check-types": "tsc -p tsconfig.config.json --noEmit && tsc --noEmit"
+```
+
+### Pattern: Per-package ESLint flat config with overrides
+```js
+// eslint.config.mjs
+import sharedConfig from '@maison/eslint-config';
+export default [
+  ...sharedConfig,
+  {
+    rules: {
+      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/no-deprecated': 'warn',
+      // ... Drizzle-specific noise
+    },
+  },
+];
+```
+
+## 18.2 TypeScript Patterns
+
+### Pattern: Zod v4 native string formats
+```ts
+// Good (Zod v4)
+z.uuid(), z.url(), z.email(), z.iso.datetime()
+// Bad (deprecated)
+z.string().uuid(), z.string().email(), z.string().url(), z.string().datetime()
+```
+
+### Pattern: Explicit TRPCError guards over non-null assertions
+```ts
+// Good
+if (!customer) throw new TRPCError({ code: 'NOT_FOUND', message: 'Customer not found' });
+const email = customer.email;
+// Bad
+const email = customer!.email;
+```
+
+### Pattern: Nullish coalescing for empty-string preservation
+```ts
+// Good — preserves '' as valid input
+const website = input.website ?? null;
+// Bad — coerces '' to null
+const website = input.website || null;
+```
+
+## 18.3 Security Patterns
+
+### Pattern: PII-redacted logging (Skill §13.10)
+```ts
+// Contact form
+console.warn('[contact] Submission received (PII redacted)');
+// Newsletter
+console.warn('[newsletter] New subscriber from ${input.source} (PII redacted)');
+// Stripe webhook
+console.warn('[stripe] Order ${order.orderNumber} confirmed + email sent (PII redacted)');
+```
+
+### Pattern: JSON-LD XSS prevention
+```ts
+import { escapeForScriptContext } from '@/lib/utils';
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: escapeForScriptContext(JSON.stringify(jsonLd)) }} />
+```
+
+## 18.4 React Patterns
+
+### Pattern: React 19 handler-specific event types
+```ts
+// Good
+const handleSubmit = async (e: React.SubmitEvent) => {
+  e.preventDefault();
+  // ...
+};
+// Deprecated
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { ... };
+```
+
+---
+
+# 19. Updated Field Card (v16)
+
+```text
+1. Reproduce the exact failure.
+2. Identify the gate: install / type / lint / format / test / db / hook.
+3. Separate infrastructure failure from source-code debt.
+4. Use authoritative diagnostics.
+5. Build a hypothesis table.
+6. Apply the smallest correct fix.
+7. Do not weaken guardrails.
+8. Run the fixed gate.
+9. Run adjacent gates.
+10. If DB: verify objects, not just exit code.
+11. If ESLint autofix: run Prettier after.
+12. If Prettier ignore: test exact command.
+13. If SDK: inspect exports and installed types.
+14. If parser error: inspect previous line.
+15. If script edit: validate before mutating.
+16. If tRPC build fails: check procedure names for JS reserved words.
+17. Check git status and staged state.
+18. Record outstanding issues.
+19. Do not claim success before verification.
+20. If `useRef`/`useState` crash in SSR: Better Auth React hooks must not run during SSR — wrap in `ClientOnly` boundary, never use `next/dynamic ssr:false` in Server Components.
+21. If public page shows empty prerender: check whether server caller calls `next/headers` — use `apiPublic()` for session-free public data.
+22. If build warns `DYNAMIC_SERVER_USAGE` on a public route: this is a real bug (empty prerender + lost static benefits), not cosmetic.
+23. Before trusting a prior remediation document: verify its claims against the actual error log.
+24. If build warns `DYNAMIC_SERVER_USAGE` on an auth-guarded route (`/account/*`, `/admin/*`): this is expected and correct — the layout calls `headers()` for session verification. Do NOT add `force-dynamic` to silence it (incompatible with `cacheComponents: true`).
+25. The `api()`/`apiPublic()` split is a Server Component concern. Client Components use `trpc` from `@/lib/trpc/client` — they never call `api()` or `apiPublic()`.
+26. Source contract tests (read source, assert import) lock architectural invariants faster and more reliably than build-output tests.
+27. If `check-types` shows TS18047 after `expect().not.toBeNull()`: runtime assertions don't narrow types — use `readFileSync` or real type guard.
+28. If Zod v4 deprecation warnings: migrate `z.string().uuid()` → `z.uuid()`, `.email()` → `z.email()`, `.url()` → `z.url()`, `.datetime()` → `z.iso.datetime()`.
+29. If non-null assertions (`!`) on nullable values: replace with explicit `TRPCError` guards.
+30. If `||` on optional string field: use `??` to preserve empty string.
+31. If `console.log` in production: use `console.warn` + `(PII redacted)` pattern.
+32. If email template has `'` in JSX: escape to `&apos;`.
+33. If `React.FormEvent` in form handler: migrate to `React.SubmitEvent`.
+34. If `JSON.stringify` in `dangerouslySetInnerHTML`: apply `escapeForScriptContext()`.
+```
+
+---
+
+# 20. Conclusion
+
+The v15-v18 remediation arc adds 8 new lessons spanning dependency hygiene, TypeScript strictness, React 19 migration, security hardening, and systematic contract-test locking. The pattern is consistent: **every systemic issue is caught by a contract test that prevents regression**. The handbook now contains 20+ lessons ranked by impact, 10+ anti-pattern catalogs, 18+ case-index entries, and a 34-item field card — making future agents significantly less likely to repeat these classes of mistakes.
