@@ -62,16 +62,16 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 > Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
 
-### `astro-5`
+### `astro-7`
 
-- **Path**: `skills/astro-5`
-- **SKILL.md**: [`skills/astro-5/SKILL.md`](skills/astro-5/SKILL.md)
-- **Title**: Astro 5 — Content-Focused Web Framework (Islands Architecture)
+- **Path**: `skills/astro-7`
+- **SKILL.md**: [`skills/astro-7/SKILL.md`](skills/astro-7/SKILL.md)
+- **Title**: Astro 7 — Content-Focused Web Framework (Islands Architecture)
 - **License**: Proprietary. LICENSE.txt has complete terms
 - **Files**: 4
 - **Structure**: flat
 
-> Astro 5, content-focused web framework workflow skill — the islands architecture. Covers the server-first mental model (zero JS by default — Astro components render to static HTML at build time, hydration is opt-in per-component via client:load / client:idle / client:visible / client:only directives), the multi-framework integration (use React, Vue, Svelte, Preact, Solid, or Lit components in the same Astro project — @astrojs/react, @astrojs/vue, etc.), content collections (the type-safe Markdown/MDX authoring system with Zod schemas — Content Layer API in Astro 5 replaces the legacy file-b...
+> Astro 7, content-focused web framework workflow skill — the islands architecture. Covers the server-first mental model (zero JS by default — Astro components render to static HTML at build time, hydration is opt-in per-component via client:load / client:idle / client:visible / client:only directives), the multi-framework integration (use React, Vue, Svelte, Preact, Solid, or Lit components in the same Astro project — @astrojs/react, @astrojs/vue, etc.), content collections (the type-safe Markdown/MDX authoring system with Zod schemas — Content Layer API in Astro 5 replaces the legacy file-b...
 
 ### `authjs-vs-better-auth`
 
