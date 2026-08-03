@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of every skill package under `skills/`.
-> **204 top-level skill folders** scanned, containing a total of **13845 files** and **48 nested sub-skills/templates**.
+> **206 top-level skill folders** scanned, containing a total of **13845 files** and **48 nested sub-skills/templates**.
 
 ---
 
@@ -24,14 +24,14 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ## Category Index
 
-1. **Frontend Development & UI Engineering** — 54 skills — [jump](#1-frontend-development--ui-engineering)
+1. **Frontend Development & UI Engineering** — 55 skills — [jump](#1-frontend-development--ui-engineering)
 2. **Design Artifacts & Visual Creation** — 18 skills — [jump](#2-design-artifacts--visual-creation)
 3. **Full-Stack & Backend Development** — 20 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 15 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
 5. **Testing, QA & Performance** — 23 skills — [jump](#5-testing-qa--performance)
 6. **Code Quality, Security & Architecture** — 12 skills — [jump](#6-code-quality-security--architecture)
 7. **Planning, Workflow & Project Management** — 23 skills — [jump](#7-planning-workflow--project-management)
-8. **Documentation & Content Creation** — 17 skills — [jump](#8-documentation--content-creation)
+8. **Documentation & Content Creation** — 18 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 11 skills — [jump](#9-career-learning--personal-development)
 10. **DevOps, Infrastructure & External Integrations** — 11 skills — [jump](#10-devops-infrastructure--external-integrations)
 
@@ -40,7 +40,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 1. Frontend Development & UI Engineering
 
 > Skills for building, styling, and shipping production-grade web interfaces.
-> **54 skills** in this category.
+> **55 skills** in this category.
 
 ### `agent-browser`
 
@@ -72,6 +72,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Astro 7, content-focused web framework workflow skill — the islands architecture. Covers the server-first mental model (zero JS by default — Astro components render to static HTML at build time, hydration is opt-in per-component via client:load / client:idle / client:visible / client:only directives), the multi-framework integration (use React, Vue, Svelte, Preact, Solid, or Lit components in the same Astro project — @astrojs/react, @astrojs/vue, etc.), content collections (the type-safe Markdown/MDX authoring system with Zod schemas — Content Layer API in Astro 5 replaces the legacy file-b...
+
+### `astro-7-patterns`
+
+- **Path**: `skills/astro-7-patterns`
+- **SKILL.md**: [`skills/astro-7-patterns/SKILL.md`](skills/astro-7-patterns/SKILL.md)
+- **Title**: Astro 7 Patterns — Field Notes from a Production Clone Build
+- **Version**: 1.0
+- **Files**: 1
+- **Structure**: flat
+
+> Astro 7 supplement — distilled patterns, anti-patterns, and troubleshooting playbooks from a production clone build. Covers Rust compiler strict apostrophe handling, Content Layer + Zod 4 import fixes, View Transitions script re-init on `astro:after-swap`, Tailwind 4 `@theme` + Astro Fonts API integration, headroom sticky headers, vanilla JS carousels, WCAG 2.2 AA mobile menu accessibility, polymorphic `<a>`/`<button>` components, section system patterns, design extraction via `agent-browser`, `getStaticPaths` dynamic routes, `astro check` type-error gotchas, production build optimization, and a 10-item troubleshooting playbook. Use when building a real Astro 7 site — pairs with the canonical `astro-7` skill.
 
 ### `authjs-vs-better-auth`
 
@@ -1872,7 +1883,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 8. Documentation & Content Creation
 
 > Skills that produce documents, presentations, spreadsheets, PDFs, or written content.
-> **17 skills** in this category.
+> **18 skills** in this category.
 
 ### `agents-md`
 
@@ -1972,6 +1983,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Comprehensive DOCX Generation & Conversion Skill
+
+### `humanizer`
+
+- **Path**: `skills/humanizer`
+- **SKILL.md**: [`skills/humanizer/SKILL.md`](skills/humanizer/SKILL.md)
+- **Title**: HUMANIZER v7.0.0 — Ultimate Edition
+- **Version**: 7.0.0
+- **License**: MIT
+- **Files**: 18
+- **Structure**: `tests/`
+
+> Remove signs of AI-generated writing and restore natural human voice. Archetype-based detection with heuristic triage, genre-gated positive humanization, forensic artifact scanning, and a dedicated fiction protocol. Synthesizes all prior editions (v1–v6) into a single operational system. Resilient to model evolution; safe for token-constrained environments. Use when cleaning AI-generated prose, humanizing technical/business content, fixing LLM tells, removing chatbot artifacts, or matching a specific author's voice.
 
 ### `market-research-reports`
 
@@ -2351,14 +2374,14 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 | # | Category | Skills |
 |---|----------|--------|
-| 1 | Frontend Development & UI Engineering | 54 |
+| 1 | Frontend Development & UI Engineering | 55 |
 | 2 | Design Artifacts & Visual Creation | 18 |
 | 3 | Full-Stack & Backend Development | 20 |
 | 4 | AI / ML / Multimodal SDK Skills | 15 |
 | 5 | Testing, QA & Performance | 23 |
 | 6 | Code Quality, Security & Architecture | 12 |
 | 7 | Planning, Workflow & Project Management | 23 |
-| 8 | Documentation & Content Creation | 17 |
+| 8 | Documentation & Content Creation | 18 |
 | 9 | Career, Learning & Personal Development | 11 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **204** |
+| | **Total** | **206** |
