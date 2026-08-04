@@ -387,7 +387,9 @@ def _process_file(
     try:
         dest.parent.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        raise OperationalError(f"Cannot create output directory: {dest.parent}") from exc
+        raise OperationalError(
+            f"Cannot create output directory: {dest.parent}"
+        ) from exc
 
     tmp_path: Optional[Path] = None
 
@@ -402,7 +404,7 @@ def _process_file(
             _chmod_best_effort(tmp_path, OUTPUT_FILE_MODE)
 
             with open(src, "rb") as fin:
-                transformer(fin, tmp)
+                transformer(fin, tmp)  # type: ignore[arg-type]
                 tmp.flush()
                 os.fsync(tmp.fileno())
 
@@ -459,7 +461,9 @@ def _file_output_path(
         output_name = name + ENC_SUFFIX
     else:
         if not name.endswith(ENC_SUFFIX):
-            raise UsageError(f"Decryption input must have '{ENC_SUFFIX}' suffix: {input_path}")
+            raise UsageError(
+                f"Decryption input must have '{ENC_SUFFIX}' suffix: {input_path}"
+            )
 
         output_name = name[: -len(ENC_SUFFIX)]
         if not output_name:
@@ -524,7 +528,9 @@ def _ensure_output_directory(output_dir: Path, overwrite: bool) -> None:
         try:
             is_empty = next(output_dir.iterdir(), None) is None
         except OSError as exc:
-            raise OperationalError(f"Cannot read output directory: {output_dir}") from exc
+            raise OperationalError(
+                f"Cannot read output directory: {output_dir}"
+            ) from exc
 
         if not is_empty and not overwrite:
             raise OperationalError(
@@ -535,7 +541,9 @@ def _ensure_output_directory(output_dir: Path, overwrite: bool) -> None:
         try:
             output_dir.mkdir(parents=True, exist_ok=True)
         except OSError as exc:
-            raise OperationalError(f"Cannot create output directory: {output_dir}") from exc
+            raise OperationalError(
+                f"Cannot create output directory: {output_dir}"
+            ) from exc
 
         _chmod_best_effort(output_dir, OUTPUT_DIR_MODE)
 
@@ -641,7 +649,9 @@ def _process_directory(
 
         if mode == MODE_ENCRYPT:
             if src_file.name.endswith(ENC_SUFFIX):
-                warn(f"Skipping file that already has '{ENC_SUFFIX}' suffix: {src_file}")
+                warn(
+                    f"Skipping file that already has '{ENC_SUFFIX}' suffix: {src_file}"
+                )
                 stats.skipped += 1
                 continue
 
@@ -655,7 +665,9 @@ def _process_directory(
 
             decrypted_name = src_file.name[: -len(ENC_SUFFIX)]
             if not decrypted_name:
-                raise OperationalError(f"Cannot derive decrypted filename for: {src_file}")
+                raise OperationalError(
+                    f"Cannot derive decrypted filename for: {src_file}"
+                )
 
             dest = output_dir / rel.with_name(decrypted_name)
             decrypt_file(src_file, dest, password, overwrite)
@@ -699,8 +711,14 @@ def validate_inputs(
     for raw in paths:
         resolved = _resolve_input_path(raw)
 
-        if command == MODE_DECRYPT and resolved.is_file() and not resolved.name.endswith(ENC_SUFFIX):
-            raise UsageError(f"Decryption input must have '{ENC_SUFFIX}' suffix: {resolved}")
+        if (
+            command == MODE_DECRYPT
+            and resolved.is_file()
+            and not resolved.name.endswith(ENC_SUFFIX)
+        ):
+            raise UsageError(
+                f"Decryption input must have '{ENC_SUFFIX}' suffix: {resolved}"
+            )
 
         if resolved.is_dir():
             resolved_directories.append(resolved)
@@ -718,7 +736,9 @@ def validate_inputs(
 
         for directory in resolved_directories:
             if out_resolved == directory or out_resolved.is_relative_to(directory):
-                raise UsageError("Output directory cannot be inside an input directory.")
+                raise UsageError(
+                    "Output directory cannot be inside an input directory."
+                )
 
 
 def run_command(

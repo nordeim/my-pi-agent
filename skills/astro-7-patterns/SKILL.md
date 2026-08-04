@@ -1,7 +1,7 @@
 ---
 name: astro-7-patterns
 description: Astro 7 supplement skill — distilled patterns, anti-patterns, troubleshooting playbooks, and hard-won lessons from a production clone build. Covers the Astro 7 Rust compiler's strict apostrophe handling, Content Layer + Zod 4 imports, View Transitions script re-initialization, Fonts API + Tailwind 4 @theme integration, headroom sticky headers, vanilla JS carousels, mobile menu accessibility, dark/light section systems, and design extraction via agent-browser. Use when building a real Astro 7 site (not just reading docs) — every pattern below was debugged in a live build. Pairs with the canonical `astro-7` skill.
-version: 1.0
+version: 1.4
 ---
 
 # Astro 7 Patterns — Field Notes from a Production Clone Build
@@ -689,10 +689,96 @@ if (toggle && menu) {
 - [ ] `aria-controls` points to the menu's `id`
 - [ ] `aria-label` changes between "Open menu" and "Close menu"
 - [ ] Menu has `role="dialog"` and `aria-modal="true"`
+- [ ] Menu has `aria-label="Site navigation"` (a generic dialog needs a name)
 - [ ] Escape key closes the menu
 - [ ] Clicking a link closes the menu
 - [ ] Body scroll is locked when menu is open (`overflow: hidden`)
+- [ ] **Opening the menu moves focus to the first menu link**
+- [ ] **Closing the menu returns focus to the toggle button**
 - [ ] Focus is visible on all interactive elements
+
+### The focus-management pattern (round 3 — the part I shipped without)
+
+The JavaScript block above opens and closes cleanly but leaves **keyboard users stranded**: opening the menu doesn't move focus into it (Tab continues in the background), and closing it drops focus at the top of the document. This passed a "does it open/close?" smoke test but failed a real keyboard walkthrough. The fix is two `focus()` calls and one `requestAnimationFrame`:
+
+```typescript
+const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-menu-toggle]');
+const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+
+if (toggle && menu) {
+  const closeMenu = () => {
+    menu.classList.add('hidden');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+    document.body.style.overflow = '';
+    // Return focus to the toggle button so keyboard users aren't stranded
+    toggle.focus();
+  };
+
+  const openMenu = () => {
+    menu.classList.remove('hidden');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close menu');
+    document.body.style.overflow = 'hidden';
+    // Move focus to the first focusable link inside the menu.
+    // requestAnimationFrame is mandatory: the `hidden` class was just
+    // removed, and element.focus() is a no-op on display:none elements.
+    // rAF waits one frame so the browser applies the new layout first.
+    requestAnimationFrame(() => {
+      const firstLink = menu.querySelector<HTMLAnchorElement>('a');
+      if (firstLink) firstLink.focus();
+    });
+  };
+
+  toggle.addEventListener('click', () => {
+    const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    if (isOpen) closeMenu();
+    else openMenu();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+      closeMenu();
+    }
+  });
+
+  // Close on link click
+  menu.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Close on Astro page transition
+  document.addEventListener('astro:after-swap', closeMenu);
+}
+```
+
+**The `requestAnimationFrame` is not optional.** Calling `firstLink.focus()` synchronously after `classList.remove('hidden')` silently does nothing on Chrome — the element is still computed as `display:none` for that frame. One rAF defer is the minimum that works cross-browser. I verified this with an agent-browser focus probe: without rAF, `document.activeElement` stayed on the toggle; with rAF, it moved to the first `<a>` inside the menu.
+
+### `--header-height` instead of a hard-coded `top-[72px]`
+
+The HTML example above uses `top-[72px]`. Don't hard-code it — extract a CSS variable in `global.css` and reference it, because header padding, logo size, or font changes will silently shift the height:
+
+```css
+/* src/styles/global.css */
+:root {
+  --header-height: 72px;
+}
+```
+
+```astro
+<!-- Header.astro mobile menu -->
+<div
+  id="mobile-menu"
+  class="hidden md:hidden fixed inset-0 bg-paper z-50"
+  style="top: var(--header-height);"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Site navigation"
+>
+```
+
+If you change anything affecting header height, update the one variable — not every component.
 
 ### What's missing (and why)
 
@@ -700,7 +786,9 @@ The pattern above doesn't implement a full focus trap (keeping Tab focus inside 
 
 ### Verification status
 
-`Verified` — the kelp-clone mobile menu passes all 8 checklist items. Tested with keyboard navigation in Chrome.
+`Verified` — the kelp-clone mobile menu passes all 11 checklist items (was 8 before round 3 added focus management). Tested with keyboard navigation and an agent-browser focus probe in Chrome: opening moves focus to the first `<a>`, Escape returns focus to the toggle button.
+
+> **Lesson (round 3):** I shipped this menu in round 1 believing it was accessible — it opened, it closed, it had `aria-expanded`. The dialog `role`/`aria-modal`/`aria-label` and the focus management were all missing. The gap survived a visual smoke test and only surfaced when I re-audited against this very checklist. **Do not trust an interactive widget just because it works visually.** Walk through it with a keyboard, and re-check every ARIA attribute against the spec, even (especially) code you wrote yourself.
 
 ---
 
@@ -1211,9 +1299,310 @@ const posts = await getCollection('blog');
 )}
 ```
 
+### Anti-pattern: trusting a "working" widget without checking its ARIA (round 3)
+
+The mobile menu opened and closed. It had `aria-expanded`. It passed a visual smoke test for two full remediation rounds. It was **not** accessible: it lacked `role="dialog"`, `aria-modal="true"`, `aria-label="Site navigation"`, and had no focus management. The gap only surfaced when I re-audited against an a11y checklist in a later round.
+
+```typescript
+// ❌ "It opens and closes, so it's done" — false.
+// Missing: role="dialog", aria-modal, aria-label, focus move-on-open, focus return-on-close.
+
+// ✅ Walk through it with a keyboard. Re-check every ARIA attribute against the spec,
+//    even (especially) code you wrote yourself two rounds ago.
+```
+
+**The lesson, generalized:** "It works" is not "it's accessible." Visual behavior and ARIA contracts are orthogonal. Audit interactive widgets against a written checklist *after* you're done, not during.
+
+### Anti-pattern: duplicating display-order logic across consumers (round 3, DRY)
+
+When two components need the same display order for the same data (here: the homepage Services section and the `/services/` page both render the 5 service categories in a fixed order), the easy path is to copy the `['branding-design', 'websites', ...]` array into both. Then a future reorder means editing two files, and one will be forgotten.
+
+```typescript
+// ❌ WRONG — duplicated in Services.astro AND services/index.astro
+const desiredOrder = ['branding-design', 'websites', 'marketing-strategy', 'media', 'ongoing-support'];
+```
+
+```typescript
+// ✅ CORRECT — single source of truth in src/lib/service-order.ts
+export const SERVICE_ORDER: readonly string[] = [
+  'branding-design',
+  'websites',
+  'marketing-strategy',
+  'media',
+  'ongoing-support',
+] as const;
+
+// Services.astro
+import { SERVICE_ORDER } from '../../lib/service-order';
+const services = await getCollection('services');
+const ordered = SERVICE_ORDER.map((slug) => services.find((s) => s.id === slug)).filter(Boolean);
+```
+
+`src/lib/` is the right home for shared ordering/config constants in Astro — it's a plain TS module, importable from both `.astro` frontmatter and other `.ts` files, and `astro check` types it.
+
+### Anti-pattern: fabricating business identity for a "demo" clone (round 4 — CRITICAL)
+
+This is the most important anti-pattern in this file, and it has nothing to do with Astro. When cloning a real company's site, the temptation is to ship placeholder contact info that *looks* real: a phone number, an address, team names, client testimonials. **Do not ship the dangerous middle ground.**
+
+```yaml
+# ❌ CRITICAL — fabricated content attributed to real entities
+author: "Sarah Mitchell"
+role: "Marketing Director, Spring Water Spirits"   # ← REAL company name
+quote: "Working with Kelp has been an absolute pleasure."  # ← FABRICATED quote
+```
+
+A fabricated quote attributed to a **real** company name (e.g. "Spring Water Spirits") creates misattribution risk: the company didn't say it, but the page claims they did. Search engines index it. It's defamation-adjacent.
+
+```yaml
+# ✅ SAFE — clearly fictional placeholders, no real company attached
+author: "Jane Doe"
+role: "Marketing Director, Example Co."
+quote: "Working with Kelp has been an absolute pleasure."
+company: "Example Co."
+```
+
+The policy, enforced across the kelp clone:
+- **Phone numbers:** never use `(407) 555-1234`-style numbers — `555-01xx` is the NANP reserved fiction block, but casual readers won't recognize it. If you don't have the real number, use the **real** one (`352-325-7688` in this case) or a clearly-fake `000-000-0000`.
+- **Addresses:** same rule. The real Kelp address (a P.O. Box) was substituted.
+- **Team names:** "Jane Doe, Founder" beats "Sarah Mitchell, Founder" for a demo — nobody mistakes "Jane Doe" for a real person.
+- **Testimonials:** fictional author + fictional company, OR real author + real company with a real quote. Never fictional quote + real company.
+
+**This isn't a code smell — it's a liability.** Treat fabricated-with-real-entities as a release-blocking finding, like a security vuln.
+
 ---
 
-## 16. Troubleshooting Playbook
+## 16. Pre-Build Dependency Guard — Fail Fast Before Vite
+
+> **Pattern (verified, round 2)** — added after a real user hit a confusing build failure.
+
+### The bug it prevents
+
+A user pulls new commits. One of them added `@astrojs/sitemap` to `package.json`. The user runs `npm run build` **without** running `npm install` first. Their stale `node_modules/` doesn't have `@astrojs/sitemap`, so when `astro.config.mjs` runs `import sitemap from '@astrojs/sitemap'` Vite throws a stack trace that looks like an Astro internal bug:
+
+```
+Cannot find module '@astrojs/sitemap' imported from astro.config.mjs
+    at ...stack pointing into astro internals...
+```
+
+The lockfile is correct. The code is correct. The only thing wrong is a stale `node_modules/`. But the user can't tell that from the stack trace.
+
+### The fix: a zero-dependency pre-flight check
+
+Wire a `prebuild` (and `precheck`) npm lifecycle hook that verifies every config-level dependency is actually installed *before* Vite ever runs. Zero dependencies itself (uses only `node:fs` and dynamic `import()`), so it works even when `node_modules/` is empty:
+
+```javascript
+// scripts/verify-deps.mjs
+import { existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
+
+// Config-level deps: anything imported at the top of astro.config.mjs.
+// If astro.config.mjs changes, update this list to match.
+const CONFIG_DEPS = [
+  'astro',
+  '@astrojs/sitemap',
+  '@tailwindcss/vite',
+];
+
+// Also verify devDeps that `astro check` depends on.
+const CHECK_DEPS = [
+  '@astrojs/check',
+  'typescript',
+];
+
+const allDeps = [...CONFIG_DEPS, ...CHECK_DEPS];
+const missing = [];
+
+for (const dep of allDeps) {
+  const depPath = join(ROOT, 'node_modules', dep);
+  if (!existsSync(depPath)) {
+    missing.push(dep);
+    continue;
+  }
+  // Slow path: verify the package is loadable (catches a corrupt directory).
+  try {
+    await import(dep);
+  } catch (e) {
+    // Some CLI packages (e.g. @astrojs/check) have no default export.
+    // We already passed existsSync, so we don't add to missing here.
+  }
+}
+
+if (missing.length > 0) {
+  console.error('');
+  console.error('✗ Missing dependencies detected:');
+  for (const dep of missing) console.error(`    ${dep}`);
+  console.error('');
+  console.error('  These packages are required by astro.config.mjs or astro check,');
+  console.error('  but they are not installed in node_modules/.');
+  console.error('');
+  console.error('  Fix: run `npm install` before building or checking the project.');
+  console.error('');
+  process.exit(1);
+}
+// Silent on success — npm's output should focus on the build result.
+```
+
+Wire it into `package.json`:
+
+```json
+{
+  "scripts": {
+    "build": "astro build",
+    "check": "astro check",
+    "prebuild": "node scripts/verify-deps.mjs",
+    "precheck": "node scripts/verify-deps.mjs"
+  }
+}
+```
+
+Now the user's stale-`node_modules` scenario fails fast with a human-readable message:
+
+```
+✗ Missing dependencies detected:
+    @astrojs/sitemap
+
+  Fix: run `npm install` before building or checking the project.
+```
+
+### Why this matters for AI-assisted workflows
+
+When an agent commits a new dependency, the *next* agent (or the user) pulling the repo has no signal that `npm install` is required — until the build detonates. The `prebuild` guard turns a 20-line Vite stack trace into a one-line instruction. This is especially valuable for autonomous loops where the agent can't infer "I forgot to install deps" from a raw stack trace.
+
+### The gotcha: keep the dep list in sync with `astro.config.mjs`
+
+If you add a new integration (e.g. `@astrojs/mdx`), you must add it to `CONFIG_DEPS` in `verify-deps.mjs` **and** `import` it in `astro.config.mjs`. The script explicitly cannot read `astro.config.mjs`'s imports (it runs *before* Astro loads the config). A comment in both files cross-referencing each other is the maintenance signal.
+
+### TDD evidence (round 2)
+
+- **RED:** temporarily renamed `node_modules/@astrojs/sitemap`, ran `npm run build` → exited 1 with the clear message (not a Vite stack trace).
+- **GREEN:** restored, `npm run build` → 21 pages, exit 0.
+- **User-scenario repro:** `rm -rf node_modules dist && npm run build` → exits 1 with "Fix: run `npm install`". Then `npm install && npm run build` → succeeds.
+
+### Verification status
+
+`Verified` — shipped to production, the guard ran successfully on the live deployment log (`npm_log.txt` line 15-16: `prebuild` → `verify-deps.mjs` → exit 0).
+
+---
+
+## 17. JSON-LD Structured Data — The `set:html` + `JSON.stringify` Pattern
+
+> **Pattern (verified, round 4)** — added for SEO after an E2E comparison with the original site.
+
+### Why `set:html` (and not a normal Astro expression)
+
+JSON-LD requires a `<script type="application/ld+json">` block containing raw JSON. Astro's default expression interpolation HTML-escapes content — so `<script set:html={JSON.stringify(obj)} />` is the idiomatic way to emit raw JSON. The danger of `set:html` is XSS with untrusted input; here the content is 100% server-controlled (page title, canonical URL, site config), so it's safe.
+
+### The full pattern — `Organization` + `WebSite` + `WebPage` + `BreadcrumbList`
+
+Place this in `BaseLayout.astro`'s frontmatter, then emit one `<script>` in `<head>`:
+
+```astro
+---
+// === JSON-LD structured data (schema.org) ===
+// Mirrors the original kelp.agency approach. All content is server-controlled
+// (no user input), so set:html is safe here — set:html is only dangerous with
+// untrusted input. JSON.stringify guarantees valid JSON escaping.
+const siteRoot = Astro.site?.href ?? '';
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const organization = {
+  '@type': 'Organization',
+  '@id': `${siteRoot}#organization`,
+  name: 'Kelp Creative Agency',
+  url: siteRoot,
+  logo: `${siteRoot}favicon.svg`,
+  email: 'info@kelp.agency',
+  telephone: '+1-352-325-7688',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Brooksville',
+    addressRegion: 'FL',
+    postalCode: '34605',
+    postOfficeBoxNumber: '116',
+    addressCountry: 'US',
+  },
+  sameAs: [
+    'https://www.facebook.com/kelpagency',
+    'https://www.instagram.com/kelpagency/',
+    'https://x.com/kelpagency',
+    'https://www.linkedin.com/company/kelpagency/',
+  ],
+};
+
+const website = {
+  '@type': 'WebSite',
+  '@id': `${siteRoot}#website`,
+  url: siteRoot,
+  name: 'Kelp Creative Agency',
+  publisher: { '@id': `${siteRoot}#organization` },
+};
+
+const webpage = {
+  '@type': 'WebPage',
+  '@id': `${canonical}#webpage`,
+  url: canonical,
+  name: title,
+  description,
+  isPartOf: { '@id': `${siteRoot}#website` },
+  inLanguage: 'en',
+};
+
+// BreadcrumbList — Home → current page (skip on homepage to avoid self-ref)
+const isHomepage = Astro.url.pathname === '/' || Astro.url.pathname === '';
+const breadcrumb = isHomepage
+  ? null
+  : {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: siteRoot },
+        { '@type': 'ListItem', position: 2, name: title, item: canonical },
+      ],
+    };
+
+const jsonLdGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [organization, website, webpage, ...(breadcrumb ? [breadcrumb] : [])],
+};
+const jsonLdString = JSON.stringify(jsonLdGraph);
+---
+
+<head>
+  {/* ... */}
+  <script type="application/ld+json" set:html={jsonLdString} is:inline></script>
+</head>
+```
+
+### The three things to get right
+
+1. **`set:html` + `JSON.stringify`** — never build the JSON string by concatenation (`'<script>{"@type":...'` — you'll introduce a quote-escaping bug). `JSON.stringify` is the only correct way.
+2. **`is:inline`** — without it, Astro tries to process/bundle the script and may mangle the JSON. `is:inline` says "emit this verbatim."
+3. **`@id` cross-references** — `website.publisher` and `webpage.isPartOf` use `@id` to point at the `organization` and `website` nodes. This is how Google knows they're the same entity, not three unrelated ones. Get the `@id` URLs right or rich results fail silently.
+
+### Don't use `set:html` with anything user-derived
+
+`title` and `description` in the example above come from page props you control. If a review page rendered a user-submitted review title into JSON-LD, that's an XSS vector — `set:html` would emit it unescaped. Sanitize or omit user content from JSON-LD.
+
+### Verification
+
+```bash
+# JSON-LD present and the type is right?
+curl -s https://your.site/ | grep -o 'application/ld+json'   # → 1
+# Parseable? Pipe through jq.
+curl -s https://your.site/ | grep -A999 'application/ld+json' | sed -n 's/.*set:html[^<]*<\|\(<\/script>\).*/\1/p'
+# Or use Schema.org's Rich Results Test: https://search.google.com/test/rich-results
+```
+
+### Verification status
+
+`Verified` — 1 `application/ld+json` match on the live build, parses cleanly, `@graph` references resolve.
+
+---
+
+## 18. Troubleshooting Playbook
 
 ### Build fails with "Expected `,` or `}` but found `Identifier`"
 
@@ -1282,9 +1671,37 @@ const posts = await getCollection('blog');
 2. Use `z.coerce.date()` instead of `z.date()`.
 3. Format: `publishDate: 2026-07-01` in YAML frontmatter (unquoted).
 
+### `npm run build` fails with a Vite "Cannot find module" stack trace (round 2)
+
+1. The stack trace points into Astro/Vite internals, but the root cause is a **stale `node_modules/`**: you pulled new commits that added a dependency (e.g. `@astrojs/sitemap`) and didn't run `npm install`.
+2. The lockfile is correct — the code is correct. Don't waste time diffing `package.json`.
+3. Fix: `npm install`, then re-run. Going forward, the `prebuild` dep guard (§16) fails fast before Vite runs.
+4. If you don't have the guard yet: `cat scripts/verify-deps.mjs` — if it's missing, add it (see §16) and wire `prebuild`/`precheck`.
+
+### `og:image` returns 404 / no social preview card (round 2)
+
+1. Every page's `<meta property="og:image" content="..."/>` references a file. If that file isn't in `public/` (or wasn't built), social scrapers get a 404 and render no preview.
+2. Curl the URL the meta tag points at: `curl -s -o /dev/null -w "%{http_code}" <og:image-url>` → must be `200`.
+3. Confirm the asset is in `public/` (Astro copies `public/*` to `dist/` root verbatim during build). For a generated default OG image (1200×630), the kelp clone ships `scripts/generate-og-image.py` (PIL) → `public/og-default.png`.
+4. Rebuild: `public/` is only copied at build time, so `dist/og-default.png` won't appear until you `npm run build` again.
+
+### `<title>` shows marketing copy the original site doesn't have (round 4)
+
+1. Each page sets its own `title` prop in its frontmatter. A clone build often bolts on an "Award-Winning" tagline the original never uses — search engines and brand audits both flag it.
+2. Audit every page's `title` prop with: `grep -rn 'title="' src/pages/`.
+3. Match your source's convention exactly. For the kelp clone (home `"Kelp Creative Agency"`, inner pages `"About Kelp"` / `"Contact Kelp"`, case studies `"{Title} — Kelp Creative Agency"`), the per-page values came from `curl`-ing the original's `<title>` on each route.
+4. The default in `BaseLayout.astro` is just a fallback — set an explicit `title` on every page; never rely on a default for a real route.
+
+### Testimonials/quotes look fabricated or attributed to real companies (round 4 — CRITICAL)
+
+1. This is the fabricated-content anti-pattern (§15). It's not a build bug — it's a liability.
+2. Check every testimonial: `cat src/content/testimonials/*.yaml`. For each, is the `author` a real person and the `company` a real business the author doesn't actually work for? Stop.
+3. Either swap the author/company to clearly-fictional placeholders (Jane Doe / Example Co.), or substitute a real quote from a real source. Never ship a fabricated quote with a real company name.
+4. Run `npm run check:content` (the content validator doesn't catch this — it only checks schema shape, not attribution ethics) and verify via:+ `curl` that the rendered testimonials show the placeholder names.
+
 ---
 
-## 17. The Pre-Build Checklist
+## 19. The Pre-Build Checklist
 
 Before starting an Astro 7 production build, verify:
 
@@ -1305,7 +1722,7 @@ Before starting an Astro 7 production build, verify:
 
 ---
 
-## 18. The Post-Build Verification Checklist
+## 20. The Post-Build Verification Checklist
 
 After the build succeeds, verify:
 
@@ -1323,21 +1740,32 @@ After the build succeeds, verify:
 - [ ] Lighthouse Accessibility ≥ 90
 - [ ] No console errors on any page
 - [ ] Fonts are self-hosted (check Network tab — no `fonts.googleapis.com` requests)
+- [ ] **OG image URL returns 200** — `curl -s -o /dev/null -w "%{http_code}" <og:image-src>` must be `200` (round 2 lesson: the meta tag references a file that must actually exist)
+- [ ] **JSON-LD present and parses** — `curl` the page, grep `application/ld+json` (≥1 match), pipe the JSON through `jq` or the Schema.org Rich Results Test (round 4)
+- [ ] **Title-tag convention matches the source** — `curl` each route's `<title>`; no unsourced marketing copy was bolted on (round 4)
+- [ ] **No fabricated contact info** — phone is real OR clearly `000-000-0000`; testimonials use placeholder author + placeholder company, never fabricated quote + real company (round 4 — §15 anti-pattern)
+- [ ] **`prebuild`/`precheck` dep guard runs** — the build log shows `prebuild` → `verify-deps.mjs` → exit 0 before `astro build`; simulate the stale-`node_modules` case to confirm the guard fails fast (round 2 — §16)
+- [ ] **Mobile menu focus management** — opening moves focus to the first link (`document.activeElement` is an `<a>` inside the menu); Escape returns focus to the toggle button (round 3 — §7)
+- [ ] **Shared display-order logic is single-sourced** — grep for any duplicated order array; all should import from `src/lib/` (round 3 — §15)
 
 ---
 
-## 19. Cross-References
+## 21. Cross-References
 
 - **Canonical skill:** `astro-7` — platform documentation, API reference, migration guides.
 - **Design skill:** `avant-garde-design-v4` — animation standards, accessibility checklist, anti-generic principles.
 - **Tailwind skill:** `tailwind-patterns` — CSS-first `@theme` configuration, container queries.
 - **Code quality:** `code-quality-standards` — Six-Axis review (Correctness, Readability, Architecture, Security, Performance, Aesthetic).
+- **Ethics:** the fabricated-content anti-pattern (§15, round 4) is a content-liability issue, not a code issue — pair with `verification-and-review-protocol`'s "Iron Law" for any clone build's release gate.
 
 ---
 
-## 20. Changelog
+## 22. Changelog
 
 - **2026-08-03** — Initial version. Distilled from the kelp.agency clone build (17 pages, 18 components, 4 content collections, 1.1s build time). All patterns verified against the running production build.
+- **2026-08-04 (round 2)** — Added §16 (Pre-Build Dependency Guard) and the "Cannot find module" troubleshooting entry, after a real user hit a stale-`node_modules` build failure masked by a Vite stack trace. Added OG-image 404 troubleshooting entry after finding `<meta og:image>` referenced a non-existent file. Bumped post-build checklist with OG-image + dep-guard items.
+- **2026-08-04 (round 3)** — Expanded §7 (Mobile Menu) with the focus-management pattern (`requestAnimationFrame` move-on-open, `toggle.focus()` return-on-close), the `--header-height` CSS-variable extraction, and grew the a11y checklist from 8 → 11 items. Added the "trusting a working widget without checking ARIA" and "duplicating display-order logic" anti-patterns to §15. Added mobile-menu-focus + single-sourced-order checklist items.
+- **2026-08-04 (round 4)** — Added §17 (JSON-LD `set:html` + `JSON.stringify` pattern). Added the **critical** fabricated-content anti-pattern to §15 (fabricated quote + real company = misattribution liability; use fictional placeholders or real data, never the dangerous middle). Added two troubleshooting entries (title-tag drift, fabricated testimonials). Bumped post-build checklist with JSON-LD, title-convention, and fabricated-info gates. Added Cross-References ethics note. Bumped version 1.0 → 1.4.
 
 ---
 

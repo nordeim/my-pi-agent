@@ -340,12 +340,7 @@ def test_cli_file_roundtrip(tmp_path, monkeypatch):
     enc = tmp_path / "cli.txt.enc"
     assert enc.exists()
 
-    assert (
-        filecrypt.main(
-            ["decrypt", str(enc), "--output", str(tmp_path / "dec")]
-        )
-        == 0
-    )
+    assert filecrypt.main(["decrypt", str(enc), "--output", str(tmp_path / "dec")]) == 0
 
     assert (tmp_path / "dec" / "cli.txt").read_bytes() == b"cli"
 
