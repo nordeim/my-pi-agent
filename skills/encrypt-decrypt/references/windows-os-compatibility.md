@@ -1,3 +1,13 @@
+# Windows OS Compatibility Review
+
+> **Note**: This document is a detailed Windows-compatibility review plan for `filecrypt.py`. It was generated as part of the `encrypt-decrypt` skill validation (see `SKILL.md`). The review covers path handling, symlinks/reparse points, temporary file behavior, permissions/ACLs, password entry, filename suffix behavior, reserved names, long paths, large files, network shares, antivirus interference, console encoding, and dependency installation.
+>
+> **Current status**: The script uses portable Python APIs and AES-256-GCM/Scrypt via `cryptography`. No POSIX-only imports are used. High-risk areas requiring Windows validation are identified below.
+>
+> **SKILL.md platform field**: `platform: ["linux", "macos", "windows"]` indicates intent for Windows support; full validation per this plan is recommended before declaring production Windows compatibility.
+
+---
+
 Yes. Below is a meticulous Windows-compatibility review plan for `filecrypt.py`, including a preliminary static assessment and the specific Windows risk areas I would validate.
 
 ## 1. Important note about the uploaded artifact

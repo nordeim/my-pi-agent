@@ -1479,7 +1479,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 6. Code Quality, Security & Architecture
 
 > Skills for code review, security hardening, architecture decisions, and refactoring.
-> **12 skills** in this category.
+> **13 skills** in this category.
 
 ### `anti-pua`
 
@@ -1543,6 +1543,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when deciding whether to maintain or sunset existing code.
+
+### `encrypt-decrypt`
+
+- **Path**: `skills/encrypt-decrypt`
+- **SKILL.md**: [`skills/encrypt-decrypt/SKILL.md`](skills/encrypt-decrypt/SKILL.md)
+- **Title**: File and Folder Encryption/Decryption CLI
+- **Version**: 1.2
+- **Files**: 4
+- **Structure**: `scripts/`, `references/`
+
+> Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults. Use when the user asks to encrypt/decrypt files or folders, password-protect files, or decrypt `.enc` files.
 
 ### `distill-codebase-skill`
 
@@ -2358,13 +2369,13 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ## Summary Statistics
 
-- **Total top-level skill folders**: 204
-- **Folders with a top-level `SKILL.md`**: 198
+- **Total top-level skill folders**: 205
+- **Folders with a top-level `SKILL.md`**: 199
 - **Folders without a top-level `SKILL.md` (grouping folders)**: 6
 - **Total nested sub-skills / templates**: 48
-- **Total files across all skill folders**: 13845
-- **Skills with `scripts/`**: 59
-- **Skills with `references/`**: 48
+- **Total files across all skill folders**: 13849
+- **Skills with `scripts/`**: 60
+- **Skills with `references/`**: 49
 - **Skills with `scenes/`**: 2
 - **Skills with `routes/`**: 2
 - **Skills with `engines/`**: 1
@@ -2379,9 +2390,9 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | 3 | Full-Stack & Backend Development | 20 |
 | 4 | AI / ML / Multimodal SDK Skills | 15 |
 | 5 | Testing, QA & Performance | 23 |
-| 6 | Code Quality, Security & Architecture | 12 |
+| 6 | Code Quality, Security & Architecture | 13 |
 | 7 | Planning, Workflow & Project Management | 23 |
 | 8 | Documentation & Content Creation | 18 |
 | 9 | Career, Learning & Personal Development | 11 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **206** |
+| | **Total** | **207** |

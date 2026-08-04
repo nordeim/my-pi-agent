@@ -192,6 +192,7 @@
 | **code-simplification** | Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity. |
 | **context-anchor** | Recover from context compaction by scanning memory files and surfacing where you left off. Use when waking up fresh, after compaction, or when you feel lost about what you were doing. Now supports both flat (YYYY-MM-DD.md) and QMD hierarchical (daily/YYYY/MM/DD.md) memory structures. |
 | **deprecation-and-migration** | Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when deciding whether to maintain or sunset existing code. |
+| **encrypt-decrypt** | Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults. Use when the user asks to encrypt/decrypt files or folders, password-protect files, or decrypt `.enc` files. |
 | **distill-codebase-skill** | Reference template for distilling codebase knowledge into a comprehensive engineering skill document. Use after completing a major project update, security remediation, or architectural overhaul to create a reusable SKILL.md that captures lessons learned, anti-patterns, debugging guides, and best practices for future agents. |
 | **incremental-implementation** | Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step. |
 | **memory-architect** | Bootstrap, audit, and recover the OpenClaw 3-layer memory architecture (workspace files, LCM database, QMD semantic index). Use when: (1) Setting up memory on a new OpenClaw instance, (2) Auditing existing memory health, (3) Recovering from corruption or system crash, (4) Migrating or restructuring memory layout, (5) User asks about memory architecture setup or health. Triggers on phrases like 'bootstrap memory', 'audit memory', 'memory architecture', 'memory setup', 'LCM configuration', 'QMD setup', 'memory recovery', 'check memory health'. |
@@ -303,12 +304,12 @@
 | 3 | Full-Stack & Backend Development | 20 |
 | 4 | AI / ML / Multimodal SDK Skills | 15 |
 | 5 | Testing, QA & Performance | 23 |
-| 6 | Code Quality, Security & Architecture | 12 |
+| 6 | Code Quality, Security & Architecture | 13 |
 | 7 | Planning, Workflow & Project Management | 23 |
 | 8 | Documentation & Content Creation | 18 |
 | 9 | Career, Learning & Personal Development | 11 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **206** |
+| | **Total** | **207** |
 
 ---
 

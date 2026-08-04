@@ -1,6 +1,8 @@
 ---
 name: encrypt-decrypt
 category: file-operations
+platform: ["linux", "macos", "windows"]
+dependencies: ["cryptography>=43.0.0", "uv", "python>=3.11"]
 description: >
   Encrypt and decrypt files and folders from the CLI. Single-file Python script
   using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing,
@@ -17,7 +19,7 @@ triggers:
   - secure file
   - decrypt .enc
   - filecrypt
-version: 1.1
+version: 1.2
 ---
 
 ## 1. When to Trigger
@@ -44,7 +46,7 @@ All scripts live in the `scripts/` sub-folder of this skill's directory.
 - `cryptography >= 43.0.0` (installed automatically by `uv run`)
 - `uv` (the script runner)
 
-**Run all commands from the `scripts/` directory.**
+**Working directory: `scripts/` for all commands below.**
 
 ## 3. Security Constraints
 
@@ -97,6 +99,13 @@ uv run filecrypt.py decrypt projects.enc --recursive
 # Output: projects.decrypted/
 ```
 
+### Decrypt a folder non-recursively
+
+```bash
+uv run filecrypt.py decrypt projects.enc
+# Output: projects.decrypted/ (top-level .enc files only)
+```
+
 ### Custom output directory
 
 ```bash
@@ -141,4 +150,4 @@ uv run filecrypt.py decrypt some-test-file.enc --output restored
 - Nonce: 8-byte base + 4-byte chunk counter (unique per file, unique per chunk)
 - Chunk size: 1 MiB default, up to 16 MiB
 - AAD: SHA-256(header) + chunk_index + flags + plaintext_length
-- File format: `FCRYPT01` magic, version 1, little-endian binary header
+- File format: `FCRYPT01` magic, version 1, little-endian binary header (`<8sBBIBB16s8sI`)
