@@ -1697,7 +1697,7 @@ curl -s https://your.site/ | grep -A999 'application/ld+json' | sed -n 's/.*set:
 1. This is the fabricated-content anti-pattern (§15). It's not a build bug — it's a liability.
 2. Check every testimonial: `cat src/content/testimonials/*.yaml`. For each, is the `author` a real person and the `company` a real business the author doesn't actually work for? Stop.
 3. Either swap the author/company to clearly-fictional placeholders (Jane Doe / Example Co.), or substitute a real quote from a real source. Never ship a fabricated quote with a real company name.
-4. Run `npm run check:content` (the content validator doesn't catch this — it only checks schema shape, not attribution ethics) and verify via:+ `curl` that the rendered testimonials show the placeholder names.
+4. Run `npm run check:content` (the content validator doesn't catch this — it only checks schema shape, not attribution ethics) and verify via `curl` that the rendered testimonials show the placeholder names.
 
 ---
 
