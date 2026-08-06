@@ -1365,8 +1365,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **SKILL.md**: [`skills/pdf/SKILL.md`](skills/pdf/SKILL.md)
 - **Title**: PDF - Document Production Workbench
 - **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 39
-- **Structure**: `scripts/`, `references/`
+- **Files**: 41
+- **Structure**: `scripts/`, `briefs/`, `configs/`, `typesetting/`, `env_setup/`, `references/`
 
 > Professional PDF toolkit with four production lines: Report - structured documents via ReportLab (reports, proposals, contracts, white papers) Creative - visual design via JSON Blueprint → design_engine.py → Playwright snapshot (posters, infographics, invitations, dashboards). Academic - scholarly work via LaTeX/Tectonic (papers, theses, math-heavy documents) Process - manipulate existing PDFs (extract, merge, split, fill forms, convert) Auto-routes based on document type. Includes ATS/creative/academic resume sub-paths.
 

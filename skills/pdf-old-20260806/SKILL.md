@@ -1,9 +1,11 @@
 ---
 name: pdf
-metadata:
-  author: Z.AI
-  version: "1.0"
-description: "Professional PDF toolkit with four production lines:(1) Report - structured documents via ReportLab (reports, proposals, contracts, white papers); (2) Creative - visual design via JSON Blueprint → design_engine.py → Playwright snapshot (posters, infographics, invitations, dashboards). The LLM acts as Art Director outputting ONLY JSON spatial blueprints; convert.blueprint compiles to pixel-perfect PDF. (3) Academic - scholarly work via LaTeX/Tectonic (papers, theses, math-heavy documents); (4) Process - manipulate existing PDFs (extract, merge, split, fill forms, convert);Auto-routes based on document type. Includes ATS/creative/academic resume sub-paths."
+description: >
+  Professional PDF toolkit with four production lines: 
+  Report - structured documents via ReportLab (reports, proposals, contracts, white papers) 
+  Creative - visual design via JSON Blueprint → design_engine.py → Playwright snapshot (posters, infographics, invitations, dashboards). 
+  Academic - scholarly work via LaTeX/Tectonic (papers, theses, math-heavy documents) 
+  Process - manipulate existing PDFs (extract, merge, split, fill forms, convert) Auto-routes based on document type. Includes ATS/creative/academic resume sub-paths.
 license: Proprietary. LICENSE.txt has complete terms
 ---
 
@@ -27,7 +29,7 @@ if _scripts not in sys.path:
     sys.path.insert(0, _scripts)
 ```
 
-## Quick Start
+## Quick Setup
 
 ```bash
 bash "$PDF_SKILL_DIR/scripts/setup.sh"          # Interactive environment check + install
@@ -42,7 +44,7 @@ Determine task weight to control how much context to load:
 | Weight | Triggers | What to Load |
 |--------|----------|--------------|
 | **Light** | Format conversion, form fill, text extract, merge/split, simple certificate | SKILL.md + `briefs/process.md` only |
-| **Standard** | Multi-page report, poster, academic paper, resume, reformat - any document with design decisions | SKILL.md + `configs/fonts.md` + matched brief + **ALL files referenced by the brief** (typesetting, configs, etc.) |
+| **Standard** | Multi-page report, poster, academic paper, resume, reformat - any document with design decisions | SKILL.md + matched brief + **ALL files referenced by the brief** (typesetting, configs, etc.) |
  
 ### ⚠️ Pre-Routing Checks (run BEFORE matching brief)
 
@@ -102,7 +104,6 @@ User Request
 | Creative Fixed-Canvas | 海报, poster, 邀请函, invitation, 信息图, infographic, 仪表盘, dashboard, 传单, flyer, 证书, certificate, 菜单, menu, 名片, business card, 奖状, award, 标签, label, 信封, envelope, 贺卡, greeting card → `briefs/creative-fixed-canvas.md` |
 | Creative (Poster) | 海报, poster, 传单, flyer, 宣传页, 宣传单 → additionally load `briefs/poster.md` scene layer rules on top of creative-fixed-canvas.md |
 | Creative Flow | 图鉴, guide, 手册, handbook, 目录, catalog, 介绍, introduction, 合集, collection → `briefs/creative-flow.md` |
-| Creative Production | 创意, creative, 设计, design, 视觉, visual, 艺术, art, 排版, layout, 美工, graphic → `briefs/creative.md` (general Art Director blueprint for visual-first documents that don't match fixed-canvas/flow)
 | Academic | 论文, paper, 学术, academic, LaTeX, 数学, math, IEEE, ACM, 毕业, thesis, 研究, research, Beamer, slides, 开题报告, 学位, dissertation, proposal |
 | Process | 提取, extract, 合并, merge, 拆分, split, 填写, fill, 转换, convert, OCR, 重排, reformat, 重新排版, redesign, 模板, template, 参照, 照着这个做, match this style, 压缩, compress, 水印, watermark, 加密, encrypt, 签名, sign |
 
@@ -140,7 +141,6 @@ Below is an exhaustive map of every known PDF request type to its handling strat
 | Infographic | creative-fixed-canvas.md | Data visualization + design |
 | Calendar / schedule | creative-fixed-canvas.md | Grid layout + custom dimensions |
 | Guide / handbook / catalog / introduction / collection | creative-flow.md | Flowing-document mode — text-heavy with design flair, content flows across pages naturally |
-| General creative / visual design / layout / art direction | creative.md | Art Director blueprint mode — visual-first documents not matching fixed-canvas/flow patterns |
 
 #### Processing (Manipulate existing PDF)
 
@@ -190,10 +190,10 @@ These are referenced by multiple briefs. Each brief tells you when and what to l
 | Asset | Path | Used By | Purpose |
 |-------|------|---------|---------|
 | Palette & Typography | `typesetting/palette.md` | Report, Fixed-Canvas, Flow | Color system, font rules, anti-patterns, spacing |
-| Cover Layout System V2.1 | `typesetting/cover.md` | **Report + Fixed-Canvas + Flow + Academic** | 5 industrial-grade templates with absolute anchor grid, Z-index layers, typography weight system, mandatory Summary Block, code-level safety (5 checks), base unit `U = W*0.05`. **Unified HTML/Playwright cover system for all routes.** |
+| Cover Layout System V2.1 | `typesetting/cover.md` | **Report + Fixed-Canvas + Flow + Academic** | 11 templates (01–07 general, 08–10 academic, 11 institutional) with absolute anchor grid, Z-index layers, typography weight system, mandatory Summary Block, code-level safety (5 checks), base unit `U = W*0.05`. **Unified HTML/Playwright cover system for all routes.** |
 | Chart Styling & Anti-Stacking | `typesetting/charts.md` | Report, Fixed-Canvas, Flow, Academic | Chart defaults, collision prevention, axis/grid/legend rules |
 | Overflow Prevention | `typesetting/overflow.md` | Report, Fixed-Canvas, Flow, Academic | Bounding box system, text/image/table overflow prevention, fallback strategies |
-| **Fill Engine (Anti-Void)** | `typesetting/fill-engine.md` | **Report, Fixed-Canvas, Academic** | **Anti-Void Engine V2.0: font floor enforcement, fill ratio calculation, paragraph inflation, component elevation, Y-axis golden-ratio anchoring** |
+| **Fill Engine (Anti-Void)** | `typesetting/fill-engine.md` | **Report + Fixed-Canvas + Academic** | **Anti-Void Engine V2.0: font floor enforcement, fill ratio calculation, paragraph inflation, component elevation, Y-axis golden-ratio anchoring** |
 | Pagination & Flow Control | `typesetting/pagination.md` | Report, Fixed-Canvas, Flow | Cross-page integrity, orphan/widow control, CJK punctuation rules |
 | Typography System | `typesetting/typography.md` | Report, Fixed-Canvas, Flow | Font size scale, line-height, spacing hierarchy |
 | Geometric Anchors | `typesetting/geometry.md` | Creative + Report | Decorative geometric elements, anchor placement rules |
@@ -289,8 +289,8 @@ When embedding images in HTML documents (Creative pipeline, Playwright-rendered 
 1. **NEVER use absolute paths** for local files in HTML `<img>`, `<source>`, CSS `url()`, or any other asset reference (e.g. `/Users/alice/project/img.png`). Absolute paths break portability across machines and environments.
 2. **Always use relative paths** anchored to the HTML file's own directory. If the image lives in a subdirectory, use `images/foo.png` or `./images/foo.png`.
 3. **Remote URLs (`http://` / `https://`) are fine as-is** - do not convert them to local paths.
-4. When generating HTML from a script or blueprint, ensure all referenced assets are either (a) in the same directory as the output HTML, or (b) in a clearly named subdirectory (e.g. `assets/`, `images/`), and referenced with relative paths.
-5. If a build script needs to resolve paths programmatically, compute relative paths at generation time (e.g. `os.path.relpath(image_path, html_dir)`) rather than embedding absolute filesystem paths.
+4. When generating HTML from a script or blueprint, ensure all referenced assets are (a) in the same directory as the output HTML, or (b) in a clearly named subdirectory (e.g. `assets/`, `images/`), and referenced with relative paths.
+5. When a build script needs to resolve paths programmatically, compute relative paths at generation time (e.g. `os.path.relpath(image_path, html_dir)`) rather than embedding absolute filesystem paths.
 
 ---
 
@@ -536,7 +536,6 @@ html, body {
 - The gap is <1px - even on white pages, the dark body at the extreme pixel edge is imperceptible after anti-aliasing.
 
 **Rule: when generating multi-page HTML with mixed backgrounds, always set `html, body { background }` to the darkest page's background color.** If all pages are light/white, use the lightest content background (e.g. `#f8fafc`). Never leave `body` background unset (browser default = white = guaranteed white edges on dark pages).
-```
 
 ### Content Centering (No Left/Right Drift)
 
@@ -761,7 +760,7 @@ palette.cascade --title "..." --format reportlab           # Ready-to-paste Repo
 | Academic | Tectonic + pypdf | **Playwright (cover)** | ❌ (dropped) | Template-dependent |
 | Process | pikepdf, pdfplumber | LibreOffice (soffice) | N/A | N/A |
 
-> **Unified Cover System**: All routes generate covers via HTML/Playwright. Report uses Template 01, Academic uses Templates 03-04 (dark backgrounds, scholarly typography), Creative generates cover + body in one HTML document. Cover PDFs are merged with body PDFs via pypdf.
+> **Unified Cover System**: All routes generate covers via HTML/Playwright. Report/Academic use Templates 01–07 (general) + 08–10 (academic, dark backgrounds, scholarly typography) + 11 (institutional). Creative generates cover + body in one HTML document. Cover PDFs are merged with body PDFs via pypdf.
 >
 > **Fallback**: If Report brief content has emoji → reroute to Creative.
 
@@ -874,7 +873,7 @@ Run `pdf_qa.py` after generating a PDF. It auto-detects: metadata completeness, 
 
 Detailed checklist items have been moved into each brief to reduce context size:
 
-- **Report** → `briefs/report.md` § "Final Checklist (Mandatory before delivery)" (pagination, overflow, color, cover, charts, exam rules, layout, design restraint)
+- **Report** → `briefs/report.md` § "Quality Checklist — Report-Specific Items" (pagination, overflow, color, cover, charts, exam rules, layout, design restraint)
 - **Academic** → `briefs/academic.md` § "Quality Checklist — Academic-Specific Items" (pagination, LaTeX-specific)
 - **Creative Fixed-Canvas** → `briefs/creative-fixed-canvas.md` § "Quality Checklist — Creative-Specific Items" (color, geometric anchors, layout, design restraint)
 - **Creative Flow** → `briefs/creative-flow.md` § "Quality Checklist — Creative Flow" (layout & pagination, full-bleed, design quality)

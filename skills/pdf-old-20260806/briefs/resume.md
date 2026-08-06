@@ -67,8 +67,8 @@ registerFontFamily('FreeSerif', normal='FreeSerif', bold='FreeSerif-Bold', itali
 # registerFontFamily('Noto Sans SC', normal='Noto Sans SC', bold='Noto Sans SC Bold')
 
 # ── Styles ──
-# ACCENT must come from palette.cascade (Step 2)
-# Run: python3 "$PDF_SKILL_DIR/scripts/pdf.py" palette.cascade --title "Resume" --mode minimal --format reportlab
+# ACCENT must come from palette.generate (Step 2)
+# Run: python3 "$PDF_SKILL_DIR/scripts/pdf.py" palette.generate --title "Resume" --mode minimal
 ACCENT = colors.HexColor('<accent from palette>')  # Replace with palette output
 
 name_style = ParagraphStyle(

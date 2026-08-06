@@ -426,7 +426,7 @@ When creating posters, actively use images to enrich visual effects. Good images
 | Purpose | Recommended Font | Google Fonts Name | Style |
 |------|---------|-------------------|------|
 | English/number title | Futura | System / `Futura` | Classic geometric |
-| English body | Noto Sans SC | `Noto Sans SC:wght@400` | Clean, modern |
+| English body | PingFang HK | System | Clean, modern |
 | English title (Google) | Inter Black | `Inter:wght@900` | Modern geometric |
 | English serif | Playfair Display | `Playfair+Display:wght@900` | Classic editorial |
 | Number emphasis | Inter Black | `Inter:wght@900` | Data sculpture |

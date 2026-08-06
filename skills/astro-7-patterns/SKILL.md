@@ -1766,6 +1766,344 @@ After the build succeeds, verify:
 - **2026-08-04 (round 2)** — Added §16 (Pre-Build Dependency Guard) and the "Cannot find module" troubleshooting entry, after a real user hit a stale-`node_modules` build failure masked by a Vite stack trace. Added OG-image 404 troubleshooting entry after finding `<meta og:image>` referenced a non-existent file. Bumped post-build checklist with OG-image + dep-guard items.
 - **2026-08-04 (round 3)** — Expanded §7 (Mobile Menu) with the focus-management pattern (`requestAnimationFrame` move-on-open, `toggle.focus()` return-on-close), the `--header-height` CSS-variable extraction, and grew the a11y checklist from 8 → 11 items. Added the "trusting a working widget without checking ARIA" and "duplicating display-order logic" anti-patterns to §15. Added mobile-menu-focus + single-sourced-order checklist items.
 - **2026-08-04 (round 4)** — Added §17 (JSON-LD `set:html` + `JSON.stringify` pattern). Added the **critical** fabricated-content anti-pattern to §15 (fabricated quote + real company = misattribution liability; use fictional placeholders or real data, never the dangerous middle). Added two troubleshooting entries (title-tag drift, fabricated testimonials). Bumped post-build checklist with JSON-LD, title-convention, and fabricated-info gates. Added Cross-References ethics note. Bumped version 1.0 → 1.4.
+- **2026-08-05 (rounds 5 + 6)** — Added §23 (View Transitions Re-Init: The Complete Pattern) documenting the F1/F2/F3 + R6-1/R6-3/R6-4 bug class (idempotency-flag-on-swapped-element doesn't prevent leaks on persistent `window`/`document`), the correct module-level listener pattern, the SVG-cover `aria-hidden` lesson (R6-5), the contact-form-stub UX lesson (R6-11), and the CI regression-test lesson (R6-2). Added the Playwright E2E testing pattern (TDD red→green→refactor for View Transitions bugs). Added 6 new troubleshooting entries. Bumped version 1.4 → 1.6.
+
+---
+
+## 23. View Transitions Re-Init: The Complete Pattern (rounds 5 + 6)
+
+This section consolidates everything learned across rounds 5 and 6 about the
+#1 subtle bug class in Astro 7 View Transitions sites: **listener leaks on
+persistent objects** (`window`, `document`) when the init function is called
+on every `astro:after-swap`.
+
+### 23.1 The bug class — idempotency flag on the SWAPPED element
+
+Round 5 fixed F1/F2/F3 by extracting init*() functions and adding idempotency
+flags via `dataset` on the elements being queried:
+
+```ts
+// ❌ Round-5 fix pattern (correct for swapped elements, WRONG for persistent objects)
+const initMobileMenu = () => {
+  const toggle = document.querySelector('[data-mobile-menu-toggle]');
+  if (!toggle) return;
+  if (toggle.dataset.mobileMenuInit === 'true') return;  // ← guard on TOGGLE (swapped)
+  toggle.dataset.mobileMenuInit = 'true';
+
+  toggle.addEventListener('click', ...);  // ← on TOGGLE (swapped) — OK, GC'd with old DOM
+  document.addEventListener('keydown', ...);  // ← on DOCUMENT (PERSISTENT) — LEAK!
+};
+initMobileMenu();
+document.addEventListener('astro:after-swap', initMobileMenu);
+```
+
+The idempotency guard prevents double-attaching to the *same* toggle element.
+But on `astro:after-swap`, the NEW toggle is a fresh element (no
+`dataset.mobileMenuInit` flag), so `initMobileMenu()` runs past the guard and
+attaches a NEW keydown listener to `document` (which persists across swaps).
+The OLD listener is still on `document`, capturing the OLD toggle/menu in its
+closure. After N swaps, N+1 listeners on `document`.
+
+### 23.2 The correct pattern — module-level listeners for persistent objects
+
+The fix: move persistent-object listeners (`window`, `document`) to MODULE
+LEVEL (NOT inside the per-swap re-init function). The handler re-queries the
+DOM inside, so it always operates on the live elements.
+
+```ts
+// ✅ Round-6 correct pattern
+const initMobileMenu = () => {
+  const toggle = document.querySelector('[data-mobile-menu-toggle]');
+  if (!toggle) return;
+  if (toggle.dataset.mobileMenuInit === 'true') return;
+  toggle.dataset.mobileMenuInit = 'true';
+
+  // Listeners on SWAPPED elements (toggle, menu, links) — OK inside init,
+  // they're GC'd with the old DOM.
+  toggle.addEventListener('click', ...);
+  menu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+};
+
+// Listeners on PERSISTENT objects (window, document) — MODULE LEVEL ONLY.
+// The handler re-queries the DOM inside, so it works against whatever
+// elements are currently in the document.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const toggle = document.querySelector('[data-mobile-menu-toggle]');
+  const menu = document.querySelector('[data-mobile-menu]');
+  if (!toggle || !menu) return;
+  if (toggle.getAttribute('aria-expanded') === 'true') {
+    // close — re-query inside, no closure dependency
+    menu.classList.add('hidden');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    toggle.focus();
+  }
+});
+
+initMobileMenu();
+document.addEventListener('astro:after-swap', initMobileMenu);
+```
+
+### 23.3 The rule, distilled
+
+> **Listeners on `window` or `document` must be attached ONCE at module
+> level, NOT inside a function that's called on `astro:after-swap`. The
+> handler must re-query the DOM inside (no closure capture of swapped
+> elements).**
+>
+> Listeners on swapped elements (e.g., the toggle button, the menu div,
+> carousel slides) can be attached inside the init function — they're GC'd
+> with the old DOM.
+
+### 23.4 The IntersectionObserver variant (R6-4)
+
+`IntersectionObserver` is a special case: the observer itself is a
+JavaScript object that persists across swaps (it's not a DOM element), but
+the elements it observes ARE swapped. If you create a new observer on every
+swap without disconnecting the old one, the old observer retains references
+to the now-detached elements, preventing GC.
+
+```ts
+// ❌ Round-5 pattern (leaks observers)
+const initScrollReveal = () => {
+  const revealEls = document.querySelectorAll('[data-reveal]');
+  if (revealEls.length === 0) return;
+  const observer = new IntersectionObserver(...);  // ← never disconnected
+  revealEls.forEach(el => observer.observe(el));
+};
+initScrollReveal();
+document.addEventListener('astro:after-swap', initScrollReveal);
+
+// ✅ Round-6 correct pattern
+let revealObserver: IntersectionObserver | null = null;
+const initScrollReveal = () => {
+  if (revealObserver) {
+    revealObserver.disconnect();  // ← release references to detached elements
+    revealObserver = null;
+  }
+  const revealEls = document.querySelectorAll('[data-reveal]');
+  if (revealEls.length === 0) return;
+  revealObserver = new IntersectionObserver(...);
+  revealEls.forEach(el => revealObserver!.observe(el));
+};
+```
+
+### 23.5 How to detect the leak
+
+Direct listener-count verification is not possible via JavaScript (the
+browser doesn't expose `window`'s listener list). Detection methods:
+
+1. **Code inspection** — grep for `addEventListener` calls inside functions
+   that are registered on `astro:after-swap`. If the target is `window` or
+   `document`, it's a leak.
+2. **Heap measurement** — navigate N times via View Transitions, then check
+   `performance.memory.usedJSHeapSize`. A leak shows a monotonic increase
+   proportional to N. (Note: `performance.memory` is Chrome-only.)
+3. **Console errors** — if a leaked listener's callback errors on a detached
+   element, the error appears in the console. (Most don't error — they
+   silently no-op because the detached element's attributes are still
+   readable.)
+4. **Functional regression tests** — verify the behavior still works after N
+   navigations. This catches the SYMPTOM (broken behavior) but not the leak
+   itself. The round-6 `tests/listener-leaks.spec.ts` uses this approach.
+
+### 23.6 The Playwright E2E testing pattern (TDD for View Transitions bugs)
+
+Round 5 introduced Playwright E2E tests for the F1/F2/F3 regressions. The
+pattern:
+
+1. **Write the failing test FIRST (red):** navigate to a page, trigger the
+   behavior (click, scroll, keypress), navigate via View Transition, trigger
+   the behavior again. The test FAILS because the bug exists.
+2. **Apply the fix (green):** refactor the init function per §23.2.
+3. **Re-run the test to confirm green.**
+4. **Add a regression test for the leak itself** (functional correctness
+   after N navigations — see `tests/listener-leaks.spec.ts`).
+
+```ts
+// Example: F1 regression test (mobile menu opens after View Transition)
+test('mobile menu STILL opens after a View Transition (regression for F1)', async ({ page }) => {
+  await page.goto('/');
+  // Navigate via View Transition
+  await page.locator('footer a[href="/work/"]').first().click();
+  await expect(page).toHaveURL(/\/work\/?$/);
+  // Try to open the mobile menu on the new page
+  const toggle = page.locator('[data-mobile-menu-toggle]');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+});
+```
+
+### 23.7 The CI regression-test lesson (R6-2)
+
+A regression suite that doesn't run in CI doesn't prevent regressions. Round
+5 added the Playwright suite but excluded it from CI (browser-binary download
+concern). Round 6 added a separate `e2e` job to `.github/workflows/ci.yml`
+with `actions/cache` for the Playwright browsers:
+
+```yaml
+e2e:
+  name: Playwright E2E (regression suite)
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: { node-version: '22', cache: 'npm' }
+    - run: npm install --no-audit --no-fund
+    - uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+    - run: npx playwright install --with-deps chromium
+    - run: npm run test:e2e
+```
+
+The `e2e` job runs in parallel with the `verify` job (static checks). Both
+must pass for merge.
+
+### 23.8 The SVG-cover a11y lesson (R6-5)
+
+When adding decorative SVG imagery alongside visible heading text, mark the
+SVG `aria-hidden="true"` — do NOT add `role="img"` + `<title>`. The visible
+heading already labels the content for screen readers; adding `role="img"` +
+`<title>` causes AT to announce the title twice (or three times on a
+carousel slide that also has `aria-label`).
+
+```astro
+<!-- ❌ Round-5 pattern (causes triple announcement on carousel) -->
+<svg role="img" aria-labelledby={titleId} ...>
+  <title id={titleId}>{client} — {category} cover art</title>
+  <desc>Abstract branded cover for the {title} case study.</desc>
+  ...
+</svg>
+
+<!-- ✅ Round-6 correct pattern (decorative alongside visible text) -->
+<svg aria-hidden="true" ...>
+  ...
+</svg>
+```
+
+Exception: if the SVG is the SOLE source of information (no visible heading
+nearby), then `role="img"` + `<title>` is correct. The rule is about
+**redundancy**, not about SVGs in general.
+
+### 23.9 The contact-form-stub UX lesson (R6-11)
+
+A static site with a "stub" contact form (no backend) must NOT silently fail
+on submit. The previous behavior was a POST to `/contact/` (itself) which
+caused the static server to re-render the page — the form disappeared with
+no feedback, leaving the user confused about whether their submission was
+received.
+
+The fix: intercept the submit via inline `<script>`, `preventDefault()`,
+hide the form, and show an `aria-live="polite"` message that clearly
+explains the form is a demo and directs the user to the real contact
+email/phone.
+
+```astro
+<form data-contact-form>...</form>
+<div data-contact-form-feedback class="hidden" role="status" aria-live="polite">
+  This form is part of a demo site and doesn't submit anywhere.
+  Email info@kelp.agency directly.
+</div>
+<script>
+  const initContactForm = () => {
+    const form = document.querySelector('[data-contact-form]');
+    const feedback = document.querySelector('[data-contact-form-feedback]');
+    if (!form || !feedback) return;
+    if (form.dataset.contactFormInit === 'true') return;
+    form.dataset.contactFormInit = 'true';
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      form.classList.add('hidden');
+      feedback.classList.remove('hidden');
+      const heading = feedback.querySelector('h3');
+      if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus(); }
+    });
+  };
+  initContactForm();
+  document.addEventListener('astro:after-swap', initContactForm);
+</script>
+```
+
+Note: the init function follows the §23.2 pattern — the submit listener is
+on the FORM (swapped element), so it's OK inside the init function. No
+persistent-object listeners here.
+
+### 23.10 The documentation-drift lesson (R6-6, R6-7)
+
+When a codebase undergoes multiple remediation rounds, documentation drifts.
+Specific drift patterns observed:
+
+1. **Page count** — "17 static pages" in CLAUDE.md line 7 was stale after
+   round 1 added 4 pages (3 case studies + 1 clients page). The build log
+   showed 21 pages but the doc still said 17.
+2. **Verification steps** — "this is the only verification step" in
+   CLAUDE.md line 19 was stale even before round 5 (`check:links` and
+   `check:content` existed since round 1). Round 5 added `test:e2e` but
+   didn't update line 19.
+3. **JS surface** — "only a carousel and mobile menu opt in" in README.md
+   line 23 was stale after round 1 added dropdown menus. Round 5 added
+   headroom + scroll-reveal. AGENTS.md was correct; README.md and CLAUDE.md
+   were not.
+
+The fix: after every round, grep for hardcoded counts ("17 pages", "only
+a carousel") and verify they match the current state. Cross-reference
+between docs (AGENTS.md vs CLAUDE.md vs README.md) — if they disagree,
+something is stale.
+
+### 23.11 New troubleshooting entries (rounds 5 + 6)
+
+Added to §18:
+
+- **Mobile menu doesn't open after navigating to a second page** (F1) — the
+  init script captured the toggle/menu once at script execution; the new
+  toggle has no listener. Fix: idempotent `initMobileMenu()` re-queried on
+  every `astro:after-swap`.
+- **Sticky header stops hiding on scroll-down after navigation** (F2) — the
+  headroom script captured `.site-header` once; the new header never
+  receives `is-scrolled`/`headroom--pinned`/`headroom--unpinned`. Fix:
+  module-level scroll listener that re-queries `.site-header` on every event.
+- **Dropdown outside-click listener accumulates on `document`** (F3) — the
+  listener was inside `initDropdowns()`, which is called on every swap. Fix:
+  move to module level.
+- **Scroll listener accumulates on `window`** (R6-1) — same anti-pattern as
+  F3, but for `window.addEventListener('scroll', ...)`. Fix: module-level.
+- **Escape keydown listener accumulates on `document`** (R6-3) — same
+  anti-pattern, inside `initMobileMenu()`. Fix: module-level.
+- **IntersectionObserver accumulates without `disconnect()`** (R6-4) — each
+  swap creates a new observer without disconnecting the old. Fix: store at
+  module scope, `disconnect()` before re-creating.
+- **Contact form disappears on submit with no feedback** (R6-11) — static
+  POST re-renders the page, form vanishes. Fix: inline `<script>` +
+  `preventDefault()` + `aria-live` feedback message.
+- **Screen reader announces case study title 2-3 times** (R6-5) — SVG cover
+  has `role="img"` + `<title>` alongside visible heading. Fix: `aria-hidden="true"`.
+
+### 23.12 The pre-build + post-build checklists (updated for rounds 5 + 6)
+
+Added to §19 (Pre-Build):
+
+- [ ] All inline `<script>` blocks that attach listeners to `window` or
+  `document` do so at MODULE LEVEL (not inside a function called on
+  `astro:after-swap`).
+- [ ] All `IntersectionObserver` instances are stored at module scope and
+  `disconnect()` is called before creating a new one.
+- [ ] Playwright E2E suite (`tests/`) exists and `npm run test:e2e` passes.
+- [ ] CI workflow (`.github/workflows/ci.yml`) includes a `test:e2e` job
+  with `actions/cache` for the Playwright browsers.
+
+Added to §20 (Post-Build):
+
+- [ ] Navigate 5 times via View Transitions, then verify the mobile menu
+  opens, the headroom adds `is-scrolled` on scroll, and the carousel
+  advances. (Catches F1/F2/F3 + R6-1/R6-3/R6-4 regressions.)
+- [ ] Submit the contact form — verify a feedback message appears (not a
+  silent failure). (Catches R6-11.)
+- [ ] Inspect a case study card with a screen reader (or `aria-hidden` check)
+  — verify the SVG cover is `aria-hidden="true"`, not `role="img"`. (Catches R6-5.)
+- [ ] CI workflow runs both `verify` and `e2e` jobs on every push to `main`.
 
 ---
 
