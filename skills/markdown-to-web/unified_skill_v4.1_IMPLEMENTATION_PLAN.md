@@ -144,5 +144,3 @@ Unchanged sections are carried **verbatim** (no rewrite drift): §1, §2, §4 (p
 - Confidence statement: "Reasoned throughout"; no execution claims.
 
 **Assumption stated:** deliverable is a single self-contained Markdown skill file (corpus convention), no runtime validation possible here — Appendix F remains the path for the user to convert Reasoned → Verified.
-
-Ready to execute Pass 1 on your go-ahead.
