@@ -520,4 +520,31 @@ Findings marked **Verified (from text)** are claims I can confirm by reading the
 4. Confirm the badge-rendering, TOC-nesting, slug-parity, and font-inlining findings empirically.
 5. Run `axe-core` against each rendered output to confirm the WCAG claims.
 
-If the user wants, I can produce a verification script that bootstraps draft_z (the recommended winner) and runs the slug-parity test and a smoke render to elevate the relevant findings from Reasoned to Verified.
+---
+
+I'll plan the merged/unified skill file meticulously, then build it. The spec is already pinned by my prior critique — foundation is `draft_z`, with named merge-ins from the other drafts and all severity-tagged defects fixed. No further clarification needed.
+Now writing chunk 1 — frontmatter, TOC, and sections 1–7:
+Chunk 1 written. Now appending chunk 2 — sections 8–12 (Tags, TOC, A11y, Build Recipes, Error Handling):
+Now appending chunk 3 — sections 13–18 (Fonts, Performance, Testing, CI/CD, Anti-Patterns, Pre-Ship Checklist):
+Chunk 3 successfully appended. Now writing the final chunk 4 — sections 19–24:
+All four chunks written. Now verifying file integrity:
+All 24 sections are present (the extra `## Section ${i}`, `## Finding 1`, etc. matches are inside code blocks — those are test fixture strings, not actual section headers). Verifying:
+File integrity confirmed: 3,153 lines, ~138 KB, all 24 numbered sections present, starts with YAML frontmatter, ends with the provenance statement. Let me update the todos and write the worklog:
+Unified skill file delivered at `/home/z/my-project/download/markdown-to-web_SKILL.md` — 3,153 lines, 138 KB, 24 numbered sections.
+
+**What's in it:**
+- YAML frontmatter (from draft_k) for skill discovery
+- Foundation is draft_z: three-template system, JSON tag registry, honest "WCAG AA + AAA-aspirational" claim, evidence contract preserved verbatim, editorial visual identity (Source Serif 4 + warm paper + teal/moss)
+- Merge-ins from draft_q2 (GitHub Actions CI YAML, realistic 250 KB bundle budget, @font-face preload hints, full test pyramid with code, ErrorReporter class), draft_k (YAML frontmatter parsing), draft_d (`defineConfig` helper, actually implemented in §23.4)
+- All 18 audit findings fixed inline — §24.7 has the full defect-fix traceability table (C1/C2/H1-H6/M1-M10)
+- Honest "Reasoned throughout" self-tag in §24.1 — complies with persona §13, unlike the source drafts that falsely claimed "Verified"
+
+**What to do next:**
+1. Open the file and skim §1 (philosophy), §8 (tag pipeline), §24.7 (defect-fix table) to confirm the merge matches your intent
+2. To spot-verify before adoption, run the bootstrap commands in §24.4 — particularly `npx vitest run slug-parity.test.ts` (the single most important verification)
+3. If you want a v2.0.1 revision, the highest-leverage changes would be: (a) actually bootstrap the project and elevate §24.1 from "Reasoned" to "Verified", (b) add the missing `MarkdownReport.tsx` full implementation (currently excerpted in §8.5), (c) validate the `build-offline.mjs` sketch against real `@fontsource` packages
+
+---
+
+https://chat.z.ai/s/21381e59-cf0a-4f26-b7ed-f93595e6dcf9 
+
