@@ -1,71 +1,11 @@
-<!--
-markdown-to-web — Unified Skill v4.1.0
-
-Lineage:
-  - original_SKILL.md v1.0.1 — evidence contract, anti-pattern format, z-index discipline
-  - markdown-to-web_SKILL.md v2.1.0 — Part 1 validation review (Round 1 findings)
-  - draft_z2.md v2.0.0 — full test code, performance budgets, CI/CD, self-hosted fonts
-  - draft_d2.md v2.0.0 — full template CSS for technical + minimal, 6-week migration plan
-  - draft_q3.md v3.0.0 — correct Tailwind v4 theming, fence scanner, collision detection,
-    correct WCAG arithmetic (base of v4.0.0)
-  - SKILL.md v4.0.0 — BASE for v4.1.0: unified all of the above; fixed the three
-    hereditary Critical bugs (@theme-in-@media, WCAG 14px arithmetic,
-    dangerouslySetInnerHTML)
-  - Round 3 self-audit (v4.1.0) — 15 new findings against v4.0.0; all fixed in this
-    edition (Part 1 §22; Appendix A)
-
-Round 3 headline fixes:
-  HIGH:     AAA axe gate contradicted its own documented badge exceptions —
-            exceptions are now encoded in the gate itself (§10.4, §14.9)
-  HIGH:     Template switching machinery was overpromised and unwritten —
-            concrete src/templates/active.ts wiring file (§5, §7.4)
-  MEDIUM:   Frontmatter was never stripped before render —
-            parseDocument() returns { frontmatter, body }; pipeline consumes body (§22.5)
-  MEDIUM:   Headings with links/images desynced TOC↔rehype-slug slugs —
-            headingText() normalization + new parity fixtures (§9.2, §9.3)
-  MEDIUM:   Badge misfired on unclassed fenced code blocks —
-            single-line string guard (§8.5)
-  MEDIUM:   Finding 21.8 rationale overstated process.env breakage —
-            amended in place (§21.8, §22.6)
-  LOW x6, INFORMATIONAL x3 — full ledger in Appendix A
-
-Verification protocol: desk review. Findings tagged Verified / Reasoned / Assumed /
-Unverifiable per the skill's own evidence contract (§21). No code execution in this
-environment. Round 3 retag (see §1.1 note): claims about runtime or library behavior
-that were not executed are Reasoned — including two claims v4.0.0 tagged Verified
-without execution (§21.1, §21.13). This edition applies to itself the standard it
-enforces.
--->
-
 ---
 name: markdown-to-web
-description: >
-  Renders an arbitrary Markdown document as a polished, single-file, accessible
-  web page. Accepts any .md file plus an optional template (editorial long-form
-  / technical docs / minimal print) and an optional tag registry (severity,
-  confidence, status, custom). Produces a self-contained dist/index.html with
-  WCAG 2.2 AA enforced by an axe gate, and AAA where feasible with enumerated
-  exceptions that are encoded in the gate itself (badge contrast exclusions by
-  selector, target-size enforced globally). Code-first theming via a two-layer
-  token pattern (runtime variables + @theme inline bridge); fence-aware TOC with
-  verified slug parity including linked-heading normalization; frontmatter parsed
-  AND stripped before render; tag-registry badges with cross-category collision
-  detection and a code-block misfire guard; template switching via one wiring
-  file; 8-gate pre-ship checklist. Built on React 19 + Vite 7 + Tailwind v4 +
-  react-markdown.
-  Use when the user asks to "render this markdown as a web page", "convert .md
-  to HTML", "publish this document as a site", or "make a polished web version
-  of this README/report/spec".
+description: Renders an arbitrary Markdown document as a polished, single-file, accessible web page. Accepts any .md file plus an optional template (editorial long-form / technical docs / minimal print) and an optional tag registry (severity, confidence, status, custom). Built on React 19 + Vite 7 + Tailwind v4 + react-markdown.
+triggers: 
+  - "render this markdown as a web page"
+  - "convert .md to HTML", "publish this document as a site"
+  - "make a polished web version of this README/report/spec".
 version: 4.1.0
-tags:
-  - react
-  - vite
-  - tailwindcss
-  - markdown
-  - html
-  - single-file-build
-  - accessibility
-  - documentation
 ---
 
 # markdown-to-web — Validation Review & Unified Skill Specification
