@@ -3643,3 +3643,425 @@ Skill version: 4.1.0 · Date: 2026-08-06 · Status: Design-complete; runtime-unv
 | No `@theme`-in-`@media`, no `dangerouslySetInnerHTML`, no "14px relaxes AAA", no "LF-only", no phantom scripts in any new text | ✓ |
 
 ---
+
+**Pass 5 of 5 (final)** — Appendices A–F, the final consistency gate, and delivery. Appendix A delivers the complete 67-row correction ledger promised in Pass 1; Appendix C reconciles every fixture count against the test code actually written in Passes 2–4; Appendix F extends the spot-check with the six Round-3 verifications.
+
+---
+
+## Appendices
+
+### Appendix A — Correction Ledger (67 rows)
+
+Every finding from Part 1 (Rounds 1–3), mapped to its v4.1.0 resolution. This is the single source of truth for traceability — every fix is traceable to a documented finding, and no finding is left unaddressed. Provenance note (Finding 22.15): `draft_z2.md` and `draft_d2.md` both self-version "2.0.0" — references below cite filename + self-version together.
+
+**Round 1 — original v1.0.1 audit (37 findings: 5 High, 8 Medium, 6 Low, 18 Informational)**
+
+| Finding | Severity | Resolution in v4.1.0 |
+| --- | --- | --- |
+| 1.1 Scope hardcoded to one report | High | §1, §2, §3 — generalized identity, inputs contract |
+| 1.2 "No generic UI" mandate conflicts with reuse | Medium | §1, §7 — anti-generic mandate scoped per-template |
+| 2.1 Versions pinned and verified | Info | §4, §17 gate 8 (gate V-1) |
+| 2.2 Slug parity asserted, not verified | Medium | §9.3, §14.5, Appendix C — compiling slug-parity test; extended by Finding 22.4 (linked headings) |
+| 2.3 Node version floor correct | Info | §4 — carried forward |
+| 3.1 No `tsc` npm script | Low | §15.2 scripts block (`typecheck`) + §17 gate 1 |
+| 3.2 Google Fonts `@import` requires runtime network | High | §11 — three font strategies (CDN, self-hosted, `@fontsource` offline) |
+| 4.1 `@theme` tokens well-structured | Info | §6, §7 — two-layer token pattern |
+| 4.2 Severity palette hardcoded | Medium | §6, §8 — generic 5-step accent scale |
+| 4.3 No `prefers-reduced-motion` guard | High | §6.1, §10.2 — media query in base styles |
+| 4.4 No `prefers-color-scheme: dark` support | Low | §6.1, §10.2 — two-layer token pattern with dark variants |
+| 5.1 `cn` utility is dead code | Low | §8.6 — `cn()` wired into `Badge.tsx` |
+| 5.2 `enhanceReportMarkdown` runs at render time | Low | §13.2 — `useMemo` memoization |
+| 5.3 Single state is correct | Info | §9.5 — `activeSlug` added; three-state cap preserved |
+| 6.1 "None exist" is excellent documentation | Info | §5 — preserved (custom hooks: none) |
+| 7.1 Badge protocol too narrow | Medium | §8 — tag registry (data, not code) |
+| 7.2 `enhance.ts` regex fragile | Medium | §8.4 — all bullet styles + warnings + fence-aware |
+| 7.3 TOC contract correct (H2/H3 only) | Info | §9 — H4, configurable depth, fence-aware, slug reservation |
+| 8.1 "WCAG AAA" claim partially false | High | §10.1 — honest "AA + AAA-aspirational"; §10.2 — 44 px targets |
+| 8.2 Focus styles rely on browser default | Medium | §6.1, §10.2 — global `:focus-visible` |
+| 8.3 No automated a11y test | Medium | §10.4, §14.9, §17 gate 5 — axe gate in CI |
+| 8.4 Badge text contrast fails AAA | Medium | §10.3 enumerated exception + §14.9 encoded gate + §10.5 high-contrast recipe — NOT the false 14px claim (Finding 21.2) |
+| 9.1 Anti-pattern table high-value | Info | §16 — expanded to 26 rows |
+| 10.1 Debugging guide structured | Info | §18 — expanded to 24 rows |
+| 11.1 Quality gate too narrow (elevated to High) | High | §17 — 8 hard gates |
+| 12.1 Lessons well-extracted | Info | §23 — restored and expanded to 13 lessons |
+| 13.1 Pitfalls table actionable | Info | §16, §17 — folded into anti-patterns and gates |
+| 14.1 Best practices conventional | Info | §5 — carried forward |
+| 15.1 Three patterns documented as code | Info | §8, §19 — expanded with template composition + registry extension |
+| 16.1 Anti-patterns table concrete | Info | §16 — carried forward + expanded |
+| 17.1 Only `sm` and `lg` used | Low | §7 — per-template breakpoint choice |
+| 18.1 Z-index map explicit and minimal | Info | §6.5 — extended with z-30, z-60 |
+| 19.1 Color reference exhaustive | Info | §6.3 — auto-generated via `generate-color-ref.mjs` |
+| 20.1 `TocItem` is only named interface | Low | §22, Appendix B — named interfaces for all shared types |
+| A.1 `.agents/` symlink stale | Info | Appendix A — repurposed as correction ledger |
+| B.1 Build output documentation correct | Info | §11, Appendix D — carried forward + offline variant |
+| C.1 Visual pipeline duplicates §5.2 | Info | Appendix C — repurposed as testing fixtures index |
+
+**Round 2 — comparative review of the drafts (15 findings: 3 Critical, 2 High, 7 Medium, 3 Low)**
+
+| Finding | Severity | Present in | Resolution in v4.1.0 |
+| --- | --- | --- | --- |
+| 21.1 `@theme` nested inside `@media` | Critical | draft_d2, draft_z, v2.1.0, draft_z2 | §6.1 two-layer token pattern; §16 anti-pattern #12; retagged Verified→Reasoned in v4.1.0 (§1.1) |
+| 21.2 WCAG "14px relaxes AAA" arithmetic | Critical | draft_z2, draft_d2, draft_z, v2.1.0 | §10.1 correct arithmetic; §10.3 exceptions; §10.5 recipe; §16 anti-pattern #13 |
+| 21.3 `dangerouslySetInnerHTML` | Critical | draft_d2 | §8.5 component-map pipeline; §12.5 rejection; §16 anti-pattern #10 |
+| 21.4 AST badge/component disconnect | High | draft_d2 | §8.5 backtick-wrapping pattern (v1.0.1 lineage preserved) |
+| 21.5 Fence-blind regex | High | draft_z2, draft_d2, draft_z, v2.1.0 | §9.1 `fence.ts` scanner; §16 anti-pattern #14 |
+| 21.6 No collision detection | Medium | draft_z2, draft_d2, draft_z, v2.1.0 | §8.3 `validateRegistry()` throws at load; §16 anti-pattern #15 |
+| 21.7 False "Verified" self-tag | Medium | draft_d2 | §21 evidence contract; Closing — "Reasoned throughout" |
+| 21.8 `process.env` in browser code | Medium | draft_d2 | Amended in v4.1.0 (Finding 22.6): `import.meta.env.DEV` is the idiom; draft_d2's real bug was `process.env.ERROR_REPORTING_ENDPOINT` — Appendix E.4 uses `import.meta.env.VITE_ERROR_REPORTING_ENDPOINT` |
+| 21.9 Unrealistic 150 KB budget | Medium | draft_d2 | §13.1 — 250 KB gzipped with composition breakdown |
+| 21.10 `PerformanceMonitor` hardcodes `window.gtag` | Medium | draft_d2 | §13.3 — no gtag; moved to Appendix E.5 as opt-in without provider hardcoding |
+| 21.11 `localStorage` without try/catch | Medium | draft_d, draft_k | §6.6 `theme-storage.ts` with try/catch + in-memory fallback |
+| 21.12 YAML frontmatter syntax error | Low | draft_d2 | N/A — v4.1.0 frontmatter is clean |
+| 21.13 `import { slug }` nonexistent export | Low | draft_z, v2.1.0 | §9.3 correct default import; §16 anti-pattern #7; retagged Verified→Reasoned in v4.1.0 (§1.1) |
+| 21.14 `[^*]+` regex restrictiveness | Low | draft_z, v2.1.0 | §8.4 — `[^*]+` retained (sufficient for scope; alternative documented) |
+| 21.15 No ErrorBoundary in skeleton | Medium | draft_z, v2.1.0 | §5, §12 — `ErrorBoundary.tsx` + `ErrorFallback.tsx` at root |
+
+**Round 3 — self-audit of v4.0.0 (15 findings: 2 High, 4 Medium, 6 Low, 3 Informational — all new in v4.1.0)**
+
+| Finding | Severity | Resolution in v4.1.0 |
+| --- | --- | --- |
+| 22.1 AAA axe gate contradicts enumerated badge exceptions | High | F1: §10.3 canonical exceptions + §10.4/§14.9 gate encodes them (`[data-tag]` excluded from AAA contrast; `target-size` global); §16 row 25; §17 gate 5 wording aligned; §20.5 delta row |
+| 22.2 Template switching machinery overpromised/unwritten | High | F2: §5 skeleton + §7.4 — `src/templates/active.ts` wiring file written in full; frontmatter `template` advisory + dev-mode mismatch warning; Tenet 7 added; §20.5 delta row |
+| 22.3 Frontmatter never stripped before render | Medium | F3: §22.5 `parseDocument()` returns `{ frontmatter, body }` (BOM strip + CRLF normalize); §5 pipeline consumes `body`; §14.6 strip regression + BOM/CRLF tests; §14.8 render assertion; §12.4 table row; §16 row 23; §18 row |
+| 22.4 Linked/image headings desync slugs | Medium | F4: §9.2 `headingText()` (backticks → image alt → link text → autolinks); §9.3 + §14.4 parity fixtures; §9.4 residual edge cases disclosed; §16 row 24; §18 row |
+| 22.5 Badge misfires on unclassed code blocks | Medium | F5: §8.5 single-line string guard in `components.code`; §14.8 fenced-`critical` fixture; §16 row 19; §18 row |
+| 22.6 Finding 21.8 rationale overstated | Medium | 21.8 amended in place (Part 1); §21 rule 5 added (audit audits itself); Appendix E.4 uses the correct `VITE_` env spelling |
+| 22.7 §3.1 "LF-only" contradicts §22.5 code | Low | §3.1 rewritten: CRLF + BOM handled; remaining limitation is flat `key: value` only; §18 debugging row updated |
+| 22.8 §6.1 "equal specificity" comment wrong | Low | §6.1 comment rewritten with actual specificities ((0,2,0) vs (0,1,0)) and why behavior is still correct |
+| 22.9 `aria-label` on generic span | Low | §8.6 note: attribute kept as belt-and-suspenders; semantics carried by visible text; no widget role added |
+| 22.10 CI preview/wait-on redundant + undeclared dep | Low | §15.1 steps deleted with explanatory comment; Playwright `webServer` declared single server owner; Appendix D aligned; `test:integration` defined in §15.2 (phantom-script half fixed too) |
+| 22.11 Colon-outside-bold undocumented | Low | §8.4 blind-spot list + §14.3 fixture asserting pass-through; §23 lesson 13 |
+| 22.12 Coverage downgrade without rationale | Low | §14.10 — 80/75 retained WITH explicit rationale (stated, not silent) |
+| 22.13 Hereditary error propagation | Info | §23 lessons 9–12 (fix-batch coherence pass; first-principles auditing; unwritten machinery; encode-don't-suppress); §1.3 observations 8–9 |
+| 22.14 `lucide-react@1.28.0` phantom version | Info | §4 provenance note; gate V-1 arbiter; Appendix F step 3 |
+| 22.15 Dual "v2.0.0" provenance ambiguity | Info | Header provenance + this appendix cite filename + self-version together |
+
+**All 67 findings (37 Round 1 + 15 Round 2 + 15 Round 3) have a corresponding fix or explicit disposition. No finding is left unaddressed.**
+
+### Appendix B — TypeScript Reference Index
+
+The full definitions live in §22. This appendix is the index — if code drifts from these definitions, the code is wrong, not the types.
+
+| Type | Section | Purpose |
+| --- | --- | --- |
+| `TemplateName` | §22.1 | Union: `"editorial" \| "technical" \| "minimal"` |
+| `TemplateLayoutProps` | §22.1 | Layout shell props: title, subtitle, author, date, readingTime, toc, activeSlug, markdown (**body**), children |
+| `ComponentsMap` | §22.1 | Element → FC override map (h1–h4, p, a, strong, em, ul, ol, li, hr, blockquote, code, pre, table, thead, tbody, tr, th, td) |
+| `TemplateConfig` | §22.1 | name, themeCss, components, layout, defaultTags, tocMaxDepth, offlineFonts |
+| `TagValueDefinition` | §22.2 | accent (1–5), optional label |
+| `TagDefinition` | §22.2 | name + values record (keys MUST be lowercase) |
+| `TagRegistry` | §22.2 | Record of tag name → `TagDefinition` |
+| `ResolvedBadge` | §22.2 | Result of `resolveBadge()`: tag, value, label, accent |
+| `TocItem` | §22.3 | level (2\|3\|4), text, slug, children |
+| `MarkdownToWebConfig` | §22.4 | Optional config type — **no `defineConfig` helper ships** (§3.2) |
+| `Frontmatter` | §22.5 | Parsed metadata; index signature `string \| boolean \| undefined` |
+| `ParsedDocument` | §22.5 | `{ frontmatter: Frontmatter; body: string }` — **the pipeline consumes `body`** (Finding 22.3) |
+| `EnhanceResult` | §22.6 | `{ enhanced: string; warnings: string[] }` |
+| `MarkdownRegion` | §22.6 | `{ line: string; lineNumber: number; insideFence: boolean }` |
+
+Component props (§22.7): `App` (none) · `MarkdownRenderer { markdown: string; registry: TagRegistry }` — markdown is the enhanced **body** · `TableOfContents { items; activeSlug?; onNavigate? }` · `Badge { tag; value; accent }` · `ErrorBoundary { children; fallback?; onError? }` · `ErrorFallback { error? }` · `SkipLink { targetId? }` · `ThemeToggle { theme; onChange }`.
+
+### Appendix C — Testing Fixtures Index
+
+Full test code lives in §14 and §9.3. Run `npm run test` after implementation. The slug-parity suite (row 4) remains the load-bearing one; rows 5, 7, and 8 carry the Round-3 regression fixtures.
+
+| # | Test file | Section | Tests | Verifies |
+| --- | --- | --- | --- | --- |
+| 1 | `tests/unit/fence.test.ts` | §14.2 | 5 | Fence scanner: delimiters, tildes, unclosed, cross-character, closing-length (Finding 21.5) |
+| 2 | `tests/unit/enhance.test.ts` | §14.3 | 9 | Bullet styles, case-insensitivity, fence-aware, blockquote blind spot, **colon-outside-bold pass-through (Finding 22.11)**, warnings |
+| 3 | `tests/unit/toc.test.ts` | §14.4 | 11 | Nesting, q2 regression case, orphans, fenced headings, maxDepth+reservation, empty, backticks, **linked-heading reduction + image-heading reduction (Finding 22.4)**, dedup, CJK |
+| 4 | `tests/unit/slug-parity.test.ts` | §9.3 | 11 | 7 fixtures + inline code + **link heading + image heading** + cross-level dedup + fenced headings (Findings 2.2, 22.4) |
+| 5 | `tests/unit/frontmatter.test.ts` | §14.6 | 7 | `parseDocument`: metadata + body, **strip regression (Finding 22.3)**, no-frontmatter, CRLF, BOM, malformed, colon/quote handling |
+| 6 | `tests/unit/tags.test.ts` | §14.7 | 6 | Clean registry, **collision detection** (Finding 21.6), uppercase rejection, out-of-range accent, resolver, labels |
+| 7 | `tests/integration/markdown-rendering.test.tsx` | §14.8 | 6 | Badges, external links, GFM tables, malformed markdown, **fenced-`critical` stays `<code>` (Finding 22.5)**, **frontmatter absent from output (Finding 22.3)** |
+| 8 | `tests/accessibility/axe.test.ts` | §14.9 | 4 | AA hard gate; **AAA with encoded `[data-tag]` exclusion + global target-size (Finding 22.1)**; dark-mode AA; **keyboard smoke (restored from draft_z2)** |
+| 9 | `tests/performance/bundle-size.test.ts` | §13.4 | 1 | `< 250 KB` gzipped (Finding 21.9) |
+| 10 | `tests/performance/parsing-speed.test.ts` | §13.4 | 2 | 1000 lines < 100 ms; 5000 lines < 500 ms |
+
+**Total: 62 tests.** Coverage thresholds per §14.10 (80/75 with rationale — Finding 22.12).
+
+### Appendix D — CI/CD Consolidated Files
+
+D.1–D.3 are canonical; §15.3 (`quality-gate.sh`) and §15.4 (`lighthouserc.yml`) are referenced rather than duplicated.
+
+**D.1 `.github/workflows/ci.yml`** (canonical copy — §15.1):
+
+```yaml
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ matrix.node-version }}", cache: npm }
+      - run: npm ci
+      - run: npm run versions:check        # Gate 8 / V-1
+      - run: npm run lint                  # Gate 2
+      - run: npm run lint:format           # after lint (ordering rule, §15.2)
+      - run: npm run lint:markdown
+      - run: npm run typecheck             # Gate 1
+      - run: npm run test -- --coverage    # Gates 3+4 (unit + integration + slug-parity)
+      - if: matrix.node-version == 22
+        uses: codecov/codecov-action@v4
+        with: { files: ./coverage/coverage-final.json, fail_ci_if_error: false }
+      - run: npm run build                 # Gate 6 (online)
+      - run: npm run build:offline         # Gate 6 (offline)
+      - run: npm run test:bundle-size      # Gate 6 (250 KB)
+      - run: npx playwright install --with-deps chromium
+      # Finding 22.10: no `npm run preview &`, no `npx wait-on`.
+      # playwright.config.ts webServer boots `npm run preview` (port 4173).
+      - run: npm run a11y                  # Gate 5 (encoded AAA exceptions, §14.9)
+      - run: npm audit --audit-level=critical
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: dist-node-${{ matrix.node-version }}, path: dist/, retention-days: 7 }
+
+  deploy:
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: |
+          npm ci
+          npm run build
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+**D.2 `.husky/pre-commit`:**
+
+```sh
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+npx lint-staged && npm run typecheck && npm run test:unit
+```
+
+**D.3 `package.json` scripts + lint-staged** — the single source of truth is §15.2; Appendix D does not duplicate it. Every script invoked by D.1, D.2, §15.3, and §17 appears in that block (no phantom scripts — Finding 22.10's sibling).
+
+**D.4/D.5:** `lighthouserc.yml` → §15.4; `scripts/quality-gate.sh` → §15.3.
+
+### Appendix E — Advanced Patterns (Optional)
+
+Not required for the base skill. Each documents an "out of scope" decision reversibly.
+
+**E.1 AST-based badge processing.** v4.1.0 uses the regex preprocessor (§8.4) + fence scanner (§9.1). If nested list items, multi-paragraph badges, or `:::badge` directives become necessary, write a custom remark plugin over `listItem` nodes — but the plugin MUST connect to the `code` component bridge (§8.5); draft_d2's `data-badge-*` hProperties pattern is rejected because nothing consumed the attributes (Finding 21.4).
+
+**E.2 Virtual scrolling (10,000+ lines).** `@tanstack/react-virtual` over H2-section chunks. Breaks the §9.5 IntersectionObserver highlight — requires a scroll-position-to-section mapper. Out of scope.
+
+**E.3 Search.** `useSearch` over the body string; cmd-K palette at `z-60` (§6.5). Out of scope for the base skill.
+
+**E.4 Error reporting to an external endpoint.** Extend `ErrorBoundary.componentDidCatch` with:
+
+```ts
+// src/utils/error-reporter.ts (optional — Appendix E)
+interface ErrorReport {
+  message: string;
+  stack?: string;
+  componentStack?: string;
+  context: Record<string, unknown>;
+  timestamp: number;
+  userAgent: string;
+  url: string;
+}
+
+export class ErrorReporter {
+  // Vite exposes only import.meta.env.VITE_* to the client (Finding 22.6,
+  // amending 21.8): draft_d2's process.env.ERROR_REPORTING_ENDPOINT never
+  // resolves at runtime. The VITE_ prefix is mandatory.
+  private static endpoint = import.meta.env.VITE_ERROR_REPORTING_ENDPOINT as
+    | string
+    | undefined;
+
+  static async report(error: Error, context: Record<string, unknown> = {}): Promise<void> {
+    const report: ErrorReport = {
+      message: error.message,
+      stack: error.stack,
+      componentStack: (context.componentStack as string) ?? undefined,
+      context,
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+    };
+    if (this.endpoint) {
+      try {
+        await fetch(this.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(report),
+        });
+      } catch (err) {
+        // Reporting failure must never mask the original error.
+        console.error("Failed to report error:", err);
+      }
+    }
+    if (import.meta.env.DEV) console.error("Error reported:", error, context);
+  }
+}
+```
+
+Never log secrets, tokens, or full PII payloads in `context`.
+
+**E.5 Performance monitoring** (draft_d2's class, with the hardcoded `window.gtag` removed — Finding 21.10):
+
+```ts
+// src/utils/performance-monitor.ts (optional — Appendix E)
+export class PerformanceMonitor {
+  private static metrics: Map<string, number[]> = new Map();
+  static measure<T>(label: string, fn: () => T): T {
+    const start = performance.now();
+    const result = fn();
+    if (!this.metrics.has(label)) this.metrics.set(label, []);
+    this.metrics.get(label)!.push(performance.now() - start);
+    return result;
+  }
+  static getAverage(label: string): number {
+    const values = this.metrics.get(label) ?? [];
+    return values.length === 0 ? 0 : values.reduce((a, b) => a + b, 0) / values.length;
+  }
+  static report(label: string): void {
+    if (import.meta.env.DEV) {
+      console.debug(`[perf] ${label}: ${this.getAverage(label).toFixed(2)}ms avg`);
+    }
+    // Production: the deploying team wires their analytics provider of choice.
+    // Do NOT hardcode gtag or any specific provider here.
+  }
+}
+```
+
+**E.6 Other opt-in extensions** (§19.3): footnotes (~5 KB), math/KaTeX (~270 KB), mermaid (~1.5 MB), syntax highlighting (~30 KB, §19.4), visual regression (baseline management). Add only what the document uses.
+
+### Appendix F — Adopter Spot-Check (~15 minutes)
+
+Convert this document's Reasoned claims to Verified. Record outcomes in a copy of the Appendix A ledger; upgrade only the rows your run actually proved.
+
+```bash
+# 1. Scaffold
+npm create vite@latest mdw-spotcheck -- --template react-ts
+cd mdw-spotcheck
+
+# 2. Install runtime deps (exact pins from §4)
+npm install react@19.2.6 react-dom@19.2.6 react-markdown@10.1.0 remark-gfm@4.0.1 \
+  rehype-slug@6.0.0 github-slugger@2.0.0 clsx@2.1.1 tailwind-merge@3.4.0 \
+  vite-plugin-singlefile@2.3.0
+
+# 3. Gate V-1 — resolve the lucide-react question (Finding 22.14)
+npm install lucide-react@1.28.0 || npm install lucide-react
+#    Record what resolves; update the §4 table. (Expected: 1.28.0 does not exist —
+#    the 0.x line resolves.)
+
+# 4. Copy src/lib/{fence,toc,enhance,tags,frontmatter}.ts, src/types/,
+#    src/templates/active.ts, and tests/ from this document
+
+# 5. Run the core suites
+npx vitest run   # fence, enhance, toc, slug-parity, frontmatter, tags
+```
+
+Then verify each load-bearing fix:
+
+```bash
+# 6. Critical-hereditary checks (carried from v4.0.0)
+grep -n "@theme" src/index.css        # top-level only; never inside @media (21.1)
+grep -rn "dangerouslySetInnerHTML" src/   # must return nothing (21.3)
+grep -n "text-xs" src/components/Badge.tsx  # NOT text-sm — the 14px claim is false (21.2)
+
+# 7. F3 — frontmatter strip (Finding 22.3)
+npx vitest run tests/unit/frontmatter.test.ts
+#    "frontmatter block does not leak into the rendered body" must pass
+
+# 8. F4 — linked-heading parity (Finding 22.4)
+npx vitest run tests/unit/slug-parity.test.ts
+#    link + image heading fixtures must pass
+
+# 9. F5 — code-block badge guard (Finding 22.5)
+npx vitest run tests/integration
+#    fenced-`critical` stays <code>; frontmatter absent from rendered output
+
+# 10. F1 — encoded AAA exceptions (Finding 22.1)
+npx playwright install --with-deps chromium
+npm run a11y
+#    AAA gate passes on a badge-bearing fixture; target-size enforced globally
+
+# 11. F2 — template wiring (Finding 22.2)
+grep -rn "templates/editorial/theme.css" src/templates/active.ts  # single wiring point
+npm run dev   # set frontmatter template: "technical" → dev console warns on mismatch
+
+# 12. Single-file + offline sanity
+npm run build           # dist/index.html opens from file://
+npm run build:offline   # open with network disabled — do fonts render? (validates §11.3)
+
+# 13. Dark-pattern sanity
+#    Build with §6.1 index.css, toggle OS dark mode — utilities flip live
+#    (validates @theme inline); forced-light beats system-dark.
+```
+
+---
+
+## Final Consistency Gate (run against the assembled document)
+
+| Check | Result | Basis |
+| --- | --- | --- |
+| Every Part 1 finding (67) has a disposition in Appendix A | ✓ | Verified (textual) — ledger rows counted: 37 + 15 + 15 |
+| No `@theme` inside `@media` in any v4.1.0 code | ✓ | Verified (textual) — §6.1/§7.2/§7.3 only |
+| No "14px relaxes AAA" claim in v4.1.0 code | ✓ | Verified (textual) — appears only as rejected Finding 21.2 |
+| No `dangerouslySetInnerHTML` in v4.1.0 code | ✓ | Verified (textual) |
+| `parseDocument` returns `{ frontmatter, body }`; every pipeline consumer takes `body`; §3.1 limitations match §22.5 code | ✓ | Verified (textual) |
+| `headingText()` applied before `slugger.slug()`; link/image fixtures present (§9.3, §14.4) | ✓ | Verified (textual) |
+| `components.code` guard includes `text.includes("\n")`; fenced-`critical` fixture present | ✓ | Verified (textual) |
+| §14.9 AAA test excludes `[data-tag]` for contrast only; `target-size` global; §10.3 canonical; §10.4, §17 Gate 5, §16 row 25 all cite §14.9 mechanics | ✓ | Verified (textual) |
+| `templates/active.ts` written in full; no "build system loads template from frontmatter" promise remains; frontmatter `template` advisory | ✓ | Verified (textual) |
+| Every script cited in §15.1/D.1, §15.3, §17 defined in §15.2 (no phantom scripts) | ✓ | Verified (textual) |
+| CI contains no `preview &` / `wait-on`; Playwright `webServer` single server owner | ✓ | Verified (textual) |
+| Coverage 80/75 stated with rationale (§14.10) | ✓ | Verified (textual) |
+| Cross-reference integrity: §16 row numbers 1–18/20–22 unchanged so all prior citations hold; new rows 19/23–26 | ✓ | Verified (textual) |
+| Evidence contract self-applied: audit retagged its own over-tags (21.1, 21.13); 21.8 amended in place; "Reasoned throughout" | ✓ | Verified (textual) |
+| Length target 3,200–3,600 lines | ✗ — **deviation, stated** | Assembled length ≈ 4,900–5,100 lines across five passes. Cause: verbatim carry-forward of all load-bearing code, full template CSS, 62 in-tree tests, and the complete 67-row ledger took precedence over brevity (Decision Priority: correctness/completeness > brevity). No content was padded; the excess is canonical material. |
+| No placeholders (`TODO`/`FIXME`/`XXX`/`TBD`), no secrets, no commented-out code | ✓ | Verified (textual) |
+
+## Delivery Summary
+
+**Artifact:** `markdown-to-web_SKILL_v4.1.md` — assembled from Passes 1–5 in this conversation, in order: header + Part 1 → §1–§9 → §10–§15 → §16–§23 + Closing → Appendices A–F + this gate.
+
+**What v4.1.0 is:** v4.0.0 + 15 Round-3 fixes. The three hereditary Critical bugs remain dead; the five load-bearing fixes (F1 encoded AAA gate, F2 `active.ts` wiring, F3 `parseDocument` strip, F4 `headingText()` parity, F5 code-block guard) are each backed by a regression fixture; the audit now survives its own evidence contract.
+
+**Confidence:** Reasoned throughout. No code was executed in this environment. The 62 tests, both builds, and the axe gate are written but unrun — Appendix F is the 15-minute path to convert each relevant row to Verified.
+
+**First three commands after assembly:**
+
+```bash
+npm ls --depth=0                                   # gate V-1 — settle lucide-react (F step 3)
+npx vitest run tests/unit/slug-parity.test.ts      # the spine of the app
+npm run a11y                                       # the gate and the claim must match
+```
+
+Skill version: **4.1.0** · Date: 2026-08-06 · Status: Design-complete; runtime-unverified · Confidence: Reasoned throughout · Findings resolved: **67/67** (Appendix A) · Provenance: v4.0.0 base + Round 3 self-audit, per the plan approved in this conversation.
+
+**End of `markdown-to-web` v4.1.0 unified skill specification.**
+
+---
+
+https://chat.qwen.ai/s/a15033fd-727b-4169-8341-bddb2cdf9a7d?fev=0.2.82 
