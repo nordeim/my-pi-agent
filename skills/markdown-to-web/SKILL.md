@@ -3,7 +3,8 @@ name: markdown-to-web
 description: Renders an arbitrary Markdown document as a polished, single-file, accessible web page. Accepts any .md file plus an optional template (editorial long-form / technical docs / minimal print) and an optional tag registry (severity, confidence, status, custom). Built on React 19 + Vite 7 + Tailwind v4 + react-markdown.
 triggers: 
   - "render this markdown as a web page"
-  - "convert .md to HTML", "publish this document as a site"
+  - "convert .md to HTML"
+  - "publish this document as a site"
   - "make a polished web version of this README/report/spec".
 version: 4.1.0
 ---
