@@ -105,3 +105,7 @@ Amended 21.8 now correctly states "Vite *does* replace `process.env.NODE_ENV` at
 | Runtime behavior of every snippet | Not executable here | Unverifiable — Appendix F remains the conversion path |
 
 **Bottom line:** v4.1.0 fixed the right things and broke nothing — but it declared completion one coherence pass early. The v4.1.1 work is small, mechanical, and entirely test/text reconciliation; no architectural change is needed.
+
+---
+
+https://chat.qwen.ai/s/fa6f7d63-2b25-41ec-954b-387a044a1b12?fev=0.2.82 
