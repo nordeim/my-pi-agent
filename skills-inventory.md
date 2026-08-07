@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of every skill package under `skills/`.
-> **206 top-level skill folders** scanned, containing a total of **13845 files** and **48 nested sub-skills/templates**.
+> **207 top-level skill folders** scanned, containing a total of **13886 files** and **48 nested sub-skills/templates**.
 
 ---
 
@@ -1894,7 +1894,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 8. Documentation & Content Creation
 
 > Skills that produce documents, presentations, spreadsheets, PDFs, or written content.
-> **18 skills** in this category.
+> **19 skills** in this category.
 
 ### `agents-md`
 
@@ -2016,6 +2016,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Generate comprehensive market research reports (50+ pages) in the style of top consulting firms (McKinsey, BCG, Gartner). Features professional LaTeX formatting, extensive visual generation with scientific-schematics and generate-image, deep integration with research-lookup for data gathering, and multi-framework strategic analysis including Porter's Five Forces, PESTLE, SWOT, TAM/SAM/SOM, and BCG Matrix.
+
+### `markdown-to-web`
+
+- **Path**: `skills/markdown-to-web`
+- **SKILL.md**: [`skills/markdown-to-web/SKILL.md`](skills/markdown-to-web/SKILL.md)
+- **Title**: markdown-to-web — Validation Review & Unified Skill Specification
+- **Version**: 4.1.1
+- **Files**: 41
+- **Structure**: flat
+
+> Renders an arbitrary Markdown document as a polished, single-file, accessible web page. Accepts any .md file plus an optional template (editorial long-form / technical docs / minimal print) and an optional tag registry (severity, confidence, status, custom). Built on React 19 + Vite 7 + Tailwind v4 + react-markdown.
 
 ### `pptx`
 
@@ -2369,11 +2380,11 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ## Summary Statistics
 
-- **Total top-level skill folders**: 205
-- **Folders with a top-level `SKILL.md`**: 199
-- **Folders without a top-level `SKILL.md` (grouping folders)**: 6
+- **Total top-level skill folders**: 207
+- **Folders with a top-level `SKILL.md`**: 200
+- **Folders without a top-level `SKILL.md` (grouping folders)**: 7
 - **Total nested sub-skills / templates**: 48
-- **Total files across all skill folders**: 13849
+- **Total files across all skill folders**: 13886
 - **Skills with `scripts/`**: 60
 - **Skills with `references/`**: 49
 - **Skills with `scenes/`**: 2
@@ -2392,7 +2403,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | 5 | Testing, QA & Performance | 23 |
 | 6 | Code Quality, Security & Architecture | 13 |
 | 7 | Planning, Workflow & Project Management | 23 |
-| 8 | Documentation & Content Creation | 18 |
+| 8 | Documentation & Content Creation | 19 |
 | 9 | Career, Learning & Personal Development | 11 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **207** |
+| | **Total** | **208** |

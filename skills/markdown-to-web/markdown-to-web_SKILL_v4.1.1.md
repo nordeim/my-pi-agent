@@ -1059,12 +1059,12 @@ pre code.hljs {
 
 #### 6.3 Color reference drift prevention
 
-The complete color table is **generated, not hand-maintained**: `node scripts/generate-color-ref.mjs` parses the Layer-1 variables in `src/index.css` and emits the markdown table below (prevents the v1.0.1 drift risk — Finding 19.1).
+The complete color table is **generated, not hand-maintained**: `node scripts/generate-color-ref.mjs` parses the Layer-1 variables in `src/templates/editorial/theme.css` (imported via `active.ts`) and emits the markdown table below (prevents the v1.0.1 drift risk — Finding 19.1).
 
 ```js
 // scripts/generate-color-ref.mjs
 import { readFileSync } from "node:fs";
-const css = readFileSync("src/index.css", "utf8");
+const css = readFileSync("src/templates/editorial/theme.css", "utf8");
 const lightBlock = css.match(/:root\s*{([^}]*)}/)?.[1] ?? "";
 for (const m of lightBlock.matchAll(/--([\w-]+):\s*(#[0-9a-fA-F]{6});/g)) {
   const hex = m[2].toLowerCase();
