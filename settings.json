@@ -1,8 +1,8 @@
 {
-  "lastChangelogVersion": "0.84.1",
+  "lastChangelogVersion": "0.84.2",
   "defaultThinkingLevel": "high",
   "defaultProvider": "opencode",
-  "defaultModel": "longcat-2.0-free",
+  "defaultModel": "hy3-free",
   "packages": [
     "npm:pi-nvidia-nim",
     "npm:pi-opencode",
