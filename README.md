@@ -17,7 +17,7 @@ This setup is fairly opinionated. It:
 
 ---
 
-## What's in the box
+## What's in the box 
 
 | Area | Path | Description |
 |------|------|-------------|
