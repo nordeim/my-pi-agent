@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of every skill package under `skills/`.
-> **228 top-level skill folders** scanned, containing a total of **14053 files** and **48 nested sub-skills/templates**.
+> **229 top-level skill folders** scanned, containing a total of **14054 files** and **48 nested sub-skills/templates**.
 
 ---
 
@@ -26,7 +26,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 1. **Frontend Development & UI Engineering** — 56 skills — [jump](#1-frontend-development--ui-engineering)
 2. **Design Artifacts & Visual Creation** — 18 skills — [jump](#2-design-artifacts--visual-creation)
-3. **Full-Stack & Backend Development** — 21 skills — [jump](#3-full-stack--backend-development)
+3. **Full-Stack & Backend Development** — 22 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 15 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
 5. **Testing, QA & Performance** — 26 skills — [jump](#5-testing-qa--performance)
 6. **Code Quality, Security & Architecture** — 16 skills — [jump](#6-code-quality-security--architecture)
@@ -790,7 +790,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 3. Full-Stack & Backend Development
 
 > Skills for server-side frameworks, ORMs, API design, and full-stack patterns.
-> **21 skills** in this category.
+> **22 skills** in this category.
 
 ### `aminer-free-academic`
 
@@ -950,6 +950,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Python development principles and decision-making. Framework selection, async patterns, type hints, project structure. Teaches thinking, not copying.
+### `react19-vite-spa-fastify-drizzle-sqlite`
+
+- **Path**: `skills/react19-vite-spa-fastify-drizzle-sqlite`
+- **SKILL.md**: [`skills/react19-vite-spa-fastify-drizzle-sqlite/SKILL.md`](skills/react19-vite-spa-fastify-drizzle-sqlite/SKILL.md)
+- **Title**: reddit-clone SKILL — Engineering Reference for Full-Stack TypeScript Monorepos
+- **Files**: 2
+- **Structure**: flat
+
+> npm-workspaces monorepo reference for reddit-clone (embers): React 19 + Vite 7 SPA with HashRouter and vite-plugin-singlefile (single HTML deploy to GitHub Pages or S3), Tailwind CSS v4 CSS-first, Zustand overlay pattern, Fastify 5 composition-root buildApp, Drizzle ORM 0.36 + SQLite + better-sqlite3 + FTS5, Zod schemas at every boundary, JWT HS256 via jose + argon2id, pino logging, TypeScript 5.9 strict, ESLint 9 flat, Vitest and Playwright. Use when building a full-stack TypeScript monorepo, a deploy-anywhere static SPA with deterministic PRNG client data and a real Fastify backend, a community feed or forum with atomic voting and branded IDs, or when you need schema-versioned persistence, pure selectors, or SQLite online backup patterns.
 ### `rust-web`
 
 - **Path**: `skills/rust-web`
@@ -2403,8 +2412,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ## Summary Statistics
 
-- **Total top-level skill folders**: 228
-- **Folders with a top-level `SKILL.md`**: 221
+- **Total top-level skill folders**: 229
+- **Folders with a top-level `SKILL.md`**: 222
 - **Folders without a top-level `SKILL.md` (grouping folders)**: 7
 - **Total nested sub-skills / templates**: 48
 - **Total files across all skill folders**: 13886

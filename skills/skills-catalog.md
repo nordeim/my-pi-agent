@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **222 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **223 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -118,6 +118,7 @@
 | **ponytail** | Minimalism-as-discipline coding methodology: understand the task and real flow first, then apply an ordered implementation ladder (skip speculative need -> reuse existing code -> stdlib -> native platform features -> already-installed deps -> one line -> minimum working code) to produce the shortest correct diff. Enforces YAGNI, no unrequested abstractions, no one-implementation interfaces, no config for constants, no boilerplate, no scaffolding for later, prefer deletion over addition and boring over clever code. Bug fixes must target root cause not symptom: grep every caller, fix once whe... |
 | **powershell-windows** | PowerShell Windows patterns. Critical pitfalls, operator syntax, error handling. |
 | **python-patterns** | Python development principles and decision-making. Framework selection, async patterns, type hints, project structure. Teaches thinking, not copying. |
+| **react19-vite-spa-fastify-drizzle-sqlite** | npm-workspaces monorepo reference for reddit-clone (embers): React 19 + Vite 7 SPA with HashRouter and vite-plugin-singlefile (single HTML deploy to GitHub Pages or S3), Tailwind CSS v4 CSS-first, Zustand overlay pattern, Fastify 5 composition-root buildApp, Drizzle ORM 0.36 + SQLite + better-sqlite3 + FTS5, Zod schemas at every boundary, JWT HS256 via jose + argon2id, pino logging, TypeScript 5.9 strict, ESLint 9 flat, Vitest and Playwright. Use when building a full-stack TypeScript monorepo, a deploy-anywhere static SPA with deterministic PRNG client data and a real Fastify backend, a community feed or forum with atomic voting and branded IDs, or when you need schema-versioned persistence, pure selectors, or SQLite online backup patterns. |
 | **rust-web** | Rust (1.80+) web backend workflow skill with Axum + Tokio + sqlx. Covers the ownership/borrow checker mental model (the #1 stumbling block for newcomers — borrow rules, lifetimes, `&` vs `&mut` vs owned), async/await with the Tokio runtime, the Axum web framework (Tower-based middleware, extractors for type-safe request parsing, IntoResponse for responses), sqlx for compile-time-checked SQL (macros verify queries against your DB at build time — catches SQL errors before runtime), serde for JSON serialization, the Result<T, E> error model (no exceptions — like Go but with the `?` operator), ... |
 | **security-and-hardening** | Hardens code against vulnerabilities. Use when handling user input, authentication, data storage, or external integrations. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services. |
 | **spring-boot-3** | Spring Boot 3.x (Java 21+ with virtual threads, released November 2023) enterprise backend workflow skill. Covers the IoC container (dependency injection via @Autowired / constructor injection, @Component / @Service / @Repository / @Controller stereotypes, @Configuration classes, @Bean methods), Spring Data JPA with Hibernate (repositories extending JpaRepository, @Entity models with @Table/@Column, JPQL vs native SQL, @Transactional boundaries, N+1 detection), Spring MVC @RestController with @GetMapping/@PostMapping/@PutMapping/@DeleteMapping, Spring Security 6 (SecurityFilterChain lambda ... |
@@ -322,7 +323,7 @@
 |---|----------|-------|
 | 1 | Frontend Development & UI Engineering | 56 |
 | 2 | Design Artifacts & Visual Creation | 18 |
-| 3 | Full-Stack & Backend Development | 21 |
+| 3 | Full-Stack & Backend Development | 22 |
 | 4 | AI / ML / Multimodal SDK Skills | 15 |
 | 5 | Testing, QA & Performance | 26 |
 | 6 | Code Quality, Security & Architecture | 16 |
@@ -330,7 +331,7 @@
 | 8 | Documentation & Content Creation | 21 |
 | 9 | Career, Learning & Personal Development | 11 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **222** |
+| | **Total** | **223** |
 
 ---
 
