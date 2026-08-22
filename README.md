@@ -1,6 +1,6 @@
 # my-pi-agent
 
-An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 198-skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
+An opinionated customization bundle for the [Pi Agent](https://github.com/nordeim/my-pi-agent) — themes, in-tree extensions, a curated 222-skill library, and the supporting docs an agent needs to bootstrap a fresh Pi installation into a productive engineering setup.
 
 This setup is fairly opinionated. It:
 
@@ -23,7 +23,7 @@ This setup is fairly opinionated. It:
 |------|------|-------------|
 | Pi setup | `package.json`, `tsconfig.json`, `.env.example` | Runtime config, dependency manifest, env-var template for the Pi shell itself. |
 | Extensions | `extensions/` | Twelve TypeScript extensions that plug into the Pi agent loop (see below). |
-| Skills | `skills/` | 198 self-contained skill packages across 10 categories — the bulk of the repo by file count. Each skill ships a `SKILL.md` with frontmatter (`name`, `metadata.description`, `license`) plus optional `references/`, `scripts/`, `scenes/`, `routes/`, or `engines/` subdirectories loaded on demand. See [`skills-inventory.md`](skills-inventory.md) for a full per-skill breakdown. |
+| Skills | `skills/` | 222 self-contained skill packages across 10 categories — the bulk of the repo by file count. Each skill ships a `SKILL.md` with frontmatter (`name`, `metadata.description`, `license`) plus optional `references/`, `scripts/`, `scenes/`, `routes/`, or `engines/` subdirectories loaded on demand. See [`skills-inventory.md`](skills-inventory.md) for a full per-skill breakdown. |
 | Themes | `themes/` | `github-dark-default.json` and `brutalist.json` — Pi UI color themes. |
 | Git config | `git/` | Project-local gitignore patterns. |
 | Assets | `assets/` | Screenshots referenced by this README. |
@@ -33,16 +33,16 @@ This setup is fairly opinionated. It:
 
 ## Skills catalog
 
-The skill library lives under `skills/` and is indexed by [`skills/skills-catalog.md`](skills/skills-catalog.md) — a single-file directory of all 198 skills with a one-line description and "when to use it" hint for each. The catalog is organized into 10 categories:
+The skill library lives under `skills/` and is indexed by [`skills/skills-catalog.md`](skills/skills-catalog.md) — a single-file directory of all 222 skills with a one-line description and "when to use it" hint for each. The catalog is organized into 10 categories:
 
-1. **Frontend Development & UI Engineering** — 54 skills (React 19, Next.js 16, Tailwind v4, Svelte 5, Vue 3/Nuxt 4, Flutter, React Native/Expo, Astro 5, Tauri 2, HTMX, SolidStart, brutalist/avant-garde design systems, full-stack SaaS references, pixel-for-pixel web cloning)
+1. **Frontend Development & UI Engineering** — 56 skills (React 19, Next.js 16, Tailwind v4, Svelte 5, Vue 3/Nuxt 4, Flutter, React Native/Expo, Astro 5, Tauri 2, HTMX, SolidStart, brutalist/avant-garde design systems, full-stack SaaS references, pixel-for-pixel web cloning, **prototype** (throwaway logic vs UI branching))
 2. **Design Artifacts & Visual Creation** — 18 skills (charts, image generation/edit/understand/search, web-shader extraction, ComfyUI, **podcast-generate** (LLM script + TTS audio synthesis))
-3. **Full-Stack & Backend Development** — 20 skills (Laravel 12, Django 6, Rails 8, Go, Rust/Axum, Spring Boot 3, .NET 9, FastAPI, NestJS, Phoenix 1.7, Hono, Fastify, KeystoneJS 6, fullstack-dev, Next.js 16 + Postgres 17, auth library comparison, web-frameworks, API patterns, Python patterns, framework templates, n8n, PowerShell)
+3. **Full-Stack & Backend Development** — 21 skills (Laravel 12, Django 6, Rails 8, Go, Rust/Axum, Spring Boot 3, .NET 9, FastAPI, NestJS, Phoenix 1.7, Hono, Fastify, KeystoneJS 6, fullstack-dev, Next.js 16 + Postgres 17, auth library comparison, web-frameworks, API patterns, Python patterns, framework templates, n8n, PowerShell, **wizard** (interactive bash wizard scaffolding))
 4. **AI / ML / Multimodal SDK Skills** — 15 skills (LLM, ASR, TTS, VLM, video generation/understanding, web search/reader)
-5. **Testing, QA & Performance** — 23 skills (TDD, webapp testing, Playwright CLI, agent-browser, Chrome DevTools MCP, performance optimization)
-6. **Code Quality, Security & Architecture** — 12 skills (code review, security hardening, TrustSkill v3.1 security scanner, vulnerability scanner, clean-code, ponytail minimalism, debugging, lint-and-validate)
-7. **Planning, Workflow & Project Management** — 21 skills (spec-driven development, plan-writing, incremental implementation, git workflow, CI/CD, shipping, orchestrator-toolkit, loop-builder, subagents, background terminals, context engineering)
-8. **Documentation & Content Creation** — 15 skills (README/CLAUDE/AGENTS.md generation, blog writer, SEO content, content strategy, content analysis, **pptx**, **pptx-unified** (combo recipe: 5-stage pipeline + 20+ lessons + 12-layout catalog + 8 palettes + 6 typography pairings + validate/export scripts), **codex-ppt**, **cyber-ppt**, **pptx-generator**, **docx**, **docx-generation**, **minimax-docx** (.NET OpenXML SDK + 13 style-guide recipes), **kimi-docx** (Moonshot AI C# SDK + native Word charts + Morandi backgrounds + track-changes API), **xlsx**, pdf, **minimax-pdf** (token-based design-system PDF with 14 doc types), **kimi-pdf** (HTML+Paged.js + 11 cover styles + three-line tables + GB/T 7714/APA citations), **minimax-xlsx** (XML direct-edit pipeline), **kimi-xlsx** (KimiXlsx CLI with 6-command validation + PivotTables), cheat-sheet, storyboard manager, **pandoc-docx-template**, **translation-engine**, **qingyan-research** (deep web research → HTML report with Chart.js))
+5. **Testing, QA & Performance** — 26 skills (TDD, **tdd** (seam-based red-green), **diagnosing-bugs** (tight red feedback loop), **code-review** (two-axis Standards and Spec), webapp testing, Playwright CLI, agent-browser, Chrome DevTools MCP, performance optimization)
+6. **Code Quality, Security & Architecture** — 16 skills (code review, **codebase-design** (deep modules vocabulary), **improve-codebase-architecture** (HTML deepening report), **setup-ts-deep-modules** (dependency-cruiser boundaries), security hardening, TrustSkill v3.1 security scanner, vulnerability scanner, clean-code, ponytail minimalism, debugging, lint-and-validate)
+7. **Planning, Workflow & Project Management** — 29 skills (spec-driven development, **to-spec** (conversation synthesis), **to-tickets** (tracer-bullet blocking edges), **wayfinder** (decision-ticket map), **implement** (per-ticket tdd and code-review), **triage** (five-role state machine), **grill-with-docs** (stateful grilling with ADR capture), **grilling** (relentless interview primitive), **grill-me** (stateless grilling), plan-writing, incremental implementation, git workflow, CI/CD, shipping, orchestrator-toolkit, loop-builder, subagents, background terminals, context engineering)
+8. **Documentation & Content Creation** — 21 skills (README/CLAUDE/AGENTS.md generation, **writing-for-agents** (context pointers and progressive disclosure), **domain-modeling** (CONTEXT.md and ADR sharpening), **research** (cited primary-source capture), **handoff** (pointer-based session compaction), blog writer, SEO content, content strategy, content analysis, **pptx**, **pptx-unified** (combo recipe: 5-stage pipeline + 20+ lessons + 12-layout catalog + 8 palettes + 6 typography pairings + validate/export scripts), **codex-ppt**, **cyber-ppt**, **pptx-generator**, **docx**, **docx-generation**, **minimax-docx** (.NET OpenXML SDK + 13 style-guide recipes), **kimi-docx** (Moonshot AI C# SDK + native Word charts + Morandi backgrounds + track-changes API), **xlsx**, pdf, **minimax-pdf** (token-based design-system PDF with 14 doc types), **kimi-pdf** (HTML+Paged.js + 11 cover styles + three-line tables + GB/T 7714/APA citations), **minimax-xlsx** (XML direct-edit pipeline), **kimi-xlsx** (KimiXlsx CLI with 6-command validation + PivotTables), cheat-sheet, storyboard manager, **pandoc-docx-template**, **translation-engine**, **qingyan-research** (deep web research → HTML report with Chart.js))
 9. **Career, Learning & Personal Development** — 11 skills (resume builder, JD-resume tailor, interview prep, study buddy, quiz mastery, mindfulness, dream interpreter, **gaokao-collect-student-info** / **gaokao-fetch-volunteers** / **gaokao-recommend-majors** / **gaokao-recommend-schools** / **gaokao-generate-report** — 5-step Chinese college-entrance-exam志愿填报 pipeline)
 10. **DevOps, Infrastructure & External Integrations** — 9 skills (Cloudflare tunnel, multi-search-engine, finance/stock analysis, market research reports, AMiner academic search, **aminer-free-academic** (free-tier 7-API variant), AI news collectors, **kubernetes-env-setup** (hardened self-managed Kubernetes for agentic AI on Azure Linux), marketing-mode, skill-creator, skill-creator-zai, skill-finder-cn, **how-to-git-push-using-ssh-wrapper**, Microsoft Foundry, Sanity best-practices/migration/deploy, memory architect/architecture, mac-mlx local inference, tools-cli, system-prompt customization)
 
@@ -105,7 +105,7 @@ my-pi-agent/
 ├── assets/                    # Screenshots and images
 ├── extensions/                # 12 TypeScript extensions to the Pi agent loop
 ├── git/                       # Project-local gitignore patterns
-├── skills/                    # 198 skill packages (see skills/skills-catalog.md)
+├── skills/                    # 222 skill packages (see skills/skills-catalog.md)
 ├── themes/                    # github-dark-default.json, brutalist.json
 ├── AGENTS.md                  # Agent onboarding brief
 ├── APPEND_SYSTEM.md           # System-prompt append layer
