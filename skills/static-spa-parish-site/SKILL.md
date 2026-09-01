@@ -47,7 +47,7 @@ port_provenance: Singapore port of https://www.risenchrist.org.sg/ — Church of
 | Utilities / keyframes | **27 utility classes + 8 keyframes** (27 counts each `rise-in-d1..d4` delay class individually) + themed scrollbar + `@media print` reveal override | §4.3, §5.2, Quick Ref |
 | Hooks | **3** — `useScrolled`, `useScrollProgress`, `useScrollSpy` (round-7) | §6, §5.2, Quick Ref |
 | Utils | **4** — `cn`, `massDay`, `monogram`, `deepLinks` | §5.2, §20, Quick Ref |
-| Routes | **17 `Route` entries** (16 content paths + `*`), **7 alias paths in 5 groups**, **9 hash anchors** (3 on `/worship`, 6 on `/ministries` — sixth ministry id is `#language-communities`, **not** `#mandarin`) | §5.4, App B |
+| Routes | **17 `Route` entries** (16 content paths + `*`), **7 alias paths in 5 groups**, **9 hash anchors** (3 on `/worship`, 6 on `/ministries` — sixth ministry id is `#language-communities`, **not** the legacy `mandarin` anchor) | §5.4, App B |
 | CSP `img-src` | **`'self' data: blob:` only** (round-6 tightened; wikimedia/pexels legacy hosts removed — all images local). `frame-src https://www.google.com` (maps embed). `script-src` allows inline (singlefile) + `static.cloudflareinsights.com` | §3.2, §11, Quick Ref |
 | `src.orig/` policy | **PRUNED** round-12 (2026-08-31): was the archived St Mary port, discovered still tracked (64 files — F-9: `.gitignore` does not untrack), removed from tree + index; `repo-hygiene` guard now fails if any `src.orig` path re-enters. Lineage history lives in Appendices D/F + git history only | §2, §3.2, §11, §13, ADR-6 |
 | `skills/` policy | Vendored reference content — pruned round 3 (2026-08-30, full tree at `c774ed9`), **re-added in full in `0be0fe8` (2026-08-31)**; tooling (eslint/tsconfig/vite watch) still excludes it — never import or lint it | §2, §3.2, §13, §14 |
@@ -1571,7 +1571,7 @@ Every finding above is an instance of one failure mode: **volatile facts restate
 | 60-sec agent cheat sheet | `AGENTS.md` |
 | Deep workflow + parish fidelity | `CLAUDE.md` |
 | Intent lineage | `docs/prompts.md` (if present) |
-| **Volatile facts (versions, counts, policies)** | **§0 of this file — the single source; everything else defers to it** |
+| **Volatile facts (versions, counts, policies) — 35/202 + 51 E2E** | **§0 of this file — the single source; everything else defers to it** |
 | Tokens (25 colors + 2 shadows, §0) + utilities (27 + 8 keyframes, §4.3) | `src/index.css` (`--font-sans` alias `--font-body`; utilities incl. `gold-rule`/`gold-rule-left`/`hero-ken-burns`/`rise-in`+`rise-in-d1..d4`/`menu-in`/`drawer-in`/`drawer-item-in`/`page-in`/`dot-pulse`/`card-lift`/`card-tint`/`link-underline`/`reveal`+`reveal-visible`/`skip-link`/`divider-weave`+`divider-weave-thin`/`bg-grain`+`bg-adobe-texture`+`bg-gold-bloom`/`mask-fade-b`/`img-zoom`) |
 | Route table + aliases + anchors | `src/App.tsx` — 17 Route entries (16 content paths + `*`), 7 alias paths in 5 groups (§5.4), 9 hash anchors (3 on `/worship`, 6 on `/ministries` — sixth is `#language-communities`) + path-style deep-link rewrite (`utils/deepLinks.ts` → `main.tsx` pre-mount) |
 | Nav single-source | `src/data/nav.ts` (`primaryNav` 6 + `footerNav` 10, with `description` on children) |
