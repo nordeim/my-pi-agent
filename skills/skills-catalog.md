@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **223 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **224 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -55,6 +55,7 @@
 | **sanity-migration** | Plans, implements, and reviews migrations from other CMSes and content systems into Sanity. Use when migrating or replatforming to Sanity from AEM, Adobe Experience Manager, Contentful, Strapi, Webflow, WordPress, Payload, Drupal, Markdown/MDX/frontmatter files, WXR/XML exports, CMS APIs, database dumps, static HTML, or when designing extraction, transformation, Portable Text conversion, asset migration, redirects, validation, and cutover workflows. |
 | **scaffold-ui** | Generates an anti-generic React component with brutalist styling and strict DOM hygiene. |
 | **solidstart** | SolidStart 1 (SolidJS 1.9+, released 2024) full-stack TypeScript framework workflow skill — signals-based reactivity without a virtual DOM. Covers the fine-grained reactivity mental model (createSignal returns a getter+setter — calling the getter tracks the dependency, calling the setter triggers ONLY the effects that read it; no component re-renders, no virtual DOM diffing, no fiber tree — the opposite of React's model), the SolidJS primitives (createSignal, createMemo, createEffect, createResource for async, createStore for nested objects, on for explicit dependencies, batch for grouping ... |
+| **static-spa-parish-site** | Complete engineering reference for static SPA parish/church/nonprofit/community brochure sites — React 19 + Vite 7 + Tailwind CSS v4 CSS-first @theme + TypeScript + HashRouter + vite-plugin-singlefile (single dist/index.html for GH Pages/S3, no SSR/CMS). Covers design system, component architecture, file-backed typed content, routing alias/anchor contracts, WCAG AAA, and pre-ship gates. Use when building, extending, debugging, onboarding, cloning, replicating, re-porting this parish-site family or scaffolding any static content-driven marketing/brochure/landing site template. |
 | **super-frontend-design** | Master frontend UI/UX design and development skill combining the top 10 validated skills. Covers anti-generic strategy, Next.js 16 + React 19 + Tailwind v4 CSS-first @theme tech stack, design systems, component architecture, App Router Server Components, Vercel-grade performance, WCAG AAA accessibility, visual storytelling, and end-to-end quality assurance for production-grade web experiences. |
 | **svelte-5-sveltekit** | Svelte 5 + SvelteKit 2 full-stack TypeScript workflow skill. Covers the runes reactivity model ($state, $derived, $effect, $props, $bindable) which is fundamentally different from React hooks, file-based routing with +page.svelte / +layout.svelte / +page.server.ts / +page.ts, form actions as the idiomatic mutation pattern (progressive enhancement), load functions (server vs universal), hooks.server.ts for request-level interception, $env modules for typed environment variables (static vs dynamic, private vs public), adapters for deployment targets (auto / node / static / cloudflare / vercel... |
 | **tailwind-patterns** | Tailwind CSS v4 principles. CSS-first configuration, container queries, modern patterns, design token architecture. |
@@ -321,7 +322,7 @@
 
 | # | Category | Count |
 |---|----------|-------|
-| 1 | Frontend Development & UI Engineering | 56 |
+| 1 | Frontend Development & UI Engineering | 57 |
 | 2 | Design Artifacts & Visual Creation | 18 |
 | 3 | Full-Stack & Backend Development | 22 |
 | 4 | AI / ML / Multimodal SDK Skills | 15 |
@@ -331,7 +332,7 @@
 | 8 | Documentation & Content Creation | 21 |
 | 9 | Career, Learning & Personal Development | 11 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **223** |
+| | **Total** | **224** |
 
 ---
 
