@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **225 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **233 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -203,11 +203,15 @@
 | **deprecation-and-migration** | Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when deciding whether to maintain or sunset existing code. |
 | **distill-codebase-skill** | Reference template for distilling codebase knowledge into a comprehensive engineering skill document. Use after completing a major project update, security remediation, or architectural overhaul to create a reusable SKILL.md that captures lessons learned, anti-patterns, debugging guides, and best practices for future agents. |
 | **encrypt-decrypt** | Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults. Use when the user asks to encrypt/decrypt files or folders, password-protect files, or decrypt `.enc` files. |
+| **git-guardrails-claude-code** | Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code. |
 | **improve-codebase-architecture** | Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. Informed by CONTEXT.md domain language and ADRs, uses the deep module vocabulary to surface shallow modules and propose deepening refactors. |
 | **incremental-implementation** | Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step. |
 | **memory-architect** | Bootstrap, audit, and recover the OpenClaw 3-layer memory architecture (workspace files, LCM database, QMD semantic index). Use when: (1) Setting up memory on a new OpenClaw instance, (2) Auditing existing memory health, (3) Recovering from corruption or system crash, (4) Migrating or restructuring memory layout, (5) User asks about memory architecture setup or health. Triggers on phrases like 'bootstrap memory', 'audit memory', 'memory architecture', 'memory setup', 'LCM configuration', 'QMD setup', 'memory recovery', 'check memory health'. |
 | **memory-architecture** | OpenClaw memory system architecture, setup guide, and troubleshooting reference. Use when configuring memory on a new machine, diagnosing memory issues after updates, or understanding how workspace files, LCM, and QMD work together. |
+| **migrate-to-shoehorn** | Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data. |
 | **plan-writing** | Structured task planning with clear breakdowns, dependencies, and verification criteria. Use when implementing features, refactoring, or any multi-step work. |
+| **scaffold-exercises** | Create exercise directory structures with sections, problems, solutions, and explainers that pass linting. Use when user wants to scaffold exercises, create exercise stubs, or set up a new course section. |
+| **setup-pre-commit** | Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/type checking/testing. |
 | **setup-ts-deep-modules** | Wire dependency-cruiser into a TypeScript repo so each package is a deep module, with implementation hidden in subfolders and reachable only through its entry-point files. Enforces four rules: entry-point boundary, intra-package freedom, tests through entry points, and no cycles. |
 | **vulnerability-scanner** | Advanced vulnerability analysis principles. OWASP 2025, Supply Chain Security, attack surface mapping, risk prioritization. |
 
@@ -219,6 +223,7 @@
 
 | Skill | Description |
 |-------|-------------|
+| **ask-matt** | Ask which skill or flow fits your situation. A router over the skills in this repo. Use when you are unsure which skill to use, when you want a recommendation, or when you need to discover the right workflow for your task. |
 | **background-terminals** | Run and manage long-lived shell commands in background terminals. Use for dev servers, watchers, streaming builds, and other commands that should keep running while the agent continues working. |
 | **blog-writer** | This skill should be used when writing blog posts, articles, or long-form content in the writer's distinctive writing style. It produces authentic, opinionated content that matches the writer's voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer's perspective on AI, productivity, sales, marketing, or technology topics. |
 | **documentation-and-adrs** | Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase. |
@@ -242,11 +247,13 @@
 | **spec-driven-development** | Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea. |
 | **storyboard-manager** | Assist writers with story planning, character development, plot structuring, chapter writing, timeline tracking, and consistency checking. Use this skill when working with creative writing projects organized in folders containing characters, chapters, story planning documents, and summaries. Trigger this skill for tasks like "Help me develop this character," "Write the next chapter," "Check consistency across my story," or "Track the timeline of events." |
 | **subagents** | invoke this skill when the user asks you to use subagents |
+| **to-questionnaire** | Turn a decision you can't fully answer into a questionnaire for someone else to fill in. Use when you need to gather input, clarify requirements, or delegate a decision to a stakeholder. |
 | **to-spec** | Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you already discussed. Applies the ready-for-agent triage label. |
 | **to-tickets** | Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker. Edges become text in a file locally or native blocking links on a real tracker. |
 | **translation-engine** | Deterministic Forensic Translation Engine v10.1 — bilingual (Chinese ↔ English) translation with L4 (Forensic Grade) precision and L3 (Strict Grade) professional publishing. Covers the 6-phase scratchpad protocol (IU definition, domain pack selection, draft-lock via successive versioning, audit, targeted repair, output), 5 pluggable domain packs (Engineering with RFC 2119/8174 markers, Legal with forensic modality markers, Medical with clinical modality markers, Financial with securities-disclosure markers, Academic with scientific publishing collocations), anti-enhancement protocol, code-f... |
 | **triage** | Move issues and external PRs through a state machine of triage roles, categorise, verify, grill if needed, and write agent-ready briefs. Every tracker comment starts with the AI-generated disclaimer. |
 | **verification-and-review-protocol** | Governs the protocol for receiving feedback, requesting subagent reviews, and enforcing verification gates. Contains the 'Iron Law' preventing false completion claims. Use when receiving PR feedback, finishing tasks, or before claiming work is 'done'. |
+| **wait-what** | "Stop. That last message did not land: re-pitch it." Use when the user's previous message was unclear, incomplete, or needs clarification before proceeding. Triggers on "wait what", confusion, or when the response missed the mark. |
 | **wayfinder** | Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear. Planning by default, not doing. |
 | **writing-plans** | Use when you have a spec or requirements for a multi-step task, before touching code |
 
@@ -298,6 +305,7 @@
 | **idea-refine** | Refines ideas iteratively. Refine ideas through structured divergent and convergent thinking. Use "idea-refine" or "ideate" to trigger. |
 | **jd-resume-tailor** | 给定一份 JD 和一份现有简历，做"JD 拆解 + 简历定向改写"。拆 JD 抽出硬技能、软技能、加分项；对照简历做 gap 分析；产出针对该岗位重写后的简历，突出相关经验、补齐关键词缺口、并保留候选人真实经历不编造。当用户说"针对这个岗位 / 这家公司改简历""帮我对一下这个 JD""我想投这个职位你看怎么改""把这份简历针对 X 公司优化""做一份定向版简历"，或同时给出 JD 文本 + 简历文件时，必须触发本 skill。**请勿用本 skill 做"从零写简历"**——那是 resume-builder 的事。 |
 | **quiz-html** | 把题目数组生成一个**可独立运行的网页练习页**（HTML 文件）。当用户完成 quiz-mastery 的「从资料出题」或「从文件提取题目」流程后，应主动询问是否需要"在网页里练习"，确认后调用本 skill 把题目注入模板，生成 HTML 给用户。也支持用户直接说"把这些题做成网页/HTML/练习页"时触发。**不处理**：出题（→ quiz-mastery）、评分（→ quiz-mastery）、长期复习计划（→ study-buddy）。 |
+| **teach** | Teach the user a new skill or concept, within this workspace. Use when the user wants to learn something new, when you need to explain a concept, or when you are onboarding someone to a skill. The skill adapts to the user's pace and prior knowledge. |
 
 ---
 
@@ -328,12 +336,12 @@
 | 3 | Full-Stack & Backend Development | 22 |
 | 4 | AI / ML / Multimodal SDK Skills | 15 |
 | 5 | Testing, QA & Performance | 26 |
-| 6 | Code Quality, Security & Architecture | 16 |
-| 7 | Planning, Workflow & Project Management | 30 |
+| 6 | Code Quality, Security & Architecture | 20 |
+| 7 | Planning, Workflow & Project Management | 33 |
 | 8 | Documentation & Content Creation | 20 |
-| 9 | Career, Learning & Personal Development | 11 |
+| 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **225** |
+| | **Total** | **233** |
 
 ---
 

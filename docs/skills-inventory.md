@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of every skill package under `skills/`. **Synced with `skills/skills-catalog.md` (2026-09-08) — catalog is source of truth.**
-> **225 leaf skills** scanned (251 FS entries; 4 container directories excluded — `agent-orchestration`, `docs`, `ops-and-setup`, `research-and-web`, `skill-authoring`, `thinking-and-docs`), containing a total of **14054 files** and **48 nested sub-skills/templates**.
+> **233 leaf skills** scanned (251 FS entries; 6 grouping directories excluded — `agent-orchestration`, `docs`, `ops-and-setup`, `research-and-web`, `skill-authoring`, `thinking-and-docs`), containing a total of **14054 files** and **48 nested sub-skills/templates**. **239 total inventory entries** (233 leaf +6 grouping) — leaf count matches `skills/skills-catalog.md` (233).
 
 ---
 
@@ -29,10 +29,10 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 3. **Full-Stack & Backend Development** — 22 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 15 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
 5. **Testing, QA & Performance** — 26 skills — [jump](#5-testing-qa--performance)
-6. **Code Quality, Security & Architecture** — 16 skills — [jump](#6-code-quality-security--architecture)
-7. **Planning, Workflow & Project Management** — 30 skills — [jump](#7-planning-workflow--project-management)
+6. **Code Quality, Security & Architecture** — 20 skills — [jump](#6-code-quality-security--architecture)
+7. **Planning, Workflow & Project Management** — 33 skills — [jump](#7-planning-workflow--project-management)
 8. **Documentation & Content Creation** — 20 skills — [jump](#8-documentation--content-creation)
-9. **Career, Learning & Personal Development** — 11 skills — [jump](#9-career-learning--personal-development)
+9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
 10. **DevOps, Infrastructure & External Integrations** — 9 skills — [jump](#10-devops-infrastructure--external-integrations)
 
 ---
@@ -334,6 +334,16 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Turborepo monorepo, Next.js 16.2, React 19, Tailwind v4.3, tRPC v11, Drizzle ORM 0.45, Better Auth 1.6.23, Stripe 22.3 (Dahlia), Trigger.dev v4, React Email 6.6, Resend, Sanity CMS v6. 651 tests, 11 ADRs, 93 lessons learned across 13 build phases.
+### `nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc`
+
+- **Path**: `skills/nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc`
+- **SKILL.md**: [`skills/nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc/SKILL.md`](skills/nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc/SKILL.md)
+- **Title**: Nave & Spire — SKILL.md
+- **Version**: 1.2.0
+- **Files**: 1
+- **Structure**: flat
+
+> Production-grade Next.js 16 + React 19 + Tailwind CSS v4 + Drizzle ORM + PostgreSQL 17 reference with App Router RSC (force-dynamic) — 3-layer architecture (App/RSC pages + Client islands + Domain/DB). Covers CSS-first @theme design system, editorial motion + a11y floor, file-backed typed seeds → idempotent ensureSeeded() → Drizzle pgTable (6-table pattern, Pool globalThis singleton, parallel queries + in-memory joins), manual validation, per-IP rate limiting, security headers/CSP, and hybrid CI + Vitest + live-DB verification. Use when building any content-driven, editorial, audit-journal, or data-projection app on Next.js 16 with Postgres/Drizzle, needing RSC production patterns, DB seeding lifecycle, or Tailwind v4/CSS-first hardening beyond a minimal starter.
 ### `nextjs16-react19-tailwind4-full-stack`
 
 - **Path**: `skills/nextjs16-react19-tailwind4-full-stack`
@@ -481,6 +491,16 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > SolidStart 1 (SolidJS 1.9+, released 2024) full-stack TypeScript framework workflow skill — signals-based reactivity without a virtual DOM. Covers the fine-grained reactivity mental model (createSignal returns a getter+setter — calling the getter tracks the dependency, calling the setter triggers ONLY the effects that read it; no component re-renders, no virtual DOM diffing, no fiber tree — the opposite of React's model), the SolidJS primitives (createSignal, createMemo, createEffect, createResource for async, createStore for nested objects, on for explicit dependencies, batch for grouping ...
+### `static-spa-parish-site`
+
+- **Path**: `skills/static-spa-parish-site`
+- **SKILL.md**: [`skills/static-spa-parish-site/SKILL.md`](skills/static-spa-parish-site/SKILL.md)
+- **Title**: Parish Site Engineering Skill — Unified v3 (Church of the Risen Christ, Toa Payoh — canonical instance)
+- **Version**: 3.0.0
+- **Files**: 15
+- **Structure**: flat
+
+> Complete engineering reference for static SPA parish/church/nonprofit/community brochure sites — React 19 + Vite 7 + Tailwind CSS v4 CSS-first @theme + TypeScript + HashRouter + vite-plugin-singlefile (single dist/index.html for GH Pages/S3, no SSR/CMS). Covers design system, component architecture, file-backed typed content, routing alias/anchor contracts, WCAG AAA, and pre-ship gates. Use when building, extending, debugging, onboarding, cloning, replicating, re-porting this parish-site family or scaffolding any static content-driven marketing/brochure/landing site template.
 ### `super-frontend-design`
 
 - **Path**: `skills/super-frontend-design`
@@ -1437,7 +1457,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 6. Code Quality, Security & Architecture
 
 > Skills for code review, security hardening, architecture decisions, and refactoring.
-> **16 skills** in this category.
+> **20 skills** in this category.
 
 ### `anti-pua`
 
@@ -1524,6 +1544,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults. Use when the user asks to encrypt/decrypt files or folders, password-protect files, or decrypt `.enc` files.
+### `git-guardrails-claude-code`
+
+- **Path**: `skills/git-guardrails-claude-code`
+- **SKILL.md**: [`skills/git-guardrails-claude-code/SKILL.md`](skills/git-guardrails-claude-code/SKILL.md)
+- **Title**: Setup Git Guardrails
+- **Files**: 3
+- **Structure**: `scripts/`
+
+> Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code.
 ### `improve-codebase-architecture`
 
 - **Path**: `skills/improve-codebase-architecture`
@@ -1562,6 +1591,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > OpenClaw memory system architecture, setup guide, and troubleshooting reference. Use when configuring memory on a new machine, diagnosing memory issues after updates, or understanding how workspace files, LCM, and QMD work together.
+### `migrate-to-shoehorn`
+
+- **Path**: `skills/migrate-to-shoehorn`
+- **SKILL.md**: [`skills/migrate-to-shoehorn/SKILL.md`](skills/migrate-to-shoehorn/SKILL.md)
+- **Title**: Migrate to Shoehorn
+- **Files**: 2
+- **Structure**: flat
+
+> Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data.
 ### `plan-writing`
 
 - **Path**: `skills/plan-writing`
@@ -1571,6 +1609,24 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Structured task planning with clear breakdowns, dependencies, and verification criteria. Use when implementing features, refactoring, or any multi-step work.
+### `scaffold-exercises`
+
+- **Path**: `skills/scaffold-exercises`
+- **SKILL.md**: [`skills/scaffold-exercises/SKILL.md`](skills/scaffold-exercises/SKILL.md)
+- **Title**: Scaffold Exercises
+- **Files**: 2
+- **Structure**: flat
+
+> Create exercise directory structures with sections, problems, solutions, and explainers that pass linting. Use when user wants to scaffold exercises, create exercise stubs, or set up a new course section.
+### `setup-pre-commit`
+
+- **Path**: `skills/setup-pre-commit`
+- **SKILL.md**: [`skills/setup-pre-commit/SKILL.md`](skills/setup-pre-commit/SKILL.md)
+- **Title**: Setup Pre-Commit Hooks
+- **Files**: 2
+- **Structure**: flat
+
+> Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/type checking/testing.
 ### `setup-ts-deep-modules`
 
 - **Path**: `skills/setup-ts-deep-modules`
@@ -1595,7 +1651,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 7. Planning, Workflow & Project Management
 
 > Skills for planning work, managing projects, orchestrating sub-agents, and shipping.
-> **30 skills** in this category.
+> **33 skills** in this category.
 
 ### `agent-orchestration`
 
@@ -1619,6 +1675,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | `gpt-review` | `skills/agent-orchestration/gpt-review` | Launch a GPT 5.6 Sol Max subagent to do a deep, neutral senior-developer review of the current work and report its findings back verbatim. Use when the user says "/gpt-review", "gpt review", or asks for GPT to review the code. Differentiator: reviewer model is GPT 5.6 Sol Max — for a Fable reviewer use fable-review. |
 | `launch-subagent` | `skills/agent-orchestration/launch-subagent` | Read this BEFORE launching any subagent (Task tool, background agents, parallel agents, best-of-N, delegating work to another agent). Hard model rules for subagents plus consensus principles for using them well. Triggers: launch a subagent, spawn agents, run agents in parallel, delegate to a subagent. |
 | `run-deep-swe` | `skills/agent-orchestration/run-deep-swe` | Score any AI model on the DeepSWE coding-agent benchmark via the OpenRouter API. Use when the user wants an independent, reproducible coding-agent eval — "run DeepSWE", "benchmark this model on DeepSWE", "score model X on the coding benchmark", "test a model via OpenRouter on DeepSWE", or to verify vendor-reported coding scores. Covers setup, the OpenRouter wiring for mini-swe-agent, single-task / subset / full 113-task runs, and leaderboard submission. |
+### `ask-matt`
+
+- **Path**: `skills/ask-matt`
+- **SKILL.md**: [`skills/ask-matt/SKILL.md`](skills/ask-matt/SKILL.md)
+- **Title**: Ask Matt
+- **Files**: 3
+- **Structure**: flat
+
+> Ask which skill or flow fits your situation. A router over the skills in this repo.
 ### `background-terminals`
 
 - **Path**: `skills/background-terminals`
@@ -1842,6 +1907,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | `save-idea` | `skills/thinking-and-docs/save-idea` | Quickly capture a content idea into ~/code/content from any repo or chat. Video ideas go to VIDEO-IDEAS.md; smaller podcast topics, guest ideas, questions, and AI observations go to TOPICS.md. Every entry gets a source line referencing the chat and repo it came from. Use when the user says "/save-idea", "save this idea", "video idea", "add a topic", "write this down for a video/podcast". Differentiator: appends to the user''s content backlog — not a reminder, task, or general note tool. |
 | `short` | `skills/thinking-and-docs/short` | Manually-invoked skill that forces the agent to compress its current answer — strip filler, simplify wording, and cut length while keeping the substance. Use when the user says "short", "shorter", "simpler", "too long", "tl;dr", or wants a more concise version of the previous response. |
 | `teach` | `skills/thinking-and-docs/teach` | Teach the user a new skill or concept, within this workspace. |
+### `to-questionnaire`
+
+- **Path**: `skills/to-questionnaire`
+- **SKILL.md**: [`skills/to-questionnaire/SKILL.md`](skills/to-questionnaire/SKILL.md)
+- **Title**: <Questionnaire title>
+- **Files**: 2
+- **Structure**: flat
+
+> Turn a decision you can't fully answer into a questionnaire for someone else to fill in.
 ### `to-spec`
 
 - **Path**: `skills/to-spec`
@@ -1887,6 +1961,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Governs the protocol for receiving feedback, requesting subagent reviews, and enforcing verification gates. Contains the 'Iron Law' preventing false completion claims. Use when receiving PR feedback, finishing tasks, or before claiming work is 'done'.
+### `wait-what`
+
+- **Path**: `skills/wait-what`
+- **SKILL.md**: [`skills/wait-what/SKILL.md`](skills/wait-what/SKILL.md)
+- **Title**: Wait What
+- **Files**: 2
+- **Structure**: flat
+
+> "Stop. That last message did not land: re-pitch it."
 ### `wayfinder`
 
 - **Path**: `skills/wayfinder`
@@ -2147,7 +2230,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 9. Career, Learning & Personal Development
 
 > Skills for resumes, interviews, study aids, mindfulness, and personal growth.
-> **11 skills** in this category.
+> **12 skills** in this category.
 
 ### `dream-interpreter`
 
@@ -2261,6 +2344,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ---
 
+### `teach`
+
+- **Path**: `skills/teach`
+- **SKILL.md**: [`skills/teach/SKILL.md`](skills/teach/SKILL.md)
+- **Title**: Teach
+- **Files**: 6
+- **Structure**: flat
+
+> Teach the user a new skill or concept, within this workspace.
 ## 10. DevOps, Infrastructure & External Integrations
 
 > Skills for cloud, deployment, external services, search, research, and tooling.
