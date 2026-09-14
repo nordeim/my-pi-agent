@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of every skill package under `skills/`. **Synced with `skills/skills-catalog.md` (2026-09-08) — catalog is source of truth.**
-> **233 leaf skills** scanned (251 FS entries; 6 grouping directories excluded — `agent-orchestration`, `docs`, `ops-and-setup`, `research-and-web`, `skill-authoring`, `thinking-and-docs`), containing a total of **14054 files** and **48 nested sub-skills/templates**. **239 total inventory entries** (233 leaf +6 grouping) — leaf count matches `skills/skills-catalog.md` (233).
+> **234 leaf skills** scanned (252 FS entries; 6 grouping directories excluded — `agent-orchestration`, `docs`, `ops-and-setup`, `research-and-web`, `skill-authoring`, `thinking-and-docs`), containing a total of **14056 files** and **48 nested sub-skills/templates**. **240 total inventory entries** (234 leaf +6 grouping) — leaf count matches `skills/skills-catalog.md` (234).
 
 ---
 
@@ -33,7 +33,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 7. **Planning, Workflow & Project Management** — 33 skills — [jump](#7-planning-workflow--project-management)
 8. **Documentation & Content Creation** — 20 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
-10. **DevOps, Infrastructure & External Integrations** — 9 skills — [jump](#10-devops-infrastructure--external-integrations)
+10. **DevOps, Infrastructure & External Integrations** — 10 skills — [jump](#10-devops-infrastructure--external-integrations)
 
 ---
 
@@ -2356,7 +2356,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 10. DevOps, Infrastructure & External Integrations
 
 > Skills for cloud, deployment, external services, search, research, and tooling.
-> **9 skills** in this category.
+> **10 skills** in this category.
 
 ### `how-to-git-push-using-ssh-wrapper`
 
@@ -2439,6 +2439,16 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | `research-prompt` | `skills/research-and-web/research-prompt` | Write a single-paragraph Deep Research prompt to hand to a human researcher (or a deep-research AI). Use when the user wants a research brief, a "deep research prompt", a one-paragraph task for a researcher, or asks "what should our researcher look for". Produces ONE tight paragraph with full context, numbered sub-questions, and per-finding output format. |
 | `youtube-transcript` | `skills/research-and-web/youtube-transcript` | Use whenever the user needs the transcript of a YouTube video — fetching, extracting, downloading, or pulling captions/subtitles/transcript text from a YouTube URL. Triggers on "get the transcript", "transcript of this video", "pull the captions", "download subtitles", "what does this YouTube video say". Primary path is DeepAPI (go to deepapi.co to get an API key); yt-dlp is the local fallback. |
 
+### `rootless-postgresql`
+
+- **Path**: `skills/rootless-postgresql`
+- **SKILL.md**: [`skills/rootless-postgresql/SKILL.md`](skills/rootless-postgresql/SKILL.md)
+- **Title**: Rootless PostgreSQL — User-Space Install & Run (Debian, No Root)
+- **Files**: 2
+- **Structure**: flat
+
+> Install, initialize, and run a PostgreSQL server and client locally without root on Debian (trixie/sid), for a non-root user with a writable `/home/project` directory. Use when asked to install or start PostgreSQL without sudo, without systemd, or when `apt install` fails with permission errors. Resolves the major version dynamically, extracts `.deb`s into a user-owned prefix, and provides idempotent `start`/`stop`/`status` scripts.
+
 ### `skill-finder-cn`
 
 - **Path**: `skills/skill-finder-cn`
@@ -2505,11 +2515,11 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ## Summary Statistics
 
-- **Total top-level skill folders**: 229
-- **Folders with a top-level `SKILL.md`**: 222
+- **Total top-level skill folders**: 230
+- **Folders with a top-level `SKILL.md`**: 223
 - **Folders without a top-level `SKILL.md` (grouping folders)**: 7
 - **Total nested sub-skills / templates**: 48
-- **Total files across all skill folders**: 13886
+- **Total files across all skill folders**: 13888
 - **Skills with `scripts/`**: 60
 - **Skills with `references/`**: 49
 - **Skills with `scenes/`**: 2
@@ -2530,5 +2540,5 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | 7 | Planning, Workflow & Project Management | 23 |
 | 8 | Documentation & Content Creation | 19 |
 | 9 | Career, Learning & Personal Development | 11 |
-| 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **208** |
+| 10 | DevOps, Infrastructure & External Integrations | 12 |
+| | **Total** | **209** |

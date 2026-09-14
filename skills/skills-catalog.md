@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **233 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **234 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -318,6 +318,7 @@
 | **how-to-git-push-using-ssh-wrapper** | Push commits to a GitHub remote via a Paramiko-based SSH wrapper when OpenSSH (`ssh`) is not installed. Use this skill when `git push` fails with "git@github.com: Permission denied (publickey)" or when the environment lacks `openssh-client` (minimal containers, distroless images, restricted sandboxes, or Python-only environments). Prerequisites: Python 3.10+, a GitHub SSH private key file, and the `paramiko` Python package. Triggers: "git push", "push to github", "ssh wrapper", "paramiko git", "no openssh", "GIT_SSH_COMMAND", "permission denied publickey", "git push without ssh". |
 | **luxeverse-architect** | LuxeVerse Architect Skill Comprehensive Architectural & Execution Framework for Cinematic, Production-Grade, Anti-Generic Web Platforms |
 | **multi-search-engine** | Multi search engine integration with 8 domestic (CN) search engines. Supports advanced search operators, time filters, site search, and WeChat article search. No API keys required. |
+| **rootless-postgresql** | Install, initialize, and run a PostgreSQL server and client locally without root on Debian (trixie/sid), for a non-root user with a writable `/home/project` directory. Use when asked to install or start PostgreSQL without sudo, without systemd, or when `apt install` fails with permission errors. Resolves the major version dynamically, extracts `.deb`s into a user-owned prefix, and provides idempotent `start`/`stop`/`status` scripts. |
 | **skill-finder-cn** | Skill 查找器 \| Skill Finder. 帮助发现和安装 ClawHub Skills \| Discover and install ClawHub Skills. 回答'有什么技能可以X'、'找一个技能' \| Answers 'what skill can X', 'find a skill'. 触发词：找 skill、find skill、搜索 skill. |
 | **task-review** | 当用户指令为高复杂度任务时触发，用于将刚完成的任务路径保存为可复用技能，生成相关的SKILL.md文档。 |
 | **template-skill** | Replace with description of the skill and when Claude should use it. |
@@ -340,8 +341,8 @@
 | 7 | Planning, Workflow & Project Management | 33 |
 | 8 | Documentation & Content Creation | 20 |
 | 9 | Career, Learning & Personal Development | 12 |
-| 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **233** |
+| 10 | DevOps, Infrastructure & External Integrations | 10 |
+| | **Total** | **234** |
 
 ---
 
