@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
-> Auto-generated comprehensive inventory of every skill package under `skills/`. **Synced with `skills/skills-catalog.md` (2026-09-08) — catalog is source of truth.**
-> **234 leaf skills** scanned (252 FS entries; 6 grouping directories excluded — `agent-orchestration`, `docs`, `ops-and-setup`, `research-and-web`, `skill-authoring`, `thinking-and-docs`), containing a total of **14056 files** and **48 nested sub-skills/templates**. **240 total inventory entries** (234 leaf +6 grouping) — leaf count matches `skills/skills-catalog.md` (234).
+> Auto-generated comprehensive inventory of every skill package under `skills/`. **Synced with `skills/skills-catalog.md` (2026-09-15) — catalog is source of truth.**
+> **236 leaf skills** scanned (254 FS entries; 6 grouping directories excluded — `agent-orchestration`, `docs`, `ops-and-setup`, `research-and-web`, `skill-authoring`, `thinking-and-docs`), containing a total of **14058 files** and **48 nested sub-skills/templates**. **242 total inventory entries** (236 leaf +6 grouping) — leaf count matches `skills/skills-catalog.md` (236).
 
 ---
 
@@ -24,7 +24,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ## Category Index
 
-1. **Frontend Development & UI Engineering** — 58 skills — [jump](#1-frontend-development--ui-engineering)
+1. **Frontend Development & UI Engineering** — 60 skills — [jump](#1-frontend-development--ui-engineering)
 2. **Design Artifacts & Visual Creation** — 18 skills — [jump](#2-design-artifacts--visual-creation)
 3. **Full-Stack & Backend Development** — 22 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 15 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
@@ -40,7 +40,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 1. Frontend Development & UI Engineering
 
 > Skills for building, styling, and shipping production-grade web interfaces.
-> **58 skills** in this category.
+> **60 skills** in this category.
 
 ### `agent-browser`
 
@@ -151,6 +151,16 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Route design-related HTML artifact tasks to the right artifact skill, reference, design system generation, or export skill.
+### `e-commerce-nextjs16-monorepo`
+
+- **Path**: `skills/e-commerce-nextjs16-monorepo`
+- **SKILL.md**: [`skills/e-commerce-nextjs16-monorepo/SKILL.md`](skills/e-commerce-nextjs16-monorepo/SKILL.md)
+- **Title**: Scandi Haven — Master Engineering Skill
+- **Version**: 1.0.0
+- **Files**: 1
+- **Structure**: flat
+
+> Production-grade reference for building DTC e-commerce and storefront platforms on Next.js 16 + React 19 + Tailwind CSS v4 (CSS-first @theme) + Drizzle ORM + PostgreSQL 17 in a pnpm + Turborepo monorepo with TypeScript strict. Covers App Router RSC/Server Actions, proxy.ts, Better Auth with RBAC, Stripe SAQ-A payments and webhooks, Zod validation, Zustand client islands, shadcn/Radix UI, and end-to-end commerce engine (catalog, cart, pricing, promotions, inventory, orders, shipping, tax, search FTS, jobs). Includes reusable patterns for monorepo layering (transpilePackages), security hardening, WCAG AAA, editorial design tokens, and operational workflows. Applicable to any full-stack TypeScript e-commerce, marketplace, booking, or content-driven SaaS using this stack.
 ### `finance`
 
 - **Path**: `skills/finance`
@@ -265,6 +275,16 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Laravel 12 (PHP 8.3+) full-stack workflow skill. Covers the streamlined 11+/12 app structure (no Kernel.php, bootstrap/app.php config), Eloquent ORM with factories/seeders, Artisan CLI, Blade + Livewire + Inertia frontend options, Sanctum API tokens, Breeze/Jetstream auth scaffolding, Queues with Redis/database, Pest testing, Vite asset build, Filament admin, Forge/Vapor deployment. Use when building any PHP web application, API, or console workload on Laravel 12 — especially when the task involves migrations, Eloquent queries, queued jobs, or auth flows where idiomatic Laravel differs from...
+### `nextjs-postgresql-single-app`
+
+- **Path**: `skills/nextjs-postgresql-single-app`
+- **SKILL.md**: [`skills/nextjs-postgresql-single-app/SKILL.md`](skills/nextjs-postgresql-single-app/SKILL.md)
+- **Title**: home-financing (ModFii) — Production Web App Skill
+- **Version**: 1.8.0
+- **Files**: 1
+- **Structure**: flat
+
+> Production-grade reference for building content-driven marketing sites and transactional funnel apps on Next.js 16 + React 19 + Tailwind CSS v4 (CSS-first @theme) + Drizzle ORM + PostgreSQL 17 in a single-app (npm, no monorepo) with TypeScript strict. Covers App Router RSC (force-dynamic), file corpus → catalog → idempotent ensureSeeded() projection → Pool singleton (globalThis), Drizzle pgTable migrations, 43 static/dynamic pages, lead-capture funnel (validate → match → persist), rate limiting, health/sitemap/redirects, editorial design tokens, and WCAG AAA. Includes reusable patterns for single-Pool persistence, file-backed seeding, content ingestion, and pre-ship gates (lint/typecheck/test/build/e2e). Applicable to any full-stack TypeScript marketing, funnel, lead-gen, or content-driven SaaS using this stack.
 ### `nextjs-react-expert`
 
 - **Path**: `skills/nextjs-react-expert`
