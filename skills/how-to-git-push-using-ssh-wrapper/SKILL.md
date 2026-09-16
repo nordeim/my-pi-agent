@@ -1,462 +1,368 @@
----
-name: how-to-git-push-using-ssh-wrapper
-description: |
-  Push commits to a GitHub remote via a Paramiko-based SSH wrapper when OpenSSH (`ssh`) is not installed. Use this skill when `git push` fails with "git@github.com: Permission denied (publickey)" or when the environment lacks `openssh-client` (minimal containers, distroless images, restricted sandboxes, or Python-only environments).
+# How-To: Git Push Using the SSH Wrapper (`ssh_git_wrapper_v3.py`)
 
-  Prerequisites: Python 3.10+, a GitHub SSH private key file, and the `paramiko` Python package.
+**Purpose.** Push commits from this checkout to the canonical SSH remote
+`git@github.com:nordeim/task-management.git` using a deploy key that is
+**never stored inside the repository** (`.gitignore` rejects `*.key` and
+`ssh-key.txt`). The wrapper materializes the key into a 0600 temp file
+outside the repo, points `GIT_SSH_COMMAND` at it, authenticates, pushes
+`main`, verifies the remote ref equals local HEAD, then shreds the temp key.
 
-  Triggers: "git push", "push to github", "ssh wrapper", "paramiko git", "no openssh", "GIT_SSH_COMMAND", "permission denied publickey", "git push without ssh".
----
+**Field-tested.** 2026-09-16: this exact procedure (wrapper v3.1 + the
+paramiko shim in Appendix A) pushed `0ab29dc..f932360` to `main` from a
+sandbox that had **no OpenSSH binary at all**, then re-verified the remote
+ref and the fingerprint of the key in play. Everything below is that
+session, generalized.
 
-# How to Git Push Using an SSH Wrapper
+**Rules (operator contract).**
 
-Push commits to GitHub (or any Git-over-SSH remote) when the environment does **not** have OpenSSH's `ssh` client installed. This skill uses a self-contained Python script (`ssh_git_wrapper_v3.py`) backed by Paramiko as Git's SSH transport.
+1. **main only** — no feature branches; the wrapper defaults to `main` and
+   pushes `HEAD:refs/heads/main`.
+2. **Run the verification gate first** — `bun run lint && bun run typecheck
+   && bun run test && bun run build` must be green before pushing. There is
+   no hosted CI on this repo (no `.github/workflows`), so the local gate is
+   the only gate.
+3. **Commit before push** — the wrapper pushes commits, not the working tree.
+4. **Never commit the key** — keys live outside the repo (`~/.ssh/`, a
+   secret store, or a pipe). If a key ever lands in the tree, rotate it.
+5. **Never commit the shim either** — the paramiko ssh shim is environment
+   tooling, not project code. It contains no secrets, but it does not
+   belong in the tree; keep it in a workspace `bin/` outside the checkout.
 
----
-
-## When to Use This Skill
-
-Use this skill when ALL of the following are true:
-
-1. You need to `git push` (or `git fetch`, `git clone`, `git pull`) to a remote that uses SSH URLs (e.g. `git@github.com:user/repo.git`).
-2. The environment does **not** have `openssh-client` installed (i.e. `which ssh` fails or returns nothing).
-3. Python 3.10+ is available.
-4. You have a GitHub SSH private key file (Ed25519, ECDSA, or RSA).
-
-**Do NOT use this skill if** `ssh` is already installed — just use `git push` directly with your normal SSH key setup. This wrapper is a fallback for environments where OpenSSH cannot be installed.
-
----
-
-## Prerequisites
-
-### 1. Python 3.10+
-
-```bash
-python3 --version  # Must be >= 3.10
-```
-
-### 2. Paramiko package
-
-Paramiko is the SSH library the wrapper script uses. Install it in the **same Python environment** that will run the wrapper:
+## Field-tested sequence (what actually worked)
 
 ```bash
-# If python3 is a system Python:
-pip install paramiko
+cd task-management
+# 0. Gates green and commits already on main (rules 1-3).
 
-# If python3 is a venv (e.g. /home/user/.venv/bin/python3):
-/home/user/.venv/bin/python3 -m pip install paramiko
+# 1. Operator key -> a 0600 file in /tmp, NEVER inside the repo:
+cat > /tmp/tuesday-deploy.key        # paste the key, then Ctrl-D
+chmod 600 /tmp/tuesday-deploy.key
 
-# If pip is blocked by PEP 668 (externally-managed-environment):
-pip install --break-system-packages paramiko
+# 2. Optional sanity check — proves the key parses and shows its
+#    OpenSSH fingerprint (works where ssh-keygen does not exist;
+#    verified to match ssh-keygen's SHA256 output for ed25519):
+python3 - <<'PY'
+import base64, hashlib, paramiko
+k = paramiko.Ed25519Key.from_private_key_file("/tmp/tuesday-deploy.key")
+print("type:", k.get_name())
+print("SHA256:", base64.b64encode(hashlib.sha256(k.asbytes()).digest())
+      .decode().rstrip("="))
+PY
+
+# 3. Make an ssh binary discoverable. A real OpenSSH client needs nothing;
+#    a sandbox without one uses the paramiko shim (Appendix A) on PATH:
+export PATH="/path/to/shim-dir:$PATH"     # e.g. a workspace bin/ dir
+
+# 4. Dry-run — authenticates and negotiates, touches no refs:
+python3 docs/ssh_git_wrapper_v3.py --key-file /tmp/tuesday-deploy.key --dry-run
+
+# 5. Real push — prints remote verification + tracking-ref sync:
+python3 docs/ssh_git_wrapper_v3.py --key-file /tmp/tuesday-deploy.key
+
+# 6. Shred the operator key (the wrapper already shredded its own temp copy
+#    and the known_hosts sidecar, if any):
+python3 - <<'PY'
+import os
+p = "/tmp/tuesday-deploy.key"
+with open(p, "wb") as f:
+    f.write(os.urandom(os.path.getsize(p)))
+os.remove(p)
+print("operator key shredded")
+PY
 ```
 
-**⚠️ Critical gotcha:** The `python3` on `PATH` may be a virtualenv that is DIFFERENT from the system Python that `pip` installs into. Always verify with:
+Expected wrapper output on the real push (v3.1):
+
+```
+[ssh-git-wrapper] $ git push git@github.com:nordeim/task-management.git HEAD:refs/heads/main
+[ssh-git-wrapper] remote verified: refs/heads/main @ <sha> == local HEAD
+[ssh-git-wrapper] synced refs/remotes/origin/main -> <sha> (git status will now agree)
+[ssh-git-wrapper] OK — pushed HEAD -> git@github.com:nordeim/task-management.git refs/heads/main
+[ssh-git-wrapper] temp key material shredded and removed
+```
+
+## Variants
 
 ```bash
-python3 -c "import paramiko; print(paramiko.__version__)"
+# Key piped on stdin (no key file on disk):
+cat /secure/path/to/id_ed25519 | python3 docs/ssh_git_wrapper_v3.py --key-stdin \
+  --remote git@github.com:nordeim/task-management.git
+
+# Key from an environment variable:
+SSH_KEY="$(cat /secure/id_ed25519)" python3 docs/ssh_git_wrapper_v3.py \
+  --remote git@github.com:nordeim/task-management.git
+
+# Persist the SSH URL as origin's push URL for future plain `git push`
+# (idempotent in v3.1 — only re-set when it actually differs):
+python3 docs/ssh_git_wrapper_v3.py --key-file ~/.ssh/id_ed25519 --set-url
 ```
 
-If this fails with `ModuleNotFoundError`, you installed paramiko into the wrong Python. Find the venv pip:
+## Key formats the wrapper accepts
 
-```bash
-which python3           # e.g. /home/user/.venv/bin/python3
-ls /home/user/.venv/bin/pip*  # e.g. pip3, pip3.12
-# Use the venv's pip:
-/home/user/.venv/bin/python3 -m pip install paramiko
-```
+The wrapper accepts a standard OpenSSH private key block (proper BEGIN/END
+delimiter lines). It also tolerates keys that traveled through a chat
+transcript and arrived with the BEGIN line replaced by the placeholder
+`[REDACTED:ssh_private_key]` — the wrapper restores a real OpenSSH BEGIN
+line before use, so the key still authenticates. A key missing either
+delimiter is rejected with exit code 2.
 
-### 3. SSH private key
+## What the wrapper does, step by step (v3.1)
 
-You need a GitHub SSH private key file in OpenSSH format (starts with `-----BEGIN OPENSSH PRIVATE KEY-----`). Place it at a known path with restrictive permissions:
+| Step | Action | Safety property |
+|---|---|---|
+| 0 | Preflight: an `ssh` executable must exist on PATH | Fails fast (exit 1) in OpenSSH-less sandboxes with a pointer to this runbook, instead of a cryptic shell error inside git |
+| 1 | Reads the key from `--key-file` / `--key-stdin` / `$SSH_KEY` | Rejects keys without proper OpenSSH delimiters (after redaction normalization) |
+| 2 | Writes it to `/tmp/dbs-push-XXXX.key` with `0600` | Outside the repo; ssh refuses group/world-readable keys |
+| 3 | Exports `GIT_SSH_COMMAND="ssh -i <key> -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new …"` | Only the supplied key is offered; new host keys are recorded per-session |
+| 4 | `git ls-remote --heads <remote> main` | Authentication pre-flight — fails fast with exit 4 on bad keys |
+| 5 | `git push <remote> HEAD:refs/heads/main` | Explicit refspec; no implicit branch creation |
+| 6 | Re-queries the remote and asserts `refs/heads/main == local HEAD` | Turns "git said ok" into evidence; exit 4 on mismatch (skipped on `--dry-run`) |
+| 7 | Best-effort sync of `refs/remotes/origin/main` when the pushed remote is origin's repository (URLs normalized) | `git status` stops claiming "ahead by N" after a URL-based push |
+| 8 | Overwrites the temp key with random bytes, deletes it + the sidecar known_hosts | No key residue (a paramiko shim writes no sidecar — absence is fine) |
 
-```bash
-mkdir -p ~/.ssh
-cp /path/to/uploaded_key.txt ~/.ssh/id_github
-chmod 600 ~/.ssh/id_github
-```
+## Exit codes
 
-**Why chmod 600?** SSH libraries (including Paramiko) reject private keys that are readable by group/other. If you skip this, you'll get a cryptic "invalid key" or "permission denied" error.
-
-### 4. The wrapper script
-
-The wrapper script is included in this skill at:
-```
-skills/how-to-git-push-using-ssh-wrapper/scripts/ssh_git_wrapper_v3.py
-```
-
-A canonical copy also lives at:
-```
-docs/ssh_git_wrapper_v3.py
-```
-
-Both copies are identical. Make the script executable:
-
-```bash
-chmod +x skills/how-to-git-push-using-ssh-wrapper/scripts/ssh_git_wrapper_v3.py
-```
-
----
-
-## Step-by-Step Procedure
-
-### Step 1: Verify all prerequisites
-
-```bash
-python3 --version                                    # >= 3.10
-python3 -c "import paramiko; print('OK', paramiko.__version__)"  # Must print OK
-ls -la ~/.ssh/id_github                              # Must exist, mode 600
-chmod +x /path/to/ssh_git_wrapper_v3.py              # Must be executable
-```
-
-### Step 2: Set the remote URL to SSH format
-
-If the remote is currently HTTPS, change it to SSH:
-
-```bash
-cd /path/to/repo
-git remote -v
-# If origin is https://github.com/user/repo.git:
-git remote set-url origin git@github.com:user/repo.git
-git remote -v  # Verify: origin git@github.com:user/repo.git
-```
-
-### Step 3: Verify there are commits to push
-
-```bash
-git branch --show-current          # e.g. main
-git log --oneline origin/main..HEAD  # Lists commits ahead of remote
-```
-
-If `origin/main` doesn't exist yet (first push), use `git log --oneline -5` to see your commits.
-
-### Step 4: Push using the wrapper
-
-```bash
-GIT_SSH_COMMAND="/path/to/ssh_git_wrapper_v3.py -i ~/.ssh/id_github -o StrictHostKeyChecking=accept-new" git push origin main
-```
-
-**Expected output on success:**
-```
-To github.com:user/repo.git
-   abc1234..def5678  main -> main
-```
-
-### Step 5: Verify the push
-
-```bash
-git status -sb
-# Should show: ## main...origin/main  (no "ahead" or "behind")
-```
-
----
-
-## The `GIT_SSH_COMMAND` variable explained
-
-Git uses `GIT_SSH_COMMAND` to find the SSH program. The wrapper script is called by Git with arguments like:
-
-```
-ssh_git_wrapper_v3.py -i ~/.ssh/id_github -o StrictHostKeyChecking=accept-new git@github.com "git-receive-pack 'user/repo.git'"
-```
-
-The wrapper:
-1. Parses SSH flags (`-i`, `-o`, `-p`, `-l`, `-v`, etc.)
-2. Extracts the host (`git@github.com`) and the remote command (`git-receive-pack 'user/repo.git'`)
-3. Connects to GitHub via Paramiko using the specified key
-4. Executes the remote command
-5. Streams stdin/stdout/stderr bidirectionally
-
-### Key flags
-
-| Flag | Purpose |
+| Code | Meaning |
 |---|---|
-| `-i ~/.ssh/id_github` | Path to the SSH private key (supports `~` expansion) |
-| `-o StrictHostKeyChecking=accept-new` | Auto-accept new host keys, reject changed keys (MITM protection) |
-| `-o StrictHostKeyChecking=no` | Accept any host key (less secure, use only for testing) |
-| `-v` / `-vv` / `-vvv` | Increase verbosity (WARNING / INFO / DEBUG) |
+| 0 | Push succeeded (and, on a real push, the remote ref was verified) |
+| 1 | Usage error (no key source, stdin is a TTY) **or no `ssh` binary on PATH** |
+| 2 | Key materialization/cleanup error (also: key failed delimiter validation) |
+| 3 | Local git error (not a repo, remote set-url failed, …) |
+| 4 | Authentication pre-flight failed, the push was rejected, **or post-push verification mismatched** |
 
----
+## Sandbox without an OpenSSH binary (the paramiko shim)
+
+The validating sandbox had neither `ssh` nor `ssh-keygen`, and git executes
+`GIT_SSH_COMMAND` through PATH — so the wrapper preflights for an `ssh`
+executable and exits 1 with a pointer here when it is missing. What worked:
+
+- a ~100-line pure-Python shim saved OUTSIDE the repo (e.g. a workspace
+  `bin/ssh`), `chmod +x`, placed on PATH;
+- it parses the argument shape git passes: `-i KEY`, `-o OPT` (options are
+  consumed and ignored — `accept-new` maps to paramiko's `AutoAddPolicy`),
+  `-p PORT`, `[user@]host`, then the trailing command string;
+- it bridges stdio both ways with `select()` so the git pack protocol runs
+  over the SSH channel, draining the remote's stderr as it goes;
+- it loads the key with `paramiko.Ed25519Key` first, `RSAKey` as fallback;
+- it exits with the remote command's exit status, and refuses the
+  no-command case loudly (real ssh would open a shell; git never does this);
+- the shebang must point at a Python that can `import paramiko`
+  (`pip install paramiko` — 5.0.0 was used and was sufficient).
+
+Appendix A contains the field-tested implementation. Deploy it, then run
+the wrapper normally — nothing else changes.
 
 ## Troubleshooting
 
-### Problem 1: `ModuleNotFoundError: No module named 'paramiko'`
+- **`no ssh binary on PATH`** — the wrapper's own preflight (step 0).
+  Install an OpenSSH client, or deploy the Appendix A shim on PATH.
+- **`authentication pre-flight failed`** — the key is wrong, expired, or
+  lacks push rights on `nordeim/task-management`. With OpenSSH present:
+  `ssh -i /secure/key -T git@github.com` (expect a greeting naming the
+  repo). Without one, the cheapest equivalent is the wrapper's own
+  `--dry-run` — it exercises exactly the same auth path and fails with the
+  same exit code.
+- **`key does not look like an OpenSSH private key`** — the source lost its
+  BEGIN or END delimiter line in transit (trailing-space mangling, partial
+  copy). Re-supply the complete key block, delimiters included.
+- **Push rejected (non-fast-forward)** — the remote moved ahead:
+  `git fetch origin && git rebase origin/main`, re-run the gate, then push.
+- **`Permission denied (publickey)`** — GitHub needs the corresponding public
+  key added as a deploy key (repo → Settings → Deploy keys, write access).
+- **`git status` still says "ahead of origin/main by N" after a successful
+  push** — a URL-based push never updates origin's remote-tracking ref. The
+  wrapper syncs it automatically when the pushed remote is the same GitHub
+  repository as `origin`; if you pushed somewhere else, verify manually:
+  `git ls-remote git@github.com:nordeim/task-management.git refs/heads/main`
+  (shim on PATH) and compare with `git rev-parse HEAD`.
+- **The wrapper's own source looks corrupted when read through agent
+  tooling** — some tool-output layers redact the OpenSSH BEGIN delimiter
+  when *displaying* file contents, so the `OPENSSH_BEGIN` constant appears
+  to hold the redaction placeholder. This is a display artifact, not a
+  defect: verify the bytes on disk (e.g. a base64 dump of the file, or
+  `python3 -c "print(bytes([45]*5) + b'BEGIN OPENSSH PRIVATE KEY' + bytes([45]*5) in open('docs/ssh_git_wrapper_v3.py','rb').read())"`)
+  before concluding anything — and never "repair" the constant based on a
+  redacted display.
 
-**Cause:** The `python3` that runs the wrapper (determined by the `#!/usr/bin/env python3` shebang) cannot find paramiko. This happens when `pip install` installs to a different Python than the one on `PATH`.
+## Relationship to the repo's git contract
 
-**Fix:**
+- AGENTS.md: clone remote is `https://github.com/nordeim/task-management.git`;
+  the SSH URL is the push target — this wrapper exists so an agent or CI
+  runner can push without a resident `~/.ssh` identity.
+- CLAUDE.md commit standards apply: Conventional Commits, atomic commits,
+  never commit secrets.
+- The verification gate (AGENTS.md "clean check" order) is a precondition —
+  and, until hosted CI exists, the only one.
 
-```bash
-# Find which python3 is on PATH:
-which python3
-# e.g. /home/user/.venv/bin/python3
+## Appendix A — field-tested paramiko ssh shim
 
-# Install paramiko INTO THAT python:
-/home/user/.venv/bin/python3 -m pip install paramiko
-
-# Verify:
-python3 -c "import paramiko; print('OK')"
-```
-
-If `pip install` fails with `externally-managed-environment`:
-
-```bash
-pip install --break-system-packages paramiko
-# OR use a venv:
-python3 -m venv ~/.venv
-source ~/.venv/bin/activate
-pip install paramiko
-```
-
-### Problem 2: `Invalid command: 'git-receive-pack '"'"'user/repo.git'"'"''`
-
-**Cause:** This is the **most common bug** when using the wrapper for the first time. Git passes the remote command as a single string argument (e.g. `"git-receive-pack 'user/repo.git'"`). The wrapper's original code used `shlex.join(args[i+1:])` on a single-element list, which re-quotes the entire string, producing `'git-receive-pack '"'"'user/repo.git'"'"''` — a malformed command that GitHub's git-shell rejects.
-
-**Fix (already applied in the included `ssh_git_wrapper_v3.py`):**
-
-The wrapper must normalize the command via `shlex.split()` → `shlex.join()` when it arrives as a single argument. This strips unnecessary quotes while preserving paths that genuinely contain spaces.
-
-The fix in the script (around line 270):
+Save as `ssh` in a directory OUTSIDE this repo, `chmod +x`, adjust the
+shebang to a Python that has paramiko, and put that directory on PATH.
+This is the implementation that carried the real push (lightly edited:
+generic shebang, paths generalized).
 
 ```python
-if i + 1 < len(args):
-    raw_cmd = args[i + 1 :]
-    if len(raw_cmd) == 1:
-        # Single string — split then re-join to normalise quotes
-        config["command"] = shlex.join(shlex.split(raw_cmd[0]))
-    else:
-        config["command"] = shlex.join(raw_cmd)
-    break
+#!/usr/bin/env python3
+"""paramiko-backed ssh shim for sandboxes without an OpenSSH binary.
+
+Git invokes this via GIT_SSH_COMMAND as:
+  ssh -i <key> -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new \
+      -o UserKnownHostsFile=<path> git@github.com "git-upload-pack '<repo>'"
+
+The shim speaks real SSH through paramiko, bridges stdio (the git pack
+protocol runs over the channel), and exits with the remote command's
+status. -o options are accepted and ignored (accept-new maps to
+AutoAddPolicy).
+"""
+import os
+import select
+import sys
+
+import paramiko
+
+CHUNK = 65536
+
+
+def parse_args(argv):
+    key_path = None
+    host = None
+    port = 22
+    command = None
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "-i":
+            i += 1
+            key_path = argv[i] if i < len(argv) else None
+        elif arg == "-p":
+            i += 1
+            port = int(argv[i]) if i < len(argv) else 22
+        elif arg == "-o":
+            i += 1  # option + value consumed together
+        elif arg.startswith("-"):
+            pass  # unknown flags ignored
+        elif host is None:
+            host = arg
+        else:
+            command = " ".join(argv[i:])
+            break
+        i += 1
+    return key_path, host, port, command
+
+
+def load_key(key_path):
+    """Load the deploy key; try Ed25519 first, then RSA (format fallback)."""
+    errors = []
+    for cls in (paramiko.Ed25519Key, paramiko.RSAKey):
+        try:
+            return cls.from_private_key_file(key_path)
+        except Exception as exc:  # report both failures together
+            errors.append(f"{cls.__name__}: {exc}")
+    sys.stderr.write("[ssh-shim] key load failed: " + " | ".join(errors) + "\n")
+    sys.exit(255)
+
+
+def main():
+    if len(sys.argv) < 2:
+        sys.stderr.write("[ssh-shim] usage: ssh -i KEY [-o OPT] [user@]host command\n")
+        sys.exit(255)
+
+    key_path, host, port, command = parse_args(sys.argv[1:])
+    if not key_path or not host or not command:
+        sys.stderr.write(f"[ssh-shim] missing pieces (key={key_path} host={host} cmd={command})\n")
+        sys.exit(255)
+
+    user = "git"
+    if "@" in host:
+        user, host = host.split("@", 1)
+
+    pkey = load_key(key_path)
+
+    client = paramiko.SSHClient()
+    # accept-new equivalent: trust first contact, record nothing (the
+    # wrapper's known_hosts sidecar is managed by the wrapper's lifecycle).
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(
+        host,
+        port=port,
+        username=user,
+        pkey=pkey,
+        look_for_keys=False,
+        allow_agent=False,
+        timeout=30,
+        banner_timeout=30,
+        auth_timeout=30,
+    )
+
+    try:
+        channel = client.get_transport().open_session()
+        channel.exec_command(command)
+
+        stdin_fd = sys.stdin.fileno()
+        stdin_closed = False
+        while True:
+            readers = [channel, sys.stdin] if not stdin_closed else [channel]
+            try:
+                rlist, _, _ = select.select(readers, [], [], 30)
+            except (OSError, ValueError):
+                break
+
+            if channel in rlist:
+                if channel.recv_ready():
+                    data = channel.recv(CHUNK)
+                    if data:
+                        sys.stdout.buffer.write(data)
+                        sys.stdout.buffer.flush()
+                if channel.exit_status_ready() and not channel.recv_ready():
+                    while channel.recv_ready():
+                        data = channel.recv(CHUNK)
+                        if not data:
+                            break
+                        sys.stdout.buffer.write(data)
+                        sys.stdout.buffer.flush()
+                    break
+                if channel.closed and not channel.recv_ready():
+                    break
+
+            if sys.stdin in rlist:
+                try:
+                    data = os.read(stdin_fd, CHUNK)
+                except OSError:
+                    data = b""
+                if data:
+                    channel.sendall(data)
+                else:
+                    channel.shutdown_write()
+                    stdin_closed = True
+
+            # stderr drain (git server diagnostics)
+            while channel.recv_stderr_ready():
+                err = channel.recv_stderr(CHUNK)
+                if not err:
+                    break
+                sys.stderr.buffer.write(err)
+                sys.stderr.buffer.flush()
+
+        # Final drains after the loop.
+        while channel.recv_ready():
+            data = channel.recv(CHUNK)
+            if not data:
+                break
+            sys.stdout.buffer.write(data)
+            sys.stdout.buffer.flush()
+        while channel.recv_stderr_ready():
+            err = channel.recv_stderr(CHUNK)
+            if not err:
+                break
+            sys.stderr.buffer.write(err)
+            sys.stderr.buffer.flush()
+
+        exit_status = channel.recv_exit_status()
+        sys.exit(exit_status)
+    finally:
+        client.close()
+
+
+if __name__ == "__main__":
+    main()
 ```
-
-**If you encounter this error with an older version of the wrapper**, apply this fix or use the version included in this skill at `scripts/ssh_git_wrapper_v3.py`.
-
-### Problem 3: `Permission denied (publickey)`
-
-**Cause:** The SSH key is not being found, or GitHub doesn't recognize it.
-
-**Fixes:**
-
-1. **Verify the key file exists and has correct permissions:**
-   ```bash
-   ls -la ~/.ssh/id_github
-   # Must show: -rw------- (mode 600)
-   chmod 600 ~/.ssh/id_github
-   ```
-
-2. **Verify the key is in OpenSSH format:**
-   ```bash
-   head -1 ~/.ssh/id_github
-   # Must show: -----BEGIN OPENSSH PRIVATE KEY-----
-   tail -1 ~/.ssh/id_github
-   # Must show: -----END OPENSSH PRIVATE KEY-----
-   ```
-
-3. **Verify the public key is added to GitHub:** The corresponding public key must be registered at https://github.com/settings/keys. Check with:
-   ```bash
-   ssh-keygen -y -f ~/.ssh/id_github  # Extracts public key from private
-   # Compare with what's registered on GitHub
-   ```
-
-4. **Explicitly pass the key with `-i`:**
-   ```bash
-   GIT_SSH_COMMAND="/path/to/wrapper.py -i ~/.ssh/id_github" git push origin main
-   ```
-
-### Problem 4: `git@github.com: Permission denied` with a key that works elsewhere
-
-**Cause:** The key may require a passphrase, or the SSH agent isn't running.
-
-**Fix:**
-
-```bash
-# Start ssh-agent and add the key:
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_github
-# Enter passphrase if prompted
-
-# Then push (wrapper auto-detects agent keys):
-GIT_SSH_COMMAND="/path/to/wrapper.py" git push origin main
-```
-
-**Note:** If `ssh-agent` is not installed (minimal environments), you must use an unencrypted key (no passphrase).
-
-### Problem 5: `Could not read from remote repository`
-
-**Cause:** Wrong remote URL, or network issue.
-
-**Fix:**
-
-```bash
-# Verify remote URL is SSH (not HTTPS):
-git remote -v
-# Must show: origin git@github.com:user/repo.git
-
-# If it shows https://, change it:
-git remote set-url origin git@github.com:user/repo.git
-
-# Test connectivity:
-python3 -c "
-import paramiko, socket
-s = socket.create_connection(('github.com', 22), timeout=10)
-print('Port 22 reachable')
-s.close()
-"
-```
-
-### Problem 6: `HOST KEY VERIFICATION FAILED`
-
-**Cause:** GitHub's host key has changed (or was previously recorded differently in `~/.ssh/known_hosts`).
-
-**Fix:**
-
-```bash
-# Remove the old GitHub host key:
-ssh-keygen -R github.com 2>/dev/null || true
-# Or manually delete the github.com line from ~/.ssh/known_hosts
-
-# Then push with accept-new to re-accept:
-GIT_SSH_COMMAND="/path/to/wrapper.py -i ~/.ssh/id_github -o StrictHostKeyChecking=accept-new" git push origin main
-```
-
-### Problem 7: Wrapper crashes with `Fatal Python error: _enter_buffered_busy`
-
-**Cause:** A race condition during interpreter shutdown when the SSH channel closes before the exit status is received. This is a known issue in the wrapper's I/O drain logic.
-
-**Fix:** This is typically transient. Retry the push. If it persists, add a small delay before the channel close or upgrade the wrapper script.
-
----
-
-## Complete Working Example
-
-Here is the exact sequence that successfully pushed 5 commits to `nordeim/stillwater` in July 2026:
-
-```bash
-# 1. Install paramiko into the correct Python
-/home/z/.venv/bin/python3 -m pip install paramiko
-
-# 2. Set up the SSH key
-mkdir -p ~/.ssh
-cp /home/z/my-project/upload/ssh_key.txt ~/.ssh/id_stillwater
-chmod 600 ~/.ssh/id_stillwater
-
-# 3. Make the wrapper executable
-chmod +x /home/z/my-project/stillwater/docs/ssh_git_wrapper_v3.py
-
-# 4. Change remote from HTTPS to SSH
-cd /home/z/my-project/stillwater
-git remote set-url origin git@github.com:nordeim/stillwater.git
-
-# 5. Verify there are commits to push
-git log --oneline origin/main..HEAD
-# (Should list the commits)
-
-# 6. Push
-GIT_SSH_COMMAND="/home/z/my-project/stillwater/docs/ssh_git_wrapper_v3.py -i ~/.ssh/id_stillwater -o StrictHostKeyChecking=accept-new" git push origin main
-
-# 7. Verify
-git status -sb
-# Should show: ## main...origin/main
-```
-
----
-
-## Lessons Learned (From Real-World Usage)
-
-### Lesson 1: Always verify `python3` and `pip` are the same Python
-
-In restricted environments, `python3` on `PATH` is often a virtualenv, while `pip` installs to system Python. The wrapper's `#!/usr/bin/env python3` shebang uses whichever `python3` is on `PATH` — so paramiko MUST be installed into that specific Python.
-
-**Verification command:**
-```bash
-python3 -c "import paramiko; print('OK', paramiko.__version__)"
-```
-
-If this fails, find the venv's pip:
-```bash
-which python3                          # Find the python3 path
-ls $(dirname $(which python3))/pip*    # Find the venv's pip
-$(which python3) -m pip install paramiko  # Install into the right Python
-```
-
-### Lesson 2: The `shlex.join()` bug is the #1 blocker
-
-The original wrapper script (and the `v3_readme.md` documentation) does NOT account for Git passing the remote command as a single string. The `shlex.join()` call on a single-element list produces a re-quoted string that GitHub's git-shell rejects with "Invalid command".
-
-**Always check for this bug first** when you see:
-```
-Invalid command: 'git-receive-pack '"'"'user/repo.git'"'"''
-```
-
-The fix is to normalize via `shlex.split()` → `shlex.join()` for single-argument commands. This fix is already applied in the version of the script included in this skill (`scripts/ssh_git_wrapper_v3.py`).
-
-### Lesson 3: SSH key permissions are non-negotiable
-
-Paramiko (like OpenSSH) refuses to use private keys that are readable by group or other. Always:
-```bash
-chmod 600 ~/.ssh/id_github
-```
-
-If you copy a key file and forget this step, you'll get "Permission denied (publickey)" with no clear indication that the key permissions are the problem.
-
-### Lesson 4: `StrictHostKeyChecking=accept-new` is the right default
-
-- `yes` — rejects new hosts entirely (first push fails)
-- `accept-new` — auto-accepts new hosts, rejects changed keys (MITM-safe) ✅
-- `no` — accepts everything (insecure)
-
-For first-time pushes to GitHub, `accept-new` is the correct choice. It writes the host key to `~/.ssh/known_hosts` on first contact and validates it on subsequent connections.
-
-### Lesson 5: Change remote URL from HTTPS to SSH
-
-Many repos are cloned via HTTPS. The wrapper only works with SSH URLs. Always check and convert:
-```bash
-git remote -v
-# If HTTPS: https://github.com/user/repo.git
-# Change to SSH:
-git remote set-url origin git@github.com:user/repo.git
-```
-
-### Lesson 6: The wrapper supports `-o Key=Value` (not space-separated)
-
-Per the wrapper's known limitations, always use `-o StrictHostKeyChecking=accept-new` (with `=`), never `-o StrictHostKeyChecking accept-new` (with space). The space form breaks argument parsing.
-
-### Lesson 7: Commit the wrapper script fix
-
-If you had to apply the `shlex.join()` fix to the wrapper, commit and push it so future agents don't hit the same bug. In the Stillwater project, this was commit `39298e4`:
-```
-fix(ssh-wrapper): normalise Git remote command quoting for GitHub
-```
-
----
-
-## Quick Reference Card
-
-```bash
-# One-liner push (after prerequisites are met):
-GIT_SSH_COMMAND="/path/to/ssh_git_wrapper_v3.py -i ~/.ssh/id_github -o StrictHostKeyChecking=accept-new" git push origin main
-
-# Debug mode (verbose):
-GIT_SSH_COMMAND="/path/to/ssh_git_wrapper_v3.py -i ~/.ssh/id_github -o StrictHostKeyChecking=accept-new -vvv" git push origin main
-
-# Fetch:
-GIT_SSH_COMMAND="/path/to/ssh_git_wrapper_v3.py -i ~/.ssh/id_github -o StrictHostKeyChecking=accept-new" git fetch origin
-
-# Clone:
-GIT_SSH_COMMAND="/path/to/ssh_git_wrapper_v3.py -i ~/.ssh/id_github -o StrictHostKeyChecking=accept-new" git clone git@github.com:user/repo.git
-```
-
----
-
-## Files in This Skill
-
-| File | Purpose |
-|---|---|
-| `SKILL.md` | This document — instructions for performing `git push` via the SSH wrapper |
-| `scripts/ssh_git_wrapper_v3.py` | The wrapper script (executable, with the `shlex.join()` fix applied) |
-
-## Canonical Source
-
-The canonical copy of the wrapper script lives at `docs/ssh_git_wrapper_v3.py` in the Stillwater repo. The copy in `scripts/` is for skill self-containment. If they diverge, the `docs/` version is authoritative (it's the one actually tested in production).
-
-## See Also
-
-- `docs/ssh_git_wrapper_v3_readme.md` — Original wrapper documentation (does NOT include the `shlex.join()` fix — see Lesson 2 above)

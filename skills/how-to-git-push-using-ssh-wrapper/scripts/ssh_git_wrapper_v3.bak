@@ -381,30 +381,64 @@ def forward_stdin(
     Uses ``read1()`` when available (Python 3 BufferedIOBase) for efficient
     streaming without excessive buffering.  Falls back to ``read()``.
 
-    On Unix TTYs, ``select`` is used to avoid blocking the thread when no
-    data is available, allowing faster response to ``shutdown_event``.
+    On Unix (TTY or pipe), ``select`` is used on stdin's file descriptor to
+    avoid blocking the thread when no data is available, allowing faster
+    response to ``shutdown_event`` AND ensuring binary packfile data piped
+    from ``git push`` is read promptly and completely.
+
+    CRITICAL: The channel is in non-blocking mode (set in main before
+    ``io_loop``). In non-blocking mode, ``Channel.sendall()`` can raise
+    when the send buffer is full, which would be caught by the except
+    clause and trigger ``shutdown_write()`` — truncating the upload.
+    To prevent this, we temporarily switch the channel to blocking mode
+    for each ``sendall()`` call. This is safe because ``forward_stdin``
+    runs in its own background thread; the receive loop in the main
+    thread is unaffected.
     """
     read_func = getattr(sys.stdin.buffer, "read1", sys.stdin.buffer.read)
 
+    # Determine the raw file descriptor for select() — works for both TTY
+    # and non-TTY (piped) stdin on Unix. On Windows, skip select entirely.
+    stdin_fd = None
+    use_select = (
+        hasattr(select, "select")
+        and not sys.platform.startswith("win")
+    )
+    if use_select:
+        try:
+            stdin_fd = sys.stdin.buffer.fileno()
+        except (OSError, ValueError):
+            stdin_fd = None
+            use_select = False
+
     try:
         while not shutdown_event.is_set():
-            # On Unix TTYs, use select to avoid blocking the thread when
-            # no data is available, allowing faster response to shutdown_event.
-            if (
-                hasattr(select, "select")
-                and not sys.platform.startswith("win")
-                and sys.stdin.isatty()
-            ):
-                readable, _, _ = select.select([sys.stdin], [], [], 0.1)
+            # On Unix (TTY or pipe), use select to avoid blocking the thread
+            # when no data is available. This is critical for non-TTY stdin
+            # (git push pipes a binary packfile) — without select, read1()
+            # may block indefinitely or miss data.
+            if use_select and stdin_fd is not None:
+                try:
+                    readable, _, _ = select.select([stdin_fd], [], [], 0.1)
+                except (OSError, ValueError):
+                    break
                 if not readable:
                     continue
 
             data = read_func(65536)
             if not data:
                 # EOF — signal the remote that we are done writing
-                channel.shutdown_write()
                 break
-            channel.sendall(data)
+
+            # Switch to BLOCKING mode for the send so sendall() blocks
+            # until ALL data is flushed to the SSH transport. Without this,
+            # non-blocking sendall() can raise on a full buffer, which
+            # would trigger shutdown_write() and truncate the upload.
+            channel.setblocking(True)
+            try:
+                channel.sendall(data)
+            finally:
+                channel.setblocking(False)
     except (OSError, ValueError, EOFError) as exc:
         logging.debug("Stdin forwarding stopped: %s", exc)
     finally:
@@ -702,7 +736,21 @@ def main() -> None:
         keepalive = DEFAULT_KEEPALIVE_INTERVAL
     transport.set_keepalive(keepalive)
 
+    # Configure larger window/packet sizes for binary transfers (git push
+    # packfiles can exceed Paramiko's defaults, causing "early EOF" on the
+    # remote when flow-control stalls truncate the upload).
+    try:
+        transport.default_max_packet_size = 1 << 20  # 1 MiB
+        transport.default_window_size = 1 << 21      # 2 MiB
+    except Exception as exc:
+        logging.debug("Could not set transport window/packet sizes: %s", exc)
+
     channel = transport.open_session()
+    # Increase this channel's window for large uploads.
+    try:
+        channel.window_size = 1 << 21  # 2 MiB
+    except Exception as exc:
+        logging.debug("Could not set channel window size: %s", exc)
     channel.setblocking(0)
 
     # Forward SendEnv variables (Git protocol v2 requires GIT_PROTOCOL).
