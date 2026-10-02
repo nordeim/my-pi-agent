@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
-> Auto-generated comprehensive inventory of every skill package under `skills/`.
-> **229 top-level skill folders** scanned, containing a total of **14054 files** and **48 nested sub-skills/templates**.
+> Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-02) — catalog is source of truth.**
+> **218 skills** listed (13910 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 28 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -12,7 +12,7 @@ Each entry below describes one top-level skill folder. For every skill we captur
 - **Folder** — the directory name under `skills/`
 - **Path** — repo-relative path to the skill folder
 - **SKILL.md** — whether the skill ships a top-level `SKILL.md` and its location
-- **Title** — the first H1 in `SKILL.md` (empty if no SKILL.md)
+- **Title** — the first H1 in `SKILL.md` (falls back to the skill name)
 - **Description** — parsed from the YAML frontmatter `description` field
 - **License / Author / Version** — when declared in the frontmatter
 - **Structure** — which standard subdirectories (`scripts/`, `references/`, `scenes/`, `routes/`, `engines/`) are present
@@ -20,27 +20,27 @@ Each entry below describes one top-level skill folder. For every skill we captur
 - **Sub-skills / templates** — nested directories that themselves contain a `SKILL.md`
 - **Category** — auto-classified into one of the 10 catalog categories
 
-Skills are listed alphabetically. Use the category index below to jump to a category.
+Skills are listed alphabetically within each category. Use the category index below to jump to a category.
 
 ## Category Index
 
-1. **Frontend Development & UI Engineering** — 56 skills — [jump](#1-frontend-development--ui-engineering)
-2. **Design Artifacts & Visual Creation** — 18 skills — [jump](#2-design-artifacts--visual-creation)
-3. **Full-Stack & Backend Development** — 22 skills — [jump](#3-full-stack--backend-development)
-4. **AI / ML / Multimodal SDK Skills** — 15 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
-5. **Testing, QA & Performance** — 26 skills — [jump](#5-testing-qa--performance)
-6. **Code Quality, Security & Architecture** — 16 skills — [jump](#6-code-quality-security--architecture)
-7. **Planning, Workflow & Project Management** — 31 skills — [jump](#7-planning-workflow--project-management)
-8. **Documentation & Content Creation** — 23 skills — [jump](#8-documentation--content-creation)
-9. **Career, Learning & Personal Development** — 11 skills — [jump](#9-career-learning--personal-development)
-10. **DevOps, Infrastructure & External Integrations** — 11 skills — [jump](#10-devops-infrastructure--external-integrations)
+1. **Frontend Development & UI Engineering** — 50 skills — [jump](#1-frontend-development--ui-engineering)
+2. **Design Artifacts & Visual Creation** — 16 skills — [jump](#2-design-artifacts--visual-creation)
+3. **Full-Stack & Backend Development** — 13 skills — [jump](#3-full-stack--backend-development)
+4. **AI / ML / Multimodal SDK Skills** — 11 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
+5. **Testing, QA & Performance** — 28 skills — [jump](#5-testing-qa--performance)
+6. **Code Quality, Security & Architecture** — 23 skills — [jump](#6-code-quality-security--architecture)
+7. **Planning, Workflow & Project Management** — 32 skills — [jump](#7-planning-workflow--project-management)
+8. **Documentation & Content Creation** — 24 skills — [jump](#8-documentation--content-creation)
+9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
+10. **DevOps, Infrastructure & External Integrations** — 9 skills — [jump](#10-devops-infrastructure--external-integrations)
 
 ---
 
 ## 1. Frontend Development & UI Engineering
 
 > Skills for building, styling, and shipping production-grade web interfaces.
-> **56 skills** in this category.
+> **50 skills** in this category.
 
 ### `agent-browser`
 
@@ -51,6 +51,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > A fast Rust-based headless browser automation CLI with Node.js fallback that enables AI agents to navigate, click, type, and snapshot pages via structured commands. Is a better choice for AI agent workflows - compact snapshots save tokens, the auth vault handles credentials securely, and React DevTools integration is valuable for frontend debugging.
+
 ### `api-and-interface-design`
 
 - **Path**: `skills/api-and-interface-design`
@@ -60,35 +61,40 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+
 ### `astro-7`
 
 - **Path**: `skills/astro-7`
 - **SKILL.md**: [`skills/astro-7/SKILL.md`](skills/astro-7/SKILL.md)
-- **Title**: Astro 7 — Content-Focused Web Framework (Islands Architecture)
+- **Title**: Astro 5/6/7 — Content-Focused Web Framework (Islands Architecture)
 - **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 4
+- **Files**: 8
 - **Structure**: flat
 
-> Astro 7, content-focused web framework workflow skill — the islands architecture. Covers the server-first mental model (zero JS by default — Astro components render to static HTML at build time, hydration is opt-in per-component via client:load / client:idle / client:visible / client:only directives), the multi-framework integration (use React, Vue, Svelte, Preact, Solid, or Lit components in the same Astro project — @astrojs/react, @astrojs/vue, etc.), content collections (the type-safe Markdown/MDX authoring system with Zod schemas — Content Layer API in Astro 5 replaces the legacy file-b...
+> Astro — content-focused web framework (islands architecture). Server-first, zero JS by default — Astro components render to static HTML at build time, hydration opt-in per island via client:load/client:idle/client:visible/client:only/client:media. Covers multi-framework islands (React, Vue, Svelte, Preact, Solid via @astrojs/*), Content Layer API & Live Content Collections (glob/file/external loaders, Zod schemas), file-based routing + layouts + View Transitions + Server Islands, middleware/Endpoints/Sessions/Actions, astro:env + astro:assets (Image/Picture/Font) + i18n + route caching, and...
+
 ### `astro-7-patterns`
 
 - **Path**: `skills/astro-7-patterns`
 - **SKILL.md**: [`skills/astro-7-patterns/SKILL.md`](skills/astro-7-patterns/SKILL.md)
 - **Title**: Astro 7 Patterns — Field Notes from a Production Clone Build
-- **Version**: 1.0
+- **Version**: 1.4
 - **Files**: 1
 - **Structure**: flat
 
-> Astro 7 supplement — distilled patterns, anti-patterns, and troubleshooting playbooks from a production clone build. Covers Rust compiler strict apostrophe handling, Content Layer + Zod 4 import fixes, View Transitions script re-init on `astro:after-swap`, Tailwind 4 `@theme` + Astro Fonts API integration, headroom sticky headers, vanilla JS carousels, WCAG 2.2 AA mobile menu accessibility, polymorphic `<a>`/`<button>` components, section system patterns, design extraction via `agent-browser`, `getStaticPaths` dynamic routes, `astro check` type-error gotchas, production build optimization, and a 10-item troubleshooting playbook. Use when building a real Astro 7 site — pairs with the canonical `astro-7` skill.
+> Astro 7 supplement skill — distilled patterns, anti-patterns, troubleshooting playbooks, and hard-won lessons from a production clone build. Covers the Astro 7 Rust compiler's strict apostrophe handling, Content Layer + Zod 4 imports, View Transitions script re-initialization, Fonts API + Tailwind 4 @theme integration, headroom sticky headers, vanilla JS carousels, mobile menu accessibility, dark/light section systems, and design extraction via agent-browser. Use when building a real Astro 7 site (not just reading docs) — every pattern below was debugged in a live build. Pairs with the cano...
+
 ### `authjs-vs-better-auth`
 
 - **Path**: `skills/authjs-vs-better-auth`
 - **SKILL.md**: [`skills/authjs-vs-better-auth/SKILL.md`](skills/authjs-vs-better-auth/SKILL.md)
+- **Title**: authjs-vs-better-auth
 - **Version**: 1.0.0
 - **Files**: 1
 - **Structure**: flat
 
 > Compares Auth.js v5 and Better Auth for Next.js 16 projects. Side-by-side code for instance setup, route handlers, client auth, and server sessions. Database schema mapping for migration. Proxy.ts route protection pattern. Use when choosing an auth library, migrating from Auth.js to Better Auth, implementing proxy.ts checks, or debugging Next.js 16 auth issues.
+
 ### `avant-garde-design-v4`
 
 - **Path**: `skills/avant-garde-design-v4`
@@ -98,6 +104,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Elite web design skill for producing distinctive, production-grade frontend interfaces. Use when: (1) Building new web UI from scratch, (2) Creating luxury/premium brand experiences, (3) Designing landing pages, marketing sites, or product showcases, (4) Reviewing UI designs for Anti-Generic compliance, (5) Establishing design direction for a project, (6) Migrating from Tailwind v3 to v4, (7) Debugging mobile navigation issues, (8) User asks for "avant-garde", "distinctive", "non-generic", "luxury", or "premium" design. Triggers on phrases like "create a beautiful website", "design a landin...
+
 ### `brutalist-portfolio-nextjs`
 
 - **Path**: `skills/brutalist-portfolio-nextjs`
@@ -113,6 +120,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | Name | Path | Description |
 |------|------|-------------|
 | `rutalist-portfolio-nextjs` | `skills/brutalist-portfolio-nextjs/rutalist-portfolio-nextjs` | Build, port, or remediate an avant-garde, anti-generic personal portfolio using Next.js 16 App Router with a Tactile Brutalism + High-End Editorial design system. Covers the complete architectural lifecycle from Vite SPA migration through four remediation phases to production: CSS-first design tokens with dual-theme (Night/Day), client-side SPA orchestrator embedded in Next.js, hash-based routing with keyboard focus management, lazy-loaded sections with ErrorBoundary + Suspense, optional database with graceful null handling, WCAG AAA accessibility (discriminated union API responses, ARIA, r... |
+
 ### `charts`
 
 - **Path**: `skills/charts`
@@ -124,6 +132,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`, `setup.sh`
 
 > Professional chart and diagram creation skill. Covers all types of visual data representation and structural diagrams: - **Data charts**: bar charts, line charts, pie charts, scatter plots, heatmaps, radar charts, candlestick charts, boxplots, histograms, area charts, waterfall charts, regression plots, distribution plots, and statistical visualizations. - **Structural diagrams**: flowcharts, mind maps, tree diagrams, org charts, architecture diagrams, network/relationship graphs, ER diagrams, class diagrams, Gantt charts, swimlane diagrams, and sequence diagrams. - **Dashboards**: data das...
+
 ### `clone-app-pat-pro`
 
 - **Path**: `skills/clone-app-pat-pro`
@@ -133,6 +142,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Clones any web app pixel-for-pixel from a URL. Runs as an IN-CONVERSATION workflow — the live Claude orchestrates Task sub-agents and drives the Claude Chrome extension to recon (every view), extract (computed styles = ground truth), design-spec, build, QA (computed-style assertions), and extend. Guided check-ins, custom features, and an MCP server so an agent can operate the app. Use when cloning a site, replicating a web app, building a clone, copying a website, recreating a UI, or when told "clone this", "replicate this app", "copy this site", "build a clone of", "make a copy of this web...
+
 ### `cloudflare-tunnel`
 
 - **Path**: `skills/cloudflare-tunnel`
@@ -142,6 +152,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Add new local services to an existing Cloudflare Tunnel for secure public access. Use when you need to expose a local development server, web application, or service running on localhost to the public internet via Cloudflare's tunnel infrastructure. Prerequisites: cloudflared installed and authenticated, existing tunnel created. Triggers: "add tunnel", "expose local service", "cloudflare tunnel", "port forward", "public access to localhost", "expose localhost".
+
 ### `design`
 
 - **Path**: `skills/design`
@@ -151,6 +162,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Route design-related HTML artifact tasks to the right artifact skill, reference, design system generation, or export skill.
+
+### `e-commerce-nextjs16-monorepo`
+
+- **Path**: `skills/e-commerce-nextjs16-monorepo`
+- **SKILL.md**: [`skills/e-commerce-nextjs16-monorepo/SKILL.md`](skills/e-commerce-nextjs16-monorepo/SKILL.md)
+- **Title**: Scandi Haven — Master Engineering Skill
+- **Version**: 1.0.0
+- **Files**: 1
+- **Structure**: flat
+
+> Production-grade reference for building DTC e-commerce and storefront platforms on Next.js 16 + React 19 + Tailwind CSS v4 (CSS-first @theme) + Drizzle ORM + PostgreSQL 17 in a pnpm + Turborepo monorepo with TypeScript strict. Covers App Router RSC/Server Actions, proxy.ts, Better Auth with RBAC, Stripe SAQ-A payments and webhooks, Zod validation, Zustand client islands, shadcn/Radix UI, and end-to-end commerce engine (catalog, cart, pricing, promotions, inventory, orders, shipping, tax, search FTS, jobs). Includes reusable patterns for monorepo layering (transpilePackages), security harden...
+
 ### `finance`
 
 - **Path**: `skills/finance`
@@ -160,16 +183,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Comprehensive Finance API integration skill for real-time and historical financial data analysis, market research, and investment decision-making. Priority use cases: stock price queries, market data analysis, company financial information, portfolio tracking, market news retrieval, stock screening, technical analysis, and any financial market-related requests. This skill should be the primary choice for all Finance API interactions and financial data needs.
-### `flutter`
 
-- **Path**: `skills/flutter`
-- **SKILL.md**: [`skills/flutter/SKILL.md`](skills/flutter/SKILL.md)
-- **Title**: Flutter — Cross-Platform UI Toolkit Workflow Skill
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Flutter (Dart 3) cross-platform UI toolkit workflow skill — build iOS, Android, web, and desktop apps from a single codebase. Covers the widget-tree mental model (StatelessWidget vs StatefulWidget vs InheritedWidget), BuildContext and rebuilds, layout primitives (Row, Column, Stack, Container, Flex family, Expanded/Flexible), the state management decision tree (setState → InheritedWidget → Provider → Riverpod → Bloc → GetX), Navigation 2.0 router vs Navigation 1.0 (Navigator.push), pubspec.yaml and the pub.dev ecosystem, HTTP & JSON (http package + json_serializable codegen), forms and vali...
 ### `frontend-design`
 
 - **Path**: `skills/frontend-design`
@@ -179,6 +193,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Design thinking and decision-making for web UI. Use when designing components, layouts, color schemes, typography, or creating aesthetic interfaces. Teaches principles, not fixed values.
+
 ### `frontend-development`
 
 - **Path**: `skills/frontend-development`
@@ -188,6 +203,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and TypeScript best practices. Use when creating components, pages, features, fetching data, styling, routing, or working with frontend code.
+
 ### `frontend-ui-engineering`
 
 - **Path**: `skills/frontend-ui-engineering`
@@ -197,6 +213,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Builds production-quality UIs. Use when building or modifying user-facing interfaces. Use when creating components, implementing layouts, managing state, or when the output needs to look and feel production-quality rather than AI-generated.
+
 ### `frontend-ui-testing-journey`
 
 - **Path**: `skills/frontend-ui-testing-journey`
@@ -206,6 +223,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Complete frontend UI testing, verification, troubleshooting, and resolution journey. Covers testing methodology, browser automation with four tools (OpenClaw browser, agent-browser CLI, chrome-devtools-mcp, @playwright/mcp), common patterns, troubleshooting guides, and lessons learned from real-world testing.
+
 ### `fullstack-dev`
 
 - **Path**: `skills/fullstack-dev`
@@ -215,26 +233,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Full-stack Next.js 16 + React 19 + TypeScript strict with Tailwind CSS v4, shadcn/ui, Prisma ORM. Covers App Router, Server Components, API routes, WebSocket/Socket.io, database schemas, full project scaffolding. Use when building web apps, creating UI components, setting up databases, or implementing full-stack TypeScript with Next.js and Prisma.
-### `hono`
 
-- **Path**: `skills/hono`
-- **SKILL.md**: [`skills/hono/SKILL.md`](skills/hono/SKILL.md)
-- **Title**: Hono 4 — Ultra-Lightweight Web Framework for Edge Runtimes
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Hono 4 (TypeScript, released 2024) ultra-lightweight web framework for edge runtimes workflow skill. Covers the multi-runtime support (runs UNCHANGED on Cloudflare Workers/Pages, Deno, Bun, Vercel Edge, AWS Lambda, Node.js, Lagon, Netlify Edge — the same code deploys to any runtime via the hono/<adapter> package), the type-safe RPC via hc client (the killer feature — `const client = hc<App>(url)` generates a fully-typed client from the app's routes, end-to-end type safety with zero codegen), routing (the new RegExpRouter for ~3x faster routing than Hono 3, plus the LinearRouter and PatternR...
-### `htmx`
-
-- **Path**: `skills/htmx`
-- **SKILL.md**: [`skills/htmx/SKILL.md`](skills/htmx/SKILL.md)
-- **Title**: HTMX 2 — Hypermedia-Driven Web Frontend
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> HTMX 2 (released 2024) hypermedia-driven web frontend workflow skill — HTML over the wire, no SPA framework needed. Covers the core mental model (HTML attributes drive AJAX, WebSocket, SSE, and DOM updates — hx-get, hx-post, hx-put, hx-delete, hx-swap, hx-target, hx-trigger, hx-vals, hx-headers), the swap modes (innerHTML, outerHTML, beforebegin, afterbegin, beforeend, afterend, delete, none — and hx-swap-oob for out-of-band updates), triggers (standard DOM events + custom events + polling via hx-trigger='every 2s' + delay/throttle modifiers + changed/once modifiers + from modifier for dele...
 ### `image-search`
 
 - **Path**: `skills/image-search`
@@ -245,16 +244,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > ZAI in-house image search service, exposed through the z-ai-web-dev-sdk CLI. Retrieve real images from the web for any text query, with optional short captions, and get back OSS-hosted direct URLs that are guaranteed reachable. Use when the user wants to find, fetch, illustrate, or embed images — e.g. "search for images of X", "find a picture of Y", "I need cover art for Z", "give me reference photos of W", "插图", "配图", "找图", "找张图", "搜张图", "搜图".
-### `keystonejs-6`
 
-- **Path**: `skills/keystonejs-6`
-- **SKILL.md**: [`skills/keystonejs-6/SKILL.md`](skills/keystonejs-6/SKILL.md)
-- **Title**: KeystoneJS 6 — Schema-as-Code Headless CMS + Admin + GraphQL API
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> KeystoneJS 6 (TypeScript, Node.js 20+) schema-as-code headless CMS + admin panel generator + GraphQL API workflow skill. Covers the schema-as-code paradigm (define lists with fields in keystone.ts → Keystone auto-generates the admin UI, GraphQL schema, and Prisma schema — no manual CRUD, no manual admin, no manual GraphQL resolvers), the list system (list(fields: { name: text(), email: text({ isUnique: true }), posts: relationship({ ref: 'Post.author', many: true }) }) — each list becomes a GraphQL type with auto-generated CRUD queries/mutations), the field types (text, select, integer, flo...
 ### `laravel-12`
 
 - **Path**: `skills/laravel-12`
@@ -265,6 +255,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Laravel 12 (PHP 8.3+) full-stack workflow skill. Covers the streamlined 11+/12 app structure (no Kernel.php, bootstrap/app.php config), Eloquent ORM with factories/seeders, Artisan CLI, Blade + Livewire + Inertia frontend options, Sanctum API tokens, Breeze/Jetstream auth scaffolding, Queues with Redis/database, Pest testing, Vite asset build, Filament admin, Forge/Vapor deployment. Use when building any PHP web application, API, or console workload on Laravel 12 — especially when the task involves migrations, Eloquent queries, queued jobs, or auth flows where idiomatic Laravel differs from...
+
+### `nextjs-postgresql-single-app`
+
+- **Path**: `skills/nextjs-postgresql-single-app`
+- **SKILL.md**: [`skills/nextjs-postgresql-single-app/SKILL.md`](skills/nextjs-postgresql-single-app/SKILL.md)
+- **Title**: home-financing (ModFii) — Production Web App Skill
+- **Version**: 1.8.0
+- **Files**: 1
+- **Structure**: flat
+
+> Production-grade reference for building content-driven marketing sites and transactional funnel apps on Next.js 16 + React 19 + Tailwind CSS v4 (CSS-first @theme) + Drizzle ORM + PostgreSQL 17 in a single-app (npm, no monorepo) with TypeScript strict. Covers App Router RSC (force-dynamic), file corpus → catalog → idempotent ensureSeeded() projection → Pool singleton (globalThis), Drizzle pgTable migrations, 43 static/dynamic pages, lead-capture funnel (validate → match → persist), rate limiting, health/sitemap/redirects, editorial design tokens, and WCAG AAA. Includes reusable patterns for ...
+
 ### `nextjs-react-expert`
 
 - **Path**: `skills/nextjs-react-expert`
@@ -274,6 +276,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > React 19 and Next.js 16 performance optimization from Vercel Engineering. 57 rules prioritized by impact - eliminate waterfalls, reduce bundle size, server/client-side optimizations. Covers App Router, Server Components, RSC streaming, Turbopack, React Compiler, Core Web Vitals (LCP/INP/CLS), bundle analysis. Use when profiling, reviewing code for perf issues, or optimizing production React/Next.js apps.
+
 ### `nextjs-typescript-patterns`
 
 - **Path**: `skills/nextjs-typescript-patterns`
@@ -284,6 +287,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Monorepo web projects using pnpm, Turborepo, TypeScript, Next.js, React, ESLint, Prettier, Drizzle ORM, Postgres, and third-party SDKs (tRPC, Trigger.dev, Stripe, Better Auth, Sanity, React Email, Vitest)
+
 ### `nextjs16-full-stack`
 
 - **Path**: `skills/nextjs16-full-stack`
@@ -294,6 +298,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > IRONFORGE Fitness Studio — Brutalist/Raw + Retro-Futuristic Design System & Next.js 16 Full-Stack Engineering Reference Production-grade skill for building IRONFORGE Fitness Studio from any AI agent. Covers - Avant-garde brutalist/raw design system with neon orange (#FF5400) on pure black (#0a0a0a) - Tailwind CSS v4 CSS-first @theme block, custom utilities, and v3→v4 migration rules - Anti-generic UI, typography scale (Bebas Neue / Oswald / Archivo / JetBrains Mono), and motion standards - Next.js 16 + React 19 App Router, Server Components, and 5-layer architecture (proxy → app → features ...
+
 ### `nextjs16-react19-next-auth5-drizzle-orm`
 
 - **Path**: `skills/nextjs16-react19-next-auth5-drizzle-orm`
@@ -304,6 +309,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Full-stack Next.js 16 SaaS with React 19, Tailwind v4 CSS-first @theme, Auth.js v5, Drizzle ORM/Postgres (Neon), Inngest job queue, OpenAI + Replicate + ElevenLabs AI pipeline, Stripe billing, Cloudflare R2 storage, SSE streaming. 5-layer architecture (proxy → app → features → domain → lib), App Router Server Components, TypeScript strict, pnpm, Vitest + Playwright E2E, GitHub Actions CI. Luxury-dark cinematic design system with 13 CSS keyframes, WCAG AAA accessibility, server-side URL signing, env-configurable fail-open moderation. Production engineering reference with anti-patterns, debug...
+
 ### `nextjs16-react19-postgres17`
 
 - **Path**: `skills/nextjs16-react19-postgres17`
@@ -314,6 +320,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Full-stack Next.js 16 + React 19 + PostgreSQL 17 reference app with Drizzle ORM, BullMQ job queues (Redis), Auth.js v5, Vercel AI SDK (Anthropic + OpenAI), RSS/Atom ingestion, web push notifications. 5-layer architecture (proxy → app → features → domain → lib), App Router Server Components, async params, Suspense boundaries, PPR/cacheComponents, TypeScript strict + erasableSyntaxOnly, pnpm, Zod validation, Vitest + Playwright E2E + testcontainers. Editorial design system with CSS Subgrid, WCAG AAA accessibility, 3-layer AI provenance (JSON-LD + HTTP header + meta tag), Docker standalone out...
+
 ### `nextjs16-react19-tailwind4-auth5-video-gen`
 
 - **Path**: `skills/nextjs16-react19-tailwind4-auth5-video-gen`
@@ -324,6 +331,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Production-grade Next.js 16 + React 19 + Tailwind CSS v4 full-stack SaaS. Covers App Router Server Components, TypeScript strict, CSS-first @theme design system, Drizzle ORM + PostgreSQL, Auth.js v5 authentication, job queue orchestration (Inngest/BullMQ), AI pipeline integration (OpenAI, Replicate, ElevenLabs), credit-based Stripe billing, Cloudflare R2 storage, SSE streaming, idempotent transactions, WCAG AAA accessibility, OWASP 2025 security hardening, Docker deployment, Vitest + Playwright testing, CI/CD, and live-site validation. Comprehensive engineering reference with audit history,...
+
 ### `nextjs16-react19-tailwind4-better-auth-monorepo`
 
 - **Path**: `skills/nextjs16-react19-tailwind4-better-auth-monorepo`
@@ -334,6 +342,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Turborepo monorepo, Next.js 16.2, React 19, Tailwind v4.3, tRPC v11, Drizzle ORM 0.45, Better Auth 1.6.23, Stripe 22.3 (Dahlia), Trigger.dev v4, React Email 6.6, Resend, Sanity CMS v6. 651 tests, 11 ADRs, 93 lessons learned across 13 build phases.
+
+### `nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc`
+
+- **Path**: `skills/nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc`
+- **SKILL.md**: [`skills/nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc/SKILL.md`](skills/nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc/SKILL.md)
+- **Title**: Nave & Spire — SKILL.md
+- **Version**: 1.2.0
+- **Files**: 1
+- **Structure**: flat
+
+> Production-grade Next.js 16 + React 19 + Tailwind CSS v4 + Drizzle ORM + PostgreSQL 17 reference with App Router RSC (force-dynamic) — 3-layer architecture (App/RSC pages + Client islands + Domain/DB). Covers CSS-first @theme design system, editorial motion + a11y floor, file-backed typed seeds → idempotent ensureSeeded() → Drizzle pgTable (6-table pattern, Pool globalThis singleton, parallel queries + in-memory joins), manual validation, per-IP rate limiting, security headers/CSP, and hybrid CI + Vitest + live-DB verification. Use when building any content-driven, editorial, audit-journal,...
+
 ### `nextjs16-react19-tailwind4-full-stack`
 
 - **Path**: `skills/nextjs16-react19-tailwind4-full-stack`
@@ -344,16 +364,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Production-grade Next.js 16 full-stack marketing website building with React 19, TypeScript strict, and Tailwind CSS v4 CSS-first @theme design system. Covers App Router Server Components, the 5-layer golden rule architecture (proxy → app → features → domain → lib), graceful degradation for infrastructure clients, Drizzle ORM with PostgreSQL and static fallback data, Auth.js v5 JWT authentication, Inngest step functions, Stripe Checkout payments, Replicate SDXL AI asset generation, Cloudflare R2 storage, Upstash rate limiting, and Zod 4 validation. Includes CSS-only animations, anti-generic...
-### `nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth`
 
-- **Path**: `skills/nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth`
-- **SKILL.md**: [`skills/nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth/SKILL.md`](skills/nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth/SKILL.md)
-- **Title**: Stillwater — Project Skill File
-- **Version**: 1.4.0
-- **Files**: 1
-- **Structure**: flat
-
-> Production-grade reference for Next.js 16 + React 19 + Tailwind CSS v4 + tRPC v11 + Drizzle ORM + Better Auth in a Turborepo monorepo. Covers App Router Server Components, proxy.ts (replaces middleware.ts), RSC streaming, CSS-first @theme design tokens, 5-layer architecture, and async params. Includes 50+ documented anti-patterns and gotchas across Next.js 16 breaking changes, React 19 API shifts, Tailwind v4 migration, Better Auth vs Auth.js v5, Drizzle ORM pitfalls, Stripe webhook idempotency, and Vitest mocking. Features production patterns for advisory-lock booking concurrency, SSE stre...
 ### `nextjs16-tailwind4`
 
 - **Path**: `skills/nextjs16-tailwind4`
@@ -363,39 +374,32 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Luxury-grade Next.js 16 + React 19 + TypeScript strict with Tailwind CSS v4 CSS-first @theme, Radix UI (shadcn), and Framer Motion. Covers App Router, Server Components, avant-garde anti-generic UI design, OWASP 2025 security audits, Core Web Vitals performance optimization, WCAG AAA accessibility, mobile navigation debugging, and code review for high-end production web experiences.
+
 ### `personal-portfolio`
 
 - **Path**: `skills/personal-portfolio`
 - **SKILL.md**: [`skills/personal-portfolio/SKILL.md`](skills/personal-portfolio/SKILL.md)
 - **Title**: The Engineered Soul — Portfolio Master Skill (v3.0.0)
-- **Version**: 3.0.0
 - **License**: MIT
+- **Version**: 3.0.0
 - **Files**: 1
 - **Structure**: flat
 
 > Tactile Brutalist + High-End Editorial personal portfolio SPA with React 19, TypeScript 6 strict, Vite 6, Tailwind CSS v4 CSS-first @theme, pnpm. Covers complete lifecycle from scaffold to shipping: kinetic typography, hash-based routing, import.meta.glob content ingestion, dual-theme (night/day) design system, WCAG AAA accessibility, component-driven digital installation. Use when building a distinctive, anti-generic portfolio or personal site with React + Vite + Tailwind v4.
-### `phoenix-1-7`
 
-- **Path**: `skills/phoenix-1-7`
-- **SKILL.md**: [`skills/phoenix-1-7/SKILL.md`](skills/phoenix-1-7/SKILL.md)
-- **Title**: Phoenix 1.7 (Elixir) — Functional Real-Time Web Framework
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Phoenix 1.7 (Elixir 1.16+ on the BEAM VM) full-stack functional web framework workflow skill. Covers the OTP supervision tree mental model (processes, GenServers, Supervisors — fault tolerance via 'let it crash'), Ecto 3 (the Elixir ORM with migrations, changesets for validation + data casting, Repo for queries, schemas with has_many/belongs_to), LiveView (the SPA-less real-time UI paradigm — server-rendered HTML that updates via WebSocket, no React/Vue/Svelte needed, no JS for most interactions), HEEx templates (HTML-aware EEx with ~H sigil and <.component> syntax), the new unified routes ...
 ### `pptx-unified`
 
 - **Path**: `skills/pptx-unified`
 - **SKILL.md**: [`skills/pptx-unified/SKILL.md`](skills/pptx-unified/SKILL.md)
 - **Title**: pptx-unified — A Practical Recipe for Impressive .pptx Decks
-- **Author**: Claw Code (distilled from real build experience)
-- **Version**: 1.0.0
 - **License**: MIT
+- **Version**: 1.0.0
+- **Author**: Claw Code (distilled from real build experience)
 - **Files**: 13
 - **Structure**: `scripts/`, `references/`
 
 > Unified practical recipe for generating impressive marketing-grade .pptx presentations from scratch. Combines the canonical pptx skill's HTML-first 4-stage pipeline (Clarify → Research → Plan → Build → Export) with the variant skills' distinctive strengths (cyber-ppt's confirmation gates, pptx-generator's PptxGenJS templates, codex-ppt's image-based fallback) and 20+ real-world lessons/anti-patterns distilled from building a 12-slide deck for the my-pi-agent repo. Use this skill when ANY coding agent needs to produce a polished .pptx — it is the single starting point that routes to the righ...
+
 ### `prototype`
 
 - **Path**: `skills/prototype`
@@ -405,37 +409,19 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.
-### `rails-8`
 
-- **Path**: `skills/rails-8`
-- **SKILL.md**: [`skills/rails-8/SKILL.md`](skills/rails-8/SKILL.md)
-- **Title**: Ruby on Rails 8 — Full-Stack Ruby Workflow Skill
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Ruby on Rails 8 (Ruby 3.2+) full-stack workflow skill. Covers Rails 8 new defaults: Solid Queue / Solid Cache / Solid Cable (Redis-free by default — backed by SQLite/Postgres/MySQL), Propshaft (replaces Sprockets), Kamal 2 (Docker-based deploys to any cloud), Thruster (Puma HTTP/2 proxy with TLS). MVC structure (Active Record models, controllers, ERB + Hotwire views), Active Record (migrations, validations, associations, callbacks — and when NOT to use callbacks), routing (resources, nested routes, member/collection, concerns), strong parameters, Hotwire (Turbo Drive for SPA-like nav withou...
-### `react-native-expo`
-
-- **Path**: `skills/react-native-expo`
-- **SKILL.md**: [`skills/react-native-expo/SKILL.md`](skills/react-native-expo/SKILL.md)
-- **Title**: React Native + Expo — Cross-Platform Mobile Workflow Skill
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> React Native (0.76+ with New Architecture: Fabric + TurboModules) + Expo (SDK 52+ with Expo Router v4) cross-platform mobile app workflow skill. Covers the New Architecture (Fabric renderer replacing the legacy bridge, TurboModules for synchronous native calls, React 18 concurrent features), Expo Application Services (EAS Build for cloud builds without local Xcode/Android Studio, EAS Submit for App Store + Play Store, EAS Update for OTA updates), Expo Router v4 (file-based routing like Next.js for native apps), the React mental model in native context (core components View/Text/Pressable/Sc...
 ### `react19-ts6-vite8-tailwindv4-mvp`
 
 - **Path**: `skills/react19-ts6-vite8-tailwindv4-mvp`
 - **SKILL.md**: [`skills/react19-ts6-vite8-tailwindv4-mvp/SKILL.md`](skills/react19-ts6-vite8-tailwindv4-mvp/SKILL.md)
 - **Title**: React 19 + TypeScript 6 + Vite 8 MVP — Production-Ready Web App Skill
-- **Version**: 3.0.0
 - **License**: MIT
+- **Version**: 3.0.0
 - **Files**: 7
 - **Structure**: flat
 
 > MVP/production React 19 + TypeScript 6 strict + Vite 8 (Rolldown) + Tailwind CSS v4 CSS-first @theme. File-based routing, pnpm, Vitest + Playwright E2E. Covers complete lifecycle from scaffold to shipping tested, type-safe, WCAG AAA, production-grade code. Use when building new greenfield web apps with modern React + Vite + Tailwind v4.
+
 ### `sanity-best-practices`
 
 - **Path**: `skills/sanity-best-practices`
@@ -445,6 +431,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Sanity development best practices for schema design, GROQ queries, TypeGen, Visual Editing, images, Portable Text, Studio structure, localization, migrations, Sanity Functions, Blueprints, and framework integrations such as Next.js, Nuxt, Astro, Remix, SvelteKit, Angular, Hydrogen, and the App SDK. Use this skill whenever working with Sanity schemas, defineType or defineField, GROQ or defineQuery, content modeling, Presentation or preview setups, Sanity-powered frontend integrations, Sanity Functions, documentEventHandler, defineDocumentFunction, defineMediaLibraryAssetFunction, @sanity/fun...
+
 ### `sanity-io-deploy`
 
 - **Path**: `skills/sanity-io-deploy`
@@ -453,7 +440,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Files**: 1
 - **Structure**: flat
 
-> Connect an existing Next.js app to a standalone Sanity Studio — confirm/scaffold the Studio as a sibling folder (never embedded), fix dangling schema references, deploy the schema and Studio UI to Sanity hosting, mint a read token + webhook secret, wire env vars, add CORS, verify the live deployment with a fresh headless browser + Content Lake query, and rotate any committed secrets. Use when a task references a Sanity onboarding doc, "connect Sanity to my existing Next.js app", a standalone Studio in a sibling folder, or any of `sanity login`, `sanity schema deploy`, `sanity deploy`, `sani...
+> Sanity CMS + Next.js integration — end-to-end setup, deployment, and verification for a standalone Sanity Studio (sibling folder, never embedded) wired to an existing Next.js App Router app. Handles Sanity project auth and provider selection, schema validation and dangling-reference fixes, sanity schema deploy vs sanity deploy (Schema/Content Lake vs Studio UI at *.sanity.studio), viewer token and webhook secret minting, env wiring (NEXT_PUBLIC_SANITY_*), CORS origins, ISR webhook for revalidation, and live verification via Content Lake GROQ query + fresh headless-browser check. Use when co...
+
 ### `sanity-migration`
 
 - **Path**: `skills/sanity-migration`
@@ -463,35 +451,40 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Plans, implements, and reviews migrations from other CMSes and content systems into Sanity. Use when migrating or replatforming to Sanity from AEM, Adobe Experience Manager, Contentful, Strapi, Webflow, WordPress, Payload, Drupal, Markdown/MDX/frontmatter files, WXR/XML exports, CMS APIs, database dumps, static HTML, or when designing extraction, transformation, Portable Text conversion, asset migration, redirects, validation, and cutover workflows.
+
 ### `scaffold-ui`
 
 - **Path**: `skills/scaffold-ui`
 - **SKILL.md**: [`skills/scaffold-ui/SKILL.md`](skills/scaffold-ui/SKILL.md)
+- **Title**: scaffold-ui
 - **Files**: 1
 - **Structure**: flat
 
 > Generates an anti-generic React component with brutalist styling and strict DOM hygiene.
-### `solidstart`
 
-- **Path**: `skills/solidstart`
-- **SKILL.md**: [`skills/solidstart/SKILL.md`](skills/solidstart/SKILL.md)
-- **Title**: SolidStart 1 (SolidJS) — Signals-Based Full-Stack TypeScript
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
+### `static-spa-parish-site`
+
+- **Path**: `skills/static-spa-parish-site`
+- **SKILL.md**: [`skills/static-spa-parish-site/SKILL.md`](skills/static-spa-parish-site/SKILL.md)
+- **Title**: Parish Site Engineering Skill — Unified v3 (Church of the Risen Christ, Toa Payoh — canonical instance)
+- **Version**: 3.0.0
+- **Files**: 15
 - **Structure**: flat
 
-> SolidStart 1 (SolidJS 1.9+, released 2024) full-stack TypeScript framework workflow skill — signals-based reactivity without a virtual DOM. Covers the fine-grained reactivity mental model (createSignal returns a getter+setter — calling the getter tracks the dependency, calling the setter triggers ONLY the effects that read it; no component re-renders, no virtual DOM diffing, no fiber tree — the opposite of React's model), the SolidJS primitives (createSignal, createMemo, createEffect, createResource for async, createStore for nested objects, on for explicit dependencies, batch for grouping ...
+> Complete engineering reference for static SPA parish/church/nonprofit/community brochure sites — React 19 + Vite 7 + Tailwind CSS v4 CSS-first @theme + TypeScript + HashRouter + vite-plugin-singlefile (single dist/index.html for GH Pages/S3, no SSR/CMS). Covers design system, component architecture, file-backed typed content, routing alias/anchor contracts, WCAG AAA, and pre-ship gates. Use when building, extending, debugging, onboarding, cloning, replicating, re-porting this parish-site family or scaffolding any static content-driven marketing/brochure/landing site template.
+
 ### `super-frontend-design`
 
 - **Path**: `skills/super-frontend-design`
 - **SKILL.md**: [`skills/super-frontend-design/SKILL.md`](skills/super-frontend-design/SKILL.md)
 - **Title**: Super Frontend Design (Master Skill)
-- **Version**: 1.0.0
 - **License**: MIT
+- **Version**: 1.0.0
 - **Files**: 18
 - **Structure**: `scripts/`, `references/`
 
 > Master frontend UI/UX design and development skill combining the top 10 validated skills. Covers anti-generic strategy, Next.js 16 + React 19 + Tailwind v4 CSS-first @theme tech stack, design systems, component architecture, App Router Server Components, Vercel-grade performance, WCAG AAA accessibility, visual storytelling, and end-to-end quality assurance for production-grade web experiences.
+
 ### `svelte-5-sveltekit`
 
 - **Path**: `skills/svelte-5-sveltekit`
@@ -502,6 +495,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Svelte 5 + SvelteKit 2 full-stack TypeScript workflow skill. Covers the runes reactivity model ($state, $derived, $effect, $props, $bindable) which is fundamentally different from React hooks, file-based routing with +page.svelte / +layout.svelte / +page.server.ts / +page.ts, form actions as the idiomatic mutation pattern (progressive enhancement), load functions (server vs universal), hooks.server.ts for request-level interception, $env modules for typed environment variables (static vs dynamic, private vs public), adapters for deployment targets (auto / node / static / cloudflare / vercel...
+
 ### `tailwind-patterns`
 
 - **Path**: `skills/tailwind-patterns`
@@ -511,16 +505,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Tailwind CSS v4 principles. CSS-first configuration, container queries, modern patterns, design token architecture.
-### `tauri-2`
 
-- **Path**: `skills/tauri-2`
-- **SKILL.md**: [`skills/tauri-2/SKILL.md`](skills/tauri-2/SKILL.md)
-- **Title**: Tauri 2 — Cross-Platform Desktop & Mobile App Framework
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Tauri 2 (Rust backend + system webview frontend, released October 2024) cross-platform desktop and mobile app workflow skill — the Electron alternative. Covers the architecture (Rust core process via tauri::Builder + system webview via WebView2/WKWebView/GTK WebKit — NOT bundled Chromium, so binaries are 3-10 MB vs Electron's 80-150 MB), the IPC model (Tauri commands — #[tauri::command] Rust functions invoked from frontend JS via invoke('command_name', { args }), with automatic serialization via serde), plugin system (official plugins for filesystem, dialog, notification, clipboard, http, s...
 ### `tools-cli`
 
 - **Path**: `skills/tools-cli`
@@ -530,25 +515,29 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Standalone CLI wrapper exposing Claude Code's core file operations (read, glob, grep, edit, write) as command-line utilities. Use for scripting and automation without requiring a full Claude session.
+
 ### `ui-styling`
 
 - **Path**: `skills/ui-styling`
 - **SKILL.md**: [`skills/ui-styling/SKILL.md`](skills/ui-styling/SKILL.md)
 - **Title**: UI Styling Skill
-- **Version**: 1.0.0
 - **License**: MIT
+- **Version**: 1.0.0
 - **Files**: 98
 - **Structure**: `scripts/`, `references/`
 
 > Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications.
+
 ### `ui-ux-pro-max`
 
 - **Path**: `skills/ui-ux-pro-max`
 - **SKILL.md**: [`skills/ui-ux-pro-max/SKILL.md`](skills/ui-ux-pro-max/SKILL.md)
+- **Title**: ui-ux-pro-max
 - **Files**: 56
 - **Structure**: `scripts/`, `references/`
 
 > UI/UX design intelligence and implementation guidance for building polished interfaces. Use when the user asks for UI design, UX flows, information architecture, visual style direction, design systems/tokens, component specs, copy/microcopy, accessibility, or to generate/critique/refine frontend UI (HTML/CSS/JS, React, Next.js, Vue, Svelte, Tailwind). Includes workflows for (1) generating new UI layouts and styling, (2) improving existing UI/UX, (3) producing design-system tokens and component guidelines, and (4) turning UX recommendations into concrete code changes.
+
 ### `version-management`
 
 - **Path**: `skills/version-management`
@@ -558,6 +547,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > 独立通用 Skill：管理前端项目全生命周期。只要任务**可能**写出 .html/.jsx/.tsx/.vue 入口文件，就必须在写出第一个文件**之前**读取并遵循本 Skill（用于确定落盘路径与项目目录），而不是产出之后才补救；即使用户没有提到"项目"或"版本"也要使用。同时响应用户的版本相关操作（查看历史、恢复版本、切换项目等）。
+
 ### `vue-3-nuxt`
 
 - **Path**: `skills/vue-3-nuxt`
@@ -568,17 +558,19 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Vue 3.5+ (Composition API) + Nuxt 4 full-stack TypeScript workflow skill. Covers the reactivity system (ref vs reactive, computed, watch vs watchEffect, automatic dependency tracking — fundamentally different from React hooks' manual dependency arrays), Single File Components (.vue with <script setup>), Nuxt 4 project structure (app/ directory, server/api/, nuxt.config.ts), file-based routing with definePageMeta, layout system, data fetching (useFetch, useAsyncData, $fetch), server routes via Nitro engine, Pinia for state management (the modern Vuex successor), nuxt-auth (Auth.js wrapper) o...
+
 ### `web-frameworks`
 
 - **Path**: `skills/web-frameworks`
 - **SKILL.md**: [`skills/web-frameworks/SKILL.md`](skills/web-frameworks/SKILL.md)
 - **Title**: Web Frameworks Skill Group
-- **Version**: 1.0.0
 - **License**: MIT
+- **Version**: 1.0.0
 - **Files**: 18
 - **Structure**: `scripts/`, `references/`
 
 > Build modern full-stack web applications with Next.js 16 + React 19 (App Router, Server Components, RSC, PPR, cacheComponents, async params, SSR, SSG, ISR, standalone output), Turborepo (monorepo, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SVG icons). Use when creating React applications, implementing server-side rendering, setting up monorepos, optimizing build performance and caching, or working with TypeScript full-stack projects.
+
 ### `webapp-testing-journey`
 
 - **Path**: `skills/webapp-testing-journey`
@@ -594,7 +586,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 2. Design Artifacts & Visual Creation
 
 > Skills that produce visual artifacts: charts, images, diagrams, design systems, and media.
-> **18 skills** in this category.
+> **16 skills** in this category.
 
 ### `aesthetic`
 
@@ -700,17 +692,6 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 > Specialized utility for advanced manipulation, analysis, and creation of spreadsheet files, including (but not limited to) XLSX, XLSM, CSV formats. Core functionalities include formula deployment, complex formatting (including automatic currency formatting for financial tasks), data visualization, and mandatory post-processing recalculation.
 
-### `podcast-generate`
-
-- **Path**: `skills/podcast-generate`
-- **SKILL.md**: [`skills/podcast-generate/SKILL.md`](skills/podcast-generate/SKILL.md)
-- **Title**: Podcast Generate Skill（TypeScript 版本）
-- **License**: MIT
-- **Files**: 7
-- **Structure**: flat
-
-> Generate podcast episodes from user-provided content or by searching the web for specified topics. If user uploads a text file/article, creates a dual-host dialogue podcast (or single-host upon request). If no content is provided, searches the web for information about the user-specified topic and generates a podcast. Duration scales with content size (3-20 minutes, ~240 chars/min). Uses z-ai-web-dev-sdk for LLM script generation and TTS audio synthesis. Outputs both a podcast script (Markdown) and a complete audio file (WAV).
-
 ### `project-architecture-document-md`
 
 - **Path**: `skills/project-architecture-document-md`
@@ -720,15 +701,6 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Create a comprehensive Project Architecture Document (PAD) for any codebase. Use when the user asks to generate a PAD, architecture document, system design document, or technical blueprint for a project. Also triggers on "document this codebase", "create architecture reference", "generate system overview", "write ADR", "document the architecture of this project". Covers executive summary, tech stack with version pinning, Architecture Decision Records (ADRs), system topology diagrams, layer models, annotated directory structures, critical code patterns with invariants, database schemas, secu...
-
-### `qingyan-research`
-
-- **Path**: `skills/qingyan-research`
-- **SKILL.md**: [`skills/qingyan-research/SKILL.md`](skills/qingyan-research/SKILL.md)
-- **Files**: 2
-- **Structure**: flat
-
-> Deep web research and HTML report generation. When GLM needs to conduct systematic information gathering and analysis for: (1) Exploring open-ended questions through multi-step search, deep reading, and logical reasoning, (2) Applying critical thinking and dynamic reflection to optimize search strategies and ensure information coverage, (3) Generating publication-quality HTML research reports with specific UI/UX standards (typography, colors, layout), (4) Creating interactive data visualizations (Chart.js) based on extracted statistical data, (5) Producing structured documents with automati...
 
 ### `stock-analysis`
 
@@ -790,19 +762,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 3. Full-Stack & Backend Development
 
 > Skills for server-side frameworks, ORMs, API design, and full-stack patterns.
-> **22 skills** in this category.
+> **13 skills** in this category.
 
-### `aminer-free-academic`
-
-- **Path**: `skills/aminer-free-academic`
-- **SKILL.md**: [`skills/aminer-free-academic/SKILL.md`](skills/aminer-free-academic/SKILL.md)
-- **Title**: AMiner Free Search
-- **Author**: AMiner
-- **Version**: 1.1.1
-- **Files**: 3
-- **Structure**: `references/`
-
-> ACADEMIC PRIORITY: Activate this skill whenever the user's query involves any academic or research-related topic. This is the free-tier entry point for AMiner academic search. Free-tier-only AMiner skill (7 free APIs, zero cost). Use this skill for simple, single-step academic lookups that do not require paid API fields. Use this skill for: searching a paper by title to get its ID, checking a paper's first author / venue / year / citation bucket, identifying a scholar by name and viewing interests / institution / citation count, normalizing an institution name to its canonical form and ID, ...
 ### `api-patterns`
 
 - **Path**: `skills/api-patterns`
@@ -812,6 +773,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > API design principles and decision-making. REST vs GraphQL vs tRPC selection, response formats, versioning, pagination.
+
 ### `context7-docs`
 
 - **Path**: `skills/context7-docs`
@@ -821,6 +783,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Search and retrieve up-to-date curated documentation from Context7 for any software, library, or package. Use when: (1) Need latest documentation for a specific library or tool, (2) Looking for code examples and patterns, (3) Need accurate API reference information, (4) Building workflows with specific tools like n8n, (5) Want to avoid hallucinated or outdated documentation. Triggers on phrases like "search Context7 for", "get documentation for", "find latest docs", "n8n workflow", "package documentation".
+
 ### `django-6`
 
 - **Path**: `skills/django-6`
@@ -831,36 +794,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Django 6.x (Python 3.12+, released August 2025 LTS) full-stack workflow skill. Covers the ORM with migrations (write Python, not SQL), Class-Based Views vs Function-Based Views decision, Django REST Framework (DRF) for APIs (Serializers, ViewSets, Routers), Django admin for free CRUD, async views with full async ORM support, Celery + Redis for background tasks, django-allauth for social auth, pytest-django for modern testing, split settings (base/dev/prod), ASGI deployment via Daphne/Uvicorn, WhiteNoise for static files, psycopg3 for PostgreSQL. Use when building any Python web application,...
-### `dotnet-9`
 
-- **Path**: `skills/dotnet-9`
-- **SKILL.md**: [`skills/dotnet-9/SKILL.md`](skills/dotnet-9/SKILL.md)
-- **Title**: .NET 9 + ASP.NET Core — Enterprise C# Backend Workflow Skill
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> .NET 9 (C# 13, released November 2024 LTS) + ASP.NET Core enterprise backend workflow skill. Covers the IoC container (Microsoft.Extensions.DependencyInjection — constructor injection, AddScoped/AddTransient/AddSingleton lifetimes, IHostApplicationBuilder), minimal APIs (MapGet/MapPost/MapPut/MapDelete with lambda handlers — the modern alternative to controllers), controller-based APIs (when to choose which), Entity Framework Core 9 (DbContext, DbSet, LINQ-to-SQL queries, migrations via dotnet ef, AsNoTracking for read-only queries, N+1 detection), ASP.NET Core Identity + JWT auth + ASP.NET...
-### `fastapi-sqlalchemy`
-
-- **Path**: `skills/fastapi-sqlalchemy`
-- **SKILL.md**: [`skills/fastapi-sqlalchemy/SKILL.md`](skills/fastapi-sqlalchemy/SKILL.md)
-- **Title**: FastAPI + SQLAlchemy 2.0 + Pydantic v2 — Modern Python Async API Workflow
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> FastAPI (0.115+) + SQLAlchemy 2.0 (async with asyncpg) + Pydantic v2 + Alembic modern Python async API workflow skill. Covers the async-first mental model (async def endpoints, async DB sessions, asyncpg driver), Pydantic v2 validation (type-driven with Annotated types, model_validator, field_validator, computed_field — Rust-powered, 5-50x faster than v1), SQLAlchemy 2.0 unified API (Session sync, AsyncSession async, Mapped[] type annotations, DeclarativeBase, select() statement API replacing legacy Query), dependency injection via Depends() for DB sessions, auth, rate limiting, the lifespa...
-### `fastify`
-
-- **Path**: `skills/fastify`
-- **SKILL.md**: [`skills/fastify/SKILL.md`](skills/fastify/SKILL.md)
-- **Title**: Fastify 5 — High-Performance Node.js Web Framework
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Fastify 5 (Node.js 20+, released 2024) high-performance web framework workflow skill — the canonical Express replacement. Covers the schema-first design (JSON Schema for request validation + response serialization — Fastify compiles schemas via fast-json-stringify for 2-3x faster serialization than JSON.stringify), the plugin encapsulation model (fastify.register() creates isolated scopes with their own decorators/hooks/encapsulated plugins — contrast with Express where middleware is global), the hook system (onRequest, preParsing, preValidation, preHandler, preSerialization, onSend, onResp...
 ### `framework-templates`
 
 - **Path**: `skills/framework-templates`
@@ -870,17 +804,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Files**: 2
 - **Structure**: flat
 
-> Validate CLAUDE.md for framework-specific completeness
-### `go-web`
+> Deep reference library for framework-specific CLAUDE.md sections. Contains production-ready templates for Next.js, Laravel, Rails, Django, React Native, Flutter, Go, Rust, and more. Use alongside the claude-md skill for complete CLAUDE.md generation.
 
-- **Path**: `skills/go-web`
-- **SKILL.md**: [`skills/go-web/SKILL.md`](skills/go-web/SKILL.md)
-- **Title**: Go Web — Backend Workflow Skill
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Go (Golang 1.23+) web backend workflow skill. Covers the stdlib-first philosophy (net/http is production-grade — frameworks are optional thin wrappers), the four most popular router/middleware choices (net/http ServeMux (Go 1.22+ pattern routing), chi, Echo, Gin), sqlc for type-safe SQL codegen (preferred over ORM for most projects), pgx for native PostgreSQL drivers, the interface satisfaction model (implicit — no `implements` keyword), error-as-values (no exceptions), goroutines + channels for concurrency, context.Context for cancellation/timeouts, the standard project layout debate, test...
 ### `kubernetes-env-setup`
 
 - **Path**: `skills/kubernetes-env-setup`
@@ -891,18 +816,20 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Production-grade self-managed Kubernetes cluster on Azure Linux 3.0 (kubeadm) with CIS/NSA/CISA-aligned hardening for agentic AI and LLM workloads. Covers host hardening (SELinux, Trusted Launch, OS Guard IPE), containerd, Cilium eBPF CNI, Kyverno policy-as-code, gVisor/Kata Containers sandboxing, cosign/Sigstore supply chain security, Falco runtime detection, Pod Security Admission, RBAC, secrets management, network segmentation, high availability (multi-AZ), backup with Velero, and compliance validation (kube-bench, Kubescape). Includes OWASP LLM Top 10 and MITRE ATLAS threat modeling for...
+
 ### `minimax-docx`
 
 - **Path**: `skills/minimax-docx`
 - **SKILL.md**: [`skills/minimax-docx/SKILL.md`](skills/minimax-docx/SKILL.md)
 - **Title**: minimax-docx
-- **Author**: MiniMaxAI
-- **Version**: 1.0.0
 - **License**: MIT
+- **Version**: 1.0.0
+- **Author**: MiniMaxAI
 - **Files**: 75
 - **Structure**: `scripts/`, `references/`
 
 > Professional DOCX document creation, editing, and formatting using OpenXML SDK (.NET). Three pipelines: (A) create new documents from scratch, (B) fill/edit content in existing documents, (C) apply template formatting with XSD validation gate-check. MUST use this skill whenever the user wants to produce, modify, or format a Word document — including when they say "write a report", "draft a proposal", "make a contract", "fill in this form", "reformat to match this template", or any task whose final output is a .docx file. Even if the user doesn't mention "docx" explicitly, if the task implie...
+
 ### `n8n-workflow-automation`
 
 - **Path**: `skills/n8n-workflow-automation`
@@ -912,26 +839,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Build and automate n8n workflows using JSON specification. Use when: (1) Creating n8n workflows programmatically, (2) Converting workflows to/from JSON, (3) Understanding n8n node types and connections, (4) Writing n8n expressions, (5) Debugging workflow JSON structure, (6) Building workflow templates. Triggers on phrases like "n8n workflow", "n8n JSON", "n8n expression", "webhook workflow", "n8n automation".
-### `nestjs`
 
-- **Path**: `skills/nestjs`
-- **SKILL.md**: [`skills/nestjs/SKILL.md`](skills/nestjs/SKILL.md)
-- **Title**: NestJS — Enterprise TypeScript Backend Workflow Skill
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> NestJS 10+ (TypeScript, Node.js 20+) enterprise backend workflow skill. Covers the Angular-inspired architecture (modules with @Module() decorators, controllers with @Controller() + @Get/@Post/@Put/@Delete route decorators, providers with @Injectable()), the IoC container (constructor injection, DI tokens, custom providers via useFactory/useClass/useValue, request-scoped vs singleton providers), DTOs with class-validator + class-transformer decorators (@IsEmail, @IsString, @IsOptional, ValidationPipe with whitelist/forbidNonWhitelisted/transform), exception filters (@Catch + @UseFilters) fo...
-### `ponytail`
-
-- **Path**: `skills/ponytail`
-- **SKILL.md**: [`skills/ponytail/SKILL.md`](skills/ponytail/SKILL.md)
-- **Title**: Senior Dev Key Rules / Instructions
-- **Version**: 1.0
-- **Files**: 1
-- **Structure**: flat
-
-> Minimalism-as-discipline coding methodology: understand the task and real flow first, then apply an ordered implementation ladder (skip speculative need -> reuse existing code -> stdlib -> native platform features -> already-installed deps -> one line -> minimum working code) to produce the shortest correct diff. Enforces YAGNI, no unrequested abstractions, no one-implementation interfaces, no config for constants, no boilerplate, no scaffolding for later, prefer deletion over addition and boring over clever code. Bug fixes must target root cause not symptom: grep every caller, fix once whe...
 ### `powershell-windows`
 
 - **Path**: `skills/powershell-windows`
@@ -941,6 +849,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > PowerShell Windows patterns. Critical pitfalls, operator syntax, error handling.
+
 ### `python-patterns`
 
 - **Path**: `skills/python-patterns`
@@ -950,25 +859,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Python development principles and decision-making. Framework selection, async patterns, type hints, project structure. Teaches thinking, not copying.
+
 ### `react19-vite-spa-fastify-drizzle-sqlite`
 
 - **Path**: `skills/react19-vite-spa-fastify-drizzle-sqlite`
 - **SKILL.md**: [`skills/react19-vite-spa-fastify-drizzle-sqlite/SKILL.md`](skills/react19-vite-spa-fastify-drizzle-sqlite/SKILL.md)
 - **Title**: reddit-clone SKILL — Engineering Reference for Full-Stack TypeScript Monorepos
-- **Files**: 2
-- **Structure**: flat
-
-> npm-workspaces monorepo reference for reddit-clone (embers): React 19 + Vite 7 SPA with HashRouter and vite-plugin-singlefile (single HTML deploy to GitHub Pages or S3), Tailwind CSS v4 CSS-first, Zustand overlay pattern, Fastify 5 composition-root buildApp, Drizzle ORM 0.36 + SQLite + better-sqlite3 + FTS5, Zod schemas at every boundary, JWT HS256 via jose + argon2id, pino logging, TypeScript 5.9 strict, ESLint 9 flat, Vitest and Playwright. Use when building a full-stack TypeScript monorepo, a deploy-anywhere static SPA with deterministic PRNG client data and a real Fastify backend, a community feed or forum with atomic voting and branded IDs, or when you need schema-versioned persistence, pure selectors, or SQLite online backup patterns.
-### `rust-web`
-
-- **Path**: `skills/rust-web`
-- **SKILL.md**: [`skills/rust-web/SKILL.md`](skills/rust-web/SKILL.md)
-- **Title**: Rust Web — Backend Workflow Skill (Axum + Tokio + sqlx)
-- **License**: Proprietary. LICENSE.txt has complete terms
+- **Version**: 1.1.0
 - **Files**: 1
 - **Structure**: flat
 
-> Rust (1.80+) web backend workflow skill with Axum + Tokio + sqlx. Covers the ownership/borrow checker mental model (the #1 stumbling block for newcomers — borrow rules, lifetimes, `&` vs `&mut` vs owned), async/await with the Tokio runtime, the Axum web framework (Tower-based middleware, extractors for type-safe request parsing, IntoResponse for responses), sqlx for compile-time-checked SQL (macros verify queries against your DB at build time — catches SQL errors before runtime), serde for JSON serialization, the Result<T, E> error model (no exceptions — like Go but with the `?` operator), ...
+> npm-workspaces monorepo reference for reddit-clone (embers): React 19 + Vite 7 SPA with HashRouter and vite-plugin-singlefile (single HTML deploy to GitHub Pages or S3), Tailwind CSS v4 CSS-first, Zustand overlay pattern, Fastify 5 composition-root buildApp, Drizzle ORM 0.36 + SQLite + better-sqlite3 + FTS5, Zod schemas at every boundary, JWT HS256 via jose + argon2id, pino logging, TypeScript 5.9 strict, ESLint 9 flat, Vitest and Playwright. Use when building a full-stack TypeScript monorepo, a deploy-anywhere static SPA with deterministic PRNG client data and a real Fastify backend, a com...
+
 ### `security-and-hardening`
 
 - **Path**: `skills/security-and-hardening`
@@ -978,16 +880,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Hardens code against vulnerabilities. Use when handling user input, authentication, data storage, or external integrations. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services.
-### `spring-boot-3`
 
-- **Path**: `skills/spring-boot-3`
-- **SKILL.md**: [`skills/spring-boot-3/SKILL.md`](skills/spring-boot-3/SKILL.md)
-- **Title**: Spring Boot 3 — Enterprise Java Backend Workflow Skill
-- **License**: Proprietary. LICENSE.txt has complete terms
-- **Files**: 1
-- **Structure**: flat
-
-> Spring Boot 3.x (Java 21+ with virtual threads, released November 2023) enterprise backend workflow skill. Covers the IoC container (dependency injection via @Autowired / constructor injection, @Component / @Service / @Repository / @Controller stereotypes, @Configuration classes, @Bean methods), Spring Data JPA with Hibernate (repositories extending JpaRepository, @Entity models with @Table/@Column, JPQL vs native SQL, @Transactional boundaries, N+1 detection), Spring MVC @RestController with @GetMapping/@PostMapping/@PutMapping/@DeleteMapping, Spring Security 6 (SecurityFilterChain lambda ...
 ### `trustskill`
 
 - **Path**: `skills/trustskill`
@@ -999,7 +892,6 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 > TrustSkill v3.1 - Advanced security scanner for OpenClaw skills with 99% false positive reduction. Detects malicious code, hardcoded secrets, vulnerable dependencies, tainted data flows, backdoors, credential theft, privacy file access, command injection, file system risks, network exfiltration, and sensitive data leaks. Features entropy-based secret detection, OSV vulnerability database integration, taint analysis, smart data flow detection, context-aware documentation scanning, and flexible YAML configuration.
 
----
 ### `wizard`
 
 - **Path**: `skills/wizard`
@@ -1010,20 +902,12 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 > Generate an interactive bash wizard that walks a human through steps only they can perform. Use when provisioning infrastructure, setting up credentials or CI secrets, walking an unfamiliar third-party dashboard, or running a one-off migration or cutover. Don't invoke this for steps the agent can perform itself.
 
+---
+
 ## 4. AI / ML / Multimodal SDK Skills
 
 > Skills that wrap the z-ai-web-dev-sdk or other AI/ML model clients for multimodal tasks.
-> **15 skills** in this category.
-
-### `ai-news-collectors`
-
-- **Path**: `skills/ai-news-collectors`
-- **SKILL.md**: [`skills/ai-news-collectors/SKILL.md`](skills/ai-news-collectors/SKILL.md)
-- **Title**: AI News Collector
-- **Files**: 3
-- **Structure**: `references/`
-
-> AI 新闻聚合与热度排序工具。当用户询问 AI 领域最新动态时触发，如："今天有什么 AI 新闻？""总结一下这周的 AI 动态""最近有什么火的 AI 产品？""AI 圈最近在讨论什么？"。覆盖：新产品发布、研究论文、行业动态、融资新闻、开源项目更新、社区病毒传播现象、AI 工具/Agent 热门项目。输出中文摘要列表，按热度排序，附带原文链接。
+> **11 skills** in this category.
 
 ### `aminer-academic-search`
 
@@ -1044,17 +928,6 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > Get personalized academic paper recommendations. Activate whenever the user asks for paper recommendations — explicit command (/aminer-dp) or natural language (e.g. 'recommend me papers on RAG', 'suggest recent papers on multimodal agents'). Workflow: extract topics / author / aminer_author_id from the input, invoke scripts/recommend.py, return results as Markdown.
-
-### `ASR`
-
-- **Path**: `skills/ASR`
-- **SKILL.md**: [`skills/ASR/SKILL.md`](skills/ASR/SKILL.md)
-- **Title**: ASR (Speech to Text) Skill
-- **License**: MIT
-- **Files**: 3
-- **Structure**: `scripts/`
-
-> Implement speech-to-text (ASR/automatic speech recognition) capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to transcribe audio files, convert speech to text, build voice input features, or process audio recordings. Supports base64 encoded audio files and returns accurate text transcriptions.
 
 ### `auto-target-tracker`
 
@@ -1103,9 +976,9 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Path**: `skills/microsoft-foundry`
 - **SKILL.md**: [`skills/microsoft-foundry/SKILL.md`](skills/microsoft-foundry/SKILL.md)
 - **Title**: Microsoft Foundry Skill
+- **License**: MIT
 - **Author**: Microsoft
 - **Version**: 1.1.44
-- **License**: MIT
 - **Files**: 164
 - **Structure**: `references/`
 
@@ -1122,8 +995,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Path**: `skills/minimax-pdf`
 - **SKILL.md**: [`skills/minimax-pdf/SKILL.md`](skills/minimax-pdf/SKILL.md)
 - **Title**: minimax-pdf
-- **Version**: 1.0
 - **License**: MIT
+- **Version**: 1.0
 - **Files**: 12
 - **Structure**: `scripts/`
 
@@ -1134,34 +1007,12 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Path**: `skills/minimax-xlsx`
 - **SKILL.md**: [`skills/minimax-xlsx/SKILL.md`](skills/minimax-xlsx/SKILL.md)
 - **Title**: MiniMax XLSX Skill
-- **Version**: 1.0
 - **License**: MIT
+- **Version**: 1.0
 - **Files**: 25
 - **Structure**: `scripts/`, `references/`
 
 > Open, create, read, analyze, edit, or validate Excel/spreadsheet files (.xlsx, .xlsm, .csv, .tsv). Use when the user asks to create, build, modify, analyze, read, validate, or format any Excel spreadsheet, financial model, pivot table, or tabular data file. Covers: creating new xlsx from scratch, reading and analyzing existing files, editing existing xlsx with zero format loss, formula recalculation and validation, and applying professional financial formatting standards. Triggers on 'spreadsheet', 'Excel', '.xlsx', '.csv', 'pivot table', 'financial model', 'formula', or any request to prod...
-
-### `TTS`
-
-- **Path**: `skills/TTS`
-- **SKILL.md**: [`skills/TTS/SKILL.md`](skills/TTS/SKILL.md)
-- **Title**: TTS (Text to Speech) Skill
-- **License**: MIT
-- **Files**: 3
-- **Structure**: flat
-
-> Implement text-to-speech (TTS) capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to convert text into natural-sounding speech, create audio content, build voice-enabled applications, or generate spoken audio files. Supports multiple voices, adjustable speed, and various audio formats.
-
-### `VLM`
-
-- **Path**: `skills/VLM`
-- **SKILL.md**: [`skills/VLM/SKILL.md`](skills/VLM/SKILL.md)
-- **Title**: VLM(Vision Chat) Skill
-- **License**: MIT
-- **Files**: 3
-- **Structure**: `scripts/`
-
-> Implement vision-based AI chat capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to analyze images, describe visual content, or create applications that combine image understanding with conversational AI. Supports image URLs and base64 encoded images for multimodal interactions.
 
 ### `web-reader`
 
@@ -1190,7 +1041,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 5. Testing, QA & Performance
 
 > Skills for test design, end-to-end testing, performance work, and quality assurance.
-> **26 skills** in this category.
+> **28 skills** in this category.
+
+### `before-and-after`
+
+- **Path**: `skills/before-and-after`
+- **SKILL.md**: [`skills/before-and-after/SKILL.md`](skills/before-and-after/SKILL.md)
+- **Title**: Before-After Screenshot Skill
+- **Files**: 7
+- **Structure**: `scripts/`
+
+> Captures before/after screenshots of web pages or elements for visual comparison. Use when user says "take before and after", "screenshot comparison", "visual diff", "PR screenshots", "compare old and new", or needs to document UI changes. Accepts two URLs (file://, http://, https://) or two image paths.
 
 ### `browser-testing-with-devtools`
 
@@ -1201,6 +1062,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Tests in real browsers. Use when building or debugging anything that runs in a browser. Use when you need to inspect the DOM, capture console errors, analyze network requests, profile performance, or verify visual output with real runtime data via Chrome DevTools MCP.
+
 ### `chrome-devtools-mcp`
 
 - **Path**: `skills/chrome-devtools-mcp`
@@ -1210,6 +1072,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Google-official MCP server providing full Chrome DevTools Protocol access (29 tools). Use for Lighthouse audits, performance traces, network inspection, console log access, JavaScript evaluation, mobile emulation, and memory snapshots.
+
 ### `ci-cd-and-automation`
 
 - **Path**: `skills/ci-cd-and-automation`
@@ -1219,14 +1082,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies.
+
 ### `code-review`
 
 - **Path**: `skills/code-review`
 - **SKILL.md**: [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md)
+- **Title**: code-review
 - **Files**: 2
 - **Structure**: flat
 
-> Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\".
+> Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+
 ### `code-review-checklist`
 
 - **Path**: `skills/code-review-checklist`
@@ -1237,15 +1103,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Lightweight quick-reference checklist for code review. Tactical 12-category scan used by the Orchestrator's Phase 3. For the comprehensive quality constitution (Six-Axis review), see `code-quality-standards`. For verification gates and the Iron Law, see `verification-and-review-protocol`.
+
 ### `coding-agent`
 
 - **Path**: `skills/coding-agent`
 - **SKILL.md**: [`skills/coding-agent/SKILL.md`](skills/coding-agent/SKILL.md)
+- **Title**: coding-agent
 - **Version**: 1.0.4
 - **Files**: 8
 - **Structure**: flat
 
 > Coding workflow with planning, implementation, verification, and testing for clean software development.
+
 ### `content-strategy`
 
 - **Path**: `skills/content-strategy`
@@ -1255,6 +1124,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Build and execute a content marketing strategy for a solopreneur business. Use when planning what content to create, deciding on content formats and channels, building a content calendar, measuring content performance, or systematizing content production. Covers audience research for content, content pillars, distribution strategy, repurposing workflows, and metrics. Trigger on "content strategy", "content marketing", "what content should I create", "content plan", "content calendar", "content ideas", "content distribution", "grow through content".
+
 ### `context-engineering`
 
 - **Path**: `skills/context-engineering`
@@ -1264,6 +1134,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Optimizes agent context setup. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when you need to configure rules files and context for a project.
+
 ### `context7-mcp`
 
 - **Path**: `skills/context7-mcp`
@@ -1273,6 +1144,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Programmatic document lookup via Context7 API and MCP server. Use when: (1) Need structured documentation for any library/package/framework, (2) Want code examples without browser automation, (3) Building with specific tools and need accurate API references, (4) Avoiding hallucinated or outdated docs. Priority: API (fastest) → MCP Server → Browser (fallback) Triggers: "lookup docs for", "get Context7 docs", "find documentation", "API reference for", "code examples for [library]"
+
 ### `debugging-and-error-recovery`
 
 - **Path**: `skills/debugging-and-error-recovery`
@@ -1282,6 +1154,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing.
+
 ### `diagnosing-bugs`
 
 - **Path**: `skills/diagnosing-bugs`
@@ -1291,6 +1164,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow.
+
 ### `e2e-testing-lessons`
 
 - **Path**: `skills/e2e-testing-lessons`
@@ -1300,6 +1174,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Condensed experience from 15-phase E2E testing initiative covering authentication, API contracts, tool selection, and hybrid testing methodology. Use when planning E2E tests, selecting testing tools, or debugging test failures.
+
+### `evidence-driven-testing`
+
+- **Path**: `skills/evidence-driven-testing`
+- **SKILL.md**: [`skills/evidence-driven-testing/SKILL.md`](skills/evidence-driven-testing/SKILL.md)
+- **Title**: Evidence-Driven Testing
+- **Version**: 1.2
+- **Files**: 2
+- **Structure**: `scripts/`
+
+> Records visual proof while testing UI behavior — the agent tests the app hands-on via computer use while a screen recording with structured test/assertion annotations captures the session — then posts the video and a results summary to the PR and tracker issue. Use whenever a change needs verifiable evidence that it works, instead of prose claims — including headless environments (scripted screenshots and probes) and non-UI changes (measured numbers, output pairs).
+
 ### `interview-designer`
 
 - **Path**: `skills/interview-designer`
@@ -1309,6 +1195,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Analyze resumes and design interview strategies using evidence-based methodology. Transforms interview prep from "read resume → ask questions" into "define standard → forensic evidence → future simulation". Combines Geoff Smart's Topgrading, Lou Adler's performance-based hiring, and Daniel Kahneman's bias control. Use when preparing for interviews, creating structured interview guides, or designing questions to validate candidate competencies.
+
 ### `lint-and-validate`
 
 - **Path**: `skills/lint-and-validate`
@@ -1318,16 +1205,20 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > Automatic quality control, linting, and static analysis procedures. Use after every code modification to ensure syntax correctness and project standards. Triggers on keywords: lint, format, check, validate, types, static analysis.
+
 ### `pdf`
 
 - **Path**: `skills/pdf`
 - **SKILL.md**: [`skills/pdf/SKILL.md`](skills/pdf/SKILL.md)
 - **Title**: PDF - Document Production Workbench
+- **Author**: Z.AI
+- **Version**: 1.0
 - **License**: Proprietary. LICENSE.txt has complete terms
 - **Files**: 41
-- **Structure**: `scripts/`, `briefs/`, `configs/`, `typesetting/`, `env_setup/`, `references/`
+- **Structure**: `scripts/`, `references/`
 
-> Professional PDF toolkit with four production lines: Report - structured documents via ReportLab (reports, proposals, contracts, white papers) Creative - visual design via JSON Blueprint → design_engine.py → Playwright snapshot (posters, infographics, invitations, dashboards). Academic - scholarly work via LaTeX/Tectonic (papers, theses, math-heavy documents) Process - manipulate existing PDFs (extract, merge, split, fill forms, convert) Auto-routes based on document type. Includes ATS/creative/academic resume sub-paths.
+> Professional PDF toolkit with four production lines:(1) Report - structured documents via ReportLab (reports, proposals, contracts, white papers); (2) Creative - visual design via JSON Blueprint → design_engine.py → Playwright snapshot (posters, infographics, invitations, dashboards). The LLM acts as Art Director outputting ONLY JSON spatial blueprints; convert.blueprint compiles to pixel-perfect PDF. (3) Academic - scholarly work via LaTeX/Tectonic (papers, theses, math-heavy documents); (4) Process - manipulate existing PDFs (extract, merge, split, fill forms, convert);Auto-routes based o...
+
 ### `performance-optimization`
 
 - **Path**: `skills/performance-optimization`
@@ -1337,6 +1228,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Optimizes application performance. Use when performance requirements exist, when you suspect performance regressions, or when Core Web Vitals or load times need improvement. Use when profiling reveals bottlenecks that need fixing.
+
 ### `playwright-cli`
 
 - **Path**: `skills/playwright-cli`
@@ -1346,27 +1238,31 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Automate browser interactions, test web pages and work with Playwright tests. Is a better choice for traditional browser testing - multi-browser support (Firefox, WebKit), Playwright-native locators, and the run-code command for custom Playwright snippets.
+
 ### `readme-md`
 
 - **Path**: `skills/readme-md`
 - **SKILL.md**: [`skills/readme-md/SKILL.md`](skills/readme-md/SKILL.md)
+- **Title**: readme-md
 - **Version**: 1.0.0
 - **Files**: 1
 - **Structure**: flat
 
 > Creates a professional, high-signal README.md for a repository by investigating the codebase and following battle-tested conventions distilled from production open-source projects.
+
 ### `seo-content-writer`
 
 - **Path**: `skills/seo-content-writer`
 - **SKILL.md**: [`skills/seo-content-writer/SKILL.md`](skills/seo-content-writer/SKILL.md)
 - **Title**: SEO Content Writer
+- **License**: Apache-2.0
 - **Author**: aaron-he-zhu
 - **Version**: 2.0.0
-- **License**: Apache-2.0
 - **Files**: 4
 - **Structure**: `references/`
 
 > Use when the user asks to "write SEO content", "create a blog post", "write an article", "content writing", "draft optimized content", "write me an article", "create a blog post about", "help me write SEO content", or "draft content for". Creates high-quality, SEO-optimized content that ranks in search engines. Applies on-page SEO best practices, keyword optimization, and content structure for maximum visibility and engagement. For AI citation optimization, see geo-content-optimizer. For updating existing content, see content-refresher.
+
 ### `skill-creator`
 
 - **Path**: `skills/skill-creator`
@@ -1377,6 +1273,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Create new skills, modify and improve existing skills, and evaluate skill quality. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, optimize a skill's description for better triggering accuracy, or package a skill for distribution.
+
 ### `skill-creator-zai`
 
 - **Path**: `skills/skill-creator-zai`
@@ -1386,6 +1283,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+
 ### `tdd`
 
 - **Path**: `skills/tdd`
@@ -1395,6 +1293,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
+
 ### `tdd-workflow`
 
 - **Path**: `skills/tdd-workflow`
@@ -1404,6 +1303,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Test-Driven Development workflow principles. RED-GREEN-REFACTOR cycle.
+
 ### `test-driven-development`
 
 - **Path**: `skills/test-driven-development`
@@ -1413,6 +1313,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Drives development with tests. Use when implementing any logic, fixing any bug, or changing any behavior. Use when you need to prove that code works, when a bug report arrives, or when you're about to modify existing functionality.
+
 ### `testing-patterns`
 
 - **Path**: `skills/testing-patterns`
@@ -1422,6 +1323,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > Testing patterns and principles. Unit, integration, mocking strategies.
+
 ### `webapp-testing`
 
 - **Path**: `skills/webapp-testing`
@@ -1437,7 +1339,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 6. Code Quality, Security & Architecture
 
 > Skills for code review, security hardening, architecture decisions, and refactoring.
-> **16 skills** in this category.
+> **23 skills** in this category.
 
 ### `anti-pua`
 
@@ -1448,6 +1350,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > 识别和分析PUA（Pickup Artist）及情感操纵行为的专业心理分析工具。具备人格分析、心理侧写、情感分析能力，能够识别情感操纵、煤气灯操纵、虐待等有毒关系模式，评估人格特质（如黑暗三人格、脆弱型自恋等），预测对方行为并给出具体的相处建议。当用户需要：分析对方言行动机、识别PUA/情感操纵行为、评估NPD（自恋型人格障碍）倾向、识别操纵行为、预测对方未来行为、寻求健康关系建议、分析黑暗三人格或光明三人格时使用此skill。
+
 ### `clean-code`
 
 - **Path**: `skills/clean-code`
@@ -1458,6 +1361,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Pragmatic coding standards - concise, direct, no over-engineering, no unnecessary comments
+
 ### `code-review-and-audit`
 
 - **Path**: `skills/code-review-and-audit`
@@ -1467,7 +1371,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Files**: 6
 - **Structure**: `scripts/`, `references/`
 
-> Generate audit report from prior run results
+> Unified code review and security audit orchestration skill. Coordinates static analysis, security scanning, code quality checks, test coverage, performance profiling, and expert review into a single tiered pipeline. Use when reviewing code, preparing for release, conducting security audits, or running pre-merge gates. Triggers on: review, audit, code review, security scan, quality gate, pre-merge, checklist, lint, vulnerability.
+
 ### `code-simplification`
 
 - **Path**: `skills/code-simplification`
@@ -1477,6 +1382,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity.
+
+### `code-structure`
+
+- **Path**: `skills/code-structure`
+- **SKILL.md**: [`skills/code-structure/SKILL.md`](skills/code-structure/SKILL.md)
+- **Title**: Service Layer Architecture
+- **Files**: 1
+- **Structure**: flat
+
+> Use when multiple workflows duplicate the same operational logic, when deciding what belongs in actions vs shared services, or when refactoring repeated operational blocks across domain flows. Use when adding new features that share mechanics with existing ones.
+
 ### `codebase-design`
 
 - **Path**: `skills/codebase-design`
@@ -1486,6 +1402,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.
+
 ### `context-anchor`
 
 - **Path**: `skills/context-anchor`
@@ -1496,6 +1413,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > Recover from context compaction by scanning memory files and surfacing where you left off. Use when waking up fresh, after compaction, or when you feel lost about what you were doing. Now supports both flat (YYYY-MM-DD.md) and QMD hierarchical (daily/YYYY/MM/DD.md) memory structures.
+
 ### `deprecation-and-migration`
 
 - **Path**: `skills/deprecation-and-migration`
@@ -1505,6 +1423,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when deciding whether to maintain or sunset existing code.
+
 ### `distill-codebase-skill`
 
 - **Path**: `skills/distill-codebase-skill`
@@ -1514,16 +1433,54 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Reference template for distilling codebase knowledge into a comprehensive engineering skill document. Use after completing a major project update, security remediation, or architectural overhaul to create a reusable SKILL.md that captures lessons learned, anti-patterns, debugging guides, and best practices for future agents.
+
 ### `encrypt-decrypt`
 
 - **Path**: `skills/encrypt-decrypt`
 - **SKILL.md**: [`skills/encrypt-decrypt/SKILL.md`](skills/encrypt-decrypt/SKILL.md)
-- **Title**: File and Folder Encryption/Decryption CLI
+- **Title**: Output: report.pdf.enc (original unchanged)
 - **Version**: 1.2
-- **Files**: 4
+- **Files**: 8
 - **Structure**: `scripts/`, `references/`
 
-> Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults. Use when the user asks to encrypt/decrypt files or folders, password-protect files, or decrypt `.enc` files.
+> Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults.
+
+### `git-guardrails-claude-code`
+
+- **Path**: `skills/git-guardrails-claude-code`
+- **SKILL.md**: [`skills/git-guardrails-claude-code/SKILL.md`](skills/git-guardrails-claude-code/SKILL.md)
+- **Title**: Setup Git Guardrails
+- **Files**: 3
+- **Structure**: `scripts/`
+
+> Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code.
+
+### `greploop`
+
+- **Path**: `skills/greploop`
+- **SKILL.md**: [`skills/greploop/SKILL.md`](skills/greploop/SKILL.md)
+- **Title**: Greploop
+- **License**: MIT
+- **Author**: greptileai
+- **Version**: 1.3
+- **Files**: 4
+- **Structure**: `references/`
+
+> Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Triggers Greptile review, fixes all actionable comments, pushes/re-shelves, re-triggers review, and repeats. Use when the user wants to fully optimize a PR/MR/CL against Greptile's code review standards.
+
+### `greploop-apps`
+
+- **Path**: `skills/greploop-apps`
+- **SKILL.md**: [`skills/greploop-apps/SKILL.md`](skills/greploop-apps/SKILL.md)
+- **Title**: Greploop Apps
+- **License**: MIT
+- **Author**: greptileai
+- **Version**: 1.3
+- **Files**: 4
+- **Structure**: `references/`
+
+> Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Identical to greploop, but triggers reviews by tagging @greptile-apps, which bypasses Greptile's file-count limit on huge PRs that the plain @greptile mention refuses to review. Use when the user wants to fully optimize a large PR/MR/CL against Greptile's code review standards.
+
 ### `improve-codebase-architecture`
 
 - **Path**: `skills/improve-codebase-architecture`
@@ -1533,6 +1490,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
+
 ### `incremental-implementation`
 
 - **Path**: `skills/incremental-implementation`
@@ -1542,6 +1500,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+
 ### `memory-architect`
 
 - **Path**: `skills/memory-architect`
@@ -1551,17 +1510,29 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Bootstrap, audit, and recover the OpenClaw 3-layer memory architecture (workspace files, LCM database, QMD semantic index). Use when: (1) Setting up memory on a new OpenClaw instance, (2) Auditing existing memory health, (3) Recovering from corruption or system crash, (4) Migrating or restructuring memory layout, (5) User asks about memory architecture setup or health. Triggers on phrases like 'bootstrap memory', 'audit memory', 'memory architecture', 'memory setup', 'LCM configuration', 'QMD setup', 'memory recovery', 'check memory health'.
+
 ### `memory-architecture`
 
 - **Path**: `skills/memory-architecture`
 - **SKILL.md**: [`skills/memory-architecture/SKILL.md`](skills/memory-architecture/SKILL.md)
 - **Title**: OpenClaw Memory Architecture
-- **Author**: trusty-pal
 - **Version**: 1.0.0
+- **Author**: trusty-pal
 - **Files**: 2
 - **Structure**: flat
 
 > OpenClaw memory system architecture, setup guide, and troubleshooting reference. Use when configuring memory on a new machine, diagnosing memory issues after updates, or understanding how workspace files, LCM, and QMD work together.
+
+### `migrate-to-shoehorn`
+
+- **Path**: `skills/migrate-to-shoehorn`
+- **SKILL.md**: [`skills/migrate-to-shoehorn/SKILL.md`](skills/migrate-to-shoehorn/SKILL.md)
+- **Title**: Migrate to Shoehorn
+- **Files**: 2
+- **Structure**: flat
+
+> Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data.
+
 ### `plan-writing`
 
 - **Path**: `skills/plan-writing`
@@ -1571,6 +1542,27 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Structured task planning with clear breakdowns, dependencies, and verification criteria. Use when implementing features, refactoring, or any multi-step work.
+
+### `scaffold-exercises`
+
+- **Path**: `skills/scaffold-exercises`
+- **SKILL.md**: [`skills/scaffold-exercises/SKILL.md`](skills/scaffold-exercises/SKILL.md)
+- **Title**: Scaffold Exercises
+- **Files**: 2
+- **Structure**: flat
+
+> Create exercise directory structures with sections, problems, solutions, and explainers that pass linting. Use when user wants to scaffold exercises, create exercise stubs, or set up a new course section.
+
+### `setup-pre-commit`
+
+- **Path**: `skills/setup-pre-commit`
+- **SKILL.md**: [`skills/setup-pre-commit/SKILL.md`](skills/setup-pre-commit/SKILL.md)
+- **Title**: Setup Pre-Commit Hooks
+- **Files**: 2
+- **Structure**: flat
+
+> Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/typechecking/testing.
+
 ### `setup-ts-deep-modules`
 
 - **Path**: `skills/setup-ts-deep-modules`
@@ -1580,6 +1572,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Wire dependency-cruiser into a TypeScript repo so each package is a deep module, with implementation hidden in subfolders and reachable only through its entry-point files. User-invoked.
+
 ### `vulnerability-scanner`
 
 - **Path**: `skills/vulnerability-scanner`
@@ -1595,31 +1588,18 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 7. Planning, Workflow & Project Management
 
 > Skills for planning work, managing projects, orchestrating sub-agents, and shipping.
-> **31 skills** in this category.
+> **32 skills** in this category.
 
-### `agent-orchestration`
+### `ask-matt`
 
-- **Path**: `skills/agent-orchestration`
-- **SKILL.md**: _none_ (grouping folder)
-- **Files**: 16
+- **Path**: `skills/ask-matt`
+- **SKILL.md**: [`skills/ask-matt/SKILL.md`](skills/ask-matt/SKILL.md)
+- **Title**: Ask Matt
+- **Files**: 3
 - **Structure**: flat
-- **Notes**: No top-level SKILL.md; acts as a grouping folder.
 
-**Sub-skills / templates (11):**
+> Ask which skill or flow fits your situation. A router over the skills in this repo.
 
-| Name | Path | Description |
-|------|------|-------------|
-| `agent-self-scheduling` | `skills/agent-orchestration/agent-self-scheduling` | Make an AI agent run on a schedule, loop, or interval — cron, heartbeats, recurring autonomous checks. Use for "run every N minutes", "schedule a task", "run on a loop", "heartbeat". Covers external clocks (Claude Code, Codex, Pi) vs Hermes' built-in scheduler. |
-| `cmux` | `skills/agent-orchestration/cmux` | Control the cmux macOS terminal app (CLI + socket API) — cmux workspaces, panes, surfaces, browser automation, notifications, settings, hooks. MUST be read before running any `cmux` command. Trigger ONLY when the user explicitly says "cmux" — a cmux pane, cmux workspace, cmux surface, or an agent running in cmux. Do NOT trigger on generic mentions of "workspace", "pane", "the other agent", or "delegate" when cmux is not named — workspaces in tmux, Ghostty, herdr, VS Code, etc. are NOT cmux. macOS only (14.0+). |
-| `codex-subagent` | `skills/agent-orchestration/codex-subagent` | Launch OpenAI Codex CLI as a subagent (ChatGPT subscription auth, no API key). Use when delegating a self-contained coding task to Codex from another agent — parallel implementation work, a second opinion, or an independent verification pass. |
-| `fable-review` | `skills/agent-orchestration/fable-review` | Launch a Fable 5 Max 1M subagent to do a deep, neutral senior-developer review of the current work and report its findings back verbatim. Use when the user says "/fable-review", "fable review", or asks for Fable to review the code. Differentiator: reviewer model is Fable 5 Max 1M — for a GPT reviewer use gpt-review. |
-| `fable-safe-prompt` | `skills/agent-orchestration/fable-safe-prompt` | Rewrite a user's prompt to reduce the chance it trips Claude Fable 5's server-side safety classifiers (cyber/bio guardrails that force-route to Opus 4.8 or return stop_reason "refusal"). Use when the user hands you a prompt that touches cybersecurity, auth, exploits, malware, pentesting, or other dual-use topics and asks to make it "Fable-safe", "guardrail-safe", "won't get flagged/refused/downgraded", or to rewrite it so Fable 5 won't block it. |
-| `git-worktree` | `skills/agent-orchestration/git-worktree` | Use git worktrees to run multiple coding agents in parallel on one repo without collisions. Use when starting a task in a shared repo, when the user says "worktree", "parallel agents", "one worktree per task", or when agents keep overwriting each other's changes. Covers creating worktrees, making them as complete as the main checkout (.env files, dependencies, databases, ports), merging back, and cleanup. |
-| `goal-loop` | `skills/agent-orchestration/goal-loop` | Explain and write effective instructions for the `/goal` feature — the persistent self-checking agent loop (plan → act → test → review → iterate), available in agents like Codex, Claude Code, and Hermes Agent. Use when the user mentions `/goal`, "goal loop", "Ralph loop", wants to kick off a long-running autonomous agent run, asks how to write a goal prompt, or wants a one-paragraph goal instruction drafted. |
-| `gpt-review` | `skills/agent-orchestration/gpt-review` | Launch a GPT 5.6 Sol Max subagent to do a deep, neutral senior-developer review of the current work and report its findings back verbatim. Use when the user says "/gpt-review", "gpt review", or asks for GPT to review the code. Differentiator: reviewer model is GPT 5.6 Sol Max — for a Fable reviewer use fable-review. |
-| `handoff` | `skills/agent-orchestration/handoff` | Compact the current conversation into a single, detailed handoff message — everything that happened, why it happened, and what's left — output in a code block so it can be copy-pasted into a fresh agent session. Use when hitting context limits, switching focus, ending a work session, or partitioning a task across fresh contexts. |
-| `launch-subagent` | `skills/agent-orchestration/launch-subagent` | Read this BEFORE launching any subagent (Task tool, background agents, parallel agents, best-of-N, delegating work to another agent). Hard model rules for subagents plus consensus principles for using them well. Triggers: launch a subagent, spawn agents, run agents in parallel, delegate to a subagent. |
-| `run-deep-swe` | `skills/agent-orchestration/run-deep-swe` | Score any AI model on the DeepSWE coding-agent benchmark via the OpenRouter API. Use when the user wants an independent, reproducible coding-agent eval — "run DeepSWE", "benchmark this model on DeepSWE", "score model X on the coding benchmark", "test a model via OpenRouter on DeepSWE", or to verify vendor-reported coding scores. Covers setup, the OpenRouter wiring for mini-swe-agent, single-task / subset / full 113-task runs, and leaderboard submission. |
 ### `background-terminals`
 
 - **Path**: `skills/background-terminals`
@@ -1629,6 +1609,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Run and manage long-lived shell commands in background terminals. Use for dev servers, watchers, streaming builds, and other commands that should keep running while the agent continues working.
+
 ### `blog-writer`
 
 - **Path**: `skills/blog-writer`
@@ -1638,6 +1619,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > This skill should be used when writing blog posts, articles, or long-form content in the writer's distinctive writing style. It produces authentic, opinionated content that matches the writer's voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer's perspective on AI, productivity, sales, marketing, or technology topics.
+
 ### `documentation-and-adrs`
 
 - **Path**: `skills/documentation-and-adrs`
@@ -1647,6 +1629,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.
+
 ### `git-workflow-and-versioning`
 
 - **Path**: `skills/git-workflow-and-versioning`
@@ -1656,38 +1639,47 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, or when you need to organize work across multiple parallel streams.
+
 ### `grill-me`
 
 - **Path**: `skills/grill-me`
 - **SKILL.md**: [`skills/grill-me/SKILL.md`](skills/grill-me/SKILL.md)
+- **Title**: grill-me
 - **Files**: 2
 - **Structure**: flat
 
 > A relentless interview to sharpen a plan or design.
+
 ### `grill-with-docs`
 
 - **Path**: `skills/grill-with-docs`
 - **SKILL.md**: [`skills/grill-with-docs/SKILL.md`](skills/grill-with-docs/SKILL.md)
+- **Title**: grill-with-docs
 - **Files**: 2
 - **Structure**: flat
 
 > A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go.
+
 ### `grilling`
 
 - **Path**: `skills/grilling`
 - **SKILL.md**: [`skills/grilling/SKILL.md`](skills/grilling/SKILL.md)
+- **Title**: grilling
 - **Files**: 2
 - **Structure**: flat
 
 > Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
+
 ### `implement`
 
 - **Path**: `skills/implement`
 - **SKILL.md**: [`skills/implement/SKILL.md`](skills/implement/SKILL.md)
+- **Title**: implement
 - **Files**: 2
 - **Structure**: flat
 
 > Implement a piece of work based on a spec or set of tickets.
+
 ### `interview-prep`
 
 - **Path**: `skills/interview-prep`
@@ -1697,6 +1689,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > 帮用户准备面试。基于目标 JD、公司、岗位方向，生成"高频面试题 + 参考回答 + 行为面 / 技术面 / Case 面分类题库"，并产出可打印的『面试备战手册』。当用户说"帮我准备面试""明天有面试 / 后天面试""面试题""面经""模拟面试""我要面 X 公司 Y 岗位""帮我准备 STAR 故事""怎么回答这道面试题""自我介绍 / 离职原因 / 优缺点 怎么答"，必须触发本 skill。请勿用本 skill 改简历（去 jd-resume-tailor / resume-builder）或推荐方向（去 job-intent-tracker）。
+
 ### `job-intent-tracker`
 
 - **Path**: `skills/job-intent-tracker`
@@ -1706,6 +1699,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > 帮助用户梳理求职意向、生成目标岗位画像，并维护一份结构化的"岗位投递追踪表"。当用户说"我想换工作 / 不知道投什么岗 / 帮我看看我适合什么岗位 / 帮我管理投递进度 / 我投了好几家但记不住状态了 / 想做一个求职 OKR / 整理一下求职方向"，或上传简历但没说要改简历时，应该主动触发本 skill。本 skill 也适用于实习生、应届生、转行候选人在求职启动阶段做"自我盘点 + 目标画像 + 投递管理"三件事。
+
 ### `loop-builder`
 
 - **Path**: `skills/loop-builder`
@@ -1715,6 +1709,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Design and scaffold an agent "loop" — an unattended, scheduled, self-verifying agent workflow. Use this whenever the user wants to automate a recurring task, schedule an agent, run an agent unattended or overnight, set up monitoring, triage, or alerting, poll something on a cadence, or turn a manual repeated workflow into a self-running one — even if they never say the word "loop." If a request implies "do this every day / on a schedule / until some condition holds, without me typing each time," reach for this skill. It walks the seven-question blueprint, picks the simplest loop pattern, an...
+
 ### `marketing-mode`
 
 - **Path**: `skills/marketing-mode`
@@ -1725,6 +1720,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Marketing Mode combines 23 comprehensive marketing skills covering strategy, psychology, content, SEO, conversion optimization, and paid growth. Use when users need marketing strategy, copywriting, SEO help, conversion optimization, paid advertising, or any marketing tactic.
+
 ### `mindfulness-meditation`
 
 - **Path**: `skills/mindfulness-meditation`
@@ -1736,6 +1732,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Build a meditation practice with guided sessions, streaks, and mindfulness reminders
+
+### `new-feature`
+
+- **Path**: `skills/new-feature`
+- **SKILL.md**: [`skills/new-feature/SKILL.md`](skills/new-feature/SKILL.md)
+- **Title**: New Feature
+- **Files**: 1
+- **Structure**: flat
+
+> Start a new task in an isolated Git worktree branched from origin/main so multiple agents can work on the same repo in parallel without conflicts. Use at the beginning of every new feature, fix, or task — before writing any code.
+
 ### `orchestrator-toolkit`
 
 - **Path**: `skills/orchestrator-toolkit`
@@ -1745,6 +1752,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Pure-Python orchestration toolkit for task management, complexity analysis, decomposition, persistence, and recovery. Use when breaking down complex projects, tracking progress, or building lightweight orchestration systems.
+
 ### `pandoc-docx-template`
 
 - **Path**: `skills/pandoc-docx-template`
@@ -1754,6 +1762,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > Use this skill when converting Markdown to Word DOCX or DOCX back to Markdown with Pandoc, especially when the output should use the bundled Chinese Word reference templates, heading numbering variants, list indentation variants, SCI paper templates, and Lua filters for HTML tags, image captions, font color, and inline code styles.
+
 ### `pi-agent-customize-system-prompt`
 
 - **Path**: `skills/pi-agent-customize-system-prompt`
@@ -1764,6 +1773,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > guide for customizing the Pi Agent system prompt to add custom tools and workflow instructions
+
 ### `planning-and-task-breakdown`
 
 - **Path**: `skills/planning-and-task-breakdown`
@@ -1773,17 +1783,19 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible.
+
 ### `pptx-generator`
 
 - **Path**: `skills/pptx-generator`
 - **SKILL.md**: [`skills/pptx-generator/SKILL.md`](skills/pptx-generator/SKILL.md)
 - **Title**: PPTX Generator & Editor
-- **Version**: 1.0
 - **License**: MIT
+- **Version**: 1.0
 - **Files**: 6
 - **Structure**: `references/`
 
 > Generate, edit, and read PowerPoint presentations. Create from scratch with PptxGenJS (cover, TOC, content, section divider, summary slides), edit existing PPTX via XML workflows, or extract text with markitdown. Triggers: PPT, PPTX, PowerPoint, presentation, slide, deck, slides.
+
 ### `shipping-and-launch`
 
 - **Path**: `skills/shipping-and-launch`
@@ -1793,6 +1805,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+
 ### `spec-driven-development`
 
 - **Path**: `skills/spec-driven-development`
@@ -1802,6 +1815,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea.
+
 ### `storyboard-manager`
 
 - **Path**: `skills/storyboard-manager`
@@ -1811,6 +1825,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Assist writers with story planning, character development, plot structuring, chapter writing, timeline tracking, and consistency checking. Use this skill when working with creative writing projects organized in folders containing characters, chapters, story planning documents, and summaries. Trigger this skill for tasks like "Help me develop this character," "Write the next chapter," "Check consistency across my story," or "Track the timeline of events."
+
 ### `subagents`
 
 - **Path**: `skills/subagents`
@@ -1820,37 +1835,27 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > invoke this skill when the user asks you to use subagents
-### `thinking-and-docs`
 
-- **Path**: `skills/thinking-and-docs`
-- **SKILL.md**: _none_ (grouping folder)
-- **Files**: 22
+### `to-questionnaire`
+
+- **Path**: `skills/to-questionnaire`
+- **SKILL.md**: [`skills/to-questionnaire/SKILL.md`](skills/to-questionnaire/SKILL.md)
+- **Title**: <Questionnaire title>
+- **Files**: 2
 - **Structure**: flat
-- **Notes**: No top-level SKILL.md; acts as a grouping folder.
 
-**Sub-skills / templates (11):**
+> Turn a decision you can't fully answer into a questionnaire for someone else to fill in.
 
-| Name | Path | Description |
-|------|------|-------------|
-| `before-building` | `skills/thinking-and-docs/before-building` | Fire the moment the user proposes a build. Instantly surface the 1-3 consequential choices hidden in their idea. Can also be invoked with /before-building. |
-| `brain-to-docs` | `skills/thinking-and-docs/brain-to-docs` | Use when the user wants to extract project vision, decisions, and preferences from his head into clear documentation (README + ADRs) through a back-and-forth Q&A loop. Triggers on "brain-to-docs", "build out the docs", "extract the vision", "let's document this project". |
-| `decisions` | `skills/thinking-and-docs/decisions` | Ask the agent to list all choices it made during the current work that it is not confident of. Manual-only; invoke with /decisions. |
-| `level-up` | `skills/thinking-and-docs/level-up` | Gauge the user''s technical + product knowledge through 7 adaptive questions, log verbatim answers with honest ratings, and grow a learning plan from the gaps found. Use when the user says "level up", "level-up session", "quiz me", "gauge my knowledge", or wants a new assessment round. Differentiator: this finds and maps gaps; the `teach` skill delivers lessons on them. |
-| `next-decision` | `skills/thinking-and-docs/next-decision` | Drill open decisions one at a time — present the most important decision not yet clarified, give the top four choices, state a preference, ask the user. Use when the user says "next decision", "one decision at a time", or a plan has several unresolved choices. Differentiator: forward-looking; the decisions skill is retrospective (choices already made). Can be invoked with /next-decision. |
-| `prompt-me` | `skills/thinking-and-docs/prompt-me` | Prompt the user with pointed questions to extract what is in his head about a project — remaining work, what is being avoided, what really matters, what does not. Use when the user says "prompt me", "ask me questions", or wants the agent to figure out priorities by questioning him. |
-| `read-all-adrs` | `skills/thinking-and-docs/read-all-adrs` | Read every ADR markdown file in the project's docs/adr/ folder so you have full context on past decisions. Use only when the user explicitly calls it. |
-| `remind` | `skills/thinking-and-docs/remind` | Rewrite the last response simpler and shorter in plain English, prefixed with a 3-5 sentence TLDR of the conversation so far. Manual-only, invoked as /remind. |
-| `save-idea` | `skills/thinking-and-docs/save-idea` | Quickly capture a content idea into ~/code/content from any repo or chat. Video ideas go to VIDEO-IDEAS.md; smaller podcast topics, guest ideas, questions, and AI observations go to TOPICS.md. Every entry gets a source line referencing the chat and repo it came from. Use when the user says "/save-idea", "save this idea", "video idea", "add a topic", "write this down for a video/podcast". Differentiator: appends to the user''s content backlog — not a reminder, task, or general note tool. |
-| `short` | `skills/thinking-and-docs/short` | Manually-invoked skill that forces the agent to compress its current answer — strip filler, simplify wording, and cut length while keeping the substance. Use when the user says "short", "shorter", "simpler", "too long", "tl;dr", or wants a more concise version of the previous response. |
-| `teach` | `skills/thinking-and-docs/teach` | Teach the user a new skill or concept, within this workspace. |
 ### `to-spec`
 
 - **Path**: `skills/to-spec`
 - **SKILL.md**: [`skills/to-spec/SKILL.md`](skills/to-spec/SKILL.md)
+- **Title**: to-spec
 - **Files**: 2
 - **Structure**: flat
 
 > Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed.
+
 ### `to-tickets`
 
 - **Path**: `skills/to-tickets`
@@ -1860,15 +1865,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker (edges as text in one file per ticket locally, or native blocking links on a real tracker).
-### `translation-engine`
 
-- **Path**: `skills/translation-engine`
-- **SKILL.md**: [`skills/translation-engine/SKILL.md`](skills/translation-engine/SKILL.md)
-- **Title**: System Prompt: Deterministic Forensic Translation Engine (v10.1 — Successive Draft & Source-Preservation Hardened)
-- **Files**: 9
-- **Structure**: flat
-
-> Deterministic Forensic Translation Engine v10.1 — bilingual (Chinese ↔ English) translation with L4 (Forensic Grade) precision and L3 (Strict Grade) professional publishing. Covers the 6-phase scratchpad protocol (IU definition, domain pack selection, draft-lock via successive versioning, audit, targeted repair, output), 5 pluggable domain packs (Engineering with RFC 2119/8174 markers, Legal with forensic modality markers, Medical with clinical modality markers, Financial with securities-disclosure markers, Academic with scientific publishing collocations), anti-enhancement protocol, code-f...
 ### `triage`
 
 - **Path**: `skills/triage`
@@ -1878,6 +1875,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Move issues and external PRs through a state machine of triage roles, categorise, verify, grill if needed, and write agent-ready briefs.
+
 ### `verification-and-review-protocol`
 
 - **Path**: `skills/verification-and-review-protocol`
@@ -1888,14 +1886,27 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `references/`
 
 > Governs the protocol for receiving feedback, requesting subagent reviews, and enforcing verification gates. Contains the 'Iron Law' preventing false completion claims. Use when receiving PR feedback, finishing tasks, or before claiming work is 'done'.
+
+### `wait-what`
+
+- **Path**: `skills/wait-what`
+- **SKILL.md**: [`skills/wait-what/SKILL.md`](skills/wait-what/SKILL.md)
+- **Title**: wait-what
+- **Files**: 2
+- **Structure**: flat
+
+> Stop. That last message did not land: re-pitch it.
+
 ### `wayfinder`
 
 - **Path**: `skills/wayfinder`
 - **SKILL.md**: [`skills/wayfinder/SKILL.md`](skills/wayfinder/SKILL.md)
+- **Title**: wayfinder
 - **Files**: 2
 - **Structure**: flat
 
 > Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.
+
 ### `writing-plans`
 
 - **Path**: `skills/writing-plans`
@@ -1911,17 +1922,19 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 ## 8. Documentation & Content Creation
 
 > Skills that produce documents, presentations, spreadsheets, PDFs, or written content.
-> **23 skills** in this category.
+> **24 skills** in this category.
 
 ### `agents-md`
 
 - **Path**: `skills/agents-md`
 - **SKILL.md**: [`skills/agents-md/SKILL.md`](skills/agents-md/SKILL.md)
+- **Title**: agents-md
 - **Version**: 1.1.0
 - **Files**: 1
 - **Structure**: flat
 
 > Creates or updates a compact, high-signal AGENTS.md instruction file for a repository, helping future AI coding agents avoid mistakes and onboard faster.
+
 ### `cheat-sheet`
 
 - **Path**: `skills/cheat-sheet`
@@ -1931,6 +1944,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > 将 PDF/Word/Markdown 学习资料转化为精炼的知识浓缩卡文档。支持三种风格（知识点速查卡/思维导图式/Q&A式），输出双栏小字 PDF。当用户说"生成知识浓缩卡"、"生成 Cheatsheet"、"帮我做个速查表"、"把这个资料整理成一页纸"、"做个知识卡片"时触发。**不处理**：基于材料出题（→ quiz-mastery）、长期学习项目（→ study-buddy）。
+
 ### `claude-md`
 
 - **Path**: `skills/claude-md`
@@ -1940,7 +1954,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Files**: 1
 - **Structure**: flat
 
-> Update existing CLAUDE.md when codebase evolves
+> Generate proper CLAUDE.md files for any codebase. Analyzes codebase structure, detects frameworks and languages, and produces a comprehensive CLAUDE.md following the Meticulous Approach framework.
+
 ### `codex-ppt`
 
 - **Path**: `skills/codex-ppt`
@@ -1949,7 +1964,8 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Files**: 40
 - **Structure**: `scripts/`, `references/`
 
-> Runtime home override.
+> Generate visually unified image-based PPT/PPTX decks from articles, reports, papers, notes, or outlines.
+
 ### `content-analysis`
 
 - **Path**: `skills/content-analysis`
@@ -1965,6 +1981,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 | Name | Path | Description |
 |------|------|-------------|
 | `ExtractWisdom` | `skills/content-analysis/ExtractWisdom` | Content-adaptive wisdom extraction — detects what domains exist in content and builds custom sections (not static IDEAS/QUOTES). Produces tailored insight reports from videos, podcasts, articles. USE WHEN extract wisdom, analyze video, analyze podcast, extract insights, what's interesting, extract from YouTube, what did I miss, key takeaways. |
+
 ### `cyber-ppt`
 
 - **Path**: `skills/cyber-ppt`
@@ -1974,13 +1991,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > 当用户需要把 DOCX、PDF、TXT、XLSX、研究报告、业务材料或原始数据转成高密度、可编辑、咨询风格 PPTX 时使用；也适用于需要 SCR 论证、视觉风格探索、详细图表和渲染质检的 PPT。
-### `docs`
 
-- **Path**: `skills/docs`
-- **SKILL.md**: _none_ (grouping folder)
-- **Files**: 3
-- **Structure**: flat
-- **Notes**: No top-level SKILL.md; acts as a grouping folder.
 ### `docx`
 
 - **Path**: `skills/docx`
@@ -1993,6 +2004,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`, `scenes/`, `routes/`, `setup.sh`
 
 > Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When GLM needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks
+
 ### `docx-generation`
 
 - **Path**: `skills/docx-generation`
@@ -2003,6 +2015,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Comprehensive DOCX Generation & Conversion Skill
+
 ### `domain-modeling`
 
 - **Path**: `skills/domain-modeling`
@@ -2012,35 +2025,51 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an ADR.
+
 ### `handoff`
 
 - **Path**: `skills/handoff`
 - **SKILL.md**: [`skills/handoff/SKILL.md`](skills/handoff/SKILL.md)
+- **Title**: Handoff
 - **Files**: 2
 - **Structure**: flat
 
-> Compact the current conversation into a handoff document for another agent to pick up.
+> Compact the current conversation into a single, detailed handoff message — everything that happened, why it happened, and what's left — output in a code block so it can be copy-pasted into a fresh agent session. Use when hitting context limits, switching focus, ending a work session, or partitioning a task across fresh contexts.
+
 ### `humanizer`
 
 - **Path**: `skills/humanizer`
 - **SKILL.md**: [`skills/humanizer/SKILL.md`](skills/humanizer/SKILL.md)
 - **Title**: HUMANIZER v7.0.0 — Ultimate Edition
-- **Version**: 7.0.0
 - **License**: MIT
+- **Version**: 7.0.0
 - **Files**: 18
-- **Structure**: `tests/`
+- **Structure**: flat
 
-> Remove signs of AI-generated writing and restore natural human voice. Archetype-based detection with heuristic triage, genre-gated positive humanization, forensic artifact scanning, and a dedicated fiction protocol. Synthesizes all prior editions (v1–v6) into a single operational system. Resilient to model evolution; safe for token-constrained environments. Use when cleaning AI-generated prose, humanizing technical/business content, fixing LLM tells, removing chatbot artifacts, or matching a specific author's voice.
+> Remove signs of AI-generated writing and restore natural human voice. Archetype-based detection with heuristic triage, genre-gated positive humanization, forensic artifact scanning, and a dedicated fiction protocol. Synthesizes all prior editions (v1–v6) into a single operational system. Resilient to model evolution; safe for token-constrained environments.
+
+### `markdown-to-html`
+
+- **Path**: `skills/markdown-to-html`
+- **SKILL.md**: [`skills/markdown-to-html/SKILL.md`](skills/markdown-to-html/SKILL.md)
+- **Title**: markdown-to-web — Pipeline Skill v2.1.0
+- **Version**: 2.1.0
+- **Files**: 1
+- **Structure**: flat
+
+> Renders an arbitrary Markdown document as a polished, single-file, accessible web page. Accepts any .md file plus an optional template (technical three-column / editorial long-form) and an optional tag registry (severity, confidence, status, custom). Built on React 19 + Vite 8 + Tailwind v4 + react-markdown + lucide-react. Includes mobile TOC drawer, back-to-top, code-block copy buttons, reading-time estimation (Latin + CJK-aware), print stylesheet, build-time title injection, source-markdown validation gate, CI workflow, and Husky pre-commit hook.
+
 ### `markdown-to-web`
 
 - **Path**: `skills/markdown-to-web`
 - **SKILL.md**: [`skills/markdown-to-web/SKILL.md`](skills/markdown-to-web/SKILL.md)
 - **Title**: markdown-to-web — Validation Review & Unified Skill Specification
 - **Version**: 4.1.1
-- **Files**: 41
+- **Files**: 37
 - **Structure**: flat
 
 > Renders an arbitrary Markdown document as a polished, single-file, accessible web page. Accepts any .md file plus an optional template (editorial long-form / technical docs / minimal print) and an optional tag registry (severity, confidence, status, custom). Built on React 19 + Vite 7 + Tailwind v4 + react-markdown.
+
 ### `market-research-reports`
 
 - **Path**: `skills/market-research-reports`
@@ -2050,6 +2079,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > Generate comprehensive market research reports (50+ pages) in the style of top consulting firms (McKinsey, BCG, Gartner). Features professional LaTeX formatting, extensive visual generation with scientific-schematics and generate-image, deep integration with research-lookup for data gathering, and multi-framework strategic analysis including Porter's Five Forces, PESTLE, SWOT, TAM/SAM/SOM, and BCG Matrix.
+
+### `officecli`
+
+- **Path**: `skills/officecli`
+- **SKILL.md**: [`skills/officecli/SKILL.md`](skills/officecli/SKILL.md)
+- **Title**: officecli
+- **Files**: 1
+- **Structure**: flat
+
+> Create, analyze, proofread, and modify Office documents (.docx, .xlsx, .pptx) using the officecli CLI tool. Use when the user wants to create, inspect, check formatting, find issues, add charts, or modify Office documents.
+
 ### `pptx`
 
 - **Path**: `skills/pptx`
@@ -2062,6 +2102,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > Presentation creation, editing, and analysis for .pptx files: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes. Academic/paper-based presentations use the embedded Beamer module at end of this file (PDF output only).
+
 ### `quiz-mastery`
 
 - **Path**: `skills/quiz-mastery`
@@ -2071,14 +2112,17 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`
 
 > 出题、测验、复习、掌握度追踪工具。**用户说"复习"、"巩固"、"回顾"任一关键词时优先触发本 skill**。当用户的请求与"题目/复习"相关时触发：把学习资料/PDF/材料转成题目练习（"给这个 PDF 出几道题"）、导入题目文件做练习（"我有一份题目文件，帮我做"）、复习已学内容（"复习一下昨天的"、"巩固一下"、"回顾下昨天"、"用艾宾浩斯帮我安排"）、遗忘曲线追踪、掌握度评分。**🔴 强制规则**：每次出题/导入题目成功后，**首轮展示题目前必须问一句**"要不要生成网页练习页？"，用户说要 → 调用 quiz-html skill。**不处理**：长期学习项目的进度管理、计划制定（→ study-buddy）。
+
 ### `research`
 
 - **Path**: `skills/research`
 - **SKILL.md**: [`skills/research/SKILL.md`](skills/research/SKILL.md)
+- **Title**: research
 - **Files**: 2
 - **Structure**: flat
 
 > Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
+
 ### `resume-builder`
 
 - **Path**: `skills/resume-builder`
@@ -2088,22 +2132,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: `scripts/`, `references/`
 
 > 从零生成或全面优化一份中文简历，并导出 docx / pdf / markdown 多种格式。用 STAR 法则改写经历、做 ATS 关键词覆盖率检查、根据行业（互联网产品 / 技术 / 金融 / 通用）选模板。当用户说"帮我写简历 / 优化简历 / 简历不会写 / 我的简历太弱了 / 简历看起来不专业 / 简历改一改 / 给我做个简历模板 / 简历导出 / 简历加点关键词"，或者上传 .pdf/.docx 简历后说"看看怎么改"时，必须触发本 skill。即使用户只问"我的简历有什么问题"也要触发。
-### `skill-authoring`
 
-- **Path**: `skills/skill-authoring`
-- **SKILL.md**: _none_ (grouping folder)
-- **Files**: 4
-- **Structure**: flat
-- **Notes**: No top-level SKILL.md; acts as a grouping folder.
-
-**Sub-skills / templates (4):**
-
-| Name | Path | Description |
-|------|------|-------------|
-| `distribute-skill-to-all-agents` | `skills/skill-authoring/distribute-skill-to-all-agents` | Distribute a skill across the 4 agent skill folders (Codex, Claude Code, Pi, Hermes) so all agents see it. Use when the user says "distribute this skill", "sync skills across agents", or after creating/updating a skill that should be global. Covers the symlink layout and the ~/.pi/agent/skills trap. |
-| `effective-agent-skills` | `skills/skill-authoring/effective-agent-skills` | How to write effective agent skills — what to do, what not to do, anatomy, progressive disclosure, design patterns, anti-patterns, testing, security. Read this whenever a skill (Claude Skill, Agent Skill, SKILL.md) is being created, edited, reviewed, or debugged. Use when the user says "create a skill", "new skill", "update this skill", "improve a skill", "why isn't my skill triggering", or anything else involving authoring or editing SKILL.md files. |
-| `folder-specific-claude-and-agents-md` | `skills/skill-authoring/folder-specific-claude-and-agents-md` | Create a specialized CLAUDE.md (+ AGENTS.md symlink) inside a specific folder to give future agents folder-scoped context. Use when the user asks to create a CLAUDE.md for a folder, write folder instructions, or add agent context to a directory. |
-| `push-skill-to-github` | `skills/skill-authoring/push-skill-to-github` | Commit and push agent-skill changes to the user's private skills GitHub repo (rooted at ~/.agents). Use after creating or updating any skill, when the user says "push the skill", "push skills to github", "save the skill to my repo", or "update the skills repo". Handles staging, committing, and pushing directly in the current shell — works in any agent, no cmux needed. |
 ### `source-driven-development`
 
 - **Path**: `skills/source-driven-development`
@@ -2113,6 +2142,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters.
+
 ### `study-buddy`
 
 - **Path**: `skills/study-buddy`
@@ -2122,6 +2152,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Structure**: flat
 
 > 智能督学助手，管理用户的长期学习项目工作流。当用户表达学习项目相关意图时触发：创建/制定学习计划（"我想学X"、"帮我制定计划"）、汇报学习进度（"学完了"、"今天搞定了"、"完成今日任务"）、查询计划状态（"我学到哪了"、"看下进度"）、查看学习报告（"日报""周报""月报""项目总结""5月10号到15号的报告"）、晨间/晚间打卡复盘、督促、动态调整计划、抱怨学不下去时（情绪支持）。**🔴 项目生成流程铁律**：项目生成成功后**必须一口气走完"项目→知识点→计划表"**，禁止只汇报"项目已生成 / X 个知识点 / X 个模块"就停下，必须**立即**输出"DAY / 项目 / 知识点 / 时长 / 难度"表格供用户确认 DAY 安排，否则视为流程失败。**🔴 报告查询铁律**：用户表达查看学习报告意图时（日报/周报/月报/项目总结/任意时间段），必须从 USER.md 取**对应时间段**的 `project_id` + `knowledge_id`，传给 `study_buddy_supervise` 工具的 `study_check` action 拿原始数据，按"模块3 主动报告查询"输出，**全程只读不写 USER.md**。**不处理**：单次出题（→ quiz-mastery）、Cheatsheet 生成（→ cheat-sheet）、把题目文件导入做练习...
+
 ### `to-distill-project-into-skill`
 
 - **Path**: `skills/to-distill-project-into-skill`
@@ -2133,20 +2164,32 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 > Meta-skill for distilling a complete project codebase into a comprehensive, maintainable SKILL.md document. Use after a major project update, when onboarding a new team, or when you need to create a single-source-of-truth reference for future AI coding agents working on this codebase.
 
----
+### `unslop`
+
+- **Path**: `skills/unslop`
+- **SKILL.md**: [`skills/unslop/SKILL.md`](skills/unslop/SKILL.md)
+- **Title**: Unslop
+- **Files**: 2
+- **Structure**: flat
+
+> Cut AI tells from text you write or edit for a human reader (commit messages, PR titles and bodies, docs, code comments, replies). Apply before committing, posting, or sending; leave prose you didn't touch alone.
+
 ### `writing-for-agents`
 
 - **Path**: `skills/writing-for-agents`
 - **SKILL.md**: [`skills/writing-for-agents/SKILL.md`](skills/writing-for-agents/SKILL.md)
+- **Title**: writing-for-agents
 - **Files**: 3
 - **Structure**: flat
 
 > Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md.
 
+---
+
 ## 9. Career, Learning & Personal Development
 
 > Skills for resumes, interviews, study aids, mindfulness, and personal growth.
-> **11 skills** in this category.
+> **12 skills** in this category.
 
 ### `dream-interpreter`
 
@@ -2222,6 +2265,7 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 - **Path**: `skills/gift-evaluator`
 - **SKILL.md**: [`skills/gift-evaluator/SKILL.md`](skills/gift-evaluator/SKILL.md)
+- **Title**: gift-evaluator
 - **License**: Internal Tool
 - **Files**: 2
 - **Structure**: flat
@@ -2258,22 +2302,22 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 > 把题目数组生成一个**可独立运行的网页练习页**（HTML 文件）。当用户完成 quiz-mastery 的「从资料出题」或「从文件提取题目」流程后，应主动询问是否需要"在网页里练习"，确认后调用本 skill 把题目注入模板，生成 HTML 给用户。也支持用户直接说"把这些题做成网页/HTML/练习页"时触发。**不处理**：出题（→ quiz-mastery）、评分（→ quiz-mastery）、长期复习计划（→ study-buddy）。
 
+### `teach`
+
+- **Path**: `skills/teach`
+- **SKILL.md**: [`skills/teach/SKILL.md`](skills/teach/SKILL.md)
+- **Title**: teach
+- **Files**: 6
+- **Structure**: flat
+
+> Teach the user a new skill or concept, within this workspace.
+
 ---
 
 ## 10. DevOps, Infrastructure & External Integrations
 
 > Skills for cloud, deployment, external services, search, research, and tooling.
-> **11 skills** in this category.
-
-### `how-to-git-push-using-ssh-wrapper`
-
-- **Path**: `skills/how-to-git-push-using-ssh-wrapper`
-- **SKILL.md**: [`skills/how-to-git-push-using-ssh-wrapper/SKILL.md`](skills/how-to-git-push-using-ssh-wrapper/SKILL.md)
-- **Title**: How to Git Push Using an SSH Wrapper
-- **Files**: 4
-- **Structure**: `scripts/`
-
-> Push commits to a GitHub remote via a Paramiko-based SSH wrapper when OpenSSH (`ssh`) is not installed. Use this skill when `git push` fails with "git@github.com: Permission denied (publickey)" or when the environment lacks `openssh-client` (minimal containers, distroless images, restricted sandboxes, or Python-only environments). Prerequisites: Python 3.10+, a GitHub SSH private key file, and the `paramiko` Python package. Triggers: "git push", "push to github", "ssh wrapper", "paramiko git", "no openssh", "GIT_SSH_COMMAND", "permission denied publickey", "git push without ssh".
+> **9 skills** in this category.
 
 ### `luxeverse-architect`
 
@@ -2302,49 +2346,15 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 > Multi search engine integration with 8 domestic (CN) search engines. Supports advanced search operators, time filters, site search, and WeChat article search. No API keys required.
 
-### `ops-and-setup`
+### `rootless-postgresql`
 
-- **Path**: `skills/ops-and-setup`
-- **SKILL.md**: _none_ (grouping folder)
-- **Files**: 15
+- **Path**: `skills/rootless-postgresql`
+- **SKILL.md**: [`skills/rootless-postgresql/SKILL.md`](skills/rootless-postgresql/SKILL.md)
+- **Title**: Rootless PostgreSQL — User-Space Install & Run (Debian, No Root)
+- **Files**: 2
 - **Structure**: flat
-- **Notes**: No top-level SKILL.md; acts as a grouping folder.
 
-**Sub-skills / templates (10):**
-
-| Name | Path | Description |
-|------|------|-------------|
-| `anti-sleep` | `skills/ops-and-setup/anti-sleep` | Keep the user's MacBook awake reliably with macOS caffeinate for a set duration or while a process runs. Use for "don't let my Mac sleep", "keep the screen on", "anti-sleep", "caffeinate", overnight work, or long builds. Unlike a normal background job, it survives temporary agent-shell cleanup. |
-| `create-readonly-db-role` | `skills/ops-and-setup/create-readonly-db-role` | Provision a hardened SELECT-only Postgres role so AI agents can safely read a production database. Works on Supabase and any Postgres. Use when the user wants agents to query prod data, says "read-only role", "safe prod DB access for agents", or is tired of running SQL by hand for agents. Differentiator: this skill CREATES the role and wiring; day-to-day querying belongs in a project-local skill. |
-| `global-agent-guardrails` | `skills/ops-and-setup/global-agent-guardrails` | One shared denylist of catastrophic shell commands (rm -rf on / or ~, dd/mkfs, sudo rm, fork bombs, curl\|sh, git push --force, gh repo delete) enforced as a PreToolUse/pre-exec guard across every AI coding agent on the machine — Cursor, Claude Code, Codex, OpenCode, Pi, Hermes, Grok, Droid, Devin. Use when adding or tuning blocked-command patterns, wiring the guard into a new agent or a new machine, debugging why a command was (or was not) blocked, or when the user mentions command guard, guardrails, dangerous command hook, or PreToolUse safety. |
-| `google-safe-browsing` | `skills/ops-and-setup/google-safe-browsing` | Prevent and fix Google Safe Browsing "Dangerous site" flags. Use when launching a public web app, buying/picking a domain, building a login or signup page, or when any site shows a red "Dangerous site" / "Deceptive site" warning in Chrome, Brave, Safari, Firefox, or Edge. Triggers on "dangerous site", "deceptive site", "site blocked", "safe browsing", "phishing flag", "red warning screen". |
-| `macbook-metrics-setup` | `skills/ops-and-setup/macbook-metrics-setup` | Replicate the macbook-metrics setup on any Mac — a local, always-on system-metrics collector (CPU, GPU, RAM, disk, network, battery, thermals) built as a Swift CLI, run by launchd every 60s, stored in SQLite, and backed up to a private GitHub repo. Use when someone wants long-term Mac performance tracking, asks how macbook-metrics works, or wants to set up the same monitoring on a new machine. Differentiator: covers the full architecture and setup ideology, not day-to-day querying of an existing install. |
-| `nuke-cursor-app` | `skills/ops-and-setup/nuke-cursor-app` | Safely quit and kill ALL Cursor IDE processes on the user''s MacBook to recover from the known renderer memory leak that makes Cursor lag. Manual-only — run ONLY when the user explicitly invokes it (/nuke-cursor-app, "nuke cursor"). Differentiator: kills the Cursor desktop app; cursor-cli sessions are unrelated. |
-| `pi-custom-model` | `skills/ops-and-setup/pi-custom-model` | Register a custom or variant model (e.g. an OpenRouter ":nitro" / ":floor" / ":exacto" slug) in the Pi Agent so it can be set as the global default. Use when Pi silently falls back to a different model (e.g. moonshotai/kimi-k2.6) after setting defaultModel, or when a model slug isn't in Pi's bundled list. Triggers on "Pi reset my model", "Pi won't use this model", "add a model to Pi", "Pi default keeps reverting". |
-| `prod-push` | `skills/ops-and-setup/prod-push` | Push to GitHub main and babysit the change until it is verifiably live in production, fixing CI and deploy failures along the way. Use when the user says "push", "push to github", "push to prod", "ship it", or "deploy". Differentiator: pushing requires the user''s explicit go-ahead; this is the procedure for AFTER the user gives it (this repo''s CI gate + Vercel promotion). |
-| `setup-help` | `skills/ops-and-setup/setup-help` | Walk the user through setting up anything step by step. Use when the user asks for help setting up, configuring, installing, or getting something working — "help me set up X", "walk me through this", "setup-help". Differentiator: gives one current step at a time, then always lists every remaining setup step after each response. |
-| `vps-server-management` | `skills/ops-and-setup/vps-server-management` | Use when the user wants to manage their VPS servers and the AI agents running inside them — connecting, deploying, monitoring, restarting, and operating remote hosts and their agents. Triggers on VPS, server management, remote host, SSH into server, manage my servers, agents on the server. |
-
-### `research-and-web`
-
-- **Path**: `skills/research-and-web`
-- **SKILL.md**: _none_ (grouping folder)
-- **Files**: 11
-- **Structure**: flat
-- **Notes**: No top-level SKILL.md; acts as a grouping folder.
-
-**Sub-skills / templates (8):**
-
-| Name | Path | Description |
-|------|------|-------------|
-| `browser-harness` | `skills/research-and-web/browser-harness` | Direct browser control via CDP. Use when the user wants to automate, scrape, test, or interact with web pages. Connects to the user's already-running Chrome. |
-| `deep-research` | `skills/research-and-web/deep-research` | Run a deep, source-backed research query via DeepAPI (go to deepapi.co to get an API key) POST /v1/research/deep. Builds a rigorous one-paragraph research prompt (per research-prompt rules), fires it, and saves a cited markdown report. Use when the user asks for "deep research", "deepapi research", "perplexity deep research" (legacy trigger), or any deep source-backed research run. Differentiator vs the deepapi skill: this is the full research workflow (prompt + run + report file), not raw endpoint access. |
-| `deepapi` | `skills/research-and-web/deepapi` | Use DeepAPI for all regular web searches (POST /v1/search/web) and for any deep research you perform (POST /v1/research/deep), instead of built-in search or research tools. Use it for all scraping of the web (websites, LinkedIn, GitHub, X/Twitter, YouTube — POST /v1/scrape/*) instead of built-in fetch or browser tools. Platform lookups (GitHub, YouTube, X/Twitter, LinkedIn, Instagram) have dedicated search endpoints — prefer them over web search. Also use it to draft and send safe email, and generate images with DEEPAPI_API_BASE_URL and DEEPAPI_API_KEY. |
-| `fireflies-transcript` | `skills/research-and-web/fireflies-transcript` | Pull raw meeting transcripts from the user''s Fireflies.ai notetaker via its GraphQL API, using the key saved globally on this machine. Use when the user wants a call transcript, meeting notes, "what was said on the call", onboarding-call transcripts, or Fireflies data. Differentiator: Fireflies meeting recordings only — for YouTube videos use youtube-transcript. |
-| `online-shopping` | `skills/research-and-web/online-shopping` | Research any online purchase with DeepAPI — fair-price checks, best deals, where to buy, shop trust. Load whenever the user is shopping or buying anything online: mentions buying a product, comparing prices, "is this a good price", "where can I get X", or attaches a product photo or listing screenshot. Research only — never places orders. |
-| `pi-web-search` | `skills/research-and-web/pi-web-search` | ONLY for Pi Agents — all other agents have their own web tools. How Pi accesses the web via the pi-web-access package — search, fetch URLs/PDFs/YouTube/GitHub. Use whenever a Pi task needs current info, docs, news, prices, or content from a specific URL. |
-| `research-prompt` | `skills/research-and-web/research-prompt` | Write a single-paragraph Deep Research prompt to hand to a human researcher (or a deep-research AI). Use when the user wants a research brief, a "deep research prompt", a one-paragraph task for a researcher, or asks "what should our researcher look for". Produces ONE tight paragraph with full context, numbered sub-questions, and per-finding output format. |
-| `youtube-transcript` | `skills/research-and-web/youtube-transcript` | Use whenever the user needs the transcript of a YouTube video — fetching, extracting, downloading, or pulling captions/subtitles/transcript text from a YouTube URL. Triggers on "get the transcript", "transcript of this video", "pull the captions", "download subtitles", "what does this YouTube video say". Primary path is DeepAPI (go to deepapi.co to get an API key); yt-dlp is the local fallback. |
+> Install, initialize, and run a PostgreSQL server and client locally without root on Debian (trixie/sid), for a non-root user with a writable /home/project directory. Use when asked to install or start PostgreSQL without sudo, without systemd, or when apt install fails with permission errors. Resolves the major version dynamically, extracts .debs into a user-owned prefix, and provides idempotent start/stop/status scripts.
 
 ### `skill-finder-cn`
 
@@ -2355,12 +2365,13 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 - **Files**: 4
 - **Structure**: `scripts/`
 
-> Skill 查找器 \| Skill Finder. 帮助发现和安装 ClawHub Skills \| Discover and install ClawHub Skills. 回答'有什么技能可以X'、'找一个技能' \| Answers 'what skill can X', 'find a skill'. 触发词：找 skill、find skill、搜索 skill.
+> Skill 查找器 | Skill Finder. 帮助发现和安装 ClawHub Skills | Discover and install ClawHub Skills. 回答'有什么技能可以X'、'找一个技能' | Answers 'what skill can X', 'find a skill'. 触发词：找 skill、find skill、搜索 skill.
 
 ### `task-review`
 
 - **Path**: `skills/task-review`
 - **SKILL.md**: [`skills/task-review/SKILL.md`](skills/task-review/SKILL.md)
+- **Title**: task-review
 - **Files**: 1
 - **Structure**: flat
 
@@ -2412,30 +2423,101 @@ Skills are listed alphabetically. Use the category index below to jump to a cate
 
 ## Summary Statistics
 
-- **Total top-level skill folders**: 229
-- **Folders with a top-level `SKILL.md`**: 222
-- **Folders without a top-level `SKILL.md` (grouping folders)**: 7
-- **Total nested sub-skills / templates**: 48
-- **Total files across all skill folders**: 13886
-- **Skills with `scripts/`**: 60
-- **Skills with `references/`**: 49
-- **Skills with `scenes/`**: 2
-- **Skills with `routes/`**: 2
-- **Skills with `engines/`**: 1
-- **Skills with `setup.sh`**: 3
+- **Spec-compliant skills listed**: 218
+- **Top-level folders under `skills/` scanned**: 267
+- **Folders with a top-level `SKILL.md`**: 246
+- **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
+- **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 28
+- **Total files across listed skills**: 13910
+- **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
+- **Listed skills with `scripts/`**: 61
+- **Listed skills with `references/`**: 49
+- **Listed skills with `scenes/`**: 2
+- **Listed skills with `routes/`**: 2
+- **Listed skills with `engines/`**: 1
+- **Listed skills with `setup.sh`**: 3
 
 ### Per-category counts
 
 | # | Category | Skills |
 |---|----------|--------|
-| 1 | Frontend Development & UI Engineering | 55 |
-| 2 | Design Artifacts & Visual Creation | 18 |
-| 3 | Full-Stack & Backend Development | 20 |
-| 4 | AI / ML / Multimodal SDK Skills | 15 |
-| 5 | Testing, QA & Performance | 23 |
-| 6 | Code Quality, Security & Architecture | 13 |
-| 7 | Planning, Workflow & Project Management | 23 |
-| 8 | Documentation & Content Creation | 19 |
-| 9 | Career, Learning & Personal Development | 11 |
-| 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **208** |
+| 1 | Frontend Development & UI Engineering | 50 |
+| 2 | Design Artifacts & Visual Creation | 16 |
+| 3 | Full-Stack & Backend Development | 13 |
+| 4 | AI / ML / Multimodal SDK Skills | 11 |
+| 5 | Testing, QA & Performance | 28 |
+| 6 | Code Quality, Security & Architecture | 23 |
+| 7 | Planning, Workflow & Project Management | 32 |
+| 8 | Documentation & Content Creation | 24 |
+| 9 | Career, Learning & Personal Development | 12 |
+| 10 | DevOps, Infrastructure & External Integrations | 9 |
+| | **Total** | **218** |
+
+---
+
+## Validation & Exclusions
+
+A folder under `skills/` is listed in this inventory only when it passes skill-spec validation: it contains a top-level `SKILL.md` whose YAML frontmatter declares a spec-compliant header — `name` (lowercase letters, digits, and hyphens only; max 64 characters; must match the folder name) and `description` (non-empty; max 1024 characters). Everything else under `skills/` is excluded from the listings above.
+
+### Grouping folders without a top-level `SKILL.md` (21)
+
+These folders hold nested sub-skills or auxiliary content but are not skills themselves (nested sub-skills listed at any depth):
+
+| Folder | Nested sub-skills |
+|--------|-------------------|
+| `agent-orchestration` | `agent-self-scheduling`, `cmux`, `codex-subagent`, `fable-review`, `fable-safe-prompt`, `git-worktree`, `goal-loop`, `gpt-review`, `launch-subagent`, `run-deep-swe` |
+| `docs` | _none_ |
+| `earnings-reviewer` | `skills/audit-xls`, `skills/earnings-analysis`, `skills/earnings-preview`, `skills/model-update`, `skills/morning-note`, `skills/xlsx-author` |
+| `equity-research` | `skills/catalyst-calendar`, `skills/earnings-analysis`, `skills/earnings-preview`, `skills/idea-generation`, `skills/initiating-coverage`, `skills/model-update`, `skills/morning-note`, `skills/sector-overview`, `skills/thesis-tracker` |
+| `financial-analysis` | `skills/3-statement-model`, `skills/audit-xls`, `skills/clean-data-xls`, `skills/competitive-analysis`, `skills/comps-analysis`, `skills/dcf-model`, `skills/deck-refresh`, `skills/ib-check-deck`, `skills/lbo-model`, `skills/ppt-template-creator`, `skills/pptx-author`, `skills/skill-creator`, `skills/xlsx-author` |
+| `fund-admin` | `skills/accrual-schedule`, `skills/break-trace`, `skills/gl-recon`, `skills/nav-tieout`, `skills/roll-forward`, `skills/variance-commentary` |
+| `gl-reconciler` | `skills/audit-xls`, `skills/break-trace`, `skills/gl-recon`, `skills/xlsx-author` |
+| `investment-banking` | `skills/buyer-list`, `skills/cim-builder`, `skills/datapack-builder`, `skills/deal-tracker`, `skills/merger-model`, `skills/pitch-deck`, `skills/process-letter`, `skills/strip-profile`, `skills/teaser` |
+| `market-researcher` | `skills/competitive-analysis`, `skills/comps-analysis`, `skills/idea-generation`, `skills/pptx-author`, `skills/sector-overview` |
+| `meeting-prep-agent` | `skills/client-report`, `skills/client-review`, `skills/investment-proposal`, `skills/pptx-author` |
+| `model-builder` | `skills/3-statement-model`, `skills/audit-xls`, `skills/comps-analysis`, `skills/dcf-model`, `skills/lbo-model`, `skills/xlsx-author` |
+| `month-end-closer` | `skills/accrual-schedule`, `skills/audit-xls`, `skills/roll-forward`, `skills/variance-commentary`, `skills/xlsx-author` |
+| `operations` | `skills/kyc-doc-parse`, `skills/kyc-rules` |
+| `ops-and-setup` | `anti-sleep`, `create-readonly-db-role`, `global-agent-guardrails`, `google-safe-browsing`, `macbook-metrics-setup`, `nuke-cursor-app`, `pi-custom-model`, `prod-push`, `setup-help`, `vps-server-management` |
+| `pitch-agent` | `skills/3-statement-model`, `skills/audit-xls`, `skills/comps-analysis`, `skills/dcf-model`, `skills/deck-refresh`, `skills/ib-check-deck`, `skills/lbo-model`, `skills/pitch-deck`, `skills/pptx-author`, `skills/sector-overview`, `skills/xlsx-author` |
+| `private-equity` | `skills/ai-readiness`, `skills/dd-checklist`, `skills/dd-meeting-prep`, `skills/deal-screening`, `skills/deal-sourcing`, `skills/ic-memo`, `skills/portfolio-monitoring`, `skills/returns-analysis`, `skills/unit-economics`, `skills/value-creation-plan` |
+| `research-and-web` | `browser-harness`, `deep-research`, `deepapi`, `fireflies-transcript`, `online-shopping`, `pi-web-search`, `research-prompt`, `youtube-transcript` |
+| `skill-authoring` | `distribute-skill-to-all-agents`, `effective-agent-skills`, `folder-specific-claude-and-agents-md`, `push-skill-to-github` |
+| `statement-auditor` | `skills/audit-xls`, `skills/nav-tieout`, `skills/xlsx-author` |
+| `thinking-and-docs` | `before-building`, `brain-to-docs`, `decisions`, `level-up`, `next-decision`, `prompt-me`, `read-all-adrs`, `remind`, `save-idea`, `short` |
+| `valuation-reviewer` | `skills/ic-memo`, `skills/portfolio-monitoring`, `skills/returns-analysis`, `skills/xlsx-author` |
+
+### `SKILL.md` frontmatter not spec-compliant (28)
+
+These folders contain a `SKILL.md`, but its YAML header violates the skill spec (fix the frontmatter to have the skill included in the next sync):
+
+| Folder | Reason |
+|--------|--------|
+| `ASR` | `name: ASR` — lowercase letters, digits and hyphens only |
+| `TTS` | `name: TTS` — lowercase letters, digits and hyphens only |
+| `VLM` | `name: VLM` — lowercase letters, digits and hyphens only |
+| `ai-news-collectors` | `name: ai-news-collector` does not match folder name `ai-news-collectors` |
+| `aminer-free-academic` | `description` is 1477 chars — exceeds 1024-char limit |
+| `dotnet-9` | `description` is 1322 chars — exceeds 1024-char limit |
+| `fastapi-sqlalchemy` | `description` is 1326 chars — exceeds 1024-char limit |
+| `fastify` | `description` is 1773 chars — exceeds 1024-char limit |
+| `flutter` | `description` is 1101 chars — exceeds 1024-char limit |
+| `go-web` | `description` is 1118 chars — exceeds 1024-char limit |
+| `hono` | `description` is 1780 chars — exceeds 1024-char limit |
+| `how-to-git-push-using-ssh-wrapper` | no YAML frontmatter |
+| `htmx` | `description` is 1777 chars — exceeds 1024-char limit |
+| `keystonejs-6` | `description` is 2168 chars — exceeds 1024-char limit |
+| `nestjs` | `description` is 1502 chars — exceeds 1024-char limit |
+| `nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth` | `description` is 1130 chars — exceeds 1024-char limit |
+| `pdf-old-20260806` | `name: pdf` does not match folder name `pdf-old-20260806` |
+| `phoenix-1-7` | `description` is 1456 chars — exceeds 1024-char limit |
+| `podcast-generate` | `name: Podcast Generate` — lowercase letters, digits and hyphens only; `name: Podcast Generate` does not match folder name `podcast-generate` |
+| `ponytail` | `description` is 1723 chars — exceeds 1024-char limit |
+| `qingyan-research` | `name: qingyan_research_report` — lowercase letters, digits and hyphens only; `name: qingyan_research_report` does not match folder name `qingyan-research` |
+| `rails-8` | `description` is 1174 chars — exceeds 1024-char limit |
+| `react-native-expo` | `description` is 1439 chars — exceeds 1024-char limit |
+| `rust-web` | `description` is 1226 chars — exceeds 1024-char limit |
+| `solidstart` | `description` is 1733 chars — exceeds 1024-char limit |
+| `spring-boot-3` | `description` is 1504 chars — exceeds 1024-char limit |
+| `tauri-2` | `description` is 1705 chars — exceeds 1024-char limit |
+| `translation-engine` | `description` is 1057 chars — exceeds 1024-char limit |
