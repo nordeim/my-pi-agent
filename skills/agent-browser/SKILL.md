@@ -128,6 +128,8 @@ agent-browser fill @e2 "text"     # Clear and type
 agent-browser type @e2 "text"     # Type without clearing
 agent-browser press Enter         # Press key
 agent-browser press Control+a     # Key combination
+agent-browser keydown Shift       # Hold key down (e.g. before click for modifiers)
+agent-browser keyup Shift         # Release held key
 agent-browser keyboard type <text>    # Type with real keystrokes (no selector)
 agent-browser keyboard inserttext <text>  # Insert text without key events
 agent-browser hover @e1           # Hover
@@ -194,6 +196,7 @@ agent-browser pdf output.pdf          # Save as PDF
 ```bash
 agent-browser record start <path> [url]   # Start recording (WebM)
 agent-browser record stop                 # Stop and save video
+agent-browser record restart <path>       # Stop current + start new recording
 ```
 
 Recording creates a fresh context but preserves cookies/storage from your session. If no URL is provided, it automatically returns to your current page. For smooth demos, explore first, then start recording.
@@ -264,14 +267,31 @@ agent-browser network har start [path]               # Start HAR recording
 agent-browser network har stop [path]                # Stop and save HAR
 ```
 
-### Tabs
+### Tabs & Windows
 
 ```bash
 agent-browser tab                    # List tabs
 agent-browser tab new [url]          # New tab
 agent-browser tab <n>                # Switch to tab
 agent-browser tab close              # Close tab
+agent-browser window new             # New window
 ```
+
+### Frames
+
+```bash
+agent-browser frame "#iframe"        # Switch to iframe
+agent-browser frame main             # Back to main frame
+```
+
+### Dialogs
+
+```bash
+agent-browser dialog accept [text]   # Accept dialog (optionally with prompt text)
+agent-browser dialog dismiss         # Dismiss dialog
+```
+
+By default dialogs (alert/confirm/prompt/beforeunload) are auto-dismissed; use `--no-auto-dialog` to handle them manually with these commands.
 
 ### JavaScript
 

@@ -17,6 +17,7 @@ description: >
   - **Design quality**: professional color systems, anti-overlap rules, layout optimization,
     scene-based framework routing (matplotlib, seaborn, ECharts, D3.js, Mermaid, Playwright+CSS),
     and publication-ready output.
+license: Proprietary. LICENSE.txt has complete terms
 ---
 
 Applies when the user wants to create, generate, draw, plot, visualize, or improve any chart, graph, diagram, or dashboard. Also applies when the user asks for something more polished, cleaner, or publication-ready.  NOT for: PDF document layout (use pdf skill), slide decks (use slides skill), spreadsheets with embedded charts (use xlsx skill), AI image generation (use image_gen), posters / infographics / creative cards (use pdf skill Creative pipeline).

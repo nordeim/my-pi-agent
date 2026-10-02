@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-02) — catalog is source of truth.**
-> **218 skills** listed (13910 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 28 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> **218 skills** listed (13920 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 28 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -128,6 +128,7 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Title**: Beautiful Charts
 - **Author**: Z.AI
 - **Version**: 1.0
+- **License**: Proprietary. LICENSE.txt has complete terms
 - **Files**: 12
 - **Structure**: `references/`, `setup.sh`
 
@@ -913,21 +914,24 @@ Skills are listed alphabetically within each category. Use the category index be
 
 - **Path**: `skills/aminer-academic-search`
 - **SKILL.md**: [`skills/aminer-academic-search/SKILL.md`](skills/aminer-academic-search/SKILL.md)
-- **Title**: aminer-academic-search
-- **Files**: 2
-- **Structure**: `scripts/`
+- **Title**: AMiner Open Platform Academic Data Query
+- **Version**: 1.2.1
+- **Author**: AMiner
+- **Files**: 4
+- **Structure**: `scripts/`, `references/`
 
-> ACADEMIC PRIORITY: Activate whenever the user's query involves academic, scholarly, or research-related topics — papers, citations, scholars, institutions, venues, patents, research trends, or any "who published what / where / when" question. Takes precedence over general web search for academic data needs. Routes through the z-ai gateway's `/v1/functions/invoke` endpoint to the AMiner Open Platform (27 APIs, 5 workflows).
+> ACADEMIC PRIORITY: Activate for any academic, scholarly, or research query - papers, citations, scholars, researchers, institutions, journals, venues, patents, h-index, research trends, or 'who published what / where / when'. Precedence over web search for academic data. Full-featured AMiner skill: 28 APIs + 5 workflows for tasks free APIs cannot satisfy. Use for: scholar full profiles (bio, education, honors, papers, patents, projects), paper deep dives (abstract, keywords, citation chains), multi-condition or semantic paper search (paper_qa_search_pro), institution capability analysis, ve...
 
 ### `aminer-daily-paper`
 
 - **Path**: `skills/aminer-daily-paper`
 - **SKILL.md**: [`skills/aminer-daily-paper/SKILL.md`](skills/aminer-daily-paper/SKILL.md)
 - **Title**: aminer-daily-paper
-- **Files**: 3
+- **Version**: 1.1.2
+- **Files**: 11
 - **Structure**: `scripts/`
 
-> Get personalized academic paper recommendations. Activate whenever the user asks for paper recommendations — explicit command (/aminer-dp) or natural language (e.g. 'recommend me papers on RAG', 'suggest recent papers on multimodal agents'). Workflow: extract topics / author / aminer_author_id from the input, invoke scripts/recommend.py, return results as Markdown.
+> Personalized academic paper recommendation via AMiner rec5 API. Activate this skill whenever the user asks for paper recommendations, whether triggered by /aminer-dp, /skill aminer-dp, or any natural language request such as 'recommend me papers on multimodal agents'. When invoked: extract topics/scholar signals from the input yourself, call handle_trigger.py with structured fields, then present the Markdown in `reply_text` to the user.
 
 ### `auto-target-tracker`
 
@@ -2428,10 +2432,10 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Folders with a top-level `SKILL.md`**: 246
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 28
-- **Total files across listed skills**: 13910
+- **Total files across listed skills**: 13920
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
 - **Listed skills with `scripts/`**: 61
-- **Listed skills with `references/`**: 49
+- **Listed skills with `references/`**: 50
 - **Listed skills with `scenes/`**: 2
 - **Listed skills with `routes/`**: 2
 - **Listed skills with `engines/`**: 1
