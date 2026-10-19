@@ -584,3 +584,69 @@ export TARGET_APP_PASSWORD='...'   # rotate before production use
 ```
 
 **Security note:** The password shared in this conversation (`$Abcd1234`) must be treated as compromised and rotated immediately after the investigation. The skill deliberately does not embed it; it reads `TARGET_APP_PASSWORD` from the environment and instructs the agent to halt if it is absent.
+
+---
+
+## Executive Summary
+
+The attached `SKILL-v3.md` represents a significant and highly successful evolution of the generated v2 artifact. It successfully integrates the 9 merge recommendations from the `REVIEW-REA-SKILL.md` audit, most notably the restoration of the gated write-path probe, the promotion of `compare_web_captures`, and the strict separation of REA’s passive authority from Playwright’s active automation.
+
+**Verdict:** v3 is conceptually superior to v2 in almost every technical and epistemic dimension. However, it contains **one critical structural flaw** regarding its packaging for the Pi agent loader that must be corrected before deployment. 
+
+Below is the meticulous Mode C audit, the critical comparison matrix, and the exact remediation steps required to produce the definitive v3.1 artifact.
+
+---
+
+## 1. Meticulous Review of SKILL-v3.md
+
+### 1.1 Structural Audit (Frontmatter & Meta-text) — *Critical Finding*
+**The Flaw:** The document begins with a ~100-line "Review & Planning Summary" and "Verification ledger" *before* the YAML frontmatter (`---`).
+**The Impact:** Agent skill loaders (including Pi) strictly expect the YAML frontmatter to occupy **lines 1 through N** of the `SKILL.md` file. If the file begins with conversational markdown, the loader will likely fail to parse the `name`, `description`, and `compatibility` fields, meaning the skill will not trigger correctly. Furthermore, forcing the agent to ingest the author’s review notes on every invocation wastes ~300 tokens per run.
+**The Fix:** The preamble must be extracted into a separate `REVIEW_LOG.md` or `AUTHOR_NOTES.md` file. The `SKILL.md` file must begin exactly with the `---` block.
+
+### 1.2 Content & Epistemology — *Excellent*
+* **Calibration Enforcement:** v3 adds a mandatory directive in the Mission section: *"Read `references/worked-example-academiaflow.md` before starting."* This is a massive improvement over v2, as it forces the agent to ground itself in verified reality (the 20-route map, the 18-field Task schema) before it begins hallucinating features.
+* **Epistemic Rigor:** The 4-way confidence split (`Verified` / `Reasoned` / `Assumed` / `Unknown`) is preserved, and v3 explicitly mandates that `Unknown` must **name its blocker**. This prevents the agent from lazily marking things as "Unknown" to avoid doing the work.
+* **Boundary Clarity:** Numbering the 7 non-negotiable boundaries makes them significantly easier for an LLM to parse and prioritize during complex decision trees.
+
+### 1.3 Tooling & Execution Mechanics — *Major Upgrade*
+* **CLI ↔ MCP Mapping Table:** Phase 1 now includes a clean Markdown table mapping `rea list-browser-targets` (CLI) to `list_browser_targets` (MCP). This eliminates the highest-probability failure mode for agents using REA: confusing the shell command with the tool call.
+* **Authority Split:** v3 explicitly defines the boundary: *"REA CDP capture is attach-only and passive... Use Playwright... for controlled interaction."* This prevents the agent from attempting to "click" or "type" using REA tools, which would result in silent failures.
+* **Verification Loop Closure:** Phase 5 now includes a dedicated "Visual comparison — REA" subsection that explicitly invokes `compare_web_captures` and enforces the hard rule: *"missing or truncated evidence does not establish equivalence."* This closes the biggest omission identified in the original Gate 1 audit.
+
+---
+
+## 2. Critical Comparison Matrix: Generated v2 vs. Attached v3
+
+| Dimension | Generated v2 (My previous output) | Attached v3 (Update Draft) | Verdict |
+| :--- | :--- | :--- | :--- |
+| **Frontmatter Compliance** | Missing `license` and `compatibility`. | Adds `license: MIT` and detailed `compatibility` (Node versions, CDP requirements). | **v3 Wins** (Aligns perfectly with Pi spec). |
+| **Packaging / Token Efficiency** | Clean hub, no preamble. | Includes ~100-line review preamble before frontmatter. | **v2 Wins** (v3 breaks loader expectations; preamble must be stripped). |
+| **Calibration Anchor** | Mentioned dossier in text. | Explicit `worked_example` metadata + mandatory read directive in Mission. | **v3 Wins** (Stronger agent grounding). |
+| **Tooling Clarity** | Text-based command lists. | Markdown table mapping CLI ↔ MCP tools + explicit "Authority Split" paragraph. | **v3 Wins** (Reduces agent confusion to near zero). |
+| **Verification Rigor** | Generic visual comparison. | Explicit `compare_web_captures` + "missing evidence ≠ equivalence" hard rule. | **v3 Wins** (Closes the biggest review gap). |
+| **Checklist Completeness** | 11 items. | 14 items (adds credential halt, probe cleanup, WCAG, REA compare). | **v3 Wins** (More comprehensive release gate). |
+| **User Documentation** | Embedded in hub. | Appended "How to use" bash block at the end. | **Tie** (Both should move this to a separate `README.md` to save agent tokens). |
+
+---
+
+## 3. Final Recommendations for v3.1 (Production-Ready Artifact)
+
+To elevate v3 to the definitive, production-grade standard, execute the following three surgical edits:
+
+### 3.1. Strip the Meta-Text (Critical)
+Move the entire "Review & Planning Summary" and "Verification ledger for this review" sections out of `SKILL.md`. 
+* **Action:** Create a new file named `REVIEW_LOG.md` in the same directory and move that text there. 
+* **Result:** The `SKILL.md` file must now begin on Line 1 with `---`.
+
+### 3.2. Extract User-Facing Documentation
+The section titled **"How to use this skill with the omni-study1 sample"** at the very bottom of the file is intended for the *human operator*, not the *agent*. The agent does not need to read bash `export` commands or installation instructions for itself every time the skill triggers.
+* **Action:** Move this section into a `README.md` file alongside the skill.
+* **Result:** Saves ~150 tokens per agent invocation and prevents the agent from confusing operator instructions with its own operational boundaries.
+
+### 3.3. Refine the "Reference files" Footer
+The current v3 ends with a "Reference files" section listing the dossier and `build-and-verify.md`. Ensure the agent understands the path resolution.
+* **Action:** Update the text to explicitly state: *"These files are located relative to this skill's directory (e.g., `.pi/skills/replicate-web-app/references/`). Load them using your standard file-read tools."*
+
+### Summary of the Definitive Artifact
+Once the preamble and user-docs are stripped, the resulting `SKILL.md` will be approximately **280 lines of pure, high-density operational protocol**. It will be fully compliant with the Pi loader, epistemically airtight, and equipped with the exact REA tooling mappings required to prevent hallucination. It is ready for deployment.
