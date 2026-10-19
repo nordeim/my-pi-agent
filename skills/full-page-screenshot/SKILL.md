@@ -208,4 +208,3 @@ landing page (NEO CRM, 1920×4986 px). They are the reasons the gates exist:
    the final PNG.
 6. **Never trust "✓ Screenshot saved" alone** — the file must pass format/dimension/
    visual verification before being reported as a deliverable.
-

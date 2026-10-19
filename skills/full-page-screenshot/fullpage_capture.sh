@@ -107,4 +107,3 @@ print("      PASS: PNG valid, width matches viewport, height matches probed page
 PY
 
 echo "DONE: ${OUT} (visual sanity check G6 still recommended: open/read the PNG top-to-bottom)"
-
