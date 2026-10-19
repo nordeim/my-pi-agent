@@ -14,7 +14,7 @@ compatibility: >
   (1.40+) or equivalent is required for controlled interaction, the gated
   write probe, and the Delivery Bar.
 metadata:
-  version: "5.0.0"
+  version: "5.1.0"
   reference_project: "https://github.com/morluto/rea"
   worked_example: "references/worked-example-academiaflow.md"
   build_guide: "references/build-and-verify.md"
@@ -212,19 +212,19 @@ Do not fill this table with invented features. Mark unobserved routes
 `Unknown — auth wall`, `Unknown — no network body`).
 
 ### 2.2 Authentication
-Open the login route in the dedicated investigation profile.
-Record the visual structure and form fields before submitting.
-Log in only as authorized. Do not attempt password resets, MFA recovery,
-or account enumeration unless specifically authorized.
-Record the resulting URL, landing page, session behavior, and any consent
-or onboarding steps.
-Do not store session cookies or reuse the account outside the authorized
-investigation.
-If login fails, record the sanitized error and stop repeated attempts
-that could lock the account. Do not bypass the failure.
-Record the observed auth mechanism (e.g., JWT in `localStorage` + Bearer
-header) as `Verified` evidence. Do not imitate it in the clone — the
-clone gets its own secure session model (Phase 4).
+1. Open the login route in the dedicated investigation profile.
+2. Record the visual structure and form fields before submitting.
+3. Log in only as authorized. Do not attempt password resets, MFA recovery,
+   or account enumeration unless specifically authorized.
+4. Record the resulting URL, landing page, session behavior, and any consent
+   or onboarding steps.
+5. Do not store session cookies or reuse the account outside the authorized
+   investigation.
+6. If login fails, record the sanitized error and stop repeated attempts
+   that could lock the account. Do not bypass the failure.
+7. Record the observed auth mechanism (e.g., JWT in `localStorage` + Bearer
+   header) as `Verified` evidence. Do not imitate it in the clone — the
+   clone gets its own secure session model (Phase 4).
 
 ### 2.3 Screenshots and visual system
 Capture at least: login screen; initial authenticated landing view; each major
@@ -302,7 +302,7 @@ determine the reference stack and decide what to match, replace, or omit.
 
 | Reference evidence | Clone decision |
 | :--- | :--- |
-| React + Vite SPA (chunk names `assets/index-*.js`, `vendor-react-*`) | Match React + Vite + TypeScript strict, unless the current project already uses a different framework — then preserve project conventions and record the deviation. |
+| Vite build (`assets/index-*.js`) **and** a React vendor chunk or `__REACT_DEVTOOLS_GLOBAL_HOOK__` DOM probe | Match React + Vite + TypeScript strict, unless the current project already uses a different framework — then preserve project conventions and record the deviation. |
 | Tailwind CSS (`--tw-` rules, `:root --primary` triplet) | Match Tailwind with token-for-token primary color; map every observed token into the installed version's theme layer (v3 `theme.extend.colors` or v4 CSS-first `@theme` — check `tailwindcss` version before choosing). |
 | Lucide icons (`svg.lucide`, bundle grep count) | Match Lucide (or the project's existing icon set — record the deviation). |
 | Chart libraries in bundle | Match the observed library for the same chart types. |
@@ -531,7 +531,8 @@ Never call the result "production-ready" solely because the build succeeds.
    tool or the manual fallback.
 4. **Security/data handling** — confirm no credentials, tokens, or personal
    records were committed; disclose unresolved concerns; recommend rotation
-   if the shared test credential was used.
+   if the shared test credential was used; confirm temporary auth artifacts
+   (e.g., `.auth/`) were deleted.
 5. **Known gaps** — incomplete fidelity, unavailable services, assumptions,
    checks not run.
 6. **Run instructions** — exact install, configuration, and startup commands
@@ -577,6 +578,7 @@ repeatable tests.
 - [ ] Reference routes and key journeys inventoried with evidence.
 - [ ] Authentication used only with authorization; secrets kept out of
       files/logs/commits.
+- [ ] Temporary auth artifacts (e.g., `.auth/` directory) deleted before handoff.
 - [ ] Gated write probe (if used) cleaned up with zero residue verified.
 - [ ] Stack Decision Record written (stack, entity→DB mapping, auth strategy,
       AI stub policy).
@@ -597,9 +599,9 @@ repeatable tests.
 - [ ] Final report includes evidence, uncertainty, and remaining gaps.
 
 ## Reference files
-These files live relative to this skill's directory (e.g.,
-`.pi/skills/replicate-web-app/references/`). Read them with your standard
-file-read tools when the phase calls for them.
+These files live relative to this skill's directory (verify against your
+Pi version's skill-discovery path, typically `.pi/skills/replicate-web-app/references/`).
+Read them with your standard file-read tools when the phase calls for them.
 
 - `references/worked-example-academiaflow.md` — complete dossier for
   `https://omni-study1.base44.app/` (StudyFlow / AcademiaFlow on Base44):
@@ -612,12 +614,10 @@ file-read tools when the phase calls for them.
   Phase 4, or Phase 5 as needed.
 ```
 
----
-
-## File 2 — `references/build-and-verify.md` (fully authored)
+#### 2. `references/build-and-verify.md` (v5.1.0)
 
 ````markdown
-# Build & Verify Reference — replicate-web-app v5
+# Build & Verify Reference — replicate-web-app v5.1
 
 Loaded on demand (Phases 2.4, 4, 5). Environment assumptions:
 
@@ -631,9 +631,14 @@ are templates: adapt selectors, endpoint paths, and ports to the target.
 
 ## 1. Auth capture (Phase 2.2)
 
-Log in once, persist authenticated storage state to a git-ignored fixture,
-and identify the auth mechanism — recording storage **key names only, never
-values**.
+Log in once, identify the auth mechanism — recording storage **key names only,
+never values**. 
+
+**Security Warning:** This script uses `context.storageState()` to persist the
+session to `.auth/state.json` so subsequent recipes can reuse it without
+re-logging. This file contains the raw session token. **You must delete the
+entire `.auth/` directory before handing off the project or committing
+anything to version control.**
 
 ```typescript
 // scripts/investigate/auth-capture.ts
@@ -649,7 +654,6 @@ async function main() {
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  // Identify the mechanism from response headers without printing tokens.
   let mechanism = "unknown";
   page.on("response", (res) => {
     if (res.status() >= 400) return;
@@ -674,7 +678,8 @@ async function main() {
   }));
 
   await mkdir(".auth", { recursive: true });
-  await context.storageState({ path: ".auth/state.json" }); // .gitignore this
+  // WARNING: Persists session token to disk. Delete .auth/ before handoff.
+  await context.storageState({ path: ".auth/state.json" }); 
   await writeFile(
     ".auth/mechanism.json",
     JSON.stringify({ mechanism, storageKeys, capturedAt: new Date().toISOString() }, null, 2),
@@ -720,7 +725,7 @@ async function main() {
 
   for (const href of unique) {
     const url = new URL(href, base);
-    if (url.origin !== new URL(base).origin) continue; // stay on-origin
+    if (url.origin !== new URL(base).origin) continue;
     const res = await page.goto(url.toString(), {
       waitUntil: "domcontentloaded",
       timeout: 20_000,
@@ -743,15 +748,12 @@ function requireEnv(name: string): string {
 main().catch((err) => { console.error(err); process.exit(1); });
 ```
 
-Feed this JSON into the route matrix; rows with `status: 0` become
-`Unknown — unreachable during crawl`.
-
 ## 3. Network triage (Phase 2.5)
 
 Capture **schema-only** API evidence: keys and types, never values.
 
 ```typescript
-// scripts/investigate/network-triage.ts — attach before driving the app
+// scripts/investigate/network-triage.ts
 import type { Page } from "playwright";
 import { redactUrl } from "./redact";
 
@@ -780,7 +782,7 @@ export function schemaOf(value: unknown): unknown {
       Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, schemaOf(v)]),
     );
   }
-  return typeof value; // "string" | "number" | "boolean"
+  return typeof value;
 }
 ```
 
@@ -798,10 +800,6 @@ label evidence accordingly:
 4. **Inferred defaults** — only when the probe is blocked (no authorization
    for writes). Record the blocker; label: `Unknown` or `Assumed`.
 
-The worked example's form-vs-server gap (`priority`, `tags`, `order`,
-`description` absent from the create modal but present in the create
-response) is why level 3 exists.
-
 ## 5. Gated write-path probe (Phase 2.5, Boundary 4)
 
 One throwaway record per approved entity. Capture the canonical response,
@@ -809,29 +807,36 @@ DELETE immediately, and **assert zero residue** before moving on.
 
 ```typescript
 // scripts/investigate/gated-probe.ts
+import { schemaOf } from "./network-triage";
+import { readMechanism } from "./auth-reader";
+
 async function main() {
   const base = requireEnv("TARGET_APP_BASE_URL");
   const entityPath = requireEnv("PROBE_ENTITY_PATH"); // e.g. /api/apps/<id>/entities/Task
-  const token = await readTokenFromAuthState();        // see note below
+  const { token, cookie } = await readMechanism();
+
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (cookie) headers.Cookie = cookie;
 
   // 1. Create one throwaway record with a minimal payload.
-  const created = await api("POST", entityPath, token, {
+  const created = await api("POST", entityPath, headers, {
     title: `probe-${Date.now()}`,
   });
   if (created.status !== 200 && created.status !== 201) {
-    throw new Error(`Probe create failed: HTTP ${created.status} — stop, do not retry blindly`);
+    throw new Error(`Probe create failed: HTTP ${created.status}`);
   }
   const record = created.json as { id: string };
   console.log("canonical schema:", JSON.stringify(schemaOf(created.json), null, 2));
 
   // 2. Delete immediately.
-  const deleted = await api("DELETE", `${entityPath}/${record.id}`, token);
-  if (deleted.status !== 200) {
+  const deleted = await api("DELETE", `${entityPath}/${record.id}`, headers);
+  if (deleted.status !== 200 && deleted.status !== 204) {
     throw new Error(`Probe cleanup failed: HTTP ${deleted.status} — MANUAL CLEANUP REQUIRED for id ${record.id}`);
   }
 
   // 3. Verify zero residue.
-  const list = await api("GET", entityPath, token);
+  const list = await api("GET", entityPath, headers);
   const rows = (list.json as Array<{ id: string }>) ?? [];
   if (rows.some((r) => r.id === record.id)) {
     throw new Error(`Residue check failed: ${record.id} still present`);
@@ -839,11 +844,11 @@ async function main() {
   console.log("Probe complete. Zero residue verified.");
 }
 
-async function api(method: string, path: string, token: string, body?: unknown) {
+async function api(method: string, path: string, headers: Record<string, string>, body?: unknown) {
   const res = await fetch(`${requireEnv("TARGET_APP_BASE_URL")}${path}`, {
     method,
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...headers,
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -854,12 +859,48 @@ async function api(method: string, path: string, token: string, body?: unknown) 
   return { status: res.status, json };
 }
 
-// Token acquisition: run recipe 1 first, then read the key name it recorded
-// in .auth/mechanism.json (e.g. "token") and extract it in-page:
-//   const token = await page.evaluate((k) => localStorage.getItem(k), keyName);
-// Hold the token in memory only. Never write it to disk, logs, or reports.
-async function readTokenFromAuthState(): Promise<string> {
-  throw new Error("Implement per note above using .auth/mechanism.json key name");
+function requireEnv(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing env var: ${name}`);
+  return v;
+}
+
+main().catch((err) => { console.error(err); process.exit(1); });
+```
+
+**Auth Reader Helper (`auth-reader.ts`):**
+```typescript
+// scripts/investigate/auth-reader.ts
+import { chromium } from "playwright";
+import { readFile } from "node:fs/promises";
+
+export async function readMechanism(): Promise<{ token?: string; cookie?: string }> {
+  const mech = JSON.parse(await readFile(".auth/mechanism.json", "utf8"));
+  
+  if (mech.mechanism === "cookie-session") {
+    // Playwright handles cookies automatically if we load the storageState into a context,
+    // but for raw fetch() we must extract the cookie header.
+    const browser = await chromium.launch();
+    const context = await browser.newContext({ storageState: ".auth/state.json" });
+    const cookies = await context.cookies();
+    await browser.close();
+    return { cookie: cookies.map(c => `${c.name}=${c.value}`).join("; ") };
+  }
+  
+  // Fallback to token-based (e.g., localStorage)
+  const browser = await chromium.launch();
+  const context = await browser.newContext({ storageState: ".auth/state.json" });
+  const page = await context.newPage();
+  // Navigate to a blank page on the target origin to access localStorage safely
+  await page.goto(requireEnv("TARGET_APP_BASE_URL") + "/favicon.ico"); 
+  
+  // Find the key that looks like a token (heuristic: ends in 'token' or 'jwt')
+  const keyName = mech.storageKeys.localStorage.find((k: string) => /token|jwt|session/i.test(k));
+  if (!keyName) throw new Error("Could not identify token key in localStorage");
+  
+  const token = await page.evaluate((k) => localStorage.getItem(k), keyName);
+  await browser.close();
+  return { token: token || undefined };
 }
 
 function requireEnv(name: string): string {
@@ -867,9 +908,6 @@ function requireEnv(name: string): string {
   if (!v) throw new Error(`Missing env var: ${name}`);
   return v;
 }
-
-import { schemaOf } from "./network-triage";
-main().catch((err) => { console.error(err); process.exit(1); });
 ```
 
 Constraints from Boundary 4 apply in full: operator's own account only, one
@@ -899,19 +937,13 @@ export function redactUrl(url: string): string {
     return url;
   }
 }
-
-export function redactObject(obj: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(obj).map(([k, v]) => [k, SENSITIVE.test(k) ? "[REDACTED]" : v]),
-  );
-}
 ```
 
 ## 7. Prisma schema from canonical probe (Phase 4)
 
 Derived from the worked example's create→delete probe response (18 fields),
 **not** from the create form. SQLite shown; switch `provider` to
-`postgresql` for multi-user mode (then `Json` columns become available).
+`postgresql` for multi-user mode.
 
 ```prisma
 // prisma/schema.prisma
@@ -928,7 +960,7 @@ model User {
   id                   String   @id @default(cuid())
   email                String   @unique
   fullName             String
-  passwordHash         String
+  passwordHash         String   // clone-specific: added for the clone's own auth (Phase 3.1 C)
   role                 String   @default("user")
   theme                String   @default("dark")
   accentColor          String   @default("#8b5cf6")
@@ -967,9 +999,6 @@ model Task {
 }
 ```
 
-Password hashing: use `node:crypto` `scrypt` (zero-dependency, vetted) or a
-maintained library such as `argon2`/`bcryptjs`. Never store plaintext.
-
 ## 8. AI-provider stub (Phase 3.1 D / Phase 4)
 
 ```typescript
@@ -988,7 +1017,6 @@ export class StubAiProvider implements AiProvider {
   }
 }
 
-// Generic OpenAI-compatible endpoint; swap for your provider's contract.
 class HttpAiProvider implements AiProvider {
   constructor(
     private readonly baseUrl: string,
@@ -1025,10 +1053,6 @@ export function createProviderFromEnv(): AiProvider {
 }
 ```
 
-Tests assert against `StubAiProvider` output so they are deterministic and
-offline. Never point the stub at the reference's endpoint; never hardcode
-keys. Record the stub in the Deviations Ledger.
-
 ## 9. Theme-token mapping (Phase 3.1 A)
 
 Observed `:root --primary: 139 92 246` is a Tailwind-v4-style RGB triplet
@@ -1054,15 +1078,11 @@ module.exports = {
 };
 ```
 
-Check `package.json` for the installed `tailwindcss` version before
-choosing. Map every observed token (backgrounds, borders, radii) the same
-way; do not hardcode hex values in components.
-
 ## 10. Six failure-mode checks (Phase 6)
 
-1. **Unbounded observation** — grep the evidence log for repeated identical
-   route attempts: `grep -c "goto .*/<route>" logs/*.log`. More than 3
-   attempts on one route without new evidence → stop, mark `Unknown`.
+1. **Unbounded observation** — inspect your route-matrix attempts. If you
+   attempted the same route >3 times without new evidence, stop and mark it
+   `Unknown`.
 2. **Hallucinated APIs** — for every endpoint in the dossier, confirm a
    matching entry exists in the network-triage output; for every library
    call, confirm the package appears in the lockfile at a version that
@@ -1070,11 +1090,9 @@ way; do not hardcode hex values in components.
 3. **Schema drift** — diff Prisma model fields against the canonical probe
    schema (recipe 5 output). Any field sourced only from a form is drift.
 4. **Auth bypass** — call each API route with no cookie/token and with a
-   second user's token; both must be rejected. `curl -i <api-url>` with no
-   auth header must return 401/403.
-5. **Asset laundering** — list all binary assets
-   (`find public src -type f \( -name '*.png' -o -name '*.svg' -o -name '*.woff*' \)`);
-   every file must be independently created or carry a license note.
+   second user's token; both must be rejected.
+5. **Asset laundering** — list all binary assets; every file must be
+   independently created or carry a license note.
 6. **Dead controls** — run the Playwright smoke suite with a console-error
    listener; any `button` whose click handler is a no-op or throws must be
    fixed or explicitly disabled.
@@ -1086,10 +1104,12 @@ way; do not hardcode hex values in components.
 # scripts/delivery-bar.sh — fail fast if the clone cannot be delivered.
 set -euo pipefail
 
+# Parameterize to support Vite, Next.js, Astro, or custom backends.
+DEV_CMD="${DEV_CMD:-npm run dev}"
 APP_URL="${APP_URL:-http://localhost:5173}"
 
 npm run build
-npm run dev & DEV_PID=$!
+$DEV_CMD & DEV_PID=$!
 trap 'kill "$DEV_PID" 2>/dev/null || true' EXIT
 
 # Wait up to 30s for the server.
@@ -1102,36 +1122,9 @@ curl -fsS "$APP_URL/login" >/dev/null
 npx playwright test tests/smoke.spec.ts
 echo "Delivery Bar: PASS"
 ```
-
-```typescript
-// tests/smoke.spec.ts
-import { test, expect } from "@playwright/test";
-
-test("login renders and accepts the dev seed account", async ({ page }) => {
-  await page.goto("/login");
-  await expect(page.getByLabel(/email/i)).toBeVisible();
-  await page.fill('input[type="email"]', process.env.SEED_USERNAME ?? "");
-  await page.fill('input[type="password"]', process.env.SEED_PASSWORD ?? "");
-  await page.click('button[type="submit"]');
-  await expect(page).not.toHaveURL(/\/login/);
-});
-
-test("primary journey completes", async ({ page }) => {
-  // Adapt to the clone's primary journey; must end with an observable
-  // success state (e.g., created task visible in the list).
-});
-```
-
-Adjust `APP_URL` to the project's dev port. If the environment cannot run
-a server, report that explicitly with the exact command the operator must
-run — do not mark the Delivery Bar as met.
 ````
 
----
-
-## File 3 — `references/worked-example-academiaflow.md` (additions)
-
-Append after Section 8 of the existing dossier; everything above Section 9 is unchanged:
+#### 3. `references/worked-example-academiaflow.md` (Sections 9–10 Update)
 
 ```markdown
 ## 9. Stack Decision Record (seed)
@@ -1153,12 +1146,11 @@ Append after Section 8 of the existing dossier; everything above Section 9 is un
 | Brand | AcademiaFlow / StudyFlow | Renamed | Trademark scope |
 | Logo | Supabase bucket asset | Independent SVG | License |
 | Auth storage | localStorage JWT | httpOnly cookie | Security |
+| Auth backend | JWT + platform-managed | `passwordHash` on `User` + httpOnly session | The clone owns its credentials |
 | AI backend | Live provider | Stub + env provider | Key hygiene |
 ```
 
----
-
-## File 4 — `README.md` (operator-facing)
+#### 4. `README.md` (v5.1.0)
 
 ```markdown
 # replicate-web-app — skill package
@@ -1168,6 +1160,9 @@ build and verify a production-quality, behaviorally similar clone. The
 hub is `SKILL.md`; detail is loaded on demand from `references/`.
 
 ## Package layout
+
+Place the skill files at `.pi/skills/replicate-web-app/` (verify against your
+Pi version's skill-discovery path — `pi --help` or the Pi docs).
 
 ```text
 .pi/skills/replicate-web-app/
@@ -1215,3 +1210,4 @@ before running this skill.
 | 3.0.0 | Pi-compliant frontmatter; CLI/MCP tool table; loader-safe structure. |
 | 4.0.0 | Stack Decision Record; six failure modes; Delivery Bar; no-slop; resume protocol; unified labels. |
 | 5.0.0 | Full `build-and-verify.md` authored; conditional `compare_web_screenshots` with manual fallback; cross-target resume guard; Tailwind v3/v4 theme fix; fence audit. |
+| 5.1.0 | Restored Phase 2.2 numbered steps; explicit `.auth/` cleanup; implemented `readToken` recipes; parameterized Delivery Bar `DEV_CMD`; `passwordHash` schema deviation flagged; `.pi/skills` path hedged. |
