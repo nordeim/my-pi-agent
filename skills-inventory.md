@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-22) — catalog is source of truth.**
-> **221 skills** listed (13932 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 29 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> **225 skills** listed (13970 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 29 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -27,11 +27,11 @@ Skills are listed alphabetically within each category. Use the category index be
 1. **Frontend Development & UI Engineering** — 52 skills — [jump](#1-frontend-development--ui-engineering)
 2. **Design Artifacts & Visual Creation** — 16 skills — [jump](#2-design-artifacts--visual-creation)
 3. **Full-Stack & Backend Development** — 13 skills — [jump](#3-full-stack--backend-development)
-4. **AI / ML / Multimodal SDK Skills** — 11 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
+4. **AI / ML / Multimodal SDK Skills** — 12 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
 5. **Testing, QA & Performance** — 29 skills — [jump](#5-testing-qa--performance)
 6. **Code Quality, Security & Architecture** — 23 skills — [jump](#6-code-quality-security--architecture)
 7. **Planning, Workflow & Project Management** — 32 skills — [jump](#7-planning-workflow--project-management)
-8. **Documentation & Content Creation** — 24 skills — [jump](#8-documentation--content-creation)
+8. **Documentation & Content Creation** — 27 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
 10. **DevOps, Infrastructure & External Integrations** — 9 skills — [jump](#10-devops-infrastructure--external-integrations)
 
@@ -158,11 +158,11 @@ Skills are listed alphabetically within each category. Use the category index be
 
 - **Path**: `skills/design`
 - **SKILL.md**: [`skills/design/SKILL.md`](skills/design/SKILL.md)
-- **Title**: Design Skill
+- **Title**: Design Skill（设计技能）
 - **Files**: 561
 - **Structure**: flat
 
-> Route design-related HTML artifact tasks to the right artifact skill, reference, design system generation, or export skill.
+> Route design-related HTML artifact tasks (landing pages, portfolios, prototypes, decks, content pages, web tools, social cards, info-interactive) to the right artifact skill, and decide whether to use design-system-reference, design-system-generation, or export. Use for any UI/visual/HTML design work.
 
 ### `e-commerce-nextjs16-monorepo`
 
@@ -931,7 +931,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 4. AI / ML / Multimodal SDK Skills
 
 > Skills that wrap the z-ai-web-dev-sdk or other AI/ML model clients for multimodal tasks.
-> **11 skills** in this category.
+> **12 skills** in this category.
 
 ### `aminer-academic-search`
 
@@ -955,6 +955,18 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`
 
 > Personalized academic paper recommendation via AMiner rec5 API. Activate this skill whenever the user asks for paper recommendations, whether triggered by /aminer-dp, /skill aminer-dp, or any natural language request such as 'recommend me papers on multimodal agents'. When invoked: extract topics/scholar signals from the input yourself, call handle_trigger.py with structured fields, then present the Markdown in `reply_text` to the user.
+
+### `aminer-deep-search`
+
+- **Path**: `skills/aminer-deep-search`
+- **SKILL.md**: [`skills/aminer-deep-search/SKILL.md`](skills/aminer-deep-search/SKILL.md)
+- **Title**: AMiner Deep Search
+- **Version**: 2.0.0
+- **Author**: AMiner
+- **Files**: 8
+- **Structure**: `scripts/`
+
+> Activate this skill when the user wants deep, multi-round academic paper collection for a survey or literature review. The host model (the model running this skill) drives the loop itself: it expands queries, judges relevance, snowballs backward references, and decides when to stop. The bundled scripts are pure tool commands that call documented AMiner Open Platform endpoints and print JSON tool results only — no extra LLM configuration is needed. Use this skill for broad topic exploration, survey bibliography construction, and collecting hundreds of candidate papers with AMiner IDs and tit...
 
 ### `auto-target-tracker`
 
@@ -1959,7 +1971,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 8. Documentation & Content Creation
 
 > Skills that produce documents, presentations, spreadsheets, PDFs, or written content.
-> **24 skills** in this category.
+> **27 skills** in this category.
 
 ### `agents-md`
 
@@ -2063,6 +2075,16 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an ADR.
 
+### `experiment-suite`
+
+- **Path**: `skills/experiment-suite`
+- **SKILL.md**: [`skills/experiment-suite/SKILL.md`](skills/experiment-suite/SKILL.md)
+- **Title**: Experiment Suite
+- **Files**: 18
+- **Structure**: `references/`
+
+> Use when the user has a research question and needs a complete experiment package — design document, runnable code, results (measured or simulated with honest provenance), publication-grade figures, structured report. Single-stage, no Python runtime.
+
 ### `handoff`
 
 - **Path**: `skills/handoff`
@@ -2084,6 +2106,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Remove signs of AI-generated writing and restore natural human voice. Archetype-based detection with heuristic triage, genre-gated positive humanization, forensic artifact scanning, and a dedicated fiction protocol. Synthesizes all prior editions (v1–v6) into a single operational system. Resilient to model evolution; safe for token-constrained environments.
+
+### `literature-survey`
+
+- **Path**: `skills/literature-survey`
+- **SKILL.md**: [`skills/literature-survey/SKILL.md`](skills/literature-survey/SKILL.md)
+- **Title**: Literature Survey
+- **Files**: 11
+- **Structure**: `references/`
+
+> Use when the user wants a comprehensive literature survey on a specific research topic. Outputs a complete PDF survey (6–20 pages, 60+ real citations, 100+ recommended) with LaTeX source, taxonomy figures, and a classified literature table. Single-stage, no Python runtime.
 
 ### `markdown-to-html`
 
@@ -2159,6 +2191,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
+
+### `research-explorer`
+
+- **Path**: `skills/research-explorer`
+- **SKILL.md**: [`skills/research-explorer/SKILL.md`](skills/research-explorer/SKILL.md)
+- **Title**: Research Explorer
+- **Files**: 1
+- **Structure**: flat
+
+> Use when the user has a vague research direction and wants to explore feasible specific topics. Outputs a structured analysis with candidate topics, innovation/feasibility scoring, and a pre-survey of 20–30 representative works. Single-stage, no Python runtime.
 
 ### `resume-builder`
 
@@ -2460,15 +2502,15 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 221
-- **Top-level folders under `skills/` scanned**: 271
-- **Folders with a top-level `SKILL.md`**: 250
+- **Spec-compliant skills listed**: 225
+- **Top-level folders under `skills/` scanned**: 275
+- **Folders with a top-level `SKILL.md`**: 254
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 29
-- **Total files across listed skills**: 13932
+- **Total files across listed skills**: 13970
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
-- **Listed skills with `scripts/`**: 62
-- **Listed skills with `references/`**: 50
+- **Listed skills with `scripts/`**: 63
+- **Listed skills with `references/`**: 52
 - **Listed skills with `scenes/`**: 2
 - **Listed skills with `routes/`**: 2
 - **Listed skills with `engines/`**: 1
@@ -2481,14 +2523,14 @@ Skills are listed alphabetically within each category. Use the category index be
 | 1 | Frontend Development & UI Engineering | 52 |
 | 2 | Design Artifacts & Visual Creation | 16 |
 | 3 | Full-Stack & Backend Development | 13 |
-| 4 | AI / ML / Multimodal SDK Skills | 11 |
+| 4 | AI / ML / Multimodal SDK Skills | 12 |
 | 5 | Testing, QA & Performance | 29 |
 | 6 | Code Quality, Security & Architecture | 23 |
 | 7 | Planning, Workflow & Project Management | 32 |
-| 8 | Documentation & Content Creation | 24 |
+| 8 | Documentation & Content Creation | 27 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **221** |
+| | **Total** | **225** |
 
 ---
 
