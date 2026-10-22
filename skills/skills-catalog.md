@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **228 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **248 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -159,6 +159,8 @@
 | **pdf** | Professional PDF toolkit with four production lines:(1) Report - structured documents via ReportLab (reports, proposals, contracts, white papers); (2) Creative - visual design via JSON Blueprint → design_engine.py → Playwright snapshot (posters, infographics, invitations, dashboards). The LLM acts as Art Director outputting ONLY JSON spatial blueprints; convert.blueprint compiles to pixel-perfect PDF. (3) Academic - scholarly work via LaTeX/Tectonic (papers, theses, math-heavy documents); (4) Process - manipulate existing PDFs (extract, merge, split, fill forms, convert);Auto-routes based o... |
 | **performance-optimization** | Optimizes application performance. Use when performance requirements exist, when you suspect performance regressions, or when Core Web Vitals or load times need improvement. Use when profiling reveals bottlenecks that need fixing. |
 | **playwright-cli** | Automate browser interactions, test web pages and work with Playwright tests. Is a better choice for traditional browser testing - multi-browser support (Firefox, WebKit), Playwright-native locators, and the run-code command for custom Playwright snippets. |
+| **principle-prove-it-works** | Apply after completing a task, before declaring done. Verify against the real artifact (run the feature, read the actual value, inspect the diff), not a proxy, self-report, or 'it compiles.' |
+| **principle-test-behavior-not-implementation** | Apply when you write, change, or keep a test. Assert what the code's users can observe, so that the test fails when that behavior breaks and keeps passing when only the internals change. |
 | **readme-md** | Creates a professional, high-signal README.md for a repository by investigating the codebase and following battle-tested conventions distilled from production open-source projects. |
 | **seo-content-writer** | Use when the user asks to "write SEO content", "create a blog post", "write an article", "content writing", "draft optimized content", "write me an article", "create a blog post about", "help me write SEO content", or "draft content for". Creates high-quality, SEO-optimized content that ranks in search engines. Applies on-page SEO best practices, keyword optimization, and content structure for maximum visibility and engagement. For AI citation optimization, see geo-content-optimizer. For updating existing content, see content-refresher. |
 | **skill-creator** | Create new skills, modify and improve existing skills, and evaluate skill quality. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, optimize a skill's description for better triggering accuracy, or package a skill for distribution. |
@@ -178,6 +180,8 @@
 | Skill | Description |
 |-------|-------------|
 | **anti-pua** | 识别和分析PUA（Pickup Artist）及情感操纵行为的专业心理分析工具。具备人格分析、心理侧写、情感分析能力，能够识别情感操纵、煤气灯操纵、虐待等有毒关系模式，评估人格特质（如黑暗三人格、脆弱型自恋等），预测对方行为并给出具体的相处建议。当用户需要：分析对方言行动机、识别PUA/情感操纵行为、评估NPD（自恋型人格障碍）倾向、识别操纵行为、预测对方未来行为、寻求健康关系建议、分析黑暗三人格或光明三人格时使用此skill。 |
+| **architect** | Sketch types, signatures, and module structure before code, then stay in the loop while implementation fills in. Use for /architect, 'architect this', 'design this', or non-trivial work where jumping to code would lock in the wrong shape. |
+| **blast-radius** | Find what a change could break somewhere else before it ships, beyond the diff, and prove the one fact it's safe because of by running real code instead of writing it up. Use for 'blast radius of X', 'what could this break', reviewing a small diff you don't trust, or a brief that asserts something about existing code ('make X public', 'X already handles Y') before you design against that assertion. |
 | **clean-code** | Pragmatic coding standards - concise, direct, no over-engineering, no unnecessary comments |
 | **code-review-and-audit** | Unified code review and security audit orchestration skill. Coordinates static analysis, security scanning, code quality checks, test coverage, performance profiling, and expert review into a single tiered pipeline. Use when reviewing code, preparing for release, conducting security audits, or running pre-merge gates. Triggers on: review, audit, code review, security scan, quality gate, pre-merge, checklist, lint, vulnerability. |
 | **code-simplification** | Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity. |
@@ -185,17 +189,27 @@
 | **codebase-design** | Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary. |
 | **context-anchor** | Recover from context compaction by scanning memory files and surfacing where you left off. Use when waking up fresh, after compaction, or when you feel lost about what you were doing. Now supports both flat (YYYY-MM-DD.md) and QMD hierarchical (daily/YYYY/MM/DD.md) memory structures. |
 | **deprecation-and-migration** | Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when deciding whether to maintain or sunset existing code. |
+| **deslop** | Remove AI-generated code slop and clean up code style |
 | **distill-codebase-skill** | Reference template for distilling codebase knowledge into a comprehensive engineering skill document. Use after completing a major project update, security remediation, or architectural overhaul to create a reusable SKILL.md that captures lessons learned, anti-patterns, debugging guides, and best practices for future agents. |
 | **encrypt-decrypt** | Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults. |
 | **git-guardrails-claude-code** | Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code. |
 | **greploop** | Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Triggers Greptile review, fixes all actionable comments, pushes/re-shelves, re-triggers review, and repeats. Use when the user wants to fully optimize a PR/MR/CL against Greptile's code review standards. |
 | **greploop-apps** | Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Identical to greploop, but triggers reviews by tagging @greptile-apps, which bypasses Greptile's file-count limit on huge PRs that the plain @greptile mention refuses to review. Use when the user wants to fully optimize a large PR/MR/CL against Greptile's code review standards. |
+| **how** | Use for "how does X work", code walkthroughs before changing something, and placement / ownership / layering questions ("where should this live", "which package owns this", "is this the right layer"). Explains subsystem architecture, runtime flow, onboarding mental models. Use why for motivation. |
 | **improve-codebase-architecture** | Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. |
 | **incremental-implementation** | Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step. |
 | **memory-architect** | Bootstrap, audit, and recover the OpenClaw 3-layer memory architecture (workspace files, LCM database, QMD semantic index). Use when: (1) Setting up memory on a new OpenClaw instance, (2) Auditing existing memory health, (3) Recovering from corruption or system crash, (4) Migrating or restructuring memory layout, (5) User asks about memory architecture setup or health. Triggers on phrases like 'bootstrap memory', 'audit memory', 'memory architecture', 'memory setup', 'LCM configuration', 'QMD setup', 'memory recovery', 'check memory health'. |
 | **memory-architecture** | OpenClaw memory system architecture, setup guide, and troubleshooting reference. Use when configuring memory on a new machine, diagnosing memory issues after updates, or understanding how workspace files, LCM, and QMD work together. |
 | **migrate-to-shoehorn** | Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data. |
 | **plan-writing** | Structured task planning with clear breakdowns, dependencies, and verification criteria. Use when implementing features, refactoring, or any multi-step work. |
+| **principle-build-the-lever** | Apply to any non-trivial work, not just bulk work: edits, migrations, analyses, checks. Build the tool that does it or proves it (codemod, script, generator, or a skill your subagents follow) instead of working by hand. The tool is the artifact a reviewer can rerun. |
+| **principle-fix-root-causes** | Apply when debugging. Trace each symptom back to the first place the system went wrong and fix it there. A guard is a fix only when the state it handles is legitimate. |
+| **principle-foundational-thinking** | Apply before writing logic: choosing core types and data structures, sequencing scaffold-vs-feature work, asking what concurrent actors share. Get the data structures right so downstream code becomes obvious. |
+| **principle-guard-the-context-window** | Apply when context is filling up: large outputs, long files, repeated reads, fan-out planning. Route bulk to subagents; keep summaries in the main thread, not raw payloads. |
+| **principle-laziness-protocol** | Apply when refactoring, evaluating diff size, or tempted to add abstractions, layers, or signal threading. Bias toward deletion and the smallest change that solves the problem. |
+| **principle-never-block-on-the-human** | Apply when tempted to ask 'should I do X?' on reversible work. |
+| **principle-sequence-verifiable-units** | Apply to multi-step work (sweeps, migrations, runs of similar edits) and to how you stack commits and PRs. Break work into small units that each end in a verifiable state, check each before the next, and order delivery so the sequence proves itself to a reviewer. |
+| **principle-subtract-before-you-add** | Apply when sequencing an addition, refactor, or rewrite. Remove dead code, redundant validators, and stub references first, then build on the simpler base. |
 | **scaffold-exercises** | Create exercise directory structures with sections, problems, solutions, and explainers that pass linting. Use when user wants to scaffold exercises, create exercise stubs, or set up a new course section. |
 | **setup-pre-commit** | Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/typechecking/testing. |
 | **setup-ts-deep-modules** | Wire dependency-cruiser into a TypeScript repo so each package is a deep module, with implementation hidden in subfolders and reachable only through its entry-point files. User-invoked. |
@@ -213,6 +227,9 @@
 | **background-terminals** | Run and manage long-lived shell commands in background terminals. Use for dev servers, watchers, streaming builds, and other commands that should keep running while the agent continues working. |
 | **blog-writer** | This skill should be used when writing blog posts, articles, or long-form content in the writer's distinctive writing style. It produces authentic, opinionated content that matches the writer's voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer's perspective on AI, productivity, sales, marketing, or technology topics. |
 | **documentation-and-adrs** | Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase. |
+| **fix-ci** | Find failing PR checks, inspect logs or external check links, and apply focused fixes |
+| **fix-merge-conflicts** | Resolve merge conflicts non-interactively, validate build and tests, and finalize conflict resolution |
+| **get-pr-comments** | Fetch and summarize review comments from the active pull request |
 | **git-workflow-and-versioning** | Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, or when you need to organize work across multiple parallel streams. |
 | **grill-me** | A relentless interview to sharpen a plan or design. |
 | **grill-with-docs** | A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go. |
@@ -222,6 +239,7 @@
 | **interview-prep** | 帮用户准备面试。基于目标 JD、公司、岗位方向，生成"高频面试题 + 参考回答 + 行为面 / 技术面 / Case 面分类题库"，并产出可打印的『面试备战手册』。当用户说"帮我准备面试""明天有面试 / 后天面试""面试题""面经""模拟面试""我要面 X 公司 Y 岗位""帮我准备 STAR 故事""怎么回答这道面试题""自我介绍 / 离职原因 / 优缺点 怎么答"，必须触发本 skill。请勿用本 skill 改简历（去 jd-resume-tailor / resume-builder）或推荐方向（去 job-intent-tracker）。 |
 | **job-intent-tracker** | 帮助用户梳理求职意向、生成目标岗位画像，并维护一份结构化的"岗位投递追踪表"。当用户说"我想换工作 / 不知道投什么岗 / 帮我看看我适合什么岗位 / 帮我管理投递进度 / 我投了好几家但记不住状态了 / 想做一个求职 OKR / 整理一下求职方向"，或上传简历但没说要改简历时，应该主动触发本 skill。本 skill 也适用于实习生、应届生、转行候选人在求职启动阶段做"自我盘点 + 目标画像 + 投递管理"三件事。 |
 | **loop-builder** | Design and scaffold an agent "loop" — an unattended, scheduled, self-verifying agent workflow. Use this whenever the user wants to automate a recurring task, schedule an agent, run an agent unattended or overnight, set up monitoring, triage, or alerting, poll something on a cadence, or turn a manual repeated workflow into a self-running one — even if they never say the word "loop." If a request implies "do this every day / on a schedule / until some condition holds, without me typing each time," reach for this skill. It walks the seven-question blueprint, picks the simplest loop pattern, an... |
+| **make-pr-easy-to-review** | Prepare PRs for review by cleaning noisy history, improving PR descriptions, and adding reviewer guidance without changing code behavior. Use for "make this easy to review", "tidy this PR", "clean up commits", or "annotate the diff". |
 | **marketing-mode** | Marketing Mode combines 23 comprehensive marketing skills covering strategy, psychology, content, SEO, conversion optimization, and paid growth. Use when users need marketing strategy, copywriting, SEO help, conversion optimization, paid advertising, or any marketing tactic. |
 | **mindfulness-meditation** | Build a meditation practice with guided sessions, streaks, and mindfulness reminders |
 | **new-feature** | Start a new task in an isolated Git worktree branched from origin/main so multiple agents can work on the same repo in parallel without conflicts. Use at the beginning of every new feature, fix, or task — before writing any code. |
@@ -229,6 +247,7 @@
 | **pandoc-docx-template** | Use this skill when converting Markdown to Word DOCX or DOCX back to Markdown with Pandoc, especially when the output should use the bundled Chinese Word reference templates, heading numbering variants, list indentation variants, SCI paper templates, and Lua filters for HTML tags, image captions, font color, and inline code styles. |
 | **pi-agent-customize-system-prompt** | guide for customizing the Pi Agent system prompt to add custom tools and workflow instructions |
 | **planning-and-task-breakdown** | Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible. |
+| **poteto-mode** | poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /poteto-mode, or requests to work in this style. |
 | **pptx-generator** | Generate, edit, and read PowerPoint presentations. Create from scratch with PptxGenJS (cover, TOC, content, section divider, summary slides), edit existing PPTX via XML workflows, or extract text with markitdown. Triggers: PPT, PPTX, PowerPoint, presentation, slide, deck, slides. |
 | **pr** | Use when writing a PR body. |
 | **retro** | Conduct a retrospective on a coding session. |
@@ -277,6 +296,7 @@
 | **resume-builder** | 从零生成或全面优化一份中文简历，并导出 docx / pdf / markdown 多种格式。用 STAR 法则改写经历、做 ATS 关键词覆盖率检查、根据行业（互联网产品 / 技术 / 金融 / 通用）选模板。当用户说"帮我写简历 / 优化简历 / 简历不会写 / 我的简历太弱了 / 简历看起来不专业 / 简历改一改 / 给我做个简历模板 / 简历导出 / 简历加点关键词"，或者上传 .pdf/.docx 简历后说"看看怎么改"时，必须触发本 skill。即使用户只问"我的简历有什么问题"也要触发。 |
 | **source-driven-development** | Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters. |
 | **study-buddy** | 智能督学助手，管理用户的长期学习项目工作流。当用户表达学习项目相关意图时触发：创建/制定学习计划（"我想学X"、"帮我制定计划"）、汇报学习进度（"学完了"、"今天搞定了"、"完成今日任务"）、查询计划状态（"我学到哪了"、"看下进度"）、查看学习报告（"日报""周报""月报""项目总结""5月10号到15号的报告"）、晨间/晚间打卡复盘、督促、动态调整计划、抱怨学不下去时（情绪支持）。**🔴 项目生成流程铁律**：项目生成成功后**必须一口气走完"项目→知识点→计划表"**，禁止只汇报"项目已生成 / X 个知识点 / X 个模块"就停下，必须**立即**输出"DAY / 项目 / 知识点 / 时长 / 难度"表格供用户确认 DAY 安排，否则视为流程失败。**🔴 报告查询铁律**：用户表达查看学习报告意图时（日报/周报/月报/项目总结/任意时间段），必须从 USER.md 取**对应时间段**的 `project_id` + `knowledge_id`，传给 `study_buddy_supervise` 工具的 `study_check` action 拿原始数据，按"模块3 主动报告查询"输出，**全程只读不写 USER.md**。**不处理**：单次出题（→ quiz-mastery）、Cheatsheet 生成（→ cheat-sheet）、把题目文件导入做练习... |
+| **technical-writing** | Layered technical-writing standard: Diátaxis structure, Google developer style sentences, STE instruction rules, Global English syntax. Use for /technical-writing or when writing or reviewing docs, RFCs, readmes, PR descriptions, or commit messages. |
 | **to-distill-project-into-skill** | Meta-skill for distilling a complete project codebase into a comprehensive, maintainable SKILL.md document. Use after a major project update, when onboarding a new team, or when you need to create a single-source-of-truth reference for future AI coding agents working on this codebase. |
 | **unslop** | Cut AI tells from text you write or edit for a human reader (commit messages, PR titles and bodies, docs, code comments, replies). Apply before committing, posting, or sending; leave prose you didn't touch alone. |
 | **writing-for-agents** | Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md. |
@@ -330,13 +350,13 @@
 | 2 | Design Artifacts & Visual Creation | 16 |
 | 3 | Full-Stack & Backend Development | 13 |
 | 4 | AI / ML / Multimodal SDK Skills | 12 |
-| 5 | Testing, QA & Performance | 29 |
-| 6 | Code Quality, Security & Architecture | 23 |
-| 7 | Planning, Workflow & Project Management | 35 |
-| 8 | Documentation & Content Creation | 27 |
+| 5 | Testing, QA & Performance | 31 |
+| 6 | Code Quality, Security & Architecture | 35 |
+| 7 | Planning, Workflow & Project Management | 40 |
+| 8 | Documentation & Content Creation | 28 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **228** |
+| | **Total** | **248** |
 
 ---
 
