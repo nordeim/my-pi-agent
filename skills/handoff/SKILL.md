@@ -95,7 +95,7 @@ facts to trust blindly. Then wait for my instructions before taking any action.
 
 Save the handoff to a temporary location outside the working tree so it does not pollute the repo:
 
-- Preferred: the OS temp directory, e.g. `$TMPDIR/handoff-<random-8-chars>.md` (macOS/Linux) or the system temp dir equivalent.
+- Preferred: the temporary directory of the user's OS, resolved the same way every run: `$TMPDIR`, else `/tmp` (macOS/Linux); `%TEMP%` on Windows — e.g. `$TMPDIR/handoff-<random-8-chars>.md`. Never the current workspace.
 - If the user prefers an in-repo record, save to `HANDOFF.md` in the project root instead.
 
 After saving, tell the user the absolute path. The user can then start a fresh session with just:
