@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-22) — catalog is source of truth.**
-> **225 skills** listed (13970 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 29 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> **228 skills** listed (13977 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 29 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -30,7 +30,7 @@ Skills are listed alphabetically within each category. Use the category index be
 4. **AI / ML / Multimodal SDK Skills** — 12 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
 5. **Testing, QA & Performance** — 29 skills — [jump](#5-testing-qa--performance)
 6. **Code Quality, Security & Architecture** — 23 skills — [jump](#6-code-quality-security--architecture)
-7. **Planning, Workflow & Project Management** — 32 skills — [jump](#7-planning-workflow--project-management)
+7. **Planning, Workflow & Project Management** — 35 skills — [jump](#7-planning-workflow--project-management)
 8. **Documentation & Content Creation** — 27 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
 10. **DevOps, Infrastructure & External Integrations** — 9 skills — [jump](#10-devops-infrastructure--external-integrations)
@@ -1637,7 +1637,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 7. Planning, Workflow & Project Management
 
 > Skills for planning work, managing projects, orchestrating sub-agents, and shipping.
-> **32 skills** in this category.
+> **35 skills** in this category.
 
 ### `ask-matt`
 
@@ -1728,6 +1728,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Implement a piece of work based on a spec or set of tickets.
+
+### `implement-spec`
+
+- **Path**: `skills/implement-spec`
+- **SKILL.md**: [`skills/implement-spec/SKILL.md`](skills/implement-spec/SKILL.md)
+- **Title**: implement-spec
+- **Files**: 2
+- **Structure**: flat
+
+> Implement the result of /to-spec and /to-tickets in code.
 
 ### `interview-prep`
 
@@ -1844,6 +1854,26 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `references/`
 
 > Generate, edit, and read PowerPoint presentations. Create from scratch with PptxGenJS (cover, TOC, content, section divider, summary slides), edit existing PPTX via XML workflows, or extract text with markitdown. Triggers: PPT, PPTX, PowerPoint, presentation, slide, deck, slides.
+
+### `pr`
+
+- **Path**: `skills/pr`
+- **SKILL.md**: [`skills/pr/SKILL.md`](skills/pr/SKILL.md)
+- **Title**: pr
+- **Files**: 3
+- **Structure**: flat
+
+> Use when writing a PR body.
+
+### `retro`
+
+- **Path**: `skills/retro`
+- **SKILL.md**: [`skills/retro/SKILL.md`](skills/retro/SKILL.md)
+- **Title**: retro
+- **Files**: 2
+- **Structure**: flat
+
+> Conduct a retrospective on a coding session.
 
 ### `shipping-and-launch`
 
@@ -2073,7 +2103,7 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Files**: 4
 - **Structure**: flat
 
-> Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an ADR.
+> Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR.
 
 ### `experiment-suite`
 
@@ -2502,12 +2532,12 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 225
-- **Top-level folders under `skills/` scanned**: 275
-- **Folders with a top-level `SKILL.md`**: 254
+- **Spec-compliant skills listed**: 228
+- **Top-level folders under `skills/` scanned**: 278
+- **Folders with a top-level `SKILL.md`**: 257
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 29
-- **Total files across listed skills**: 13970
+- **Total files across listed skills**: 13977
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
 - **Listed skills with `scripts/`**: 63
 - **Listed skills with `references/`**: 52
@@ -2526,11 +2556,11 @@ Skills are listed alphabetically within each category. Use the category index be
 | 4 | AI / ML / Multimodal SDK Skills | 12 |
 | 5 | Testing, QA & Performance | 29 |
 | 6 | Code Quality, Security & Architecture | 23 |
-| 7 | Planning, Workflow & Project Management | 32 |
+| 7 | Planning, Workflow & Project Management | 35 |
 | 8 | Documentation & Content Creation | 27 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **225** |
+| | **Total** | **228** |
 
 ---
 

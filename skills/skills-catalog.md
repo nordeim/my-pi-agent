@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **225 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **228 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -218,6 +218,7 @@
 | **grill-with-docs** | A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go. |
 | **grilling** | Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases. |
 | **implement** | Implement a piece of work based on a spec or set of tickets. |
+| **implement-spec** | Implement the result of /to-spec and /to-tickets in code. |
 | **interview-prep** | 帮用户准备面试。基于目标 JD、公司、岗位方向，生成"高频面试题 + 参考回答 + 行为面 / 技术面 / Case 面分类题库"，并产出可打印的『面试备战手册』。当用户说"帮我准备面试""明天有面试 / 后天面试""面试题""面经""模拟面试""我要面 X 公司 Y 岗位""帮我准备 STAR 故事""怎么回答这道面试题""自我介绍 / 离职原因 / 优缺点 怎么答"，必须触发本 skill。请勿用本 skill 改简历（去 jd-resume-tailor / resume-builder）或推荐方向（去 job-intent-tracker）。 |
 | **job-intent-tracker** | 帮助用户梳理求职意向、生成目标岗位画像，并维护一份结构化的"岗位投递追踪表"。当用户说"我想换工作 / 不知道投什么岗 / 帮我看看我适合什么岗位 / 帮我管理投递进度 / 我投了好几家但记不住状态了 / 想做一个求职 OKR / 整理一下求职方向"，或上传简历但没说要改简历时，应该主动触发本 skill。本 skill 也适用于实习生、应届生、转行候选人在求职启动阶段做"自我盘点 + 目标画像 + 投递管理"三件事。 |
 | **loop-builder** | Design and scaffold an agent "loop" — an unattended, scheduled, self-verifying agent workflow. Use this whenever the user wants to automate a recurring task, schedule an agent, run an agent unattended or overnight, set up monitoring, triage, or alerting, poll something on a cadence, or turn a manual repeated workflow into a self-running one — even if they never say the word "loop." If a request implies "do this every day / on a schedule / until some condition holds, without me typing each time," reach for this skill. It walks the seven-question blueprint, picks the simplest loop pattern, an... |
@@ -229,6 +230,8 @@
 | **pi-agent-customize-system-prompt** | guide for customizing the Pi Agent system prompt to add custom tools and workflow instructions |
 | **planning-and-task-breakdown** | Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible. |
 | **pptx-generator** | Generate, edit, and read PowerPoint presentations. Create from scratch with PptxGenJS (cover, TOC, content, section divider, summary slides), edit existing PPTX via XML workflows, or extract text with markitdown. Triggers: PPT, PPTX, PowerPoint, presentation, slide, deck, slides. |
+| **pr** | Use when writing a PR body. |
+| **retro** | Conduct a retrospective on a coding session. |
 | **shipping-and-launch** | Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy. |
 | **spec-driven-development** | Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea. |
 | **storyboard-manager** | Assist writers with story planning, character development, plot structuring, chapter writing, timeline tracking, and consistency checking. Use this skill when working with creative writing projects organized in folders containing characters, chapters, story planning documents, and summaries. Trigger this skill for tasks like "Help me develop this character," "Write the next chapter," "Check consistency across my story," or "Track the timeline of events." |
@@ -258,7 +261,7 @@
 | **cyber-ppt** | 当用户需要把 DOCX、PDF、TXT、XLSX、研究报告、业务材料或原始数据转成高密度、可编辑、咨询风格 PPTX 时使用；也适用于需要 SCR 论证、视觉风格探索、详细图表和渲染质检的 PPT。 |
 | **docx** | Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When GLM needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks |
 | **docx-generation** | Comprehensive DOCX Generation & Conversion Skill |
-| **domain-modeling** | Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an ADR. |
+| **domain-modeling** | Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR. |
 | **experiment-suite** | Use when the user has a research question and needs a complete experiment package — design document, runnable code, results (measured or simulated with honest provenance), publication-grade figures, structured report. Single-stage, no Python runtime. |
 | **handoff** | Compact the current conversation into a single, detailed handoff message — everything that happened, why it happened, and what's left — output in a code block so it can be copy-pasted into a fresh agent session. Use when hitting context limits, switching focus, ending a work session, or partitioning a task across fresh contexts. |
 | **humanizer** | Remove signs of AI-generated writing and restore natural human voice. Archetype-based detection with heuristic triage, genre-gated positive humanization, forensic artifact scanning, and a dedicated fiction protocol. Synthesizes all prior editions (v1–v6) into a single operational system. Resilient to model evolution; safe for token-constrained environments. |
@@ -329,11 +332,11 @@
 | 4 | AI / ML / Multimodal SDK Skills | 12 |
 | 5 | Testing, QA & Performance | 29 |
 | 6 | Code Quality, Security & Architecture | 23 |
-| 7 | Planning, Workflow & Project Management | 32 |
+| 7 | Planning, Workflow & Project Management | 35 |
 | 8 | Documentation & Content Creation | 27 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **225** |
+| | **Total** | **228** |
 
 ---
 
