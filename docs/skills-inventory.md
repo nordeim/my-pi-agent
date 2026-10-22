@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
-> Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-02) — catalog is source of truth.**
-> **218 skills** listed (13920 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 28 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-22) — catalog is source of truth.**
+> **221 skills** listed (13932 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 29 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -24,11 +24,11 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Category Index
 
-1. **Frontend Development & UI Engineering** — 50 skills — [jump](#1-frontend-development--ui-engineering)
+1. **Frontend Development & UI Engineering** — 52 skills — [jump](#1-frontend-development--ui-engineering)
 2. **Design Artifacts & Visual Creation** — 16 skills — [jump](#2-design-artifacts--visual-creation)
 3. **Full-Stack & Backend Development** — 13 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 11 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
-5. **Testing, QA & Performance** — 28 skills — [jump](#5-testing-qa--performance)
+5. **Testing, QA & Performance** — 29 skills — [jump](#5-testing-qa--performance)
 6. **Code Quality, Security & Architecture** — 23 skills — [jump](#6-code-quality-security--architecture)
 7. **Planning, Workflow & Project Management** — 32 skills — [jump](#7-planning-workflow--project-management)
 8. **Documentation & Content Creation** — 24 skills — [jump](#8-documentation--content-creation)
@@ -40,7 +40,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 1. Frontend Development & UI Engineering
 
 > Skills for building, styling, and shipping production-grade web interfaces.
-> **50 skills** in this category.
+> **52 skills** in this category.
 
 ### `agent-browser`
 
@@ -119,7 +119,7 @@ Skills are listed alphabetically within each category. Use the category index be
 
 | Name | Path | Description |
 |------|------|-------------|
-| `rutalist-portfolio-nextjs` | `skills/brutalist-portfolio-nextjs/rutalist-portfolio-nextjs` | Build, port, or remediate an avant-garde, anti-generic personal portfolio using Next.js 16 App Router with a Tactile Brutalism + High-End Editorial design system. Covers the complete architectural lifecycle from Vite SPA migration through four remediation phases to production: CSS-first design tokens with dual-theme (Night/Day), client-side SPA orchestrator embedded in Next.js, hash-based routing with keyboard focus management, lazy-loaded sections with ErrorBoundary + Suspense, optional database with graceful null handling, WCAG AAA accessibility (discriminated union API responses, ARIA, r... |
+| `brutalist-portfolio-nextjs` | `skills/brutalist-portfolio-nextjs/rutalist-portfolio-nextjs` | Build, port, or remediate an avant-garde, anti-generic personal portfolio using Next.js 16 App Router with a Tactile Brutalism + High-End Editorial design system. Covers the complete architectural lifecycle from Vite SPA migration through four remediation phases to production: CSS-first design tokens with dual-theme (Night/Day), client-side SPA orchestrator embedded in Next.js, hash-based routing with keyboard focus management, lazy-loaded sections with ErrorBoundary + Suspense, optional database with graceful null handling, WCAG AAA accessibility (discriminated union API responses, ARIA, r... |
 
 ### `charts`
 
@@ -423,6 +423,18 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > MVP/production React 19 + TypeScript 6 strict + Vite 8 (Rolldown) + Tailwind CSS v4 CSS-first @theme. File-based routing, pnpm, Vitest + Playwright E2E. Covers complete lifecycle from scaffold to shipping tested, type-safe, WCAG AAA, production-grade code. Use when building new greenfield web apps with modern React + Vite + Tailwind v4.
 
+### `replicate-web-app`
+
+- **Path**: `skills/replicate-web-app`
+- **SKILL.md**: [`skills/replicate-web-app/SKILL.md`](skills/replicate-web-app/SKILL.md)
+- **Title**: Authorized Web Application Investigation and Reconstruction
+- **License**: MIT
+- **Version**: 5.1.0
+- **Files**: 5
+- **Structure**: flat
+
+> Investigate an authorized web application (clone, copy, migrate, replicate, rebuild, make a copy of; supports no-code platforms like Base44, Lovable, Bolt, Replit) using REA and browser evidence, then build and verify a production-quality, behaviorally similar web application in the current codebase. Use when asked to clone, replicate, migrate, or rebuild a web app.
+
 ### `sanity-best-practices`
 
 - **Path**: `skills/sanity-best-practices`
@@ -559,6 +571,17 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Vue 3.5+ (Composition API) + Nuxt 4 full-stack TypeScript workflow skill. Covers the reactivity system (ref vs reactive, computed, watch vs watchEffect, automatic dependency tracking — fundamentally different from React hooks' manual dependency arrays), Single File Components (.vue with <script setup>), Nuxt 4 project structure (app/ directory, server/api/, nuxt.config.ts), file-based routing with definePageMeta, layout system, data fetching (useFetch, useAsyncData, $fetch), server routes via Nitro engine, Pinia for state management (the modern Vuex successor), nuxt-auth (Auth.js wrapper) o...
+
+### `web-app-foundation`
+
+- **Path**: `skills/web-app-foundation`
+- **SKILL.md**: [`skills/web-app-foundation/SKILL.md`](skills/web-app-foundation/SKILL.md)
+- **Title**: Web App Foundation — Master Engineering Skill
+- **Version**: 1.0.0
+- **Files**: 1
+- **Structure**: flat
+
+> Master engineering skill for scaffolding, extending, or remediating ANY production web application with authentication, a dashboard, and charting on Next.js 16 App Router + React 19 + TypeScript strict + Tailwind CSS v4 (CSS-first) + Prisma + SQLite/PostgreSQL + Zustand + recharts. Distilled and generalized from four sibling production codebases (digma, neo-crm, project-management, zero-balance — 1,177 commits of build/remediation history). Covers the full stack: env contract, db-path seam, scrypt+HMAC auth with verification/reset/revocation, zod-validated API envelope, per-user tenancy, KP...
 
 ### `web-frameworks`
 
@@ -1045,7 +1068,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 5. Testing, QA & Performance
 
 > Skills for test design, end-to-end testing, performance work, and quality assurance.
-> **28 skills** in this category.
+> **29 skills** in this category.
 
 ### `before-and-after`
 
@@ -1189,6 +1212,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`
 
 > Records visual proof while testing UI behavior — the agent tests the app hands-on via computer use while a screen recording with structured test/assertion annotations captures the session — then posts the video and a results summary to the PR and tracker issue. Use whenever a change needs verifiable evidence that it works, instead of prose claims — including headless environments (scripted screenshots and probes) and non-UI changes (measured numbers, output pairs).
+
+### `full-page-screenshot`
+
+- **Path**: `skills/full-page-screenshot`
+- **SKILL.md**: [`skills/full-page-screenshot/SKILL.md`](skills/full-page-screenshot/SKILL.md)
+- **Title**: Full-Page Website Screenshot — Quality-Gated Capture Methodology
+- **Files**: 6
+- **Structure**: `scripts/`
+
+> Capture pixel-perfect, full-page PNG screenshots of any website, landing page, or web app using the agent-browser CLI, with load verification, lazy-content scroll triggering, and post-capture integrity checks. Use this skill whenever the user asks to screenshot, screen-capture, or snapshot a webpage, save a page/site/landing page as a PNG or image file, document how a rendered page looks, or visually verify a built page — even if they only say "grab the page", "capture the landing page", or "save this site as an image" and never literally say "full page" or "screenshot".
 
 ### `interview-designer`
 
@@ -2338,7 +2371,7 @@ Skills are listed alphabetically within each category. Use the category index be
 
 | Name | Path | Description |
 |------|------|-------------|
-| `luxeverse-architect-skill` | `skills/luxeverse-architect/luxeverse-architect-skill` | Comprehensive Architectural & Execution Framework for Cinematic, Production-Grade, Anti-Generic Web Platforms |
+| `luxeverse-architect` | `skills/luxeverse-architect/luxeverse-architect-skill` | Comprehensive Architectural & Execution Framework for Cinematic, Production-Grade, Anti-Generic Web Platforms |
 
 ### `multi-search-engine`
 
@@ -2427,14 +2460,14 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 218
-- **Top-level folders under `skills/` scanned**: 267
-- **Folders with a top-level `SKILL.md`**: 246
+- **Spec-compliant skills listed**: 221
+- **Top-level folders under `skills/` scanned**: 271
+- **Folders with a top-level `SKILL.md`**: 250
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
-- **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 28
-- **Total files across listed skills**: 13920
+- **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 29
+- **Total files across listed skills**: 13932
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
-- **Listed skills with `scripts/`**: 61
+- **Listed skills with `scripts/`**: 62
 - **Listed skills with `references/`**: 50
 - **Listed skills with `scenes/`**: 2
 - **Listed skills with `routes/`**: 2
@@ -2445,17 +2478,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 | # | Category | Skills |
 |---|----------|--------|
-| 1 | Frontend Development & UI Engineering | 50 |
+| 1 | Frontend Development & UI Engineering | 52 |
 | 2 | Design Artifacts & Visual Creation | 16 |
 | 3 | Full-Stack & Backend Development | 13 |
 | 4 | AI / ML / Multimodal SDK Skills | 11 |
-| 5 | Testing, QA & Performance | 28 |
+| 5 | Testing, QA & Performance | 29 |
 | 6 | Code Quality, Security & Architecture | 23 |
 | 7 | Planning, Workflow & Project Management | 32 |
 | 8 | Documentation & Content Creation | 24 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **218** |
+| | **Total** | **221** |
 
 ---
 
@@ -2491,7 +2524,7 @@ These folders hold nested sub-skills or auxiliary content but are not skills the
 | `thinking-and-docs` | `before-building`, `brain-to-docs`, `decisions`, `level-up`, `next-decision`, `prompt-me`, `read-all-adrs`, `remind`, `save-idea`, `short` |
 | `valuation-reviewer` | `skills/ic-memo`, `skills/portfolio-monitoring`, `skills/returns-analysis`, `skills/xlsx-author` |
 
-### `SKILL.md` frontmatter not spec-compliant (28)
+### `SKILL.md` frontmatter not spec-compliant (29)
 
 These folders contain a `SKILL.md`, but its YAML header violates the skill spec (fix the frontmatter to have the skill included in the next sync):
 
@@ -2501,8 +2534,9 @@ These folders contain a `SKILL.md`, but its YAML header violates the skill spec 
 | `TTS` | `name: TTS` — lowercase letters, digits and hyphens only |
 | `VLM` | `name: VLM` — lowercase letters, digits and hyphens only |
 | `ai-news-collectors` | `name: ai-news-collector` does not match folder name `ai-news-collectors` |
-| `aminer-free-academic` | `description` is 1477 chars — exceeds 1024-char limit |
+| `aminer-free-academic` | `description` is 1478 chars — exceeds 1024-char limit |
 | `dotnet-9` | `description` is 1322 chars — exceeds 1024-char limit |
+| `ecommerce_website_scaffold` | `name: ecommerce-website-scaffold` does not match folder name `ecommerce_website_scaffold` |
 | `fastapi-sqlalchemy` | `description` is 1326 chars — exceeds 1024-char limit |
 | `fastify` | `description` is 1773 chars — exceeds 1024-char limit |
 | `flutter` | `description` is 1101 chars — exceeds 1024-char limit |
@@ -2512,7 +2546,7 @@ These folders contain a `SKILL.md`, but its YAML header violates the skill spec 
 | `htmx` | `description` is 1777 chars — exceeds 1024-char limit |
 | `keystonejs-6` | `description` is 2168 chars — exceeds 1024-char limit |
 | `nestjs` | `description` is 1502 chars — exceeds 1024-char limit |
-| `nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth` | `description` is 1130 chars — exceeds 1024-char limit |
+| `nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth` | `description` is 1131 chars — exceeds 1024-char limit |
 | `pdf-old-20260806` | `name: pdf` does not match folder name `pdf-old-20260806` |
 | `phoenix-1-7` | `description` is 1456 chars — exceeds 1024-char limit |
 | `podcast-generate` | `name: Podcast Generate` — lowercase letters, digits and hyphens only; `name: Podcast Generate` does not match folder name `podcast-generate` |

@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **218 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **221 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -45,6 +45,7 @@
 | **pptx-unified** | Unified practical recipe for generating impressive marketing-grade .pptx presentations from scratch. Combines the canonical pptx skill's HTML-first 4-stage pipeline (Clarify → Research → Plan → Build → Export) with the variant skills' distinctive strengths (cyber-ppt's confirmation gates, pptx-generator's PptxGenJS templates, codex-ppt's image-based fallback) and 20+ real-world lessons/anti-patterns distilled from building a 12-slide deck for the my-pi-agent repo. Use this skill when ANY coding agent needs to produce a polished .pptx — it is the single starting point that routes to the righ... |
 | **prototype** | Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like. |
 | **react19-ts6-vite8-tailwindv4-mvp** | MVP/production React 19 + TypeScript 6 strict + Vite 8 (Rolldown) + Tailwind CSS v4 CSS-first @theme. File-based routing, pnpm, Vitest + Playwright E2E. Covers complete lifecycle from scaffold to shipping tested, type-safe, WCAG AAA, production-grade code. Use when building new greenfield web apps with modern React + Vite + Tailwind v4. |
+| **replicate-web-app** | Investigate an authorized web application (clone, copy, migrate, replicate, rebuild, make a copy of; supports no-code platforms like Base44, Lovable, Bolt, Replit) using REA and browser evidence, then build and verify a production-quality, behaviorally similar web application in the current codebase. Use when asked to clone, replicate, migrate, or rebuild a web app. |
 | **sanity-best-practices** | Sanity development best practices for schema design, GROQ queries, TypeGen, Visual Editing, images, Portable Text, Studio structure, localization, migrations, Sanity Functions, Blueprints, and framework integrations such as Next.js, Nuxt, Astro, Remix, SvelteKit, Angular, Hydrogen, and the App SDK. Use this skill whenever working with Sanity schemas, defineType or defineField, GROQ or defineQuery, content modeling, Presentation or preview setups, Sanity-powered frontend integrations, Sanity Functions, documentEventHandler, defineDocumentFunction, defineMediaLibraryAssetFunction, @sanity/fun... |
 | **sanity-io-deploy** | Sanity CMS + Next.js integration — end-to-end setup, deployment, and verification for a standalone Sanity Studio (sibling folder, never embedded) wired to an existing Next.js App Router app. Handles Sanity project auth and provider selection, schema validation and dangling-reference fixes, sanity schema deploy vs sanity deploy (Schema/Content Lake vs Studio UI at *.sanity.studio), viewer token and webhook secret minting, env wiring (NEXT_PUBLIC_SANITY_*), CORS origins, ISR webhook for revalidation, and live verification via Content Lake GROQ query + fresh headless-browser check. Use when co... |
 | **sanity-migration** | Plans, implements, and reviews migrations from other CMSes and content systems into Sanity. Use when migrating or replatforming to Sanity from AEM, Adobe Experience Manager, Contentful, Strapi, Webflow, WordPress, Payload, Drupal, Markdown/MDX/frontmatter files, WXR/XML exports, CMS APIs, database dumps, static HTML, or when designing extraction, transformation, Portable Text conversion, asset migration, redirects, validation, and cutover workflows. |
@@ -58,6 +59,7 @@
 | **ui-ux-pro-max** | UI/UX design intelligence and implementation guidance for building polished interfaces. Use when the user asks for UI design, UX flows, information architecture, visual style direction, design systems/tokens, component specs, copy/microcopy, accessibility, or to generate/critique/refine frontend UI (HTML/CSS/JS, React, Next.js, Vue, Svelte, Tailwind). Includes workflows for (1) generating new UI layouts and styling, (2) improving existing UI/UX, (3) producing design-system tokens and component guidelines, and (4) turning UX recommendations into concrete code changes. |
 | **version-management** | 独立通用 Skill：管理前端项目全生命周期。只要任务**可能**写出 .html/.jsx/.tsx/.vue 入口文件，就必须在写出第一个文件**之前**读取并遵循本 Skill（用于确定落盘路径与项目目录），而不是产出之后才补救；即使用户没有提到"项目"或"版本"也要使用。同时响应用户的版本相关操作（查看历史、恢复版本、切换项目等）。 |
 | **vue-3-nuxt** | Vue 3.5+ (Composition API) + Nuxt 4 full-stack TypeScript workflow skill. Covers the reactivity system (ref vs reactive, computed, watch vs watchEffect, automatic dependency tracking — fundamentally different from React hooks' manual dependency arrays), Single File Components (.vue with <script setup>), Nuxt 4 project structure (app/ directory, server/api/, nuxt.config.ts), file-based routing with definePageMeta, layout system, data fetching (useFetch, useAsyncData, $fetch), server routes via Nitro engine, Pinia for state management (the modern Vuex successor), nuxt-auth (Auth.js wrapper) o... |
+| **web-app-foundation** | Master engineering skill for scaffolding, extending, or remediating ANY production web application with authentication, a dashboard, and charting on Next.js 16 App Router + React 19 + TypeScript strict + Tailwind CSS v4 (CSS-first) + Prisma + SQLite/PostgreSQL + Zustand + recharts. Distilled and generalized from four sibling production codebases (digma, neo-crm, project-management, zero-balance — 1,177 commits of build/remediation history). Covers the full stack: env contract, db-path seam, scrypt+HMAC auth with verification/reset/revocation, zod-validated API envelope, per-user tenancy, KP... |
 | **web-frameworks** | Build modern full-stack web applications with Next.js 16 + React 19 (App Router, Server Components, RSC, PPR, cacheComponents, async params, SSR, SSG, ISR, standalone output), Turborepo (monorepo, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SVG icons). Use when creating React applications, implementing server-side rendering, setting up monorepos, optimizing build performance and caching, or working with TypeScript full-stack projects. |
 | **webapp-testing-journey** | Systematic web application testing methodology using OpenClaw browser tools, agent-browser CLI, and chrome-devtools-mcp. Use when testing web application user journeys, validating bug fixes, performing QA verification, or debugging frontend issues. Covers URL journey testing, accessibility tree analysis, DOM inspection, network request debugging, performance tracing, visual regression, and comprehensive issue verification. Triggers on phrases like "test this application", "verify the fix", "check if it works", "test the user journey", "debug this issue". |
 
@@ -150,6 +152,7 @@
 | **diagnosing-bugs** | Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow. |
 | **e2e-testing-lessons** | Condensed experience from 15-phase E2E testing initiative covering authentication, API contracts, tool selection, and hybrid testing methodology. Use when planning E2E tests, selecting testing tools, or debugging test failures. |
 | **evidence-driven-testing** | Records visual proof while testing UI behavior — the agent tests the app hands-on via computer use while a screen recording with structured test/assertion annotations captures the session — then posts the video and a results summary to the PR and tracker issue. Use whenever a change needs verifiable evidence that it works, instead of prose claims — including headless environments (scripted screenshots and probes) and non-UI changes (measured numbers, output pairs). |
+| **full-page-screenshot** | Capture pixel-perfect, full-page PNG screenshots of any website, landing page, or web app using the agent-browser CLI, with load verification, lazy-content scroll triggering, and post-capture integrity checks. Use this skill whenever the user asks to screenshot, screen-capture, or snapshot a webpage, save a page/site/landing page as a PNG or image file, document how a rendered page looks, or visually verify a built page — even if they only say "grab the page", "capture the landing page", or "save this site as an image" and never literally say "full page" or "screenshot". |
 | **interview-designer** | Analyze resumes and design interview strategies using evidence-based methodology. Transforms interview prep from "read resume → ask questions" into "define standard → forensic evidence → future simulation". Combines Geoff Smart's Topgrading, Lou Adler's performance-based hiring, and Daniel Kahneman's bias control. Use when preparing for interviews, creating structured interview guides, or designing questions to validate candidate competencies. |
 | **lint-and-validate** | Automatic quality control, linting, and static analysis procedures. Use after every code modification to ensure syntax correctness and project standards. Triggers on keywords: lint, format, check, validate, types, static analysis. |
 | **pdf** | Professional PDF toolkit with four production lines:(1) Report - structured documents via ReportLab (reports, proposals, contracts, white papers); (2) Creative - visual design via JSON Blueprint → design_engine.py → Playwright snapshot (posters, infographics, invitations, dashboards). The LLM acts as Art Director outputting ONLY JSON spatial blueprints; convert.blueprint compiles to pixel-perfect PDF. (3) Academic - scholarly work via LaTeX/Tectonic (papers, theses, math-heavy documents); (4) Process - manipulate existing PDFs (extract, merge, split, fill forms, convert);Auto-routes based o... |
@@ -316,17 +319,17 @@
 
 | # | Category | Count |
 |---|----------|-------|
-| 1 | Frontend Development & UI Engineering | 50 |
+| 1 | Frontend Development & UI Engineering | 52 |
 | 2 | Design Artifacts & Visual Creation | 16 |
 | 3 | Full-Stack & Backend Development | 13 |
 | 4 | AI / ML / Multimodal SDK Skills | 11 |
-| 5 | Testing, QA & Performance | 28 |
+| 5 | Testing, QA & Performance | 29 |
 | 6 | Code Quality, Security & Architecture | 23 |
 | 7 | Planning, Workflow & Project Management | 32 |
 | 8 | Documentation & Content Creation | 24 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 9 |
-| | **Total** | **218** |
+| | **Total** | **221** |
 
 ---
 
