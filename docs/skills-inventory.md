@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-23) — catalog is source of truth.**
-> **326 skills** listed (14464 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> **340 skills** listed (14485 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -24,12 +24,12 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Category Index
 
-1. **Frontend Development & UI Engineering** — 59 skills — [jump](#1-frontend-development--ui-engineering)
+1. **Frontend Development & UI Engineering** — 69 skills — [jump](#1-frontend-development--ui-engineering)
 2. **Design Artifacts & Visual Creation** — 22 skills — [jump](#2-design-artifacts--visual-creation)
 3. **Full-Stack & Backend Development** — 24 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 17 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
-5. **Testing, QA & Performance** — 37 skills — [jump](#5-testing-qa--performance)
-6. **Code Quality, Security & Architecture** — 54 skills — [jump](#6-code-quality-security--architecture)
+5. **Testing, QA & Performance** — 40 skills — [jump](#5-testing-qa--performance)
+6. **Code Quality, Security & Architecture** — 55 skills — [jump](#6-code-quality-security--architecture)
 7. **Planning, Workflow & Project Management** — 54 skills — [jump](#7-planning-workflow--project-management)
 8. **Documentation & Content Creation** — 36 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
@@ -40,7 +40,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 1. Frontend Development & UI Engineering
 
 > Skills for building, styling, and shipping production-grade web interfaces.
-> **59 skills** in this category.
+> **69 skills** in this category.
 
 ### `agent-browser`
 
@@ -52,6 +52,36 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > A fast Rust-based headless browser automation CLI with Node.js fallback that enables AI agents to navigate, click, type, and snapshot pages via structured commands. Is a better choice for AI agent workflows - compact snapshots save tokens, the auth vault handles credentials securely, and React DevTools integration is valuable for frontend debugging.
 
+### `animate`
+
+- **Path**: `skills/animate`
+- **SKILL.md**: [`skills/animate/SKILL.md`](skills/animate/SKILL.md)
+- **Title**: Building Animations
+- **Files**: 2
+- **Structure**: flat
+
+> Build an animation from scratch, making the decisions in the order that determines whether it feels right — should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations.
+
+### `animate-expo`
+
+- **Path**: `skills/animate-expo`
+- **SKILL.md**: [`skills/animate-expo/SKILL.md`](skills/animate-expo/SKILL.md)
+- **Title**: Building Animations in Expo
+- **Files**: 2
+- **Structure**: flat
+
+> Build animations in React Native and Expo, making the decisions in the order that determines whether they feel right — should it animate, which thread it runs on, which properties, spring or timing, how the gesture hands off, how it degrades. Writes the implementation with Reanimated, Gesture Handler, Expo Router and expo-haptics. Use when animating anything in an Expo app, adding gestures, sheets, screen transitions, press feedback or haptics, or fixing motion that stutters on device. For web animation use `animate`.
+
+### `animation-vocabulary`
+
+- **Path**: `skills/animation-vocabulary`
+- **SKILL.md**: [`skills/animation-vocabulary/SKILL.md`](skills/animation-vocabulary/SKILL.md)
+- **Title**: Animation Vocabulary
+- **Files**: 1
+- **Structure**: flat
+
+> Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term ("the bouncy thing when a popover opens" → Pop in; "the iOS rubber-band scroll" → Rubber-banding). Use when the user asks "what's it called when…", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one.
+
 ### `api-and-interface-design`
 
 - **Path**: `skills/api-and-interface-design`
@@ -61,6 +91,26 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+
+### `apple-design`
+
+- **Path**: `skills/apple-design`
+- **SKILL.md**: [`skills/apple-design/SKILL.md`](skills/apple-design/SKILL.md)
+- **Title**: Apple Design
+- **Files**: 1
+- **Structure**: flat
+
+> Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces.
+
+### `ask-sonner`
+
+- **Path**: `skills/ask-sonner`
+- **SKILL.md**: [`skills/ask-sonner/SKILL.md`](skills/ask-sonner/SKILL.md)
+- **Title**: Working With Sonner
+- **Files**: 2
+- **Structure**: flat
+
+> Guide to Sonner, the React toast library — install and wire up the Toaster, pick the right toast() call, promise and loading toasts, updating, dismissing and persisting toasts, styling, theming and icons, positioning and multiple toasters. Use when working with Sonner or troubleshooting it — toasts that don't appear, appear twice, lose their styles, ignore Tailwind classes, sit behind a modal, or don't follow dark mode.
 
 ### `astro-7`
 
@@ -187,6 +237,16 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Production-grade engineering skill for building, extending, rebranding, or auditing any e-commerce website codebase on the Next.js 16 App Router + React 19 + Prisma + Tailwind v4 stack. Covers the full commerce domain: catalog, cart, checkout, payments, orders, admin, auth, security, testing, and deployment. Every pattern below was distilled from three independently audited production-grade storefront codebases (860+ unit tests and 700+ e2e cases of combined verification culture).
 
+### `emil-design-eng`
+
+- **Path**: `skills/emil-design-eng`
+- **SKILL.md**: [`skills/emil-design-eng/SKILL.md`](skills/emil-design-eng/SKILL.md)
+- **Title**: Design Engineering
+- **Files**: 1
+- **Structure**: flat
+
+> This skill encodes Emil Kowalski's philosophy on UI polish, component design, animation decisions, and the invisible details that make software feel great.
+
 ### `finance`
 
 - **Path**: `skills/finance`
@@ -196,6 +256,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Comprehensive Finance API integration skill for real-time and historical financial data analysis, market research, and investment decision-making. Priority use cases: stock price queries, market data analysis, company financial information, portfolio tracking, market news retrieval, stock screening, technical analysis, and any financial market-related requests. This skill should be the primary choice for all Finance API interactions and financial data needs.
+
+### `find-animation-opportunities`
+
+- **Path**: `skills/find-animation-opportunities`
+- **SKILL.md**: [`skills/find-animation-opportunities/SKILL.md`](skills/find-animation-opportunities/SKILL.md)
+- **Title**: Finding Animation Opportunities
+- **Files**: 1
+- **Structure**: flat
+
+> Search a codebase or UI for places that don't animate but should, and reject everything that shouldn't. Read-only; it proposes motion with exact values, it does not implement it. Use when the user asks "what could be animated here?" or wants to "make this feel more alive". For fixing existing animations, use improve-animations or review-animations instead.
 
 ### `flutter`
 
@@ -290,6 +360,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Laravel 12 (PHP 8.3+) full-stack workflow skill. Covers the streamlined 11+/12 app structure (no Kernel.php, bootstrap/app.php config), Eloquent ORM with factories/seeders, Artisan CLI, Blade + Livewire + Inertia frontend options, Sanctum API tokens, Breeze/Jetstream auth scaffolding, Queues with Redis/database, Pest testing, Vite asset build, Filament admin, Forge/Vapor deployment. Use when building any PHP web application, API, or console workload on Laravel 12 — especially when the task involves migrations, Eloquent queries, queued jobs, or auth flows where idiomatic Laravel differs from...
+
+### `mobile-native`
+
+- **Path**: `skills/mobile-native`
+- **SKILL.md**: [`skills/mobile-native/SKILL.md`](skills/mobile-native/SKILL.md)
+- **Title**: Feeling Native On Mobile
+- **Files**: 1
+- **Structure**: flat
+
+> Make a web app feel native on a phone — the small CSS and meta-tag fixes that separate "a website in a browser" from something that feels installed. Covers sticky hover states, tap highlight flashes, the 100vh bug, inputs that zoom the page, laggy taps, pull-to-refresh hijacking scroll, content under the notch, long-press selecting button text, carousels that scroll the wrong way, mismatched status bars, and the rule that you test on real hardware. Use when a web app is being built for or reviewed on mobile, when something "works in Chrome but feels wrong on my phone", when building a PWA, ...
 
 ### `nextjs-postgresql-single-app`
 
@@ -432,6 +512,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Tactile Brutalist + High-End Editorial personal portfolio SPA with React 19, TypeScript 6 strict, Vite 6, Tailwind CSS v4 CSS-first @theme, pnpm. Covers complete lifecycle from scaffold to shipping: kinetic typography, hash-based routing, import.meta.glob content ingestion, dual-theme (night/day) design system, WCAG AAA accessibility, component-driven digital installation. Use when building a distinctive, anti-generic portfolio or personal site with React + Vite + Tailwind v4.
+
+### `pick-ui-library`
+
+- **Path**: `skills/pick-ui-library`
+- **SKILL.md**: [`skills/pick-ui-library/SKILL.md`](skills/pick-ui-library/SKILL.md)
+- **Title**: Picking The Right Library
+- **Files**: 1
+- **Structure**: flat
+
+> Pick the right library for a given frontend task from a curated, opinionated list — numbers, OTP inputs, charts, command menus, virtualization, drag and drop, toasts, state, styling, and more. Only runs when explicitly invoked; it does not trigger on its own.
 
 ### `pptx-unified`
 
@@ -682,6 +772,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `references/`
 
 > Systematic web application testing methodology using OpenClaw browser tools, agent-browser CLI, and chrome-devtools-mcp. Use when testing web application user journeys, validating bug fixes, performing QA verification, or debugging frontend issues. Covers URL journey testing, accessibility tree analysis, DOM inspection, network request debugging, performance tracing, visual regression, and comprehensive issue verification. Triggers on phrases like "test this application", "verify the fix", "check if it works", "test the user journey", "debug this issue".
+
+### `write-swift`
+
+- **Path**: `skills/write-swift`
+- **SKILL.md**: [`skills/write-swift/SKILL.md`](skills/write-swift/SKILL.md)
+- **Title**: Write Swift
+- **Files**: 1
+- **Structure**: flat
+
+> How to write modern Swift well — modeling with value types, Swift 6 data-race safety and approachable concurrency (@concurrent, main-actor-by-default, actors, task groups), protocols and generics (some vs any), API design, performance and ARC, Swift Testing, macros, and the modern language features agents don't know about yet. Use when writing, reviewing, or migrating Swift, or when a concurrency error, a hang, a data race, a retain cycle, or a performance problem needs fixing.
 
 ---
 
@@ -1400,7 +1500,17 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 5. Testing, QA & Performance
 
 > Skills for test design, end-to-end testing, performance work, and quality assurance.
-> **37 skills** in this category.
+> **40 skills** in this category.
+
+### `animation-performance`
+
+- **Path**: `skills/animation-performance`
+- **SKILL.md**: [`skills/animation-performance/SKILL.md`](skills/animation-performance/SKILL.md)
+- **Title**: Animation Performance
+- **Files**: 1
+- **Structure**: flat
+
+> Keep web animations inside the frame budget — animate composite-only properties, keep motion off the main thread when the page is busy, and find the cause when an animation drops frames. Covers the layout/paint/composite pipeline, cheaper property swaps, CSS vs WAAPI vs requestAnimationFrame, Framer Motion's hardware-accelerated path, React re-rendering per frame, inherited CSS variable recalculation, blur cost, and when `will-change` actually helps. Use when an animation is janky, choppy, stutters, or drops frames; when choosing which property to animate; when deciding between CSS and JS a...
 
 ### `before-and-after`
 
@@ -1421,6 +1531,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Vet a perf measurement (limiter, tuning, limits, errors, repeatability, relevance, and whether the work happened) before you report or act on it. Use when you run a benchmark or report a speedup or regression you measured.
+
+### `break-ui`
+
+- **Path**: `skills/break-ui`
+- **SKILL.md**: [`skills/break-ui/SKILL.md`](skills/break-ui/SKILL.md)
+- **Title**: Breaking UI
+- **Files**: 2
+- **Structure**: flat
+
+> Try to break a piece of UI by feeding it worst-case data — long names, unbreakable emails, one-letter names, missing fields, huge counts, zero items, long labels, non-Latin text, emoji, extreme numbers — then render it behind a "Demo data / Worst case" toggle and report everything that broke, with the fix for each. Use when the user asks to stress-test, break, or find edge cases in a component or screen, or to "try the worst case". For visual design critique use emil-design-eng; for motion use review-animations.
 
 ### `browser-testing-with-devtools`
 
@@ -1585,6 +1705,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`
 
 > Capture pixel-perfect, full-page PNG screenshots of any website, landing page, or web app using the agent-browser CLI, with load verification, lazy-content scroll triggering, and post-capture integrity checks. Use this skill whenever the user asks to screenshot, screen-capture, or snapshot a webpage, save a page/site/landing page as a PNG or image file, document how a rendered page looks, or visually verify a built page — even if they only say "grab the page", "capture the landing page", or "save this site as an image" and never literally say "full page" or "screenshot".
+
+### `improve-animations`
+
+- **Path**: `skills/improve-animations`
+- **SKILL.md**: [`skills/improve-animations/SKILL.md`](skills/improve-animations/SKILL.md)
+- **Title**: Improving Animations
+- **Files**: 3
+- **Structure**: flat
+
+> Survey a codebase's animation and motion code as a senior motion advisor, then produce a prioritized audit and self-contained implementation plans for other agents (or cheaper models) to execute. Read-only on source code — it plans improvements, it does not apply them. Use when the user asks to "improve the animations", "audit the motion", "make this app feel better", or wants a roadmap of animation fixes rather than a review of a single diff.
 
 ### `interview-designer`
 
@@ -1791,7 +1921,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 6. Code Quality, Security & Architecture
 
 > Skills for code review, security hardening, architecture decisions, and refactoring.
-> **54 skills** in this category.
+> **55 skills** in this category.
 
 ### `anti-pua`
 
@@ -2273,6 +2403,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Pre-landing PR review. (gstack)
+
+### `review-animations`
+
+- **Path**: `skills/review-animations`
+- **SKILL.md**: [`skills/review-animations/SKILL.md`](skills/review-animations/SKILL.md)
+- **Title**: Reviewing Animations
+- **Files**: 2
+- **Structure**: flat
+
+> Reviews animation and motion code against a high craft bar derived from Emil Kowalski's design engineering philosophy. Default to flagging; approval is earned.
 
 ### `scaffold-exercises`
 
@@ -3570,12 +3710,12 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 326
-- **Top-level folders under `skills/` scanned**: 347
-- **Folders with a top-level `SKILL.md`**: 326
+- **Spec-compliant skills listed**: 340
+- **Top-level folders under `skills/` scanned**: 361
+- **Folders with a top-level `SKILL.md`**: 340
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 0
-- **Total files across listed skills**: 14464
+- **Total files across listed skills**: 14485
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
 - **Listed skills with `scripts/`**: 69
 - **Listed skills with `references/`**: 62
@@ -3588,17 +3728,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 | # | Category | Skills |
 |---|----------|--------|
-| 1 | Frontend Development & UI Engineering | 59 |
+| 1 | Frontend Development & UI Engineering | 69 |
 | 2 | Design Artifacts & Visual Creation | 22 |
 | 3 | Full-Stack & Backend Development | 24 |
 | 4 | AI / ML / Multimodal SDK Skills | 17 |
-| 5 | Testing, QA & Performance | 37 |
-| 6 | Code Quality, Security & Architecture | 54 |
+| 5 | Testing, QA & Performance | 40 |
+| 6 | Code Quality, Security & Architecture | 55 |
 | 7 | Planning, Workflow & Project Management | 54 |
 | 8 | Documentation & Content Creation | 36 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **326** |
+| | **Total** | **340** |
 
 ---
 
