@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **296 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **326 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -82,6 +82,10 @@
 | **claude-design** | Produce thoughtful, high-fidelity design artifacts in HTML — landing pages, slide decks, interactive prototypes, animated videos, posters, wireframes, and visual explorations. Use for tasks like "design a landing page," "make a deck," "prototype this flow," "visualize this idea," or "create a poster." Enforces fact verification (WebSearch before assuming product details), Core Asset Protocol for branded work (logo/product shots/UI screenshots are first-class), Design Direction Advisor offering 3 directions when briefs are vague, and avoids AI-design tropes (aggressive gradients, emoji bulle... |
 | **code-quality-standards** | The absolute constitution for code quality and design rigor. Enforces a Six-Axis review (Correctness, Readability, Architecture, Security, Performance, and Aesthetic/UX Rigor). Use before merging any change, evaluating AI-generated code, or assessing technical debt. Rejects generic 'AI slop' aesthetics and enforces intentional, bespoke design. |
 | **comfyui-workflow-scaffold** | Create valid ComfyUI workflow JSON templates for Apple Silicon image generation. Use when: (1) Building a new ComfyUI workflow from scratch, (2) Converting a prompt-API format workflow to saved-graph format, (3) Adding Mac-compatible model loading nodes (Z-Image, FLUX.1/2, Krea 2, Ideogram 4, Qwen-Image, FIBO, ERNIE-Image), (4) Scaffolding LoRA/ControlNet/VAE nodes correctly, (5) Validating a workflow will run on Mac MPS/MLX backend, (6) User asks "create a workflow", "scaffold a ComfyUI template", "workflow JSON", "ComfyUI node graph", or "image generation workflow". Triggers on keywords: ... |
+| **design-consultation** | Design consultation: understands your product, researches the landscape, proposes a complete design system (aesthetic, typography, color, layout, spacing, motion), and generates font+color preview... (gstack) |
+| **design-review** | Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems, AI slop patterns, and slow interactions — then fixes them. (gstack) |
+| **design-shotgun** | Design shotgun: generate multiple AI design variants, open a comparison board, collect structured feedback, and iterate. (gstack) |
+| **diagram** | Turn an English description (or mermaid source) into a diagram triplet: the source, an editable .excalidraw file you can open on excalidraw.com, and rendered SVG + PNG. (gstack) |
 | **image-edit** | Implement AI image editing and modification capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to edit existing images, create variations, modify visual content, redesign assets, or transform images based on text descriptions. Supports multiple image sizes and returns base64 encoded results. Also includes CLI tool for quick image editing. |
 | **image-generation** | Implement AI image generation capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to create images from text descriptions, generate visual content, create artwork, design assets, or build applications with AI-powered image creation. Supports multiple image sizes and returns base64 encoded images. Also includes CLI tool for quick image generation. |
 | **image-understand** | Implement specialized image understanding capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to analyze static images, extract visual information, perform OCR, detect objects, classify images, or understand visual content. Optimized for PNG, JPEG, GIF, WebP, and BMP formats. |
@@ -179,6 +183,7 @@
 | **debugging-and-error-recovery** | Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing. |
 | **diagnosing-bugs** | Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow. |
 | **e2e-testing-lessons** | Condensed experience from 15-phase E2E testing initiative covering authentication, API contracts, tool selection, and hybrid testing methodology. Use when planning E2E tests, selecting testing tools, or debugging test failures. |
+| **eval-plan** | Preregister a paid eval (bars, arms, decoys, stop rules), dry-run it at zero cost, then run a three-item priced pilot whose spend table gates approval. (gstack) |
 | **evidence-driven-testing** | Records visual proof while testing UI behavior — the agent tests the app hands-on via computer use while a screen recording with structured test/assertion annotations captures the session — then posts the video and a results summary to the PR and tracker issue. Use whenever a change needs verifiable evidence that it works, instead of prose claims — including headless environments (scripted screenshots and probes) and non-UI changes (measured numbers, output pairs). |
 | **full-page-screenshot** | Capture pixel-perfect, full-page PNG screenshots of any website, landing page, or web app using the agent-browser CLI, with load verification, lazy-content scroll triggering, and post-capture integrity checks. Use this skill whenever the user asks to screenshot, screen-capture, or snapshot a webpage, save a page/site/landing page as a PNG or image file, document how a rendered page looks, or visually verify a built page — even if they only say "grab the page", "capture the landing page", or "save this site as an image" and never literally say "full page" or "screenshot". |
 | **interview-designer** | Analyze resumes and design interview strategies using evidence-based methodology. Transforms interview prep from "read resume → ask questions" into "define standard → forensic evidence → future simulation". Combines Geoff Smart's Topgrading, Lou Adler's performance-based hiring, and Daniel Kahneman's bias control. Use when preparing for interviews, creating structured interview guides, or designing questions to validate candidate competencies. |
@@ -189,12 +194,14 @@
 | **principle-explain-the-number** | Apply before you trust, report, or act on a number you measured: a speedup, a regression, a throughput, a latency, or an eval result. Find what limits it, and rule out that it measured something other than the work you think. |
 | **principle-prove-it-works** | Apply after completing a task, before declaring done. Verify against the real artifact (run the feature, read the actual value, inspect the diff), not a proxy, self-report, or 'it compiles.' |
 | **principle-test-behavior-not-implementation** | Apply when you write, change, or keep a test. Assert what the code's users can observe, so that the test fails when that behavior breaks and keeps passing when only the internals change. |
+| **qa** | Fix browser/API/CLI/job/worker/webhook bugs. (gstack) |
 | **readme-md** | Creates a professional, high-signal README.md for a repository by investigating the codebase and following battle-tested conventions distilled from production open-source projects. |
 | **seo-content-writer** | Use when the user asks to "write SEO content", "create a blog post", "write an article", "content writing", "draft optimized content", "write me an article", "create a blog post about", "help me write SEO content", or "draft content for". Creates high-quality, SEO-optimized content that ranks in search engines. Applies on-page SEO best practices, keyword optimization, and content structure for maximum visibility and engagement. For AI citation optimization, see geo-content-optimizer. For updating existing content, see content-refresher. |
 | **skill-creator** | Create new skills, modify and improve existing skills, and evaluate skill quality. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, optimize a skill's description for better triggering accuracy, or package a skill for distribution. |
 | **skill-creator-zai** | Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy. |
 | **tdd** | Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests. |
 | **tdd-workflow** | Test-Driven Development workflow principles. RED-GREEN-REFACTOR cycle. |
+| **test-audit** | Find low-value or duplicate tests and the test-only code they keep alive. (gstack) |
 | **test-driven-development** | Drives development with tests. Use when implementing any logic, fixing any bug, or changing any behavior. Use when you need to prove that code works, when a bug report arrives, or when you're about to modify existing functionality. |
 | **testing-patterns** | Testing patterns and principles. Unit, integration, mocking strategies. |
 | **webapp-testing** | Web application testing principles. E2E, Playwright, deep audit strategies. |
@@ -210,6 +217,7 @@
 | **anti-pua** | 识别和分析PUA（Pickup Artist）及情感操纵行为的专业心理分析工具。具备人格分析、心理侧写、情感分析能力，能够识别情感操纵、煤气灯操纵、虐待等有毒关系模式，评估人格特质（如黑暗三人格、脆弱型自恋等），预测对方行为并给出具体的相处建议。当用户需要：分析对方言行动机、识别PUA/情感操纵行为、评估NPD（自恋型人格障碍）倾向、识别操纵行为、预测对方未来行为、寻求健康关系建议、分析黑暗三人格或光明三人格时使用此skill。 |
 | **architect** | Sketch types, signatures, and module structure before code, then stay in the loop while implementation fills in. Use for /architect, 'architect this', 'design this', or non-trivial work where jumping to code would lock in the wrong shape. |
 | **blast-radius** | Find what a change could break somewhere else before it ships, beyond the diff, and prove the one fact it's safe because of by running real code instead of writing it up. Use for 'blast radius of X', 'what could this break', reviewing a small diff you don't trust, or a brief that asserts something about existing code ('make X public', 'X already handles Y') before you design against that assertion. |
+| **careful** | Safety guardrails for destructive commands. (gstack) |
 | **clean-code** | Pragmatic coding standards - concise, direct, no over-engineering, no unnecessary comments |
 | **code-review-and-audit** | Unified code review and security audit orchestration skill. Coordinates static analysis, security scanning, code quality checks, test coverage, performance profiling, and expert review into a single tiered pipeline. Use when reviewing code, preparing for release, conducting security audits, or running pre-merge gates. Triggers on: review, audit, code review, security scan, quality gate, pre-merge, checklist, lint, vulnerability. |
 | **code-simplification** | Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity. |
@@ -217,16 +225,22 @@
 | **codebase-design** | Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary. |
 | **context-anchor** | Recover from context compaction by scanning memory files and surfacing where you left off. Use when waking up fresh, after compaction, or when you feel lost about what you were doing. Now supports both flat (YYYY-MM-DD.md) and QMD hierarchical (daily/YYYY/MM/DD.md) memory structures. |
 | **correct** | Find the mistakes agents keep repeating in this repo and make each one impossible. Try architecture first, then types, then a lint whose error names the fix, then a test, and write docs last. Prove each check fails on a real past mistake. Repeat this each time the operator corrects you. Use for /correct. |
+| **cso** | Security audit: supported static findings; qualified profiles add reproduction and repair candidates. (gstack) |
 | **deprecation-and-migration** | Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when deciding whether to maintain or sunset existing code. |
 | **deslop** | Remove AI-generated code slop and clean up code style |
+| **deslop-shared-libs** | Find worthwhile shared-code extractions in recent work. (gstack) |
+| **devex-review** | Live developer experience audit. (gstack) |
 | **distill-codebase-skill** | Reference template for distilling codebase knowledge into a comprehensive engineering skill document. Use after completing a major project update, security remediation, or architectural overhaul to create a reusable SKILL.md that captures lessons learned, anti-patterns, debugging guides, and best practices for future agents. |
 | **encrypt-decrypt** | Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults. |
+| **freeze** | Restrict file edits to a specific directory for the session. (gstack) |
 | **git-guardrails-claude-code** | Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code. |
 | **greploop** | Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Triggers Greptile review, fixes all actionable comments, pushes/re-shelves, re-triggers review, and repeats. Use when the user wants to fully optimize a PR/MR/CL against Greptile's code review standards. |
 | **greploop-apps** | Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Identical to greploop, but triggers reviews by tagging @greptile-apps, which bypasses Greptile's file-count limit on huge PRs that the plain @greptile mention refuses to review. Use when the user wants to fully optimize a large PR/MR/CL against Greptile's code review standards. |
+| **guard** | Full safety mode: destructive command warnings + directory-scoped edits. (gstack) |
 | **how** | Use for "how does X work", code walkthroughs before changing something, and placement / ownership / layering questions ("where should this live", "which package owns this", "is this the right layer"). Explains subsystem architecture, runtime flow, onboarding mental models. Use why for motivation. |
 | **improve-codebase-architecture** | Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. |
 | **incremental-implementation** | Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step. |
+| **investigate** | Systematic debugging with root cause investigation. (gstack) |
 | **memory-architect** | Bootstrap, audit, and recover the OpenClaw 3-layer memory architecture (workspace files, LCM database, QMD semantic index). Use when: (1) Setting up memory on a new OpenClaw instance, (2) Auditing existing memory health, (3) Recovering from corruption or system crash, (4) Migrating or restructuring memory layout, (5) User asks about memory architecture setup or health. Triggers on phrases like 'bootstrap memory', 'audit memory', 'memory architecture', 'memory setup', 'LCM configuration', 'QMD setup', 'memory recovery', 'check memory health'. |
 | **memory-architecture** | OpenClaw memory system architecture, setup guide, and troubleshooting reference. Use when configuring memory on a new machine, diagnosing memory issues after updates, or understanding how workspace files, LCM, and QMD work together. |
 | **migrate-to-shoehorn** | Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data. |
@@ -245,11 +259,13 @@
 | **principle-never-block-on-the-human** | Apply when tempted to ask 'should I do X?' on reversible work. |
 | **principle-sequence-verifiable-units** | Apply to multi-step work (sweeps, migrations, runs of similar edits) and to how you stack commits and PRs. Break work into small units that each end in a verifiable state, check each before the next, and order delivery so the sequence proves itself to a reviewer. |
 | **principle-subtract-before-you-add** | Apply when sequencing an addition, refactor, or rewrite. Remove dead code, redundant validators, and stub references first, then build on the simpler base. |
+| **review** | Pre-landing PR review. (gstack) |
 | **scaffold-exercises** | Create exercise directory structures with sections, problems, solutions, and explainers that pass linting. Use when user wants to scaffold exercises, create exercise stubs, or set up a new course section. |
 | **setup-pre-commit** | Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/typechecking/testing. |
 | **setup-ts-deep-modules** | Wire dependency-cruiser into a TypeScript repo so each package is a deep module, with implementation hidden in subfolders and reachable only through its entry-point files. User-invoked. |
 | **thermo-nuclear-code-quality-review** | Run an extremely strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth. Use for a thermo-nuclear code quality review, thermonuclear review, deep code quality audit, or especially harsh maintainability review. |
 | **thermo-nuclear-review** | Comprehensive security and correctness audit of a branch's changes. Use for thermo nuclear, thermonuclear, or deep review requests, or branch/PR diff audits focused on bugs, breaking changes, security issues, devex regressions, and feature-gate leaks. |
+| **unfreeze** | Clear the freeze boundary set by /freeze, allowing edits to all directories again. (gstack) |
 | **vulnerability-scanner** | Advanced vulnerability analysis principles. OWASP 2025, Supply Chain Security, attack surface mapping, risk prioritization. |
 | **why** | Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds. Discovers available MCPs and queries each evidence category (source control, issue tracker, long-form docs, real-time chat, infrastructure observability, error tracking, product analytics warehouse) in parallel, then returns a cited read on decisions and tradeoffs. Use how for runtime behavior. |
 
@@ -265,6 +281,8 @@
 | **background-terminals** | Run and manage long-lived shell commands in background terminals. Use for dev servers, watchers, streaming builds, and other commands that should keep running while the agent continues working. |
 | **blog-writer** | This skill should be used when writing blog posts, articles, or long-form content in the writer's distinctive writing style. It produces authentic, opinionated content that matches the writer's voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer's perspective on AI, productivity, sales, marketing, or technology topics. |
 | **chief-of-staff** | Pursue a long-running goal in a single session by co-ordinating subagents. |
+| **context-restore** | Restore working context saved earlier by /context-save. (gstack) |
+| **context-save** | Save working context. (gstack) |
 | **documentation-and-adrs** | Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase. |
 | **figure-it-out** | Design an auditable playbook when no narrower one fits: a large migration, an ambitious multi-part change, or work a human reviews after stepping away. Scales rigor to the task, runs a hypothesis loop, and logs decisions. Use for /figure-it-out or 'figure it out'. |
 | **fix-ci** | Find failing PR checks, inspect logs or external check links, and apply focused fixes |
@@ -278,22 +296,30 @@
 | **implement-spec** | Implement the result of /to-spec and /to-tickets in code. |
 | **interview-prep** | 帮用户准备面试。基于目标 JD、公司、岗位方向，生成"高频面试题 + 参考回答 + 行为面 / 技术面 / Case 面分类题库"，并产出可打印的『面试备战手册』。当用户说"帮我准备面试""明天有面试 / 后天面试""面试题""面经""模拟面试""我要面 X 公司 Y 岗位""帮我准备 STAR 故事""怎么回答这道面试题""自我介绍 / 离职原因 / 优缺点 怎么答"，必须触发本 skill。请勿用本 skill 改简历（去 jd-resume-tailor / resume-builder）或推荐方向（去 job-intent-tracker）。 |
 | **job-intent-tracker** | 帮助用户梳理求职意向、生成目标岗位画像，并维护一份结构化的"岗位投递追踪表"。当用户说"我想换工作 / 不知道投什么岗 / 帮我看看我适合什么岗位 / 帮我管理投递进度 / 我投了好几家但记不住状态了 / 想做一个求职 OKR / 整理一下求职方向"，或上传简历但没说要改简历时，应该主动触发本 skill。本 skill 也适用于实习生、应届生、转行候选人在求职启动阶段做"自我盘点 + 目标画像 + 投递管理"三件事。 |
+| **learn** | Manage project learnings. |
 | **loop-builder** | Design and scaffold an agent "loop" — an unattended, scheduled, self-verifying agent workflow. Use this whenever the user wants to automate a recurring task, schedule an agent, run an agent unattended or overnight, set up monitoring, triage, or alerting, poll something on a cadence, or turn a manual repeated workflow into a self-running one — even if they never say the word "loop." If a request implies "do this every day / on a schedule / until some condition holds, without me typing each time," reach for this skill. It walks the seven-question blueprint, picks the simplest loop pattern, an... |
 | **make-pr-easy-to-review** | Prepare PRs for review by cleaning noisy history, improving PR descriptions, and adding reviewer guidance without changing code behavior. Use for "make this easy to review", "tidy this PR", "clean up commits", or "annotate the diff". |
 | **marketing-mode** | Marketing Mode combines 23 comprehensive marketing skills covering strategy, psychology, content, SEO, conversion optimization, and paid growth. Use when users need marketing strategy, copywriting, SEO help, conversion optimization, paid advertising, or any marketing tactic. |
 | **mindfulness-meditation** | Build a meditation practice with guided sessions, streaks, and mindfulness reminders |
 | **new-feature** | Start a new task in an isolated Git worktree branched from origin/main so multiple agents can work on the same repo in parallel without conflicts. Use at the beginning of every new feature, fix, or task — before writing any code. |
+| **office-hours** | YC Office Hours — two modes. (gstack) |
 | **orchestrator-toolkit** | Pure-Python orchestration toolkit for task management, complexity analysis, decomposition, persistence, and recovery. Use when breaking down complex projects, tracking progress, or building lightweight orchestration systems. |
 | **pandoc-docx-template** | Use this skill when converting Markdown to Word DOCX or DOCX back to Markdown with Pandoc, especially when the output should use the bundled Chinese Word reference templates, heading numbering variants, list indentation variants, SCI paper templates, and Lua filters for HTML tags, image captions, font color, and inline code styles. |
 | **pi-agent-customize-system-prompt** | guide for customizing the Pi Agent system prompt to add custom tools and workflow instructions |
+| **plan-ceo-review** | CEO/founder-mode plan review. (gstack) |
+| **plan-design-review** | Designer's eye plan review — interactive, like CEO and Eng review. (gstack) |
+| **plan-devex-review** | Interactive developer experience plan review. (gstack) |
+| **plan-eng-review** | Eng manager-mode plan review. (gstack) |
 | **planning-and-task-breakdown** | Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible. |
 | **poteto-mode** | poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /poteto-mode, or requests to work in this style. |
 | **pptx-generator** | Generate, edit, and read PowerPoint presentations. Create from scratch with PptxGenJS (cover, TOC, content, section divider, summary slides), edit existing PPTX via XML workflows, or extract text with markitdown. Triggers: PPT, PPTX, PowerPoint, presentation, slide, deck, slides. |
 | **pr** | Use when writing a PR body. |
 | **recall** | Reconstruct your recent working context from your own chat history, live state, and the shared record (user reports, prior fixes, incidents), then hand back a tight current-state brief. Use for 'recall my work on X', 'catch me up', 'what have I been working on', 'where did I leave off', before starting or resuming work, and before telling the user that something was never recorded. |
 | **retro** | Conduct a retrospective on a coding session. |
+| **ship** | Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION, update CHANGELOG, commit, push, create PR. (gstack) |
 | **shipping-and-launch** | Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy. |
 | **show-me-your-work** | Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Use for /show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away. |
+| **spec** | Turn vague intent into a precise, executable spec in five phases. (gstack) |
 | **spec-driven-development** | Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea. |
 | **storyboard-manager** | Assist writers with story planning, character development, plot structuring, chapter writing, timeline tracking, and consistency checking. Use this skill when working with creative writing projects organized in folders containing characters, chapters, story planning documents, and summaries. Trigger this skill for tasks like "Help me develop this character," "Write the next chapter," "Check consistency across my story," or "Track the timeline of events." |
 | **subagents** | invoke this skill when the user asks you to use subagents |
@@ -320,6 +346,8 @@
 | **codex-ppt** | Generate visually unified image-based PPT/PPTX decks from articles, reports, papers, notes, or outlines. |
 | **content-analysis** | Content extraction and analysis — wisdom extraction from videos, podcasts, articles, and YouTube. USE WHEN extract wisdom, content analysis, analyze content, insight report, analyze video, analyze podcast, extract insights, key takeaways, what did I miss, extract from YouTube. |
 | **cyber-ppt** | 当用户需要把 DOCX、PDF、TXT、XLSX、研究报告、业务材料或原始数据转成高密度、可编辑、咨询风格 PPTX 时使用；也适用于需要 SCR 论证、视觉风格探索、详细图表和渲染质检的 PPT。 |
+| **document-generate** | Generate missing documentation from scratch for a feature, module, or entire project. (gstack) |
+| **document-release** | Release documentation audit. (gstack) |
 | **docx** | Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When GLM needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks |
 | **docx-generation** | Comprehensive DOCX Generation & Conversion Skill |
 | **domain-modeling** | Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR. |
@@ -327,6 +355,7 @@
 | **handoff** | Compact the current conversation into a single, detailed handoff message — everything that happened, why it happened, and what's left — output in a code block so it can be copy-pasted into a fresh agent session. Use when hitting context limits, switching focus, ending a work session, or partitioning a task across fresh contexts. |
 | **humanizer** | Remove signs of AI-generated writing and restore natural human voice. Archetype-based detection with heuristic triage, genre-gated positive humanization, forensic artifact scanning, and a dedicated fiction protocol. Synthesizes all prior editions (v1–v6) into a single operational system. Resilient to model evolution; safe for token-constrained environments. |
 | **literature-survey** | Use when the user wants a comprehensive literature survey on a specific research topic. Outputs a complete PDF survey (6–20 pages, 60+ real citations, 100+ recommended) with LaTeX source, taxonomy figures, and a classified literature table. Single-stage, no Python runtime. |
+| **make-pdf** | Turn any markdown file into a publication-quality PDF. (gstack) |
 | **markdown-to-html** | Renders an arbitrary Markdown document as a polished, single-file, accessible web page. Accepts any .md file plus an optional template (technical three-column / editorial long-form) and an optional tag registry (severity, confidence, status, custom). Built on React 19 + Vite 8 + Tailwind v4 + react-markdown + lucide-react. Includes mobile TOC drawer, back-to-top, code-block copy buttons, reading-time estimation (Latin + CJK-aware), print stylesheet, build-time title injection, source-markdown validation gate, CI workflow, and Husky pre-commit hook. |
 | **markdown-to-web** | Renders an arbitrary Markdown document as a polished, single-file, accessible web page. Accepts any .md file plus an optional template (editorial long-form / technical docs / minimal print) and an optional tag registry (severity, confidence, status, custom). Built on React 19 + Vite 7 + Tailwind v4 + react-markdown. |
 | **market-research-reports** | Generate comprehensive market research reports (50+ pages) in the style of top consulting firms (McKinsey, BCG, Gartner). Features professional LaTeX formatting, extensive visual generation with scientific-schematics and generate-image, deep integration with research-lookup for data gathering, and multi-framework strategic analysis including Porter's Five Forces, PESTLE, SWOT, TAM/SAM/SOM, and BCG Matrix. |
@@ -378,6 +407,7 @@
 | Skill | Description |
 |-------|-------------|
 | **how-to-git-push-using-ssh-wrapper** | Push commits from this checkout to the GitHub SSH remote using ssh_git_wrapper_v3.py and an externally-supplied deploy key that is never stored in the repository. Use when pushing main to GitHub over SSH from a sandbox or CI environment without a resident ~/.ssh identity, when authenticating git push with a pasted or ephemeral ed25519 key, when a post-push remote-ref verification is required, or when no OpenSSH binary exists and a paramiko-backed ssh shim must be deployed. |
+| **land-and-deploy** | Land and deploy workflow. (gstack) |
 | **luxeverse-architect** | LuxeVerse Architect Skill Comprehensive Architectural & Execution Framework for Cinematic, Production-Grade, Anti-Generic Web Platforms |
 | **multi-search-engine** | Multi search engine integration with 8 domestic (CN) search engines. Supports advanced search operators, time filters, site search, and WeChat article search. No API keys required. |
 | **rootless-postgresql** | Install, initialize, and run a PostgreSQL server and client locally without root on Debian (trixie/sid), for a non-root user with a writable /home/project directory. Use when asked to install or start PostgreSQL without sudo, without systemd, or when apt install fails with permission errors. Resolves the major version dynamically, extracts .debs into a user-owned prefix, and provides idempotent start/stop/status scripts. |
@@ -395,16 +425,16 @@
 | # | Category | Count |
 |---|----------|-------|
 | 1 | Frontend Development & UI Engineering | 59 |
-| 2 | Design Artifacts & Visual Creation | 18 |
+| 2 | Design Artifacts & Visual Creation | 22 |
 | 3 | Full-Stack & Backend Development | 24 |
 | 4 | AI / ML / Multimodal SDK Skills | 17 |
-| 5 | Testing, QA & Performance | 34 |
-| 6 | Code Quality, Security & Architecture | 45 |
-| 7 | Planning, Workflow & Project Management | 44 |
-| 8 | Documentation & Content Creation | 33 |
+| 5 | Testing, QA & Performance | 37 |
+| 6 | Code Quality, Security & Architecture | 54 |
+| 7 | Planning, Workflow & Project Management | 54 |
+| 8 | Documentation & Content Creation | 36 |
 | 9 | Career, Learning & Personal Development | 12 |
-| 10 | DevOps, Infrastructure & External Integrations | 10 |
-| | **Total** | **296** |
+| 10 | DevOps, Infrastructure & External Integrations | 11 |
+| | **Total** | **326** |
 
 ---
 

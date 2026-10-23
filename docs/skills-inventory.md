@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-23) — catalog is source of truth.**
-> **296 skills** listed (14212 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> **326 skills** listed (14464 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -25,15 +25,15 @@ Skills are listed alphabetically within each category. Use the category index be
 ## Category Index
 
 1. **Frontend Development & UI Engineering** — 59 skills — [jump](#1-frontend-development--ui-engineering)
-2. **Design Artifacts & Visual Creation** — 18 skills — [jump](#2-design-artifacts--visual-creation)
+2. **Design Artifacts & Visual Creation** — 22 skills — [jump](#2-design-artifacts--visual-creation)
 3. **Full-Stack & Backend Development** — 24 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 17 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
-5. **Testing, QA & Performance** — 34 skills — [jump](#5-testing-qa--performance)
-6. **Code Quality, Security & Architecture** — 45 skills — [jump](#6-code-quality-security--architecture)
-7. **Planning, Workflow & Project Management** — 44 skills — [jump](#7-planning-workflow--project-management)
-8. **Documentation & Content Creation** — 33 skills — [jump](#8-documentation--content-creation)
+5. **Testing, QA & Performance** — 37 skills — [jump](#5-testing-qa--performance)
+6. **Code Quality, Security & Architecture** — 54 skills — [jump](#6-code-quality-security--architecture)
+7. **Planning, Workflow & Project Management** — 54 skills — [jump](#7-planning-workflow--project-management)
+8. **Documentation & Content Creation** — 36 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
-10. **DevOps, Infrastructure & External Integrations** — 10 skills — [jump](#10-devops-infrastructure--external-integrations)
+10. **DevOps, Infrastructure & External Integrations** — 11 skills — [jump](#10-devops-infrastructure--external-integrations)
 
 ---
 
@@ -688,7 +688,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 2. Design Artifacts & Visual Creation
 
 > Skills that produce visual artifacts: charts, images, diagrams, design systems, and media.
-> **18 skills** in this category.
+> **22 skills** in this category.
 
 ### `aesthetic`
 
@@ -730,6 +730,50 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `references/`
 
 > Create valid ComfyUI workflow JSON templates for Apple Silicon image generation. Use when: (1) Building a new ComfyUI workflow from scratch, (2) Converting a prompt-API format workflow to saved-graph format, (3) Adding Mac-compatible model loading nodes (Z-Image, FLUX.1/2, Krea 2, Ideogram 4, Qwen-Image, FIBO, ERNIE-Image), (4) Scaffolding LoRA/ControlNet/VAE nodes correctly, (5) Validating a workflow will run on Mac MPS/MLX backend, (6) User asks "create a workflow", "scaffold a ComfyUI template", "workflow JSON", "ComfyUI node graph", or "image generation workflow". Triggers on keywords: ...
+
+### `design-consultation`
+
+- **Path**: `skills/design-consultation`
+- **SKILL.md**: [`skills/design-consultation/SKILL.md`](skills/design-consultation/SKILL.md)
+- **Title**: /design-consultation: Your Design System, Built Together
+- **Version**: 1.0.0
+- **Files**: 5
+- **Structure**: flat
+
+> Design consultation: understands your product, researches the landscape, proposes a complete design system (aesthetic, typography, color, layout, spacing, motion), and generates font+color preview... (gstack)
+
+### `design-review`
+
+- **Path**: `skills/design-review`
+- **SKILL.md**: [`skills/design-review/SKILL.md`](skills/design-review/SKILL.md)
+- **Title**: /design-review: Design Audit → Fix → Verify
+- **Version**: 2.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems, AI slop patterns, and slow interactions — then fixes them. (gstack)
+
+### `design-shotgun`
+
+- **Path**: `skills/design-shotgun`
+- **SKILL.md**: [`skills/design-shotgun/SKILL.md`](skills/design-shotgun/SKILL.md)
+- **Title**: /design-shotgun: Visual Design Exploration
+- **Version**: 1.0.0
+- **Files**: 5
+- **Structure**: flat
+
+> Design shotgun: generate multiple AI design variants, open a comparison board, collect structured feedback, and iterate. (gstack)
+
+### `diagram`
+
+- **Path**: `skills/diagram`
+- **SKILL.md**: [`skills/diagram/SKILL.md`](skills/diagram/SKILL.md)
+- **Title**: /diagram — English in, editable diagram out
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Turn an English description (or mermaid source) into a diagram triplet: the source, an editable .excalidraw file you can open on excalidraw.com, and rendered SVG + PNG. (gstack)
 
 ### `image-edit`
 
@@ -1356,7 +1400,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 5. Testing, QA & Performance
 
 > Skills for test design, end-to-end testing, performance work, and quality assurance.
-> **34 skills** in this category.
+> **37 skills** in this category.
 
 ### `before-and-after`
 
@@ -1510,6 +1554,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Condensed experience from 15-phase E2E testing initiative covering authentication, API contracts, tool selection, and hybrid testing methodology. Use when planning E2E tests, selecting testing tools, or debugging test failures.
 
+### `eval-plan`
+
+- **Path**: `skills/eval-plan`
+- **SKILL.md**: [`skills/eval-plan/SKILL.md`](skills/eval-plan/SKILL.md)
+- **Title**: /eval-plan: Preregistered, paid evals
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Preregister a paid eval (bars, arms, decoys, stop rules), dry-run it at zero cost, then run a three-item priced pilot whose spend table gates approval. (gstack)
+
 ### `evidence-driven-testing`
 
 - **Path**: `skills/evidence-driven-testing`
@@ -1614,6 +1669,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Apply when you write, change, or keep a test. Assert what the code's users can observe, so that the test fails when that behavior breaks and keeps passing when only the internals change.
 
+### `qa`
+
+- **Path**: `skills/qa`
+- **SKILL.md**: [`skills/qa/SKILL.md`](skills/qa/SKILL.md)
+- **Title**: /qa: Test → Fix → Verify
+- **Version**: 2.0.0
+- **Files**: 20
+- **Structure**: `references/`
+
+> Fix browser/API/CLI/job/worker/webhook bugs. (gstack)
+
 ### `readme-md`
 
 - **Path**: `skills/readme-md`
@@ -1679,6 +1745,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Test-Driven Development workflow principles. RED-GREEN-REFACTOR cycle.
 
+### `test-audit`
+
+- **Path**: `skills/test-audit`
+- **SKILL.md**: [`skills/test-audit/SKILL.md`](skills/test-audit/SKILL.md)
+- **Title**: /test-audit: Test value sweep
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Find low-value or duplicate tests and the test-only code they keep alive. (gstack)
+
 ### `test-driven-development`
 
 - **Path**: `skills/test-driven-development`
@@ -1714,7 +1791,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 6. Code Quality, Security & Architecture
 
 > Skills for code review, security hardening, architecture decisions, and refactoring.
-> **45 skills** in this category.
+> **54 skills** in this category.
 
 ### `anti-pua`
 
@@ -1745,6 +1822,17 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Find what a change could break somewhere else before it ships, beyond the diff, and prove the one fact it's safe because of by running real code instead of writing it up. Use for 'blast radius of X', 'what could this break', reviewing a small diff you don't trust, or a brief that asserts something about existing code ('make X public', 'X already handles Y') before you design against that assertion.
+
+### `careful`
+
+- **Path**: `skills/careful`
+- **SKILL.md**: [`skills/careful/SKILL.md`](skills/careful/SKILL.md)
+- **Title**: /careful — Destructive Command Guardrails
+- **Version**: 0.1.0
+- **Files**: 4
+- **Structure**: flat
+
+> Safety guardrails for destructive commands. (gstack)
 
 ### `clean-code`
 
@@ -1819,6 +1907,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Find the mistakes agents keep repeating in this repo and make each one impossible. Try architecture first, then types, then a lint whose error names the fix, then a test, and write docs last. Prove each check fails on a real past mistake. Repeat this each time the operator corrects you. Use for /correct.
 
+### `cso`
+
+- **Path**: `skills/cso`
+- **SKILL.md**: [`skills/cso/SKILL.md`](skills/cso/SKILL.md)
+- **Title**: /cso — evidence before assurance
+- **Version**: 3.0.0
+- **Files**: 6
+- **Structure**: flat
+
+> Security audit: supported static findings; qualified profiles add reproduction and repair candidates. (gstack)
+
 ### `deprecation-and-migration`
 
 - **Path**: `skills/deprecation-and-migration`
@@ -1838,6 +1937,28 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Remove AI-generated code slop and clean up code style
+
+### `deslop-shared-libs`
+
+- **Path**: `skills/deslop-shared-libs`
+- **SKILL.md**: [`skills/deslop-shared-libs/SKILL.md`](skills/deslop-shared-libs/SKILL.md)
+- **Title**: Find code worth sharing
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Find worthwhile shared-code extractions in recent work. (gstack)
+
+### `devex-review`
+
+- **Path**: `skills/devex-review`
+- **SKILL.md**: [`skills/devex-review/SKILL.md`](skills/devex-review/SKILL.md)
+- **Title**: /devex-review: Live Developer Experience Audit
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Live developer experience audit. (gstack)
 
 ### `distill-codebase-skill`
 
@@ -1859,6 +1980,17 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`, `references/`
 
 > Encrypt and decrypt files and folders from the CLI. Single-file Python script using AES-256-GCM with Scrypt key derivation. Supports recursive folder processing, atomic writes, authenticated streaming for large files, and non-destructive defaults.
+
+### `freeze`
+
+- **Path**: `skills/freeze`
+- **SKILL.md**: [`skills/freeze/SKILL.md`](skills/freeze/SKILL.md)
+- **Title**: /freeze — Restrict Edits to a Directory
+- **Version**: 0.1.0
+- **Files**: 4
+- **Structure**: flat
+
+> Restrict file edits to a specific directory for the session. (gstack)
 
 ### `git-guardrails-claude-code`
 
@@ -1896,6 +2028,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Iteratively improves a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives it a 5/5 confidence score with zero unresolved comments. Identical to greploop, but triggers reviews by tagging @greptile-apps, which bypasses Greptile's file-count limit on huge PRs that the plain @greptile mention refuses to review. Use when the user wants to fully optimize a large PR/MR/CL against Greptile's code review standards.
 
+### `guard`
+
+- **Path**: `skills/guard`
+- **SKILL.md**: [`skills/guard/SKILL.md`](skills/guard/SKILL.md)
+- **Title**: /guard — Full Safety Mode
+- **Version**: 0.1.0
+- **Files**: 2
+- **Structure**: flat
+
+> Full safety mode: destructive command warnings + directory-scoped edits. (gstack)
+
 ### `how`
 
 - **Path**: `skills/how`
@@ -1925,6 +2068,17 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+
+### `investigate`
+
+- **Path**: `skills/investigate`
+- **SKILL.md**: [`skills/investigate/SKILL.md`](skills/investigate/SKILL.md)
+- **Title**: Systematic Debugging
+- **Version**: 1.0.0
+- **Files**: 13
+- **Structure**: flat
+
+> Systematic debugging with root cause investigation. (gstack)
 
 ### `memory-architect`
 
@@ -2109,6 +2263,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Apply when sequencing an addition, refactor, or rewrite. Remove dead code, redundant validators, and stub references first, then build on the simpler base.
 
+### `review`
+
+- **Path**: `skills/review`
+- **SKILL.md**: [`skills/review/SKILL.md`](skills/review/SKILL.md)
+- **Title**: Pre-Landing PR Review
+- **Version**: 1.0.0
+- **Files**: 25
+- **Structure**: flat
+
+> Pre-landing PR review. (gstack)
+
 ### `scaffold-exercises`
 
 - **Path**: `skills/scaffold-exercises`
@@ -2159,6 +2324,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Comprehensive security and correctness audit of a branch's changes. Use for thermo nuclear, thermonuclear, or deep review requests, or branch/PR diff audits focused on bugs, breaking changes, security issues, devex regressions, and feature-gate leaks.
 
+### `unfreeze`
+
+- **Path**: `skills/unfreeze`
+- **SKILL.md**: [`skills/unfreeze/SKILL.md`](skills/unfreeze/SKILL.md)
+- **Title**: /unfreeze — Clear Freeze Boundary
+- **Version**: 0.1.0
+- **Files**: 2
+- **Structure**: flat
+
+> Clear the freeze boundary set by /freeze, allowing edits to all directories again. (gstack)
+
 ### `vulnerability-scanner`
 
 - **Path**: `skills/vulnerability-scanner`
@@ -2184,7 +2360,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 7. Planning, Workflow & Project Management
 
 > Skills for planning work, managing projects, orchestrating sub-agents, and shipping.
-> **44 skills** in this category.
+> **54 skills** in this category.
 
 ### `ask-matt`
 
@@ -2225,6 +2401,28 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Pursue a long-running goal in a single session by co-ordinating subagents.
+
+### `context-restore`
+
+- **Path**: `skills/context-restore`
+- **SKILL.md**: [`skills/context-restore/SKILL.md`](skills/context-restore/SKILL.md)
+- **Title**: /context-restore — Restore Saved Working Context
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Restore working context saved earlier by /context-save. (gstack)
+
+### `context-save`
+
+- **Path**: `skills/context-save`
+- **SKILL.md**: [`skills/context-save/SKILL.md`](skills/context-save/SKILL.md)
+- **Title**: /context-save — Save Working Context
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Save working context. (gstack)
 
 ### `documentation-and-adrs`
 
@@ -2356,6 +2554,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > 帮助用户梳理求职意向、生成目标岗位画像，并维护一份结构化的"岗位投递追踪表"。当用户说"我想换工作 / 不知道投什么岗 / 帮我看看我适合什么岗位 / 帮我管理投递进度 / 我投了好几家但记不住状态了 / 想做一个求职 OKR / 整理一下求职方向"，或上传简历但没说要改简历时，应该主动触发本 skill。本 skill 也适用于实习生、应届生、转行候选人在求职启动阶段做"自我盘点 + 目标画像 + 投递管理"三件事。
 
+### `learn`
+
+- **Path**: `skills/learn`
+- **SKILL.md**: [`skills/learn/SKILL.md`](skills/learn/SKILL.md)
+- **Title**: Project Learnings Manager
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Manage project learnings.
+
 ### `loop-builder`
 
 - **Path**: `skills/loop-builder`
@@ -2409,6 +2618,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Start a new task in an isolated Git worktree branched from origin/main so multiple agents can work on the same repo in parallel without conflicts. Use at the beginning of every new feature, fix, or task — before writing any code.
 
+### `office-hours`
+
+- **Path**: `skills/office-hours`
+- **SKILL.md**: [`skills/office-hours/SKILL.md`](skills/office-hours/SKILL.md)
+- **Title**: YC Office Hours
+- **Version**: 2.0.0
+- **Files**: 9
+- **Structure**: flat
+
+> YC Office Hours — two modes. (gstack)
+
 ### `orchestrator-toolkit`
 
 - **Path**: `skills/orchestrator-toolkit`
@@ -2439,6 +2659,50 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > guide for customizing the Pi Agent system prompt to add custom tools and workflow instructions
+
+### `plan-ceo-review`
+
+- **Path**: `skills/plan-ceo-review`
+- **SKILL.md**: [`skills/plan-ceo-review/SKILL.md`](skills/plan-ceo-review/SKILL.md)
+- **Title**: Mega Plan Review Mode
+- **Version**: 1.0.0
+- **Files**: 9
+- **Structure**: flat
+
+> CEO/founder-mode plan review. (gstack)
+
+### `plan-design-review`
+
+- **Path**: `skills/plan-design-review`
+- **SKILL.md**: [`skills/plan-design-review/SKILL.md`](skills/plan-design-review/SKILL.md)
+- **Title**: /plan-design-review: Designer's Eye Plan Review
+- **Version**: 2.0.0
+- **Files**: 7
+- **Structure**: flat
+
+> Designer's eye plan review — interactive, like CEO and Eng review. (gstack)
+
+### `plan-devex-review`
+
+- **Path**: `skills/plan-devex-review`
+- **SKILL.md**: [`skills/plan-devex-review/SKILL.md`](skills/plan-devex-review/SKILL.md)
+- **Title**: /plan-devex-review: Developer Experience Plan Review
+- **Version**: 2.0.0
+- **Files**: 8
+- **Structure**: flat
+
+> Interactive developer experience plan review. (gstack)
+
+### `plan-eng-review`
+
+- **Path**: `skills/plan-eng-review`
+- **SKILL.md**: [`skills/plan-eng-review/SKILL.md`](skills/plan-eng-review/SKILL.md)
+- **Title**: Plan Review Mode
+- **Version**: 1.0.0
+- **Files**: 7
+- **Structure**: flat
+
+> Eng manager-mode plan review. (gstack)
 
 ### `planning-and-task-breakdown`
 
@@ -2502,6 +2766,17 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Conduct a retrospective on a coding session.
 
+### `ship`
+
+- **Path**: `skills/ship`
+- **SKILL.md**: [`skills/ship/SKILL.md`](skills/ship/SKILL.md)
+- **Title**: Ship: Fully Automated Ship Workflow
+- **Version**: 1.0.0
+- **Files**: 33
+- **Structure**: flat
+
+> Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION, update CHANGELOG, commit, push, create PR. (gstack)
+
 ### `shipping-and-launch`
 
 - **Path**: `skills/shipping-and-launch`
@@ -2521,6 +2796,17 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`, `references/`
 
 > Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Use for /show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away.
+
+### `spec`
+
+- **Path**: `skills/spec`
+- **SKILL.md**: [`skills/spec/SKILL.md`](skills/spec/SKILL.md)
+- **Title**: /spec — Author a Backlog-Ready Spec (issue + optional agent spawn)
+- **Version**: 0.1.0
+- **Files**: 5
+- **Structure**: flat
+
+> Turn vague intent into a precise, executable spec in five phases. (gstack)
 
 ### `spec-driven-development`
 
@@ -2638,7 +2924,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 8. Documentation & Content Creation
 
 > Skills that produce documents, presentations, spreadsheets, PDFs, or written content.
-> **33 skills** in this category.
+> **36 skills** in this category.
 
 ### `agents-md`
 
@@ -2707,6 +2993,28 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`, `references/`
 
 > 当用户需要把 DOCX、PDF、TXT、XLSX、研究报告、业务材料或原始数据转成高密度、可编辑、咨询风格 PPTX 时使用；也适用于需要 SCR 论证、视觉风格探索、详细图表和渲染质检的 PPT。
+
+### `document-generate`
+
+- **Path**: `skills/document-generate`
+- **SKILL.md**: [`skills/document-generate/SKILL.md`](skills/document-generate/SKILL.md)
+- **Title**: Document Generate: Diataxis Documentation Writer
+- **Version**: 1.0.0
+- **Files**: 2
+- **Structure**: flat
+
+> Generate missing documentation from scratch for a feature, module, or entire project. (gstack)
+
+### `document-release`
+
+- **Path**: `skills/document-release`
+- **SKILL.md**: [`skills/document-release/SKILL.md`](skills/document-release/SKILL.md)
+- **Title**: Document Release: Documentation Audit and Update
+- **Version**: 1.0.0
+- **Files**: 7
+- **Structure**: flat
+
+> Release documentation audit. (gstack)
 
 ### `docx`
 
@@ -2783,6 +3091,17 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `references/`
 
 > Use when the user wants a comprehensive literature survey on a specific research topic. Outputs a complete PDF survey (6–20 pages, 60+ real citations, 100+ recommended) with LaTeX source, taxonomy figures, and a classified literature table. Single-stage, no Python runtime.
+
+### `make-pdf`
+
+- **Path**: `skills/make-pdf`
+- **SKILL.md**: [`skills/make-pdf/SKILL.md`](skills/make-pdf/SKILL.md)
+- **Title**: make-pdf: publication-quality PDFs from markdown
+- **Version**: 1.0.0
+- **Files**: 52
+- **Structure**: flat
+
+> Turn any markdown file into a publication-quality PDF. (gstack)
 
 ### `markdown-to-html`
 
@@ -3123,7 +3442,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 10. DevOps, Infrastructure & External Integrations
 
 > Skills for cloud, deployment, external services, search, research, and tooling.
-> **10 skills** in this category.
+> **11 skills** in this category.
 
 ### `how-to-git-push-using-ssh-wrapper`
 
@@ -3135,6 +3454,17 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`
 
 > Push commits from this checkout to the GitHub SSH remote using ssh_git_wrapper_v3.py and an externally-supplied deploy key that is never stored in the repository. Use when pushing main to GitHub over SSH from a sandbox or CI environment without a resident ~/.ssh identity, when authenticating git push with a pasted or ephemeral ed25519 key, when a post-push remote-ref verification is required, or when no OpenSSH binary exists and a paramiko-backed ssh shim must be deployed.
+
+### `land-and-deploy`
+
+- **Path**: `skills/land-and-deploy`
+- **SKILL.md**: [`skills/land-and-deploy/SKILL.md`](skills/land-and-deploy/SKILL.md)
+- **Title**: /land-and-deploy — Merge, Deploy, Verify
+- **Version**: 1.0.0
+- **Files**: 9
+- **Structure**: flat
+
+> Land and deploy workflow. (gstack)
 
 ### `luxeverse-architect`
 
@@ -3240,15 +3570,15 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 296
-- **Top-level folders under `skills/` scanned**: 317
-- **Folders with a top-level `SKILL.md`**: 296
+- **Spec-compliant skills listed**: 326
+- **Top-level folders under `skills/` scanned**: 347
+- **Folders with a top-level `SKILL.md`**: 326
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 0
-- **Total files across listed skills**: 14212
+- **Total files across listed skills**: 14464
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
 - **Listed skills with `scripts/`**: 69
-- **Listed skills with `references/`**: 61
+- **Listed skills with `references/`**: 62
 - **Listed skills with `scenes/`**: 2
 - **Listed skills with `routes/`**: 2
 - **Listed skills with `engines/`**: 1
@@ -3259,16 +3589,16 @@ Skills are listed alphabetically within each category. Use the category index be
 | # | Category | Skills |
 |---|----------|--------|
 | 1 | Frontend Development & UI Engineering | 59 |
-| 2 | Design Artifacts & Visual Creation | 18 |
+| 2 | Design Artifacts & Visual Creation | 22 |
 | 3 | Full-Stack & Backend Development | 24 |
 | 4 | AI / ML / Multimodal SDK Skills | 17 |
-| 5 | Testing, QA & Performance | 34 |
-| 6 | Code Quality, Security & Architecture | 45 |
-| 7 | Planning, Workflow & Project Management | 44 |
-| 8 | Documentation & Content Creation | 33 |
+| 5 | Testing, QA & Performance | 37 |
+| 6 | Code Quality, Security & Architecture | 54 |
+| 7 | Planning, Workflow & Project Management | 54 |
+| 8 | Documentation & Content Creation | 36 |
 | 9 | Career, Learning & Personal Development | 12 |
-| 10 | DevOps, Infrastructure & External Integrations | 10 |
-| | **Total** | **296** |
+| 10 | DevOps, Infrastructure & External Integrations | 11 |
+| | **Total** | **326** |
 
 ---
 
