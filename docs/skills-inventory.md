@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-23) — catalog is source of truth.**
-> **277 skills** listed (14172 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> **281 skills** listed (14180 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -30,8 +30,8 @@ Skills are listed alphabetically within each category. Use the category index be
 4. **AI / ML / Multimodal SDK Skills** — 17 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
 5. **Testing, QA & Performance** — 31 skills — [jump](#5-testing-qa--performance)
 6. **Code Quality, Security & Architecture** — 36 skills — [jump](#6-code-quality-security--architecture)
-7. **Planning, Workflow & Project Management** — 40 skills — [jump](#7-planning-workflow--project-management)
-8. **Documentation & Content Creation** — 30 skills — [jump](#8-documentation--content-creation)
+7. **Planning, Workflow & Project Management** — 41 skills — [jump](#7-planning-workflow--project-management)
+8. **Documentation & Content Creation** — 33 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
 10. **DevOps, Infrastructure & External Integrations** — 10 skills — [jump](#10-devops-infrastructure--external-integrations)
 
@@ -2064,7 +2064,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 7. Planning, Workflow & Project Management
 
 > Skills for planning work, managing projects, orchestrating sub-agents, and shipping.
-> **40 skills** in this category.
+> **41 skills** in this category.
 
 ### `ask-matt`
 
@@ -2095,6 +2095,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > This skill should be used when writing blog posts, articles, or long-form content in the writer's distinctive writing style. It produces authentic, opinionated content that matches the writer's voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer's perspective on AI, productivity, sales, marketing, or technology topics.
+
+### `chief-of-staff`
+
+- **Path**: `skills/chief-of-staff`
+- **SKILL.md**: [`skills/chief-of-staff/SKILL.md`](skills/chief-of-staff/SKILL.md)
+- **Title**: chief-of-staff
+- **Files**: 2
+- **Structure**: flat
+
+> Pursue a long-running goal in a single session by co-ordinating subagents.
 
 ### `documentation-and-adrs`
 
@@ -2478,7 +2488,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 8. Documentation & Content Creation
 
 > Skills that produce documents, presentations, spreadsheets, PDFs, or written content.
-> **30 skills** in this category.
+> **33 skills** in this category.
 
 ### `agents-md`
 
@@ -2790,6 +2800,16 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Cut AI tells from text you write or edit for a human reader (commit messages, PR titles and bodies, docs, code comments, replies). Apply before committing, posting, or sending; leave prose you didn't touch alone.
 
+### `writing-beats`
+
+- **Path**: `skills/writing-beats`
+- **SKILL.md**: [`skills/writing-beats/SKILL.md`](skills/writing-beats/SKILL.md)
+- **Title**: writing-beats
+- **Files**: 2
+- **Structure**: flat
+
+> Writing, exploit; assemble raw material into a journey of beats, grounding each term before a beat leans on it.
+
 ### `writing-for-agents`
 
 - **Path**: `skills/writing-for-agents`
@@ -2799,6 +2819,26 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md.
+
+### `writing-fragments`
+
+- **Path**: `skills/writing-fragments`
+- **SKILL.md**: [`skills/writing-fragments/SKILL.md`](skills/writing-fragments/SKILL.md)
+- **Title**: Working title
+- **Files**: 2
+- **Structure**: flat
+
+> Writing, explore: mine raw fragments, no structure yet.
+
+### `writing-shape`
+
+- **Path**: `skills/writing-shape`
+- **SKILL.md**: [`skills/writing-shape/SKILL.md`](skills/writing-shape/SKILL.md)
+- **Title**: writing-shape
+- **Files**: 2
+- **Structure**: flat
+
+> Writing, exploit: shape raw material into an article, paragraph by paragraph.
 
 ---
 
@@ -3050,12 +3090,12 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 277
-- **Top-level folders under `skills/` scanned**: 298
-- **Folders with a top-level `SKILL.md`**: 277
+- **Spec-compliant skills listed**: 281
+- **Top-level folders under `skills/` scanned**: 302
+- **Folders with a top-level `SKILL.md`**: 281
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 0
-- **Total files across listed skills**: 14172
+- **Total files across listed skills**: 14180
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
 - **Listed skills with `scripts/`**: 68
 - **Listed skills with `references/`**: 58
@@ -3074,11 +3114,11 @@ Skills are listed alphabetically within each category. Use the category index be
 | 4 | AI / ML / Multimodal SDK Skills | 17 |
 | 5 | Testing, QA & Performance | 31 |
 | 6 | Code Quality, Security & Architecture | 36 |
-| 7 | Planning, Workflow & Project Management | 40 |
-| 8 | Documentation & Content Creation | 30 |
+| 7 | Planning, Workflow & Project Management | 41 |
+| 8 | Documentation & Content Creation | 33 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 10 |
-| | **Total** | **277** |
+| | **Total** | **281** |
 
 ---
 

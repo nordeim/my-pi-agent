@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **277 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **281 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -252,6 +252,7 @@
 | **ask-matt** | Ask which skill or flow fits your situation. A router over the skills in this repo. |
 | **background-terminals** | Run and manage long-lived shell commands in background terminals. Use for dev servers, watchers, streaming builds, and other commands that should keep running while the agent continues working. |
 | **blog-writer** | This skill should be used when writing blog posts, articles, or long-form content in the writer's distinctive writing style. It produces authentic, opinionated content that matches the writer's voice—direct, conversational, and grounded in personal experience. The skill handles the complete workflow from research review through Notion publication. Use this skill for drafting blog posts, thought leadership pieces, or any writing meant to reflect the writer's perspective on AI, productivity, sales, marketing, or technology topics. |
+| **chief-of-staff** | Pursue a long-running goal in a single session by co-ordinating subagents. |
 | **documentation-and-adrs** | Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase. |
 | **fix-ci** | Find failing PR checks, inspect logs or external check links, and apply focused fixes |
 | **fix-merge-conflicts** | Resolve merge conflicts non-interactively, validate build and tests, and finalize conflict resolution |
@@ -327,7 +328,10 @@
 | **to-distill-project-into-skill** | Meta-skill for distilling a complete project codebase into a comprehensive, maintainable SKILL.md document. Use after a major project update, when onboarding a new team, or when you need to create a single-source-of-truth reference for future AI coding agents working on this codebase. |
 | **translation-engine** | Deterministic Forensic Translation Engine v10.1 — bilingual (Chinese ↔ English) translation with L4 (Forensic Grade) precision and L3 (Strict Grade) professional publishing. Covers the 6-phase scratchpad protocol (IU definition, domain pack selection, draft-lock via successive versioning, audit, targeted repair, output), 5 pluggable domain packs (Engineering, Legal, Medical, Financial, Academic — each with domain-specific modality markers), anti-enhancement protocol, code-fence cryptographic seal, glossary management with 3-tier certainty levels, few-shot calibration with 10 examples, size-... |
 | **unslop** | Cut AI tells from text you write or edit for a human reader (commit messages, PR titles and bodies, docs, code comments, replies). Apply before committing, posting, or sending; leave prose you didn't touch alone. |
+| **writing-beats** | Writing, exploit; assemble raw material into a journey of beats, grounding each term before a beat leans on it. |
 | **writing-for-agents** | Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md. |
+| **writing-fragments** | Writing, explore: mine raw fragments, no structure yet. |
+| **writing-shape** | Writing, exploit: shape raw material into an article, paragraph by paragraph. |
 
 ---
 
@@ -381,11 +385,11 @@
 | 4 | AI / ML / Multimodal SDK Skills | 17 |
 | 5 | Testing, QA & Performance | 31 |
 | 6 | Code Quality, Security & Architecture | 36 |
-| 7 | Planning, Workflow & Project Management | 40 |
-| 8 | Documentation & Content Creation | 30 |
+| 7 | Planning, Workflow & Project Management | 41 |
+| 8 | Documentation & Content Creation | 33 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 10 |
-| | **Total** | **277** |
+| | **Total** | **281** |
 
 ---
 
