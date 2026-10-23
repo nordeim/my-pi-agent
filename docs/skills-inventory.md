@@ -1,6 +1,6 @@
 # Skills Inventory — my-pi-agent
 
-> Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-22) — catalog is source of truth.**
+> Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-23) — catalog is source of truth.**
 > **248 skills** listed (14075 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 29 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
