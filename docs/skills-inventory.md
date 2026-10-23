@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
 > Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-23) — catalog is source of truth.**
-> **281 skills** listed (14180 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> **296 skills** listed (14212 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -28,9 +28,9 @@ Skills are listed alphabetically within each category. Use the category index be
 2. **Design Artifacts & Visual Creation** — 18 skills — [jump](#2-design-artifacts--visual-creation)
 3. **Full-Stack & Backend Development** — 24 skills — [jump](#3-full-stack--backend-development)
 4. **AI / ML / Multimodal SDK Skills** — 17 skills — [jump](#4-ai--ml--multimodal-sdk-skills)
-5. **Testing, QA & Performance** — 31 skills — [jump](#5-testing-qa--performance)
-6. **Code Quality, Security & Architecture** — 36 skills — [jump](#6-code-quality-security--architecture)
-7. **Planning, Workflow & Project Management** — 41 skills — [jump](#7-planning-workflow--project-management)
+5. **Testing, QA & Performance** — 34 skills — [jump](#5-testing-qa--performance)
+6. **Code Quality, Security & Architecture** — 45 skills — [jump](#6-code-quality-security--architecture)
+7. **Planning, Workflow & Project Management** — 44 skills — [jump](#7-planning-workflow--project-management)
 8. **Documentation & Content Creation** — 33 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
 10. **DevOps, Infrastructure & External Integrations** — 10 skills — [jump](#10-devops-infrastructure--external-integrations)
@@ -1356,7 +1356,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 5. Testing, QA & Performance
 
 > Skills for test design, end-to-end testing, performance work, and quality assurance.
-> **31 skills** in this category.
+> **34 skills** in this category.
 
 ### `before-and-after`
 
@@ -1367,6 +1367,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`
 
 > Captures before/after screenshots of web pages or elements for visual comparison. Use when user says "take before and after", "screenshot comparison", "visual diff", "PR screenshots", "compare old and new", or needs to document UI changes. Accepts two URLs (file://, http://, https://) or two image paths.
+
+### `benchmark-checklist`
+
+- **Path**: `skills/benchmark-checklist`
+- **SKILL.md**: [`skills/benchmark-checklist/SKILL.md`](skills/benchmark-checklist/SKILL.md)
+- **Title**: Benchmark checklist
+- **Files**: 1
+- **Structure**: flat
+
+> Vet a perf measurement (limiter, tuning, limits, errors, repeatability, relevance, and whether the work happened) before you report or act on it. Use when you run a benchmark or report a speedup or regression you measured.
 
 ### `browser-testing-with-devtools`
 
@@ -1459,6 +1469,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Programmatic document lookup via Context7 API and MCP server. Use when: (1) Need structured documentation for any library/package/framework, (2) Want code examples without browser automation, (3) Building with specific tools and need accurate API references, (4) Avoiding hallucinated or outdated docs. Priority: API (fastest) → MCP Server → Browser (fallback) Triggers: "lookup docs for", "get Context7 docs", "find documentation", "API reference for", "code examples for [library]"
+
+### `create-verification-skill`
+
+- **Path**: `skills/create-verification-skill`
+- **SKILL.md**: [`skills/create-verification-skill/SKILL.md`](skills/create-verification-skill/SKILL.md)
+- **Title**: Create a verification skill
+- **Files**: 4
+- **Structure**: `references/`
+
+> Generate a project-local verification skill that drives your app the way a user does — any language, framework, or platform. Use for /create-verification-skill, "make a control skill for this repo", "make a driver skill for this repo", or when a project has no scripted way to prove UI/CLI/service behavior.
 
 ### `debugging-and-error-recovery`
 
@@ -1563,6 +1583,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `references/`
 
 > Automate browser interactions, test web pages and work with Playwright tests. Is a better choice for traditional browser testing - multi-browser support (Firefox, WebKit), Playwright-native locators, and the run-code command for custom Playwright snippets.
+
+### `principle-explain-the-number`
+
+- **Path**: `skills/principle-explain-the-number`
+- **SKILL.md**: [`skills/principle-explain-the-number/SKILL.md`](skills/principle-explain-the-number/SKILL.md)
+- **Title**: Explain the Number
+- **Files**: 1
+- **Structure**: flat
+
+> Apply before you trust, report, or act on a number you measured: a speedup, a regression, a throughput, a latency, or an eval result. Find what limits it, and rule out that it measured something other than the work you think.
 
 ### `principle-prove-it-works`
 
@@ -1684,7 +1714,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 6. Code Quality, Security & Architecture
 
 > Skills for code review, security hardening, architecture decisions, and refactoring.
-> **36 skills** in this category.
+> **45 skills** in this category.
 
 ### `anti-pua`
 
@@ -1778,6 +1808,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: `scripts/`
 
 > Recover from context compaction by scanning memory files and surfacing where you left off. Use when waking up fresh, after compaction, or when you feel lost about what you were doing. Now supports both flat (YYYY-MM-DD.md) and QMD hierarchical (daily/YYYY/MM/DD.md) memory structures.
+
+### `correct`
+
+- **Path**: `skills/correct`
+- **SKILL.md**: [`skills/correct/SKILL.md`](skills/correct/SKILL.md)
+- **Title**: Correct
+- **Files**: 1
+- **Structure**: flat
+
+> Find the mistakes agents keep repeating in this repo and make each one impossible. Try architecture first, then types, then a lint whose error names the fix, then a test, and write docs last. Prove each check fails on a real past mistake. Repeat this each time the operator corrects you. Use for /correct.
 
 ### `deprecation-and-migration`
 
@@ -1939,6 +1979,26 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Minimalism-as-discipline coding methodology: understand the task and real flow first, then climb an ordered implementation ladder (skip speculative need → reuse → stdlib → platform features → installed deps → minimum working code) for the shortest correct diff. Enforces YAGNI and no unrequested abstractions — prefer deletion over addition and boring over clever code. Bug fixes target root cause, not symptom. Mark deliberate shortcuts with a ponytail comment naming the ceiling and upgrade path. Non-trivial logic leaves a minimal runnable self-check; no heavy test frameworks unless requested....
 
+### `principle-attack-the-premise`
+
+- **Path**: `skills/principle-attack-the-premise`
+- **SKILL.md**: [`skills/principle-attack-the-premise/SKILL.md`](skills/principle-attack-the-premise/SKILL.md)
+- **Title**: Attack the Premise
+- **Files**: 1
+- **Structure**: flat
+
+> Apply when two or more fixes that share one premise have failed the same gate. Write the premise down and test it directly before you write another fix that assumes it.
+
+### `principle-boundary-discipline`
+
+- **Path**: `skills/principle-boundary-discipline`
+- **SKILL.md**: [`skills/principle-boundary-discipline/SKILL.md`](skills/principle-boundary-discipline/SKILL.md)
+- **Title**: Boundary Discipline
+- **Files**: 1
+- **Structure**: flat
+
+> Apply when wiring validation, error handling, or framework adapters. Concentrate guards at system boundaries (CLI, config, network, external APIs); trust internal types and keep business logic in pure functions.
+
 ### `principle-build-the-lever`
 
 - **Path**: `skills/principle-build-the-lever`
@@ -1988,6 +2048,36 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Apply when refactoring, evaluating diff size, or tempted to add abstractions, layers, or signal threading. Bias toward deletion and the smallest change that solves the problem.
+
+### `principle-make-operations-idempotent`
+
+- **Path**: `skills/principle-make-operations-idempotent`
+- **SKILL.md**: [`skills/principle-make-operations-idempotent/SKILL.md`](skills/principle-make-operations-idempotent/SKILL.md)
+- **Title**: Make Operations Idempotent
+- **Files**: 1
+- **Structure**: flat
+
+> Apply when designing commands, lifecycle steps, or processing loops that run amid crashes, restarts, and retries. Converge to the same end state regardless of partial prior runs.
+
+### `principle-minimize-reader-load`
+
+- **Path**: `skills/principle-minimize-reader-load`
+- **SKILL.md**: [`skills/principle-minimize-reader-load/SKILL.md`](skills/principle-minimize-reader-load/SKILL.md)
+- **Title**: Minimize Reader Load
+- **Files**: 1
+- **Structure**: flat
+
+> Apply when reviewing or shaping code that's hard to trace. Count layers between question and answer, and hidden state in the reader's head; collapse one-caller wrappers and shrink mutable scope.
+
+### `principle-model-the-domain`
+
+- **Path**: `skills/principle-model-the-domain`
+- **SKILL.md**: [`skills/principle-model-the-domain/SKILL.md`](skills/principle-model-the-domain/SKILL.md)
+- **Title**: Model the Domain
+- **Files**: 1
+- **Structure**: flat
+
+> Apply when writing stateful logic, or when code branches a lot or repeats a shape assumption across files.
 
 ### `principle-never-block-on-the-human`
 
@@ -2049,6 +2139,26 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Wire dependency-cruiser into a TypeScript repo so each package is a deep module, with implementation hidden in subfolders and reachable only through its entry-point files. User-invoked.
 
+### `thermo-nuclear-code-quality-review`
+
+- **Path**: `skills/thermo-nuclear-code-quality-review`
+- **SKILL.md**: [`skills/thermo-nuclear-code-quality-review/SKILL.md`](skills/thermo-nuclear-code-quality-review/SKILL.md)
+- **Title**: Thermo-Nuclear Code Quality Review
+- **Files**: 1
+- **Structure**: flat
+
+> Run an extremely strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth. Use for a thermo-nuclear code quality review, thermonuclear review, deep code quality audit, or especially harsh maintainability review.
+
+### `thermo-nuclear-review`
+
+- **Path**: `skills/thermo-nuclear-review`
+- **SKILL.md**: [`skills/thermo-nuclear-review/SKILL.md`](skills/thermo-nuclear-review/SKILL.md)
+- **Title**: Thermo Nuclear Review
+- **Files**: 1
+- **Structure**: flat
+
+> Comprehensive security and correctness audit of a branch's changes. Use for thermo nuclear, thermonuclear, or deep review requests, or branch/PR diff audits focused on bugs, breaking changes, security issues, devex regressions, and feature-gate leaks.
+
 ### `vulnerability-scanner`
 
 - **Path**: `skills/vulnerability-scanner`
@@ -2059,12 +2169,22 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Advanced vulnerability analysis principles. OWASP 2025, Supply Chain Security, attack surface mapping, risk prioritization.
 
+### `why`
+
+- **Path**: `skills/why`
+- **SKILL.md**: [`skills/why/SKILL.md`](skills/why/SKILL.md)
+- **Title**: Why
+- **Files**: 13
+- **Structure**: `references/`
+
+> Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds. Discovers available MCPs and queries each evidence category (source control, issue tracker, long-form docs, real-time chat, infrastructure observability, error tracking, product analytics warehouse) in parallel, then returns a cited read on decisions and tradeoffs. Use how for runtime behavior.
+
 ---
 
 ## 7. Planning, Workflow & Project Management
 
 > Skills for planning work, managing projects, orchestrating sub-agents, and shipping.
-> **41 skills** in this category.
+> **44 skills** in this category.
 
 ### `ask-matt`
 
@@ -2115,6 +2235,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.
+
+### `figure-it-out`
+
+- **Path**: `skills/figure-it-out`
+- **SKILL.md**: [`skills/figure-it-out/SKILL.md`](skills/figure-it-out/SKILL.md)
+- **Title**: Figure it out
+- **Files**: 1
+- **Structure**: flat
+
+> Design an auditable playbook when no narrower one fits: a large migration, an ambitious multi-part change, or work a human reviews after stepping away. Scales rigor to the task, runs a hypothesis loop, and logs decisions. Use for /figure-it-out or 'figure it out'.
 
 ### `fix-ci`
 
@@ -2352,6 +2482,16 @@ Skills are listed alphabetically within each category. Use the category index be
 
 > Use when writing a PR body.
 
+### `recall`
+
+- **Path**: `skills/recall`
+- **SKILL.md**: [`skills/recall/SKILL.md`](skills/recall/SKILL.md)
+- **Title**: Recall
+- **Files**: 1
+- **Structure**: flat
+
+> Reconstruct your recent working context from your own chat history, live state, and the shared record (user reports, prior fixes, incidents), then hand back a tight current-state brief. Use for 'recall my work on X', 'catch me up', 'what have I been working on', 'where did I leave off', before starting or resuming work, and before telling the user that something was never recorded.
+
 ### `retro`
 
 - **Path**: `skills/retro`
@@ -2371,6 +2511,16 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+
+### `show-me-your-work`
+
+- **Path**: `skills/show-me-your-work`
+- **SKILL.md**: [`skills/show-me-your-work/SKILL.md`](skills/show-me-your-work/SKILL.md)
+- **Title**: Show me your work
+- **Files**: 3
+- **Structure**: `scripts/`, `references/`
+
+> Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Use for /show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away.
 
 ### `spec-driven-development`
 
@@ -3090,15 +3240,15 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 281
-- **Top-level folders under `skills/` scanned**: 302
-- **Folders with a top-level `SKILL.md`**: 281
+- **Spec-compliant skills listed**: 296
+- **Top-level folders under `skills/` scanned**: 317
+- **Folders with a top-level `SKILL.md`**: 296
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 0
-- **Total files across listed skills**: 14180
+- **Total files across listed skills**: 14212
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
-- **Listed skills with `scripts/`**: 68
-- **Listed skills with `references/`**: 58
+- **Listed skills with `scripts/`**: 69
+- **Listed skills with `references/`**: 61
 - **Listed skills with `scenes/`**: 2
 - **Listed skills with `routes/`**: 2
 - **Listed skills with `engines/`**: 1
@@ -3112,13 +3262,13 @@ Skills are listed alphabetically within each category. Use the category index be
 | 2 | Design Artifacts & Visual Creation | 18 |
 | 3 | Full-Stack & Backend Development | 24 |
 | 4 | AI / ML / Multimodal SDK Skills | 17 |
-| 5 | Testing, QA & Performance | 31 |
-| 6 | Code Quality, Security & Architecture | 36 |
-| 7 | Planning, Workflow & Project Management | 41 |
+| 5 | Testing, QA & Performance | 34 |
+| 6 | Code Quality, Security & Architecture | 45 |
+| 7 | Planning, Workflow & Project Management | 44 |
 | 8 | Documentation & Content Creation | 33 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 10 |
-| | **Total** | **281** |
+| | **Total** | **296** |
 
 ---
 
