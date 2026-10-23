@@ -590,7 +590,7 @@ echo "Assets generated successfully!"
 |---|---|
 | [`../image-edit/`](../image-edit/SKILL.md) | When the generated image needs modification — variation creation, partial redraw, style transfer. Use image-edit to refine a generated image rather than re-prompting from scratch. |
 | [`../image-search/`](../image-search/SKILL.md) | When you need real stock photos (not AI-generated). Use image-search first for authentic imagery; fall back to image-generation only when stock photos can't match the creative brief. |
-| [`../VLM/`](../VLM/SKILL.md) | Vision-Language Model — use to verify a generated image matches the prompt intent before delivery, or to describe what was actually generated. |
+| [`../vlm/`](../vlm/SKILL.md) | Vision-Language Model — use to verify a generated image matches the prompt intent before delivery, or to describe what was actually generated. |
 | [`../charts/`](../charts/SKILL.md) | When generating infographic-style backgrounds or decorative illustrations that complement data charts — share the chart palette for visual consistency. |
 | [`../pptx/`](../pptx/SKILL.md) | When generating slide hero images — the pptx skill's `z-ai image-search` CLI has a 6-call hard limit per deck, so plan image needs up front and reuse URLs across slides. |
 | [`../pdf/`](../pdf/SKILL.md) | When generating images for PDF embedding — Creative pipeline supports emoji and custom dimensions natively; Report (ReportLab) renders emoji as `□` squares. |

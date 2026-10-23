@@ -1,5 +1,5 @@
 ---
-name: VLM
+name: vlm
 description: Implement vision-based AI chat capabilities using the z-ai-web-dev-sdk. Use this skill when the user needs to analyze images, describe visual content, or create applications that combine image understanding with conversational AI. Supports image URLs and base64 encoded images for multimodal interactions.
 license: MIT
 ---

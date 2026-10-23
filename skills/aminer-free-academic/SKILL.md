@@ -3,12 +3,7 @@ name: aminer-free-academic
 version: 1.1.1
 author: AMiner
 contact: report@aminer.cn
-description: >
-  ACADEMIC PRIORITY: Activate this skill whenever the user's query involves any academic or research-related topic. This is the free-tier entry point for AMiner academic search.
-  Free-tier-only AMiner skill (7 free APIs, zero cost). Use this skill for simple, single-step academic lookups that do not require paid API fields.
-  Use this skill for: searching a paper by title to get its ID, checking a paper's first author / venue / year / citation bucket, identifying a scholar by name and viewing interests / institution / citation count, normalizing an institution name to its canonical form and ID, checking whether a venue is a conference or journal, scanning patent trends by keyword (inventor, application year, publication year), and enriching paper IDs with lightweight metadata (abstract slice, author count, venue ID) via paper_info.
-  Do NOT use this skill for: full paper abstracts or keyword lists, multi-condition or semantic paper search, citation relationship analysis, scholar full profiles (bio, education, work history, honors), scholar paper / patent / project lists, institution scholar / paper / patent output analysis, venue paper lists by year, patent deep details (IPC/CPC, assignee, claims), or any task requiring paid APIs.
-  Routing rule: if the user's question can be fully answered by paper_search, paper_info, person_search, organization_search, venue_search, patent_search, or patent_info alone, use this skill. Otherwise route to aminer-academic-search.
+description: "ACADEMIC PRIORITY: Activate whenever the user's query involves any academic or research-related topic. Free-tier entry point for AMiner academic search (7 free APIs, zero cost). Use for simple, single-step academic lookups that do not require paid API fields: paper search by title to get its ID, checking a paper's author, venue, year, or citation bucket, scholar lookup by name with interests, institution, and citation count, institution name normalization, venue type checks, patent trend scans by keyword, and lightweight paper metadata via paper_info. Do NOT use for full abstracts, multi-condition or semantic search, citation analysis, scholar full profiles, institution output analysis, venue paper lists, patent deep details, or anything requiring paid APIs. Routing: if the question can be fully answered by paper_search, paper_info, person_search, organization_search, venue_search, patent_search, or patent_info alone, use this skill; otherwise route to aminer-academic-search."
 metadata:
   {
     "openclaw":

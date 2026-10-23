@@ -903,7 +903,7 @@ echo "Variations created successfully!"
 |---|---|
 | [`../image-generation/`](../image-generation/SKILL.md) | When you need to create an image from scratch rather than edit an existing one. Use image-generation first, then image-edit to refine. |
 | [`../image-search/`](../image-search/SKILL.md) | When you need a source image to edit — search for real stock photos, then apply edits (style transfer, partial redraw, variation). |
-| [`../VLM/`](../VLM/SKILL.md) | Vision-Language Model — use to understand the current content of an image before editing, so your edit prompt targets the right regions and attributes. |
+| [`../vlm/`](../vlm/SKILL.md) | Vision-Language Model — use to understand the current content of an image before editing, so your edit prompt targets the right regions and attributes. |
 | [`../image-understand/`](../image-understand/SKILL.md) | Image understanding / description — use to extract structured metadata (objects, colors, composition) from an image before deciding what to edit. |
 
 ### Shared best practices (apply across all image-edit workflows)

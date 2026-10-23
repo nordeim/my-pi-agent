@@ -1,16 +1,6 @@
 ---
 name: nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth
-description: >
-  Production-grade reference for Next.js 16 + React 19 + Tailwind CSS v4 + tRPC v11 + Drizzle ORM + Better Auth
-  in a Turborepo monorepo. Covers App Router Server Components, proxy.ts (replaces middleware.ts), RSC streaming,
-  CSS-first @theme design tokens, 5-layer architecture, and async params. Includes 50+ documented anti-patterns and
-  gotchas across Next.js 16 breaking changes, React 19 API shifts, Tailwind v4 migration, Better Auth vs Auth.js v5,
-  Drizzle ORM pitfalls, Stripe webhook idempotency, and Vitest mocking. Features production patterns for advisory-lock
-  booking concurrency, SSE streaming, idempotent webhooks, fail-open rate limiting, env module build-context fallback,
-  and server-side URL signing. Documents WCAG AAA accessibility, OWASP 2025 hardening, anti-generic avant-garde design
-  system, 8-gate CI/CD pre-ship checklist, 6-axis code review, TDD regression verification cycle, 24 implementation
-  lessons learned, debugging triage playbook, and complete TypeScript interface reference. Applicable to any full-stack
-  Next.js 16 SaaS with authentication, payments, background jobs, CMS integration, and PostgreSQL.
+description: "Production-grade reference for Next.js 16 + React 19 + Tailwind CSS v4 + tRPC v11 + Drizzle ORM + Better Auth in a Turborepo monorepo. Covers App Router Server Components, proxy.ts (replaces middleware.ts), RSC streaming, CSS-first @theme design tokens, 5-layer architecture, and async params. Includes 50+ documented anti-patterns and gotchas across Next.js 16 breaking changes, React 19 API shifts, Tailwind v4 migration, Better Auth vs Auth.js v5, Drizzle ORM pitfalls, Stripe webhook idempotency, and Vitest mocking. Features production patterns for advisory-lock booking concurrency, SSE streaming, idempotent webhooks, fail-open rate limiting, env module build-context fallback, and server-side URL signing. Documents WCAG AAA accessibility, OWASP 2025 hardening, TDD regression verification cycle, implementation lessons learned, and TypeScript interface reference. Applicable to any full-stack Next.js 16 SaaS with authentication, payments, background jobs, CMS integration, and PostgreSQL."
 version: 1.4.0
 ---
 

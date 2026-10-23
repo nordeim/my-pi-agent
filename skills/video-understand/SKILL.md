@@ -921,11 +921,11 @@ export default async function handler(req, res) {
 
 | Skill | When to use it together |
 |---|---|
-| [`../VLM/`](../VLM/SKILL.md) | Vision-Language Model for static images. Use video-understand for temporal/motion analysis (sequences across time); use VLM for single-frame analysis (objects, text, composition in one image). |
+| [`../vlm/`](../vlm/SKILL.md) | Vision-Language Model for static images. Use video-understand for temporal/motion analysis (sequences across time); use VLM for single-frame analysis (objects, text, composition in one image). |
 | [`../image-understand/`](../image-understand/SKILL.md) | Image understanding / description — extract key frames from a video (via ffmpeg) then use image-understand for per-frame metadata. |
 | [`../video-generation/`](../video-generation/SKILL.md) | When you need to create video content rather than analyze it. video-understand analyzes existing video; video-generation creates new video from text prompts. |
-| [`../ASR/`](../ASR/SKILL.md) | Automatic Speech Recognition — extract audio track from a video (via ffmpeg), then use ASR to transcribe speech. Combines with video-understand for full multimodal analysis (visual + audio). |
-| [`../TTS/`](../TTS/SKILL.md) | Text-to-Speech — when generating voiceover for video content. Use video-understand first to understand the existing visual flow, then TTS to generate matching narration. |
+| [`../asr/`](../asr/SKILL.md) | Automatic Speech Recognition — extract audio track from a video (via ffmpeg), then use ASR to transcribe speech. Combines with video-understand for full multimodal analysis (visual + audio). |
+| [`../tts/`](../tts/SKILL.md) | Text-to-Speech — when generating voiceover for video content. Use video-understand first to understand the existing visual flow, then TTS to generate matching narration. |
 
 ### Shared best practices (apply across all video analysis workflows)
 

@@ -1,3 +1,9 @@
+---
+name: how-to-git-push-using-ssh-wrapper
+description: "Push commits from this checkout to the GitHub SSH remote using ssh_git_wrapper_v3.py and an externally-supplied deploy key that is never stored in the repository. Use when pushing main to GitHub over SSH from a sandbox or CI environment without a resident ~/.ssh identity, when authenticating git push with a pasted or ephemeral ed25519 key, when a post-push remote-ref verification is required, or when no OpenSSH binary exists and a paramiko-backed ssh shim must be deployed."
+license: MIT
+---
+
 # How-To: Git Push Using the SSH Wrapper (`ssh_git_wrapper_v3.py`)
 
 **Purpose.** Push commits from this checkout to the canonical SSH remote

@@ -1,5 +1,5 @@
 ---
-name: pdf
+name: pdf-old-20260806
 description: >
   Professional PDF toolkit with four production lines: 
   Report - structured documents via ReportLab (reports, proposals, contracts, white papers) 
