@@ -1,9 +1,9 @@
 ---
 name: web-application
 description: "Complete, generalized engineering skill for building any web application codebase: Next.js 16 App Router + React 19 + TypeScript (strict) + Tailwind CSS 4 (CSS-first) + shadcn/Radix + one Zustand store + Prisma/SQLite-dev (PostgreSQL-prod) + Zod-validated API + scrypt/HMAC cookie auth + recharts dashboards + a three-tier test suite and a single-command quality gate. Distilled from four production-remediated sibling codebases (digma, neo-crm, project-management, zero-balance); every rule traces to a failure that actually happened."
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-10-23
-provenance: "Distilled from digma_SKILL.md (v1.155), neo-crm_SKILL.md (v1.168), project-management_SKILL.md (v2.15-era), and zero-balance_SKILL.md — four sibling codebases, 1,226 combined commits of build-and-remediate history."
+provenance: "Distilled from digma_SKILL.md (v1.158.0), neo-crm_SKILL.md (v1.171.0), project-management_SKILL.md (v1.0.0 — distilled at app remediation v2.15), and zero-balance_SKILL.md (v1.0.0) — four sibling codebases, 1,226 combined commits of build-and-remediate history at distillation (1,244 as of the 2026-10-23 re-validation; HEADs digma 1ad583b2, neo-crm f9bc1bf, project-management 9ff03bc, zero-balance b967d3f). neo-crm's session-174 adopted this skill's §2/§15 posture (build-as-type-gate, full strictness, single lockfile) within hours of its publication — the doc is in active use inside the family."
 ---
 
 # Web Application — Complete Engineering Skill (Generalized)
@@ -18,11 +18,11 @@ provenance: "Distilled from digma_SKILL.md (v1.155), neo-crm_SKILL.md (v1.168), 
 
 1. **DEFINE** — one-sentence product identity; the 3–7 core entities; the non-negotiable rules (what this app will *never* do). Write `README.md` skeleton first.
 2. **SCAFFOLD** — clone this skill's stack (§2): Next.js App Router (standalone output), strict TS, Tailwind 4 CSS-first, Prisma + SQLite, the four config files (§3), and the lint/typecheck/test/build scripts *before* writing features.
-3. **DATA** — `prisma/schema.prisma` first (models, indexes, relations), then an idempotent seed. Money is integer cents; enums live in one constants module.
+3. **DATA** — `prisma/schema.prisma` first (models, indexes, relations), then an idempotent seed (routed through the db-path seam like the app). Money math is integer cents at every aggregation boundary; enums live in one constants module.
 4. **AUTH** — stand up the full auth family (§5) before any domain feature: register / login / logout / me / verify / forgot / reset, rate-limited, with the session envelope. Auth is the template's most valuable inheritance — port it, don't rewrite it.
 5. **API** — one route per resource following the handler idiom (§6): session gate → Zod parse (bounded reader) → FK/ownership checks → Prisma → envelope. Never throw across the boundary.
 6. **UI SHELL** — app shell (sidebar + topbar + mobile nav), layout chrome, the one store (§9), then feature views. Empty/loading/error states are part of every surface.
-7. **DASHBOARD + CHARTS** — KPI stat cards first, then sparklines, then full charts from the wrapper family (§10–§11). Every chart ships an empty-state fallback.
+7. **DASHBOARD + CHARTS** — KPI stat cards first, then sparklines, then full charts from the wrapper family (§10–§11). Decide the zero-data policy explicitly (§11) — a dashboard with no data is a designed surface.
 8. **TEST AS YOU GO** — every pure seam gets its Vitest spec when it's written (TDD at the seams); every user-visible surface gets an e2e pin before it ships.
 9. **GATE + DOCS** — run the full gate (§15); update all five docs in the same commit; log the session. The gate is the definition of done, not an afterthought.
 
@@ -55,7 +55,7 @@ provenance: "Distilled from digma_SKILL.md (v1.155), neo-crm_SKILL.md (v1.168), 
 | Charts | recharts | 3.x (2.15 acceptable) | Wrapped, never raw (§11) |
 | Icons | lucide-react | 0.525 | Inherit library defaults (stroke 2) unless a measured reason exists |
 | Unit tests | Vitest | 5.0 | Node env; `*.test.ts` only; `@` alias |
-| E2E | @playwright/test | 1.64 | Chromium project + setup project; runs against the **production build** |
+| E2E | @playwright/test | 1.63+ | Chromium project + setup project; runs against the **production build** (1.64 in digma/neo-crm; 1.63 in pm/zb) |
 | A11y | axe-core (Playwright) | 4.x | A11y assertions in the e2e suite, not just manual review |
 | Runtime | Bun (or Node ≥ 20) | 1.3 | Scripts run from repo root — this matters (§18) |
 
@@ -67,9 +67,9 @@ provenance: "Distilled from digma_SKILL.md (v1.155), neo-crm_SKILL.md (v1.168), 
 |---|---|---|
 | `DATABASE_URL` | yes | `file:../db/custom.db` (SQLite dev) or `postgresql://…` (prod). Relative `file:` URLs resolve against `prisma/schema.prisma` — never against CWD |
 | `AUTH_SECRET` | **production: hard requirement** | HMAC key for session tokens, ≥ 16 chars (`openssl rand -hex 32`). Dev may fall back with a warn; **production fails hard** |
-| `NEXT_PUBLIC_SITE_URL` | recommended | Canonical origin for metadata/sitemap |
-| `<APP>_PROXY_HOPS` | prod-behind-proxy | Trusted proxy depth for rate-limit IP keying (unset = 1 last hop; unparsable fails **closed**) |
-| `<APP>_DISABLE_IN_APP_OTP` / `_RESET` | prod | Turn OFF demo-mode in-response verification codes / reset links when a real mail transport owns delivery |
+| `NEXT_PUBLIC_SITE_URL` | recommended | Canonical origin for metadata/sitemap — **inlined at build time**, so set it before `bun run build` in production (digma's variant is `DIGMA_SITE_URL`) |
+| `<APP>_PROXY_HOPS` | prod-behind-proxy | Trusted proxy depth for rate-limit IP keying (unset = 1 last hop; unparsable fails **closed**) — the digma/neo-crm contract; adopt wherever a limiter runs behind proxies |
+| `<APP>_DISABLE_IN_APP_OTP` / `_RESET` | prod | Turn OFF demo-mode in-response verification codes / reset links when a real mail transport owns delivery — **mandatory**: the family ships in-response delivery by default, and zb's OTP variant had no knob (a shipped gap, not a pattern to copy) |
 
 `.env` is untracked; `.env.example` is committed, mirrors the contract exactly, and documents the PostgreSQL swap.
 
@@ -96,7 +96,7 @@ Therefore:
 
 1. `src/lib/db-path.ts` is the **only** sanctioned source of the runtime URL (anchor chain: standalone-repo-root detector → module anchor validated on disk → CWD with existence guard). `db.ts` never reads `process.env.DATABASE_URL` directly.
 2. `db-path.ts` is a **pure seam with fixture tests** — this is the single most-tested module in the template family, for good reason.
-3. npm scripts pin the environment: runtime scripts inline `DATABASE_URL=…`; Prisma CLI scripts strip it (`env -u DATABASE_URL prisma …`) so a polluted parent shell can never redirect the database.
+3. npm scripts pin the environment: runtime scripts inline `DATABASE_URL=…`; Prisma CLI scripts strip it (`env -u DATABASE_URL prisma …`) so a polluted parent shell can never redirect the database. **Empirically load-bearing (validated 2026-10-23):** under a shell-exported `DATABASE_URL`, the sibling with this discipline ran its full smoke suite 35/35 untouched, while the one without it silently pushed its database outside the repo and fell to 12/30 — and route the seed through `db-path.ts` like the app (a bare `new PrismaClient()` seed bypasses the seam).
 4. Symptom to memorize: `Error code 14: Unable to open the database file` = wrong anchor or a shell env override — check `env | rg DATABASE` and the startup log line before touching code.
 
 **Bootstrapping (this exact sequence):**
@@ -115,11 +115,11 @@ bun run dev                 # :3000
 
 - **Schema-first.** `prisma/schema.prisma` is the source of truth: models, `@@index([userId])` on every user-owned table (plus composite indexes for the hot list queries), explicit `onDelete` behaviors (`Cascade` for owned children, `SetNull` for assignees), and `@unique` where the domain implies identity.
 - **Enums as single-source constants.** Status vocabularies live in `src/lib/constants.ts` as `as const` arrays + label/color metadata maps (`*_META`). Dropdowns, badges, and Zod schemas all import the same arrays — adding a value touches exactly one file. Never fork an enum copy into a component.
-- **Money is integer cents end-to-end.** Floats exist only at the format boundary (`src/lib/money.ts`). This rule is non-negotiable; every float dollar is a future rounding bug.
+- **Money is integer cents at every aggregation boundary (zero-balance ADR-004).** Amounts may travel and be stored as decimals (zb keeps Prisma `Float` columns for wire parity), but every sum, comparison, and derived total converts to integer cents first (`src/lib/money.ts` owns the format boundary) — IEEE-754 drift (0.1 + 0.2) can never reach a total. For new schemas, integer-cents columns are the stricter option; if you keep decimal columns, the aggregation-boundary rule is non-negotiable.
 - **Server-recalculated derivations.** When child rows change a parent's derived value (line items → category total), the **server** recomputes it inside the mutation — clients never write derived aggregates.
 - **Seed is idempotent and in-place.** `deleteMany` domain tables → insert canonical demo data. **Never `rm` the db file under a running server** — the process keeps the deleted inode and serves stale data. And after any reseed, live session cookies point at deleted user rows: re-login before probing (symptom: healthy DB, every view empty).
 - **Every mutation narrates itself** (if the domain has activity): an API change without its activity-feed write is incomplete by definition.
-- **`PrismaClient` is constructed in exactly one place** (`src/lib/db.ts`) — with the URL from `db-path.ts`. Nowhere else. Not in scripts, not in tests.
+- **`PrismaClient` is constructed in exactly one place** (`src/lib/db.ts`) — with the URL from `db-path.ts`. Nowhere else. Not in scripts, not in tests. **The seed routes through the same seam** (`process.env.DATABASE_URL = resolveProcessDatabaseUrl()` before `new PrismaClient()` — the zb/neo pattern; a sibling's bare-PrismaClient seed is the counter-example that stranded its database under a polluted shell).
 - Production: switch to PostgreSQL (`datasource` stays env-driven) and adopt `prisma migrate` — `db push --accept-data-loss` is a dev-only convenience and a prod data-loss foot-gun.
 
 ---
@@ -182,8 +182,8 @@ Rules:
 - One `src/lib/schemas.ts` (or `validation.ts`) consumed by every route via `parseBody()` — **nothing reaches Prisma unvalidated**. Field-level messages in the schema; the route's 400 carries the first issue in a stable order (message equivalence is a migration invariant).
 - **Enums import the constants module** — Zod `.refine`/`z.enum` over the same `as const` arrays the dropdowns use.
 - **Money schema:** finite, `min(0)`, sane `max`, integer cents at the wire or a documented wire format.
-- **Dates:** regex `^\d{4}-\d{2}-\d{2}$` **plus a real-calendar-date refinement** — `Date.parse` accepts rollovers like `"2026-02-30"`, so verify the components round-trip. Native date inputs send `""` when cleared: `z.preprocess` empty-string → `undefined`, don't widen every schema by hand.
-- **PUT semantics are three-state:** absent → `undefined` (no write); `null`/`""` → explicit clear; a value → the trimmed value. Encode it once in the schema helpers, not per-route.
+- **Dates:** regex `^\d{4}-\d{2}-\d{2}$` **plus a real-calendar-date refinement** — `Date.parse` accepts rollovers like `"2026-02-30"`, so verify the components round-trip. Native date inputs send `""` when cleared: `z.preprocess` empty-string → `undefined`, don't widen every schema by hand. *(Both rules verified in zero-balance's `validation.ts`.)*
+- **PUT semantics are three-state:** absent → `undefined` (no write); `null`/`""` → explicit clear; a value → the trimmed value. Encode it once in the schema helpers, not per-route. *(neo-crm's `clearable*` helpers; note zero-balance's PATCH is deliberately two-state — absent = no-write, `""` elided, `null` rejected — pick one contract per API and document it.)*
 - **Migration rule** (proven in-family): when retrofitting Zod onto hand-rolled guards, the schema must reproduce every existing user-facing message byte-for-byte, and the test suite is the proof — zero message drift.
 
 ---
@@ -202,7 +202,7 @@ prisma/**           schema + idempotent seed
 
 Patterns the family bled for:
 
-- **Client/server split:** server components render shells and metadata; everything interactive is `"use client"`. The authenticated layout runs the session guard server-side (redirect, not client flash).
+- **Client/server split:** server components render shells and metadata; everything interactive is `"use client"`. The authenticated layout makes the session decision server-side (the guest never receives app HTML); the redirect itself may be a client shim — neo-crm session-147: a server layout cannot know the current path — which still avoids flash because no app HTML ever reaches the guest.
 - **Dialog forms — remount-via-key:** `<EntityDialog key={editing?.id ?? "new"} … />`; initialize state FROM PROPS at mount. **Never `useEffect(() => setState(...))` to copy props** (React 19's `set-state-in-effect` is an error rule for this reason — and it's racy in hydration).
 - **Adjust-during-render for prop-derived state** (the sanctioned React idiom when remounting is too heavy): track the previous key in state and reset during render when it changes.
 - **Drawers/sheets are state machines, not class toggles:** one `open` boolean drives translate, visibility transition, `inert`, `aria-hidden`, body scroll-lock, and focus-trap lifecycle together.
@@ -254,7 +254,7 @@ KPI derivation rules: trends compare against a fixed baseline window; "next acti
 
 ## §11 Charting
 
-- **Wrap recharts once; consume wrappers only.** The proven family: `SingleBarChart`, `GroupedBarsChart` (pairs + stock `<Legend/>`), `TrendLineChart` (1–2 strokeWidth-2 lines), `LabelPieChart` (full pie with per-slice label formatter + `Cell` fills), `HorizontalBarChart` (`layout="vertical"`), area chart for target-vs-actual, `ConversionFunnel` (`FunnelChart` + `LabelList`), and `Sparkline`. Each wrapper: typed props, explicit fill/height/grid, an **empty-state fallback**.
+- **Wrap recharts once; consume wrappers only.** The proven family (neo-crm's `charts.tsx`): `SingleBarChart`, `GroupedBarsChart` (pairs + stock `<Legend/>`), `TrendLineChart` (1–2 strokeWidth-2 lines), `LabelPieChart` (full pie with per-slice label formatter + `Cell` fills), `HorizontalBarChart` (`layout="vertical"`), `RevenueLineChart` (the target-vs-actual **area** pair), `ConversionFunnel` (`FunnelChart` + `LabelList`) — with `Sparkline` living beside the shared page parts (bars/line/area variants). Each wrapper: typed props, explicit fill/height/grid, and a **declared zero-data policy** — the neo-crm doctrine is to render the REAL chart at all-zero data (only Sparkline nulls on empty); an explicit empty state is the alternative. Decide once, in the wrapper, never per page.
 - **Stock axes by default.** Don't hide axis/tick lines and hand-roll margins unless a measured reason exists — the scaffold-era instinct to hide axes was a systemic divergence from every reference. Grid, when present, is dashed `"3 3"` explicitly (recharts' default grid is solid).
 - **The `tick: undefined` trap (recharts 2.x):** passing `tick` as an explicit `undefined` nullifies `defaultProps.tick` and the grid silently falls back to a 4-line frame. Pass the prop only when you have a value.
 - **Palette from tokens** (`CHART_COLORS`); per-series fills are named constants. Donut slice order is a product decision — pin it in one place and pin it with an e2e assertion (fills included).
@@ -307,7 +307,7 @@ More cascade law:
    - Shared mutable e2e state is a time bomb — each spec owns its data or reseeds.
 3. **API smoke (bash)** — boots the standalone server with a **pinned** `DATABASE_URL` (immune to shell env traps), then curl-checks: health, auth round-trips (valid/invalid/unauthenticated), every read endpoint, one create + invalid-input rejection + a domain round-trip, delete, logout invalidation, page render, 404 guard, rate limit (`429`). Prints PASS/FAIL per step, exits non-zero, cleans up. The script pins its own environment **inside** itself — never per-command.
 
-**Test counts are documentation claims:** the exact check totals live in AGENTS.md and must be updated in the same commit as any test change (count-lockstep), or the docs rot.
+**Test counts are documentation claims:** the exact check totals live in AGENTS.md and must be updated in the same commit as any test change (count-lockstep), or the docs rot — the proven mechanism is neo-crm's `tests/docs-counts.test.ts`, which puts every live-tense count site under the unit gate: a stale count anywhere fails `bun run test`.
 
 ---
 
@@ -322,7 +322,7 @@ bun run build           # clean compile + standalone assembly (no ignoreBuildErr
 bun run test:e2e        # full Playwright suite against the build
 ```
 
-- **Order matters** (fast gates first); wire the whole thing into ONE `gate` script and run it before every push. `gate:full` adds drift sweeps at 390/768/1024/1440 widths when visual parity matters.
+- **Order matters** (fast gates first); wire the whole thing into ONE `gate` script and run it before every push. `gate:full` adds drift sweeps at 390/768/1024/1440 widths plus a full-page sweep and an interior census when visual parity matters. *(neo-crm adopted this skill's build-as-type-gate posture in session-174 — the contract below is now in active family use, not aspiration.)*
 - **Never weaken a guardrail to make a gate pass** — no disabled lint rules, no loosened types, no skipped hooks, no deleted tests. A green gate achieved by weakening the gate is not green.
 - **Fresh-clone verification** is a periodic gate of its own: a clean `install → db:push → db:seed → dev` (and `install → typecheck → build`) must work from a pristine clone — lockfile drift and missing env assumptions surface only there.
 - When a count changes (routes, models, tests, checks), `rg "<old number>"` the entire doc set in the same commit.
@@ -470,6 +470,25 @@ bunx prisma generate        # after schema changes
 
 - **Envelope:** `{ok, data} | {ok:false, error:{code, message}}` — `ok()/fail()`, never throw across a handler.
 - **Session cookie:** `base64url({uid,iat,exp,v}) + "." + HMAC-SHA256` — httpOnly, lax, secure-in-prod, 7-day TTL, `v` = row tokenVersion.
-- **File map:** `src/app` (routes) · `src/components/{ui,layout,<feature>}` · `src/lib` (pure seams) · `src/stores` (the one store) · `prisma` (schema + seed) · `scripts` (smoke, census, sweeps) · `tests/e2e`.
+- **File map:** `src/app` (routes) · `src/components/{ui,layout,<feature>}` · `src/lib` (pure seams) · the ONE store (family practice varies: only neo-crm uses `src/stores/`; digma/pm/zb keep it at `src/components/<domain>/store.ts` — pick one location and document it) · `prisma` (schema + seed) · `scripts` (smoke, census, sweeps) · `tests/e2e`.
 - **Env set:** `DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_SITE_URL` (+ `*_PROXY_HOPS`, `*_DISABLE_IN_APP_*` in prod).
 - **The one rule that outranks the rest:** when code and this document disagree, the code wins — then fix this document in the same commit.
+
+---
+
+## Validation & Change Log (v1.1.0 — 2026-10-23)
+
+Validated against the four source repositories at HEADs digma `1ad583b2`, neo-crm `f9bc1bf`, project-management `9ff03bc`, zero-balance `b967d3f`: mechanical census, four documentation deep-dives with file:line verdicts, and executed pipelines per repo — install / prisma generate / typecheck / build green ×4; unit suites 2,501 / 2,717 / 138 / 108 all green (digma's requires the `cp .env.example .env` bootstrap — `tests/lows-s99.test.ts` reads `.env`); smoke suites 73 / 14 / 30 / 35 all green under their documented invocations. Playwright e2e not executed (no browser binaries). This document is byte-identical to the copy vendored at `neo-crm/skills/web-application/SKILL.md`, which session-174 cited while adopting §2/§15's posture — the skill is in active use inside the family it was distilled from.
+
+**Corrections (all Verified):**
+
+1. **§4 money rule restated to match the source design.** "Integer cents end-to-end, floats only at the format boundary" overstated zero-balance's ADR-004: zb stores/exchanges decimal amounts (Prisma `Float` columns) and converts to integer cents **at every aggregation boundary**. The safety property (IEEE-754 drift never reaches a total) is unchanged; the schema contract is not.
+2. **§11 wrapper list fixed.** The area chart is `RevenueLineChart` (named, not generic "area chart"); `Sparkline` lives in the shared page-parts module, not `charts.tsx`; and the "empty-state fallback" claim inverted the source doctrine — neo-crm's wrappers deliberately render the REAL chart at all-zero data (only Sparkline nulls on empty). Rewritten as a "declared zero-data policy" rule.
+3. **§7 attributions made precise.** The date rules (real-calendar-date refinement, `""` → `undefined` preprocess) are zero-balance's; the three-state PUT helpers are neo-crm's (zb's PATCH is deliberately two-state: `null` rejected, `""` elided). Both were already correct as prescriptions; they are now correct as lineage.
+4. **§8 layout-gate wording refined.** "Runs the session guard server-side (redirect, not client flash)" → the gate *decision* is server-side (the guest never receives app HTML); the redirect itself may be a client shim (neo-crm session-147 — a server layout cannot know the current path).
+5. **Frontmatter provenance refreshed.** digma_SKILL v1.155 → **v1.158.0**; neo-crm_SKILL v1.168 → **v1.171.0**; project-management_SKILL "(v2.15-era)" → **v1.0.0** (the v2.15 is the *app's* remediation version recorded inside it); zb v1.0.0. Combined commits 1,226 at distillation → 1,244 at re-validation.
+6. **§2/§15 strengthened with in-family adoption + empirical proof.** Playwright floor 1.63+ (family range); `NEXT_PUBLIC_SITE_URL` build-time note (+ digma's `DIGMA_SITE_URL` variant); the `*_DISABLE_IN_APP_*` row now records that zb shipped OTP delivery with **no knob and no TTL** (a gap, not a pattern); §3 item 3 records the reproduced natural experiment (disciplined sibling 35/35 vs undefended 12/30 under the same polluted shell) and the seed-through-the-seam rule (a bare-`PrismaClient` seed bypasses it).
+7. **§14 count-lockstep upgraded from advice to mechanism** — neo-crm's `tests/docs-counts.test.ts` already test-gates every count claim; §15 notes `gate:full`'s full-page sweep + interior census and that neo-crm adopted the build-as-type-gate in session-174.
+8. **Appendix B file map corrected** — only neo-crm keeps the store in `src/stores/`; the others use `src/components/<domain>/store.ts`.
+
+**Validated as accurate and unchanged:** the auth contract (§5 — every neo-crm rate-limit constant, the timing equalizer, hashed reset tokens, tokenVersion, and the boot gate confirmed at line level), the DATABASE_URL contract's mechanism (§3 — all four anchors and traps confirmed; only strengthened), the Tailwind v4 trap catalog (§12 — traps (a)–(e), (g), (h), (l) located in zb's docs; the `@utility` cascade rule in digma+neo's; the `cursor: pointer` rule in zb's base layer), the testing doctrine (§14 — including the `.filter({visible:true})` and settle-wait lessons), the debugging table (§18), and the lessons canon (Appendix A — lesson 14 "two lockfiles" was even cited by neo-crm's session-174 when it fixed exactly that).
