@@ -260,3 +260,14 @@ Done — the pstack-claude refresh exercise is complete and pushed to `main`.
 - Review the ranking rationale (`scripts/pstack_ranking.md`) — 42 candidates remain available for a future wave, e.g. `typescript-best-practices` or the thermos audit suite.
 - Try `poteto-mode` in your Pi agent — its `references/pi-tools.md` mapping was written for exactly this runtime.
 - Point me at another source repo whenever you want the next iteration.
+Skills refresh 2026-10-23 (workspace-default merge audit + spec-compliance fixes):
+- Refresh audit: compared all 67 workspace-default skills against the repo library. 64 common; repo versions verified as enhanced supersets (spec-compliant names, extended descriptions, Cross-References sections, richer frontmatter) — overwriting from workspace defaults would have regressed them, so common skills were left intact (merge = union already achieved). pdf repo copy is ahead (palette.cascade rename, cover template split); skill-creator history checked (8a211714 import -> 08a9a877 canonical sync): no regression, all 6 referenced paths resolve, repo extras (references/output-patterns.md, references/workflows.md, scripts/init_skill.py) preserved.
+- Workspace-only additions audited: LLM -> repo already has llm (compliant); stock-analysis-skill -> repo already has stock-analysis; contentanalysis -> repo already has content-analysis. No duplicates added.
+- 29 formerly non-compliant skills fixed to pass skill-spec validation:
+  * Renamed folders (git mv, history-preserving): ASR->asr, TTS->tts, VLM->vlm, ecommerce_website_scaffold->ecommerce-website-scaffold; name fields aligned to folders.
+  * Name fixes: ai-news-collectors, pdf-old-20260806, podcast-generate, qingyan-research.
+  * Descriptions condensed to <=1024 chars (trigger clauses preserved): aminer-free-academic, dotnet-9, fastapi-sqlalchemy, fastify, flutter, go-web, hono, htmx, keystonejs-6, nestjs, nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth, phoenix-1-7, ponytail, rails-8, react-native-expo, rust-web, solidstart, spring-boot-3, tauri-2, translation-engine.
+  * Added missing YAML header: how-to-git-push-using-ssh-wrapper.
+- Cross-reference path updates for the renames: image-generation, image-edit, video-understand (../VLM/ -> ../vlm/ etc., 5 links).
+- Docs regenerated with the original generator rules (248 -> 277 skills, 14172 files): skills-catalog.md (+29 rows, Category Summary + How to Use preserved), skills-inventory.md + docs/skills-inventory.md (byte-identical copies; exclusion table now 29 -> 0; Summary Statistics refreshed), README.md counts + category tallies.
+- New per-category counts: 59/18/24/17/31/36/40/30/12/10 = 277. 21 grouping folders remain excluded by design.
