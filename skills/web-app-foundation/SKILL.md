@@ -6,17 +6,17 @@ description: >
   Router + React 19 + TypeScript strict + Tailwind CSS v4 (CSS-first) + Prisma +
   SQLite/PostgreSQL + Zustand + recharts. Distilled and generalized from four
   sibling production codebases (digma, neo-crm, project-management, zero-balance —
-  1,177 commits of build/remediation history). Covers the full stack: env contract,
+  1,508 commits of build/remediation history, re-validated 2026-10-25). Covers the full stack: env contract,
   db-path seam, scrypt+HMAC auth with verification/reset/revocation, zod-validated
   API envelope, per-user tenancy, KPI dashboard shell, 7-family chart layer,
   race-guarded store, degrade-never-fail AI, three-tier testing, quality gates,
   and the documentation contract. Use whenever creating a new web app codebase,
   adding auth/dashboard/charts to an existing one, or auditing one built from
   this skill.
-version: 1.0.0
-last_updated: 2026-10-22
+version: 1.1.0
+last_updated: 2026-10-25
 audience: "engineers + AI agents building, extending, debugging, onboarding, or replicating a production web application"
-provenance: "Generalized from digma_SKILL.md v1.148, neo-crm_SKILL.md v1.158, project-management_SKILL.md v1.0, zero-balance_SKILL.md v1.0 and their four codebases"
+provenance: "Generalized from digma_SKILL.md v1.148 (v1.164.0 at the 2026-10-25 re-validation), neo-crm_SKILL.md v1.158 (v1.180.0), project-management_SKILL.md v1.0, zero-balance_SKILL.md v1.0 and their four codebases — 1,177 commits at distillation, 1,508 at re-validation (HEADs digma 2fa13d7e, neo-crm 02ac27eb, project-management 9ff03bc, zero-balance 1a3553da). The v1.0.0 generation is the copy vendored at skills/web-app-foundation/SKILL.md in all four repos; neo-crm stages v1.5/v2 generations beside it."
 ---
 
 # Web App Foundation — Master Engineering Skill
@@ -75,7 +75,7 @@ provenance: "Generalized from digma_SKILL.md v1.148, neo-crm_SKILL.md v1.158, pr
 2. **Seams over frameworks.** Logic that could break silently (auth crypto, rate limiting, path resolution, validation, domain math, chart derivations) lives in pure, framework-free modules under `src/lib/` with unit tests. Route handlers are thin orchestration only.
 3. **Degrade, never fail.** Optional subsystems (AI, emails in dev, enrichments) fall back to deterministic outputs; the app never 500s on an optional dependency outage.
 4. **Evidence over assertion.** Visual claims come from computed-style probes, not screenshots. Behavior claims come from executed tests. Counts in docs come from the tools' own census.
-5. **Tenancy is not optional.** Every domain row is owned by a user. A template without per-user data scoping is a demo, not a foundation (this was digma's and project-management's highest-severity gap — do not repeat it).
+5. **Tenancy is not optional.** Every domain row is owned by a user. A template without per-user data scoping is a demo, not a foundation (this was digma's and project-management's highest-severity gap — do not repeat it). Verified 2026-10-25 at file level: digma's `Project` carries no userId/teamId (any authenticated user has full workspace access — documented deliberate parity), and pm's domain models carry no ownership either (PAD §6.3: "Single-workspace model with no RBAC"; only an optional `Person.userId` link exists).
 
 ---
 
@@ -110,9 +110,9 @@ Before writing any code, collect these from the requester. If more than one is u
 | Primitives | Radix UI (dialog, dropdown-menu, select, sheet, tabs, label, slot, popover) via shadcn-style wrappers | per-package | Never hand-roll focus management; wrap and style |
 | Icons | lucide-react | 0.525 | One icon set; two-class stroke system (nav 1.8 / content 2.0) |
 | State | Zustand | 5.0.15 | ONE store; race guards (§10); `useShallow` discipline |
-| ORM / DB | Prisma + SQLite (dev) / PostgreSQL (prod option) | 6.11+ | `db push` dev loop; migrate to `prisma migrate` when data matters (§5.4) |
+| ORM / DB | Prisma + SQLite (dev) / PostgreSQL (prod option) | 6.11+ (family resolves 6.19.3; zb pins 6.11.1 exact) | `db push` dev loop; migrate to `prisma migrate` when data matters (§5.4) |
 | Validation | zod | 4.6 | At EVERY API boundary (§7.2) — zero-balance's decisive advantage |
-| Charts | recharts | 3.x (2.15 acceptable) | Wrapper families in §9; React-19 compatible |
+| Charts | recharts | 3.x (family uniform on 3.10.x since neo-crm's session-176 migration) | Wrapper families in §9; React-19 compatible |
 | Auth | Node `crypto` (scrypt + HMAC-SHA256) | built-in | No auth library — §6 mechanics are smaller than the integration surface of next-auth/better-auth for this shape (ADR-tested across all four repos) |
 | AI (optional) | `z-ai-web-dev-sdk` (or any SDK) | latest | Server-side only, dynamic import, §11 discipline |
 | Unit tests | Vitest | 5.0 | Pure-seam tests, node env |
@@ -242,9 +242,9 @@ Rules proven across all four repos: **never** a Tailwind default-palette class f
 | `DATABASE_URL` | yes | `file:../db/custom.db` (resolves against `prisma/` — §5.2). Postgres: `postgresql://…` |
 | `AUTH_SECRET` | production | HMAC key, `openssl rand -hex 32`. **Fail hard in prod if missing/short** — do NOT ship a silent dev fallback (§12) |
 | `NEXT_PUBLIC_SITE_URL` | recommended | `metadataBase`, sitemap origin |
-| `APP_REPO_ROOT` | no | Explicit repo-root anchor for the db-path seam (container escape hatch) |
+| `APP_REPO_ROOT` | no | Explicit repo-root anchor for the db-path seam (container escape hatch; digma ships this as `DIGMA_REPO_ROOT` — pm/zb/neo carry no equivalent) |
 | `PROXY_HOPS` | no | XFF trust depth for client-IP resolution (§6.6); `0` = ignore headers |
-| `DISABLE_IN_APP_OTP` / `DISABLE_AI_LLM` | no | Dev/e2e determinism knobs |
+| `DISABLE_IN_APP_OTP` / `DISABLE_AI_LLM` | no | Dev/e2e determinism knobs (digma ships both as `DIGMA_*`; neo-crm ships OTP/RESET knobs; zb ships **neither** — its OTP delivery has no kill-switch; pm ships no AI knob) |
 
 ---
 
@@ -253,9 +253,9 @@ Rules proven across all four repos: **never** a Tailwind default-palette class f
 ### 5.1 Schema rules (Prisma)
 
 1. **Every domain model carries `userId` with `onDelete: Cascade`** and an index leading on it (`@@index([userId, createdAt])`). This is the tenancy firewall — zero-balance is the reference implementation; digma/project-management's omission was their highest-severity defect.
-2. `User` model auth columns: `email @unique`, `passwordHash`, `emailVerifiedAt DateTime?`, `verificationCodeHash String?` (**hashed**, neo-crm's improvement), `verificationAttempts Int @default(0)`, `resetTokenHash String?` (**hashed**), `resetTokenExpiresAt DateTime?`, `tokenVersion Int @default(0)` (§6.5 revocation).
+2. `User` model auth columns: `email @unique`, `passwordHash`, `emailVerifiedAt DateTime?`, `verificationCodeHash String?` (**hashed**, neo-crm's improvement), `verificationAttempts Int @default(0)`, `resetTokenHash String?` (**hashed**), `resetTokenExpiresAt DateTime?`, `tokenVersion Int @default(0)` (§6.5 revocation). This is exactly neo-crm's shipped shape (code scrypt-hashed + a 15-minute TTL column); digma adopted hashed reset tokens in S181-B; zb is the counter-example (plaintext `verificationCode`, no TTL).
 3. **Strings + zod enums, not Prisma enums** (SQLite parity; the zod schema in §7.2 is the single vocabulary source; keep a `constants.ts` for UI-facing lists).
-4. **Quantifiable money/quantities:** decide the unit at the boundary. Either store integer minor units (`Int`, zero-balance's documented intent) or store `Float` and enforce an **integer-cents aggregation firewall** (`money.ts: toCents/fromCents/sumAmounts`) — floats live only at the format boundary. Never `parseFloat` two user amounts and add them.
+4. **Quantifiable money/quantities:** decide the unit at the boundary. zero-balance's shipped design (ADR-004) stores `Float` and enforces an **integer-cents aggregation firewall** (`money.ts: toCents/fromCents/sumAmounts`) — floats live only at the format boundary and never reach a total; no family member ships `Int` columns, though integer minor units remain the stricter option for new schemas. Never `parseFloat` two user amounts and add them.
 5. Indexes: composite `[userId, <filter column>]` beats single-column multiples; delete redundant singles deliberately and record why.
 6. Soft deletes: skip (YAGNI at this scale); audit trails: add an `ActivityLog` model (type, entity, meta JSON, `@@index([createdAt])`) only if the domain narrates mutations.
 
@@ -268,7 +268,7 @@ Rules proven across all four repos: **never** a Tailwind default-palette class f
 2. Resolve relative against the first **anchor directory containing `prisma/schema.prisma`**, tried in order: (a) CWD detecting the standalone layout (basename `.next/standalone` + `server.js` + grandparent schema → walk two levels up), (b) module root via `import.meta.url` **disk-validated** (bundlers rewrite it), (c) `process.cwd()`.
 3. Honor an explicit `APP_REPO_ROOT` override; log the resolved path (redacted) at startup — that log line is the diagnostic.
 
-**Also:** scripts pin their own URL (`DATABASE_URL=file:../db/e2e.db next dev`) or scrub the environment (`env -u DATABASE_URL prisma db push`) — never trust an inherited shell. `db.ts` constructs the one sanctioned `PrismaClient` (globalThis singleton in dev, query logging in dev only).
+**Also:** scripts pin their own URL (`DATABASE_URL=file:../db/e2e.db next dev`) or scrub the environment (`env -u DATABASE_URL prisma db push`) — never trust an inherited shell. `db.ts` constructs the one sanctioned `PrismaClient` (globalThis singleton in dev, query logging in dev only). And the fresh-clone **DB leg** is part of the gate: zb's `env -u` discipline makes every Prisma CLI leg hard-require `.env`, and its README quickstart omits the `cp .env.example .env` before `db:push` — a pristine clone P1012-fails until that one line exists (verified 2026-10-25).
 
 ### 5.3 Query discipline
 
@@ -301,19 +301,19 @@ Hand-rolled on Node `crypto`. No library. **Tier 0** is the floor; **Tier 1** is
 ### 6.2 Sessions (`src/lib/auth.ts`)
 
 - Token: `userId.tokenVersion.expiry` dot-joined, HMAC-SHA256-signed with `AUTH_SECRET` — **stateless**.
-- TTL: 7 days (30 acceptable; pick one and document).
+- TTL: 7 days (30 acceptable; pick one and document — zb runs 30 while its own PAD says 7, which is the doc losing).
 - Cookie: `httpOnly; SameSite=Lax; Secure=(NODE_ENV==="production"); Path=/; MaxAge=TTL`. Custom app name in the cookie (`<app>_session`).
 - Verify: `timingSafeEqual` on the digest (fixed length), integer/finite guards on `expiry`; then `getSessionUser` loads the user and **re-checks `tokenVersion`** at the DB seam — this is what makes revocation work (§6.5).
 - `AUTH_SECRET`: **fail hard in production when missing or < 32 hex chars.** A console.warn + insecure fallback (three of four source repos) ships forgeable sessions silently — this skill hardens that posture.
 
 ### 6.3 Email verification (Tier 1)
 
-- 6-digit code from CSPRNG (`crypto.randomInt`), stored **hashed** (scrypt, like passwords), **15-minute TTL column**, 5-wrong-attempt lockout with the counter incremented **atomically** (`updateMany({ where: { id }, data: { verificationAttempts: { increment: 1 } } })`) — never read-increment-write.
+- 6-digit code from CSPRNG (`crypto.randomInt`), stored **hashed** (scrypt, like passwords), **15-minute TTL column**, 5-wrong-attempt lockout with the counter incremented **atomically** (`updateMany({ where: { id }, data: { verificationAttempts: { increment: 1 } } })`) — never read-increment-write. (The 15-minute TTL is neo-crm's shipped value — `VERIFICATION_TTL_MS`, verification.ts:33; digma/zb ship no OTP TTL, a gap not a pattern; zb's attempt counter shipped read-then-write — the counter-example.)
 - Resend regenerates + resets the ladder, own rate bucket.
 - Verified users skip the gate; unverified login → 403 with a verify prompt (do not open the session).
 - Transport: a `Mailer` interface with two adapters — `DevCodeMailer` (logs / returns code in response **only when explicitly enabled by env knob**) and `SmtpMailer`/`ResendMailer` (Appendix B). The route code never knows which.
 
-### 6.4 Password reset (Tier 1 — three of four source repos faked this in the UI; never ship a "reset link sent" toast without an endpoint)
+### 6.4 Password reset (Tier 1 — two of four source repos shipped no funnel at all, and zb's honest message-only "reset unavailable" notice is the correct form for a missing funnel; never ship a "reset link sent" toast without an endpoint)
 
 - Forgot: issue a 32-byte hex crypto-random token, store **hashed** + 60-minute expiry; respond 200 with a byte-identical body for known and unknown emails (no enumeration; the ~10ms timing residual is documented and acceptable).
 - Reset: consume via **atomic conditional update** carrying `resetTokenHash` AND live expiry in the WHERE (`count === 1` or reject) — single-use and replay-race-safe by construction; clear the token; **increment `tokenVersion`**; do not open a session.
@@ -325,8 +325,8 @@ Hand-rolled on Node `crypto`. No library. **Tier 0** is the floor; **Tier 1** is
 
 ### 6.6 Rate limiting (`src/lib/rate-limit.ts`)
 
-- Fixed-window, per-IP, in-process Map with opportunistic expired-bucket sweep. Buckets: `login:10/15min`, `register:10/15min`, `resend:5/15min`, `verify:20/15min`, `ai:20/5min` (own bucket), heavy-create: `60/5min`. 429 + `Retry-After`.
-- **Client IP with declared trust depth** (digma's `PROXY_HOPS`): `0` = ignore XFF entirely (direct exposure); `N≥2` = take the Nth-from-right hop; unparsable → fail closed. Never blindly trust `x-forwarded-for[0]` (zero-balance's documented defect).
+- Fixed-window, per-IP, in-process Map with opportunistic expired-bucket sweep. Buckets: `login:10/15min`, `register:10/15min`, `resend:5/15min`, `verify:20/15min`, `ai:20/5min` (own bucket), heavy-create: `60/5min`. 429 + `Retry-After`. (Both in-family shapes are proven: neo-crm's per-route split adds `forgot:10/15min` + `reset:10/15min` + `upload:20/15min`; digma runs ONE shared `auth:10/15min` bucket for all credential routes plus the ai and crud buckets.)
+- **Client IP with declared trust depth** (digma's `PROXY_HOPS`): `0` = ignore XFF entirely (direct exposure); `N≥2` = take the Nth-from-right hop; unparsable → fail closed. Never blindly trust `x-forwarded-for[0]` (zero-balance's documented defect — re-verified 2026-10-25: zb's `clientIp` reads the first XFF hop while its own doc-comment claims socket-address-only; the defect is live code, not just documentation).
 - Single-process contract is deliberate; document the Redis upgrade path (§16.3).
 
 ### 6.7 Route & page protection
@@ -420,11 +420,11 @@ Skeletons only where content truly awaits; full-page spinner gated on `booted` i
 | `TrendLineChart` | `<Line>` ×1–2 | time series |
 | `LabelPieChart` | `<Pie>` + per-slice `Cell` + label callback | shares/composition |
 | `HorizontalBarChart` | `layout="vertical"` + YAxis width | funnels, top-N lists |
-| `AreaTrendChart` | `<ComposedChart>` + `<Area>` (fillOpacity .6/.3) | cumulative volume |
-| `FunnelChart` | `<FunnelChart>` + right `<LabelList>` | conversion stages |
+| `RevenueLineChart` | `<ComposedChart>` + `<Area>` pair (fillOpacity .6/.3) | target-vs-actual / cumulative volume (neo-crm's actual export name) |
+| `ConversionFunnel` | `<FunnelChart>` + right `<LabelList>` | conversion stages (neo-crm's actual export name) |
 | `Sparkline` (custom SVG) | — | KPI-card micro-charts (line/area/bar variants) |
 
-Wrappers are typed, prop-driven (`series`, `fill`, `tickFontSize`, `grid`, `formatter`), and are the **only** recharts import site in the app. Set explicit `strokeDasharray="3 3"` grid dashes, `isAnimationActive={false}` for deterministic e2e, and explicit tooltip `contentStyle` (library defaults drift across majors — pin them).
+Wrappers are typed, prop-driven (`series`, `fill`, `tickFontSize`, `grid`, `formatter`), and are the **only** recharts import site in the app. Set explicit `strokeDasharray="3 3"` grid dashes, `isAnimationActive={false}` for deterministic e2e, and explicit tooltip `contentStyle` (library defaults drift across majors — pin them). Names match neo-crm's `charts.tsx` exports exactly (re-verified 2026-10-25); `Sparkline` lives in the shared page-parts module, not `charts.tsx`. For the 2.x→3.x major: pin `accessibilityLayer={false}` at every chart-type site and keep the e2e grid sentinel — neo-crm's session-176 migration (ADR-021) survived with zero wrapper renames.
 
 ### 9.2 Data flow (the derivation-seam rule)
 
@@ -471,7 +471,7 @@ The **degrade-never-fail** pipeline (project-management's ADR, hardened by digma
 2. Attempt the SDK via **dynamic `import()`** inside try/catch, raced against a **25s timeout**.
 3. Treat LLM output as **untrusted input**: extract JSON defensively (tolerate markdown fences), then run a **sanitizer** — op/enum whitelist, numeric clamps, length caps, count caps (e.g. ≤10 items), drop title-less entries — before anything touches the DB (PAD security rule: "LLM output is untrusted").
 4. Any failure → warn + serve the fallback. The app never 500s on an AI outage.
-5. Own rate-limit bucket (`ai:`), server-side only, `DISABLE_AI_LLM=1` knob for deterministic e2e/smoke.
+5. Own rate-limit bucket (`ai:`), server-side only, `DISABLE_AI_LLM=1` knob for deterministic e2e/smoke (digma ships this; pm ships neither the knob nor an SDK-call timeout — a stall class — prescribe both).
 6. Unit-test the sanitizer's clamp/drop edges explicitly (900→160 chars, 9999→40 hours class).
 
 ---
@@ -518,7 +518,7 @@ Run this list before any deployment; each item cites its section:
 - **`global-setup` reseeds in place** (delete rows, not the file — deleting the DB file under a live server hands out deleted-inode errors).
 - A `setup` project logs in **once** and saves `storageState` — per-test logins would trip the 10/15min rate limiter (self-destruction); logged-out specs opt out with an empty storageState.
 - `workers: 1`, `fullyParallel: false` (shared SQLite), `retries: 0`, trace retain-on-failure.
-- Smoke script **pins its own `DATABASE_URL`**, kills port squatters, health-waits before assertions.
+- Smoke script **pins its own `DATABASE_URL`**, kills port squatters, health-waits before assertions, and reports executed-vs-skipped counts (pm's conditional-skip guard silently shrank its own gate to 27 executed checks under failure before anyone noticed).
 
 ### 13.3 What every e2e suite must include
 
@@ -562,7 +562,7 @@ bun audit             # dependency vulnerabilities
 
 **Wire the same order into CI the day the repo exists** (all four source repos deferred CI to local discipline and it is their single most portable weakness — Appendix B).
 
-**Pre-ship checklist (beyond gates):** §12 security list complete; `.env.example` matches actual `process.env` reads; seed runs clean on a fresh DB; docs updated in the same commit (§15); changelog/version bumped; fresh-clone verification executed (install → generate → typecheck → test, from a clean checkout — the four source repos all pass this; keep it that way).
+**Pre-ship checklist (beyond gates):** §12 security list complete; `.env.example` matches actual `process.env` reads; seed runs clean on a fresh DB; docs updated in the same commit (§15); changelog/version bumped; fresh-clone verification executed (install → generate → typecheck → test **and db:push → db:seed**, from a clean checkout — digma's unit leg and zb's DB leg both need `cp .env.example .env` first, so keep the quickstart honest; neo-crm passes the unit leg pristine).
 
 ---
 
@@ -606,8 +606,8 @@ Email transport, RBAC enforcement (if the product needs roles), hosted CI, conta
 
 1. **Never trust an inherited environment.** A parent `.env` or exported `DATABASE_URL` shadows the repo's relative URL → "Error code 14: Unable to open the database file." Diagnose with the startup `[db] DATABASE_URL -> …` log; fix with `env -u` in scripts and the db-path seam (§5.2).
 2. **`ignoreBuildErrors` without a typecheck gate is an unguarded cliff.** The explicit `tsc --noEmit` step is the only thing standing between you and shipping type errors — or omit `ignoreBuildErrors` entirely (zero-balance's posture).
-3. **Read-then-write auth state invites races.** OTP attempts, reset consumption, lockout counters: always atomic conditional `updateMany` with the precondition in the WHERE (§6.3–6.4).
-4. **A "reset link sent" toast without an endpoint is a lie.** Three of four source repos shipped this UI stub (inherited from their reference apps). Build the endpoint or remove the affordance.
+3. **Read-then-write auth state invites races.** OTP attempts, reset consumption, lockout counters: always atomic conditional `updateMany` with the precondition in the WHERE (§6.3–§6.4) — zb shipped the racy read-then-write OTP counter, the family's own live example.
+4. **A "reset link sent" toast without an endpoint is a lie.** Build the endpoint or remove the affordance — the honest form is zb's message-only "reset unavailable" notice (two of four source repos ship no funnel at all; the reference apps shipped the fake toast).
 5. **Unknown-email logins that answer instantly enumerate your users.** Burn the scrypt work (§6.1).
 6. **Zustand v5 derived-array selectors without `useShallow` crash React 19 in production** (issue #185) — one-line fix, catastrophic omission (§10.5).
 7. **VLM screenshots lie; computed styles don't.** 15+ visual misreads across the source family were disproven by `getComputedStyle` probes. When verifying parity or theming, measure (§13.3).
@@ -690,5 +690,25 @@ Everything this skill deliberately does NOT ship (inherited gaps from all four s
 
 ---
 
-*Distilled from 1,177 commits across four production codebases (digma · neo-crm · project-management · zero-balance) and their engineering skills, 2026-09-17 → 2026-10-22. When this document and the code disagree, fix whichever is wrong, in the same commit.*
+## Validation & Corrections Log (v1.1.0 — 2026-10-25)
+
+Re-validated against the four source repos at HEADs digma `2fa13d7e`, neo-crm `02ac27eb`, project-management `9ff03bcd` (unchanged), zero-balance `1a3553da`: executed pipelines per repo (typecheck 0 errors ×4; unit suites 2,588 / 2,760 / 138 / 108 — digma after its `.env` bootstrap, neo-crm pristine; builds ×4; smoke 73 / 14 / 30 / 35), the P-6 polluted-shell reproduction (pm collapses; zb immune — re-proven in the same session), and file:line verification of every claim this skill makes about its sources. This document (as v1.0.0) is byte-identical to `skills/web-app-foundation/SKILL.md` in **all four** repos — the only one of the family's three distillations vendored family-wide; neo-crm additionally stages v1.5/v2 generations beside it.
+
+**Corrections (all Verified):**
+
+1. **§5.1.4 money rule fixed.** "Integer minor units (`Int`, zero-balance's documented intent)" misdescribed zb's shipped design: ADR-004 stores `Float` with the integer-cents firewall at every aggregation boundary. No family member ships `Int` columns; integer minor units remain the stricter option for new schemas.
+2. **§9.1 wrapper names fixed.** The area wrapper is `RevenueLineChart` and the funnel wrapper is `ConversionFunnel` — neo-crm's actual `charts.tsx` export names; `Sparkline` lives in the shared page-parts module, not `charts.tsx`. (The companion web-application skill received the same correction at its v1.1.0.)
+3. **§4.5 env-contract attributions made precise.** `APP_REPO_ROOT` exists in-family only as digma's `DIGMA_REPO_ROOT`; the `DISABLE_*` knobs exist in digma/neo-crm but not zb (its OTP delivery has no kill-switch), and pm ships no AI knob.
+4. **§6.3 OTP provenance made precise.** The 15-minute TTL is neo-crm's shipped value (`VERIFICATION_TTL_MS`); digma and zb ship no OTP TTL (a gap, not a pattern); zb's attempt counter shipped read-then-write — this skill's atomic-increment prescription is the fix, and zb is the counter-example.
+5. **§6.6 bucket shapes attributed.** The per-route split (plus forgot/reset/upload) is neo-crm's; digma runs one shared auth bucket plus ai and crud buckets.
+6. **§6.4 reset-funnel framing updated.** Two of four repos shipped no funnel at all; zb's message-only "reset unavailable" notice is the honest form of a missing funnel — the anti-pattern is the fake "reset link sent" toast.
+7. **§0 tenancy claim verified and strengthened** with file-level evidence (digma's `Project` and pm's domain models carry no ownership columns).
+8. **Fresh-clone hazards added** (§5.2/§14): digma's unit leg needs `.env` (ENOENT otherwise); zb's pristine `db:push` P1012-fails without the quickstart's missing `cp` line.
+9. **§11 AI knob/timeout attribution added** — digma ships the knob; pm ships neither knob nor SDK-call timeout (the stall class this skill's 25s timeout rule exists to prevent).
+
+**Validated as accurate and unchanged:** the §2 stack floors (Prisma 6.11+ — family resolves 6.19.3 / zb pins 6.11.1; Playwright 1.63–1.64; recharts 3.x — family uniform on 3.10.x since neo's session-176 migration); the §5.2 db-path seam (re-proven load-bearing via the P-6 re-reproduction and the zb immunity probe in one session); the §6.2 session contract (zb's 30-day TTL noted — the "pick one and document" hedge was prescient, but zb's PAD lost it); the §7 envelope and three-layer bounded reader (neo's 16 KB auth cap re-verified at line level); the §13 three-tier strategy; the §18 Tailwind v4 trap register; and the operating contract — which now includes this document's own correction history.
+
+---
+
+*Distilled from 1,508 commits across four production codebases (digma · neo-crm · project-management · zero-balance) and their engineering skills, 2026-09-17 → 2026-10-25 (re-validated at HEADs digma 2fa13d7e · neo-crm 02ac27eb · project-management 9ff03bcd · zero-balance 1a3553da). When this document and the code disagree, fix whichever is wrong, in the same commit.*
 

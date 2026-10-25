@@ -1,9 +1,9 @@
 ---
 name: web-application
 description: "Complete, generalized engineering skill for building any web application codebase: Next.js 16 App Router + React 19 + TypeScript (strict) + Tailwind CSS 4 (CSS-first) + shadcn/Radix + one Zustand store + Prisma/SQLite-dev (PostgreSQL-prod) + Zod-validated API + scrypt/HMAC cookie auth + recharts dashboards + a three-tier test suite and a single-command quality gate. Distilled from four production-remediated sibling codebases (digma, neo-crm, project-management, zero-balance); every rule traces to a failure that actually happened."
-version: 1.1.0
-last_updated: 2026-10-23
-provenance: "Distilled from digma_SKILL.md (v1.158.0), neo-crm_SKILL.md (v1.171.0), project-management_SKILL.md (v1.0.0 — distilled at app remediation v2.15), and zero-balance_SKILL.md (v1.0.0) — four sibling codebases, 1,226 combined commits of build-and-remediate history at distillation (1,244 as of the 2026-10-23 re-validation; HEADs digma 1ad583b2, neo-crm f9bc1bf, project-management 9ff03bc, zero-balance b967d3f). neo-crm's session-174 adopted this skill's §2/§15 posture (build-as-type-gate, full strictness, single lockfile) within hours of its publication — the doc is in active use inside the family."
+version: 1.2.0
+last_updated: 2026-10-25
+provenance: "Distilled from digma_SKILL.md (v1.158.0 at the 10-23 pin; v1.164.0 at the 2026-10-25 re-validation), neo-crm_SKILL.md (v1.171.0 at pin; v1.180.0), project-management_SKILL.md (v1.0.0 — distilled at app remediation v2.15), and zero-balance_SKILL.md (v1.0.0) — four sibling codebases, 1,226 combined commits of build-and-remediate history at distillation, 1,244 at the 10-23 re-validation, 1,508 at the 10-25 re-validation (HEADs digma 2fa13d7e, neo-crm 02ac27eb, project-management 9ff03bc, zero-balance 1a3553da; pm unchanged). The v1.1.0 generation is the copy vendored at skills/web-application/SKILL.md in digma/neo-crm/zero-balance; the family keeps adopting it — neo-crm's session-174 (build-as-type-gate, full strictness, single lockfile) and session-176 (recharts 3.x migration, ADR-021) both cite it by name, and digma's session-181 auth hardening cites 'the master skill §5 contract' in its own code."
 ---
 
 # Web Application — Complete Engineering Skill (Generalized)
@@ -52,7 +52,7 @@ provenance: "Distilled from digma_SKILL.md (v1.158.0), neo-crm_SKILL.md (v1.171.
 | State | Zustand | 5.0 | **ONE store**; derived selectors MUST use `useShallow` (§9) |
 | ORM / DB | Prisma / SQLite (dev) | 6.19 | `db push` in dev; **`migrate` in production**; PostgreSQL swap documented in `.env.example` |
 | Validation | Zod | 4.6 | At every API boundary (§7); enums imported from the constants module |
-| Charts | recharts | 3.x (2.15 acceptable) | Wrapped, never raw (§11) |
+| Charts | recharts | 3.x (the family is now uniform on 3.10.x — neo-crm migrated 2.15→3.10.1 in session-176/ADR-021, which names "the N-3 retirement") | Wrapped, never raw (§11) |
 | Icons | lucide-react | 0.525 | Inherit library defaults (stroke 2) unless a measured reason exists |
 | Unit tests | Vitest | 5.0 | Node env; `*.test.ts` only; `@` alias |
 | E2E | @playwright/test | 1.63+ | Chromium project + setup project; runs against the **production build** (1.64 in digma/neo-crm; 1.63 in pm/zb) |
@@ -129,13 +129,13 @@ bun run dev                 # :3000
 Hand-rolled by design (no NextAuth, no JWT library — fewer moving parts, full control, zero dependency risk):
 
 - **Passwords:** scrypt with per-user salt, `scrypt:salt:hash` format, constant-time compare, in a **pure crypto seam** (`password.ts`, node:crypto only) importable by seeds and routes alike.
-- **Sessions:** HMAC-SHA256-signed stateless cookie — `base64url(JSON{uid,iat,exp,v}) + "." + hex_sig`, httpOnly + `sameSite: "lax"` + `secure` in production, 7-day TTL. Verification with `timingSafeEqual`; malformed/expired/`v`-shape-invalid tokens all return `null`.
+- **Sessions:** HMAC-SHA256-signed stateless cookie — `base64url(JSON{uid,iat,exp,v}) + "." + hex_sig`, httpOnly + `sameSite: "lax"` + `secure` in production, 7-day TTL (zero-balance runs 30 days while its own PAD documents 7 — pick one and keep the doc honest; digma/pm/neo-crm run 7). Verification with `timingSafeEqual`; malformed/expired/`v`-shape-invalid tokens all return `null`.
 - **The `v` (tokenVersion) revocation dimension:** the version rides the signed payload *and* the user row; `getSessionUser()` rejects any token whose `v` ≠ the live row's. **Password reset increments the row's version and every pre-reset cookie dies** — a stateless format with revocation, the exact gap plain stateless cookies have. A missing `v` reads as 0 (backward-compatible migration).
 - **Login timing equalizer:** the wrong-password branch burns the same scrypt work as the right one — no user-enumeration timing oracle.
-- **Secret enforcement:** `AUTH_SECRET` missing/short in production → **throw** (fail-hard; forgeable sessions must never ship silently). Dev/test keeps a warned fallback for DX.
+- **Secret enforcement:** `AUTH_SECRET` missing/short in production → **throw** (fail-hard; forgeable sessions must never ship silently). Dev/test keeps a warned fallback for DX. (Family status at v1.2: digma joined neo-crm here — its session-181 fail-hard cites "the master skill §5 contract" in-code; pm and zb still ship dev-fallback constants.)
 - **Forgot/reset funnel:** no-enumeration 200 on forgot; reset tokens are 32-byte, **hashed at rest** (SHA-256 — the raw token lives only in the delivery URL), 60-min TTL, consumed atomically single-use (conditional update, not read-then-write); reset also bumps `tokenVersion`.
-- **Verification (email OTP):** per-account verify code + resend with its own limit; in-response delivery of codes/links exists **only for demo mode** and is switched off by `*_DISABLE_IN_APP_*` envs in prod — a real mail transport owns delivery then.
-- **Rate limiting:** fixed-window per-IP (login 10, signup 10, resend 5, verify 20, forgot 10, reset 10 per 15 min) → `429 RATE_LIMITED` + `Retry-After`. IP keyed on the deploy-declared proxy-hop depth; unparsable hop counts fail closed. In-process by design — **document that multi-instance deploys need a shared store**, or accept the single-node posture explicitly.
+- **Verification (email OTP):** per-account verify code + resend with its own limit; in-response delivery of codes/links exists **only for demo mode** and is switched off by `*_DISABLE_IN_APP_*` envs in prod — a real mail transport owns delivery then. Attempt counters must increment **atomically** (`updateMany`) — zero-balance shipped the racy read-then-write form, the family's live counter-example.
+- **Rate limiting:** fixed-window per-IP (login 10, signup 10, resend 5, verify 20, forgot 10, reset 10 per 15 min) → `429 RATE_LIMITED` + `Retry-After`. Two in-family shapes are sanctioned: neo-crm's per-route split (those constants, plus upload 20) and digma's single shared credential bucket (10/15 min) with separate `ai` (20/5 min) and `crud` (60/5 min) buckets — pick one and document it. IP keyed on the deploy-declared proxy-hop depth; unparsable hop counts fail closed. In-process by design — **document that multi-instance deploys need a shared store**, or accept the single-node posture explicitly.
 - **Gates:** `getSessionUser()` (+ redirect to `/login?from_url=…`) at every page; `requireSession()` as the first statement of every data route (401 envelope). Public by design: only `/api/health` and the auth family (rate-limited instead).
 - **Roles:** carry a role on the user; enforce it at the route layer where the domain requires. A role field without route checks is not authorization — it's a label.
 
@@ -257,8 +257,9 @@ KPI derivation rules: trends compare against a fixed baseline window; "next acti
 - **Wrap recharts once; consume wrappers only.** The proven family (neo-crm's `charts.tsx`): `SingleBarChart`, `GroupedBarsChart` (pairs + stock `<Legend/>`), `TrendLineChart` (1–2 strokeWidth-2 lines), `LabelPieChart` (full pie with per-slice label formatter + `Cell` fills), `HorizontalBarChart` (`layout="vertical"`), `RevenueLineChart` (the target-vs-actual **area** pair), `ConversionFunnel` (`FunnelChart` + `LabelList`) — with `Sparkline` living beside the shared page parts (bars/line/area variants). Each wrapper: typed props, explicit fill/height/grid, and a **declared zero-data policy** — the neo-crm doctrine is to render the REAL chart at all-zero data (only Sparkline nulls on empty); an explicit empty state is the alternative. Decide once, in the wrapper, never per page.
 - **Stock axes by default.** Don't hide axis/tick lines and hand-roll margins unless a measured reason exists — the scaffold-era instinct to hide axes was a systemic divergence from every reference. Grid, when present, is dashed `"3 3"` explicitly (recharts' default grid is solid).
 - **The `tick: undefined` trap (recharts 2.x):** passing `tick` as an explicit `undefined` nullifies `defaultProps.tick` and the grid silently falls back to a 4-line frame. Pass the prop only when you have a value.
-- **Palette from tokens** (`CHART_COLORS`); per-series fills are named constants. Donut slice order is a product decision — pin it in one place and pin it with an e2e assertion (fills included).
+- **Palette as named constants** (`CHART_COLORS` — literal hex in `constants.ts`; the CSS `--color-chart-*` tokens are a separate surface in neo-crm); per-series fills are named constants. Donut slice order is a product decision — pin it in one place and pin it with an e2e assertion (fills included).
 - Tooltips: stock white box unless the design system truly demands custom `content`; formatters (`dollar`, number, percent) are shared, exported, and unit-tested.
+- **The 2.x→3.x migration doctrine (proven in-family — neo-crm session-176/ADR-021):** pin `accessibilityLayer={false}` at every chart-type site (deterministic e2e), add a `tooltipFormatter` adapter, bridge the PieLabel type, and keep the e2e grid sentinel as the standing upgrade guard. The wrapper list and the zero-data policy survived that major **unchanged** — the wrapping discipline is what makes chart upgrades cheap.
 - **Charts are e2e-pinned** — fill attributes and geometry asserted against the seeded data, so a chart-library upgrade that changes rendering surfaces as a red test, not a silent drift.
 
 ---
@@ -324,7 +325,8 @@ bun run test:e2e        # full Playwright suite against the build
 
 - **Order matters** (fast gates first); wire the whole thing into ONE `gate` script and run it before every push. `gate:full` adds drift sweeps at 390/768/1024/1440 widths plus a full-page sweep and an interior census when visual parity matters. *(neo-crm adopted this skill's build-as-type-gate posture in session-174 — the contract below is now in active family use, not aspiration.)*
 - **Never weaken a guardrail to make a gate pass** — no disabled lint rules, no loosened types, no skipped hooks, no deleted tests. A green gate achieved by weakening the gate is not green.
-- **Fresh-clone verification** is a periodic gate of its own: a clean `install → db:push → db:seed → dev` (and `install → typecheck → build`) must work from a pristine clone — lockfile drift and missing env assumptions surface only there.
+- **A smoke leg must count what it executed, not only what passed.** project-management's conditional-skip guard silently drops downstream checks when an upstream step fails — a failing leg shrank the gate to 12 passed / 15 failed / 3 skipped (27 executed), and the RESULT line could never reach 30. Failure must be loud and complete.
+- **Fresh-clone verification** is a periodic gate of its own: a clean `install → db:push → db:seed → dev` (and `install → typecheck → build`) must work from a pristine clone — lockfile drift and missing env assumptions surface only there. **Both legs bite in-family (verified 2026-10-25):** digma's unit leg ENOENTs without `cp .env.example .env` (its tests read `.env`), and zero-balance's `db:push` P1012-fails without it (its `env -u` discipline requires `.env` for every Prisma CLI leg, and its README quickstart omits the `cp`) — while neo-crm's entire unit leg runs pristine with no `.env` at all. Make the pristine path work, or put the `cp` line before the first command that needs it.
 - When a count changes (routes, models, tests, checks), `rg "<old number>"` the entire doc set in the same commit.
 
 ---
@@ -339,8 +341,9 @@ bun run test:e2e        # full Playwright suite against the build
 - [ ] `AUTH_SECRET` enforced ≥ 16 chars, **fails hard in production**
 - [ ] Reset tokens: 32-byte, **hashed at rest**, single-use, 60-min TTL; forgot-password is no-enumeration
 - [ ] Login timing equalizer (miss branch burns the same scrypt)
-- [ ] Auth routes rate-limited per IP with `Retry-After`; proxy-hop depth declared, fails closed
+- [ ] Auth routes rate-limited per IP with `Retry-After`; proxy-hop depth declared, fails closed — client-IP extraction never trusts the raw first `x-forwarded-for` hop (zb's limiter does; digma/neo's hops contract is the pattern)
 - [ ] Content-Type CSRF gate + bounded body reads on every JSON parse
+- [ ] OTP/verification attempt counters increment atomically (`updateMany`), never read-then-write — zb shipped the racy form
 - [ ] In-app OTP/reset delivery OFF in production (`*_DISABLE_IN_APP_*`) — real mail transport owns it
 - [ ] File uploads: validated names/types, regex-pinned serving routes, no path traversal
 - [ ] Secrets never in logs, commits, or error envelopes; `.env` gitignored; `.env.example` mirrors the contract
@@ -378,6 +381,7 @@ bun run test:e2e        # full Playwright suite against the build
 | Ring/shadow asserts fail on color | v4 oklab serialization | Match `/0\.5\) 0px 0px 0px 4px/`-style patterns |
 | Dev badge in screenshots | Captured from `next dev` | Capture docs screenshots from the production build |
 | Charts show frame instead of grid (recharts 2.x) | Explicit `tick: undefined` prop | Pass the prop only with a value |
+| Pristine `db:push` fails P1012 (`Environment variable not found: DATABASE_URL`) | Prisma CLI leg needs `.env` and the quickstart skipped the `cp` | `cp .env.example .env` first; put the `cp` line before the first db command in the README |
 
 **Diagnostic doctrine:** reproduce before trusting; classify the gate (install/type/lint/test/build/db) before fixing; prefer machine-readable diagnostics (computed styles, structured JSON, `/proc/<pid>/environ`) over terminal echo; fix at the source; never weaken a guardrail to pass.
 
@@ -456,6 +460,8 @@ git status   # no .env, *.key, db/*.db, dev.log, server.log staged
 24. Docs drift the moment code lands — same-commit updates, code-wins rule, `rg` the old number when counts change.
 25. An honest known-issues register is a feature: self-reported risk is engineering; silent risk is a landmine.
 26. When a count changes, every doc copy of that number changes in the same commit — count-claims drift independently across documents.
+27. Read-then-write counters race under concurrency — the family's own zb OTP attempt counter is the shipped counter-example; atomic `updateMany` increments are the law (§5).
+28. A smoke gate that silently skips checks when upstream fails undercounts its own failure — count executed-vs-passed, and make failure loud and complete (pm's skip guard, P-8).
 
 ---
 
@@ -492,3 +498,23 @@ Validated against the four source repositories at HEADs digma `1ad583b2`, neo-cr
 8. **Appendix B file map corrected** — only neo-crm keeps the store in `src/stores/`; the others use `src/components/<domain>/store.ts`.
 
 **Validated as accurate and unchanged:** the auth contract (§5 — every neo-crm rate-limit constant, the timing equalizer, hashed reset tokens, tokenVersion, and the boot gate confirmed at line level), the DATABASE_URL contract's mechanism (§3 — all four anchors and traps confirmed; only strengthened), the Tailwind v4 trap catalog (§12 — traps (a)–(e), (g), (h), (l) located in zb's docs; the `@utility` cascade rule in digma+neo's; the `cursor: pointer` rule in zb's base layer), the testing doctrine (§14 — including the `.filter({visible:true})` and settle-wait lessons), the debugging table (§18), and the lessons canon (Appendix A — lesson 14 "two lockfiles" was even cited by neo-crm's session-174 when it fixed exactly that).
+
+---
+
+## Validation & Change Log (v1.2.0 — 2026-10-25)
+
+Re-validated against the four source repositories at HEADs digma `2fa13d7e`, neo-crm `02ac27eb`, project-management `9ff03bcd` (unchanged), zero-balance `1a3553da`: mechanical census, four documentation deep-dives with file:line verdicts, and executed pipelines per repo — typecheck 0 errors ×4; unit suites 2,588 / 2,760 / 138 / 108 all green (digma still requires the `cp .env.example .env` bootstrap — its `tests/lows-s99.test.ts` reads `.env`; neo-crm runs pristine with **no** `.env`); builds ×4; smoke suites 73 / 14 / 30 / 35 all green; and the P-6 polluted-shell reproduction (pm collapses) plus the zb immunity probe re-run in the same session. Playwright e2e not executed (no browser binaries) — static censuses: 262 / 192 / 115 / 319 checks. The v1.1.0 generation remains byte-identical to the copies vendored at `skills/web-application/SKILL.md` in digma/neo-crm/zero-balance; this v1.2.0 supersedes it and is not yet vendored.
+
+**Corrections & additions (all Verified):**
+
+1. **§2/§11 recharts row updated.** neo-crm migrated 2.15.4 → 3.10.1 in session-176 (ADR-021, commit f484701 naming "the N-3 retirement"); the family is now uniform on 3.10.x. The §11 wrapper list, the Sparkline location, and the zero-data policy were re-verified at HEAD and survived the major **unchanged** — the wrapping discipline did its job. The 2.x→3.x migration doctrine (accessibilityLayer={false} pins, tooltipFormatter adapter, PieLabel bridge, e2e grid sentinel) is now a §11 rule.
+2. **§11 palette wording corrected.** neo-crm's `CHART_COLORS` is literal hex in `constants.ts`; the CSS `--color-chart-*` token family is a separate surface per the code's own comment — "palette from tokens" overstated the coupling.
+3. **§5 rate-limit shapes made precise.** The per-route constants (login 10 / signup 10 / resend 5 / verify 20 / forgot 10 / reset 10 / upload 20 per 15 min) are neo-crm's, re-confirmed at line level; digma ships a single shared credential bucket (10/15 min) plus `ai` (20/5 min) and `crud` (60/5 min). Both shapes are in-family — pick one and document it.
+4. **§5 TTL nuance added.** zero-balance runs a 30-day session TTL while its own PAD documents 7-day — "pick one and document" cuts both ways, and zb's doc lost. digma/pm/neo run 7-day.
+5. **§5 secret-enforcement status updated.** digma's session-181 (S181-C) adopted the fail-hard production posture — its in-code comment cites "the master skill §5 contract". pm and zb still ship dev-fallback constants.
+6. **§5/§16 atomicity + client-IP rules added.** OTP attempt counters must increment atomically — zb shipped read-then-write (racy); client-IP extraction must declare proxy trust and fail closed — zb trusts the first `x-forwarded-for` hop with no hops contract.
+7. **§15 smoke-gate arithmetic rule added.** A smoke leg must report executed-vs-passed; pm's conditional-skip guard silently dropped 3 checks under failure (12 passed / 15 failed / 3 skipped, 27 executed — the RESULT line could never reach 30).
+8. **§15/§18 fresh-clone DB-leg hazard added.** zb's pristine `db:push` fails P1012 (`Environment variable not found: DATABASE_URL`) because the `env -u` discipline requires `.env` for every Prisma CLI leg and its README quickstart omits the `cp` — the fresh-clone gate must cover the DB leg, not just the unit leg (digma's D-7 is the unit-leg twin; neo-crm's pristine-no-`.env` posture is the standard).
+9. **Appendix A lessons 27–28 added** (atomic counters; smoke skip-guards), each traced to a live v1.2 finding.
+
+**Validated as accurate and unchanged at v1.2:** the §0 scaffolding order; the §3 DATABASE_URL contract (all anchors re-confirmed; the seed-through-the-seam rule re-proven load-bearing by the P-6 reproduction and the zb immunity probe in one session); neo-crm's auth contract at line level (every rate-limit constant, the timing equalizer, hashed reset tokens, tokenVersion eviction, the boot gate, and the 15-minute verification TTL — `VERIFICATION_TTL_MS` at verification.ts:33); the §6 handler idiom and status discipline; the §7 validation attributions (zb's calendar-date refinement and two-state PATCH; neo's three-state `clearable*` helpers); the §9 store doctrine (`useShallow`; store location: `src/stores/` in neo-crm vs `src/components/<domain>/…-store` elsewhere — digma `editor-store.ts`, zb `budget/store.ts`, pm `orbital/store.ts`); the §12 Tailwind v4 trap catalog; the §13 a11y floor; the existing §18 rows; and the code-wins rule itself — which the companion evaluation report had to apply to one of its own re-validation claims (its §13.1 #17 records the F-6 revert: pm and zb both carry `noImplicitAny: false` since their initial commits).
