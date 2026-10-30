@@ -1,0 +1,10 @@
+{
+  "name": "skills-audit-report-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Toolchain that builds BigTech_Research_Skills_Audit_Report.docx from report_content_*.js. The parent repo package.json declares \"type\": \"module\"; this local manifest restores CommonJS for require()-based scripts.",
+  "dependencies": {
+    "docx": "^9.15.0"
+  }
+}
