@@ -4,7 +4,7 @@
 1. SEC EDGAR filings (8-K, 10-Q, press release) — segment splits, balance sheet.
 2. Official IR transcript / earnings-call audio.
 3. Exchange-sourced or vendor price feeds (programmatic).
-4. Named consensus source (FactSet, Visible Alpha, Bloomberg, Zacks).
+4. Named consensus source (FactSet, Visible Alpha, Bloomberg, Refinitiv/LSEG).
 5. Wire services (Reuters, Bloomberg) and major outlets (CNBC) — for sell-side reactions,
    management quotes, and cross-checks.
 6. Aggregators (TipRanks, Investing.com, Motley Fool) — acceptable for analyst PT changes and
@@ -32,4 +32,8 @@ knowledge, tag it `Assumed` and flag it.
   Ledger; never backfill with invented numbers.
 
 ## Disclaimer
-Analysis only. Not investment advice. All investments involve risk.
+Analysis only. Not investment advice, not a solicitation. All investments involve
+risk. Internal analytical note — not for distribution as sell-side research: no
+rating, no price target, no analyst certification or conflict disclosures. Built
+from public sources only; if any input is suspected to be material non-public
+information (Regulation FD), stop and escalate.
