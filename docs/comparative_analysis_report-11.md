@@ -217,3 +217,168 @@ If the goal is to move from “excellent internal attribution note” to “inst
 
 ---
 
+# Critical Evaluation of the Alternative Report — and Head-to-Head Comparison
+
+## Bottom line
+
+The alternative report is **stronger than mine on engineering evidence** — it claims to have executed all five self-tests, provides byte-level file sizes, and inventories every gate with pass/fail results. On the technical-audit axis, it is the better document.
+
+But it is **weaker on the benchmark the user actually set** — the "highest standards expected of major investment banks and fund managers on Wall Street." It subtly substitutes the skills' *self-declared scope* ("internal IC pre-read attribution note") for the user's benchmark, then declares the skills meet and exceed "Wall Street standards" because they meet their own narrower scope. That is a circular standard. It also returns "None" under Critical/High/Medium findings for a research framework whose own methodology document says empirical validation is **pending** — which is arguably a Medium finding in any research-technology audit.
+
+**Net:** the two reports are largely complementary, not contradictory. The alternative report is the better *engineering audit*; mine is the better *standard-compliance audit*. A merged report would be stronger than either.
+
+---
+
+## 1. What the alternative report does better — and what I concede
+
+| Area | Alternative report | My report | Assessment |
+|---|---|---|---|
+| **Self-test execution** | Claims all five `--selftest` runs passed, with fixture descriptions (Alphabet Q3 2026 fixture, tamper/delete fixtures, stale/future filing fixtures). | Did not execute; raw `note_audit.py` truncated at a `TODO`. | **Alternative is stronger.** If the execution actually happened, it is direct evidence of runtime correctness. I could not verify the file completeness. |
+| **Script inventory** | Byte counts: `quant_helpers.py` 22,314; `provenance_seal.py` 8,035; `segment_map_check.py` 7,271; `fact_base_audit.py` 48,483; lite audit. | Only noted `note_audit.py` at ~12 KB via API. | **Alternative is stronger.** Concreteness supports the claim that the implementation is substantial. |
+| **Gate table** | Seven gates enumerated with what each enforces and pass/fail/not-run status. | Described gates in prose. | **Alternative is stronger.** |
+| **Scoped-needle analysis** | Explains `near` + `within` in `checks.json` and why footer disclaimers don't qualify a chart. | Mentioned scoped needles briefly. | **Alternative is stronger.** |
+| **TEMPORAL gate** | Calls it "one of the most sophisticated controls," explains pre-event vs. post-event `data_type` exemption logic, and cites the self-test fixture. | Described it as a strong control but did not test it. | **Alternative is stronger** on mechanism; my characterization of it as a data-integrity (not Reg FD) control agrees with the report's framing. |
+| **Enhancement suggestions** | Concrete: `--furniture` CLI flag, `--json` output mode, `--strict-temporal` mode. | General list (valuation module, forward model, etc.). | **Alternative is stronger on engineering ergonomics**; mine is stronger on research-product completeness. |
+| **Honesty about non-execution** | Clearly marks `a11y_audit.mjs` and `overflow_audit.mjs` as not run (no Playwright). | Similarly marked. | **Parity.** Both are honest about this. |
+
+**Verdict on this axis:** The alternative report is a genuinely better *code-and-gate audit*. If the self-tests really passed, that materially strengthens the engineering case, and my earlier "unverified file completeness" caveat is superseded — though the `TODO` marker I saw in the raw render should still be confirmed as a rendering artifact or a real placeholder.
+
+---
+
+## 2. Where the alternative report is weaker or overclaims
+
+### 2.1 The benchmark substitution (the core issue)
+
+The user's benchmark: *"the highest standards expected of the major investment banks and fund managers on Wall Street."*
+
+The alternative report's framing: the skills are an *"internal IC pre-read attribution note"*, and judged against **that** scope, they are production-grade and "meet and in several dimensions exceed" Wall Street standards.
+
+These are not the same standard. A major bank's equity research product includes:
+- a valuation (DCF, SOTP, comps) and a target price;
+- a forward 3-statement model and independent estimates with a variant view;
+- primary research;
+- Reg AC certification and FINRA 2241 disclosures if published.
+
+The alternative report lists the valuation firewall as a **strength** ("It is more honest about its valuation boundary than most IC pre-reads"). Honesty about the boundary is a virtue. But a firewall is not a substitute for the deliverable. If the benchmark is "top Wall Street research product," the absence of valuation and forward estimates is not a boundary — it is the defining gap. The alternative report converts an absence into a feature by redefining the standard.
+
+This is not a trivial rhetorical difference. It changes the conclusion from "excellent input, not a complete research product" (mine) to "ship it, meets Wall Street standards" (theirs).
+
+### 2.2 "None" under Critical/High/Medium is too generous
+
+The alternative report says: *"I found no critical, high, or medium findings."*
+
+Two candidates for at least Medium:
+
+1. **The methodology's empirical validation is explicitly "documented harness pending."** For a research framework, an unvalidated methodology is a standard model-risk finding — typically Medium in a bank's model-risk taxonomy (tier-2 / judgment-based tool, not a validated model). The alternative report does not mention this at all.
+2. **The audit verifies internal consistency, not source truth.** A fact base entry with a wrong number and a valid-looking URL passes every gate. The alternative report praises the "exit-code gates" but does not state this limitation. In a model-risk or compliance review, "the gate checks that the deck matches the registry, but not that the registry matches the filing" is a material scope caveat.
+
+I would not call these Critical or High. But "None" is too clean.
+
+### 2.3 Unverifiable comparative claims
+
+The alternative report asserts:
+- *"more rigorous on source verification and anti-hallucination than most sell-side research notes I have reviewed"*;
+- *"more disciplined on arithmetic than virtually any LLM-generated research artifact"*;
+- *"the temporal embargo gate is a novel control I have not seen in other research-agent frameworks."*
+
+These may be true, but they are **personal comparative impressions**, not verified findings. Sell-side notes are produced by certified analysts with supervisory review; comparing an internal pre-read's gate structure to "most sell-side notes" is apples-to-oranges and should be labeled as judgment, not evidence. The alternative report's verification ledger does not tag these claims.
+
+### 2.4 Self-test pass ≠ validation
+
+The alternative report treats "all five self-tests pass" as strong evidence. It is evidence of **runtime correctness of the gate logic** — that the fixtures are classified correctly. It is not evidence that:
+- the economic assumptions in the formulas are correct;
+- the fact-base numbers match the cited sources;
+- the RCA framework produces accurate attributions on live events;
+- the confidence labels are calibrated.
+
+The alternative report does not draw this distinction. Its gate table ("PASS") could be read as validating the methodology, which it does not.
+
+### 2.5 Missing dimensions
+
+The alternative report's five informational observations cover: provenance scope, peer baskets, EV subjective probabilities, no live market-data APIs, static beta. It does **not** cover:
+- **No forward model / no independent estimates** — the central work product of equity research;
+- **No variant view** — optional, which means frequently absent;
+- **No primary research** — disclosed as a limitation but not weighed as a competitive disadvantage;
+- **No formal compliance package** (Reg AC, FINRA 2241) — correctly scoped out, but the report's "meets Wall Street standards" headline does not carry that caveat into the conclusion;
+- **No portfolio/sizing layer.**
+
+My report covered these. The alternative report's silence on forward modeling is the largest omission, because it is the one gap that most directly separates an attribution note from equity research.
+
+### 2.6 The "Ship it" rating is scoped but the headline is not
+
+The final line — *"Rating: Production-grade for the stated scope. Ship it."* — is fair and appropriately scoped. But the opening line — *"meets and in several dimensions exceeds the standard expected of major investment banks and buy-side fund managers"* — is not scoped. A reader who stops at the executive summary will conclude the skills are a complete Wall Street research product. They are not. The report should have led with the scope qualifier, not buried it in Section 7.
+
+---
+
+## 3. Head-to-head comparison
+
+| Dimension | My report | Alternative report | Better |
+|---|---|---|---|
+| **Engineering evidence** | Docstrings, visible code, API byte count; flagged truncation | Claims full selftest execution, byte counts, gate table | **Alternative** |
+| **Gate inventory** | Prose description | Seven-gate table with pass/fail/not-run | **Alternative** |
+| **Scoped-needle analysis** | Brief | Detailed with mechanism | **Alternative** |
+| **Enhancement suggestions** | Research-product gaps (valuation, forward model, primary research, compliance) | Engineering ergonomics (CLI flags, JSON output, strict-temporal) | **Complementary** — both needed |
+| **Benchmark applied** | User's stated benchmark (top Wall Street research product) | Skill's self-declared scope (internal IC pre-read) | **Mine** on the user's question; **alternative** on engineering scope |
+| **Valuation gap** | Central, disqualifying against the user's benchmark | Treated as a strength ("honest firewall") | **Mine** |
+| **Forward model gap** | Central | Not mentioned | **Mine** |
+| **Primary research gap** | Stated limitation, weighed | Not mentioned | **Mine** |
+| **Compliance gap** | Reg AC / FINRA 2241 absence flagged | Correctly scoped out, but not carried to the conclusion | **Mine** on framing |
+| **Model validation gap** | Flagged ("pending") | Not flagged | **Mine** |
+| **Source-truth vs. internal-consistency distinction** | Explicit | Not made | **Mine** |
+| **Severity discipline** | Critical/High/Medium/Low/Informational, with four decisive gaps | "None" at Critical/High/Medium; five informational | **Mine** on severity calibration; **alternative** on avoiding inflation |
+| **Concession of uncertainty** | Flagged truncation and non-execution | Flagged non-execution of Playwright gates | **Parity** |
+| **Tone** | More editorial | More neutral, engineering-forward | **Alternative** for technical audience; **mine** for investment-committee audience |
+
+---
+
+## 4. The core disagreement, stated plainly
+
+The two reports do not disagree about **facts** — they agree the engineering is unusually strong, the gates are real, the source discipline is rigorous, and the valuation boundary is explicitly disclaimed.
+
+They disagree about **which question is being answered**:
+
+- **My report answered:** *Do these skills meet the highest standard of a major bank's equity research product?* Answer: **No — they are excellent attribution tools, not complete research.** The gap is valuation, forward modeling, primary research, and compliance.
+- **The alternative report answered:** *Are these skills production-grade for their own stated scope?* Answer: **Yes — ship it.**
+
+Both answers can be correct simultaneously. The user's phrasing — *"the highest standards expected of the major investment banks and fund managers on Wall Street"* — points to the first question. The alternative report's opening line claims to answer the first, but its body and conclusion answer the second. That is the report's central flaw: **a scope-conditional conclusion presented as an unconditional one.**
+
+A concrete test: if a portfolio manager read the alternative report's executive summary and deployed Skill 1 as the sole basis for a position, they would have no valuation, no forward estimate, and no target price. The alternative report's own Section 7 scopes this out, but the executive summary does not. My report's headline — "strong internal IC attribution note; not a substitute for a full equity research report" — is the safer framing for the user's actual question.
+
+---
+
+## 5. What a merged report should say
+
+1. **Lead with the scope split.** "These skills are production-grade as an internal IC pre-read attribution note. They are not a substitute for a full equity research product. The distinction matters because the user's benchmark is the latter."
+2. **Adopt the alternative report's engineering section wholesale** — selftest results, byte counts, gate table, scoped-needle analysis, TEMPORAL gate mechanism, enhancement suggestions. It is better than mine.
+3. **Adopt my research-product gap section** — valuation, forward model, variant view, primary research, Reg AC/FINRA 2241, model validation, source-truth vs. internal-consistency distinction.
+4. **Calibrate severity honestly.** Not "None" at Medium — the pending methodology validation and the internal-consistency-only audit are at least Medium *for a research framework*, even if they are acceptable *for an attribution note*. State the scope under which each severity applies.
+5. **Flag the unverifiable comparative claims** as judgment, not evidence.
+6. **Carry the scope qualifier into the headline**, not just the final section.
+
+---
+
+## 6. Verification ledger for this comparison
+
+| Claim | Basis | Confidence |
+|---|---|---|
+| Alternative report claims all five selftests passed | Read its Section 0 and Section 6 | Verified (that it claims this) |
+| I could not independently confirm those selftest results | I did not execute code in this environment; my earlier raw fetch was truncated | Verified (limitation) |
+| Alternative report treats valuation firewall as a strength | Read its Section 2.6 and 5.2 | Verified |
+| Alternative report does not flag methodology validation as pending | Read its Sections 2–5; no mention | Verified |
+| Alternative report does not mention forward model / variant view / primary research gaps | Read its Sections 2–5; no mention | Verified |
+| Alternative report substitutes skill-declared scope for user benchmark | Read executive summary vs. Section 7 | Reasoned |
+| "None" at Medium is too generous | My judgment against model-risk/audit norms | Reasoned |
+| Selftest pass ≠ methodology validation | General audit principle | Reasoned |
+| The two reports are complementary on engineering vs. product completeness | Comparison of coverage tables | Reasoned |
+
+**Not executed:** No code was run in this environment for either report. The alternative report's selftest results are taken as claimed, not independently verified.
+
+---
+
+## 7. Final assessment of the alternative report
+
+**Strengths:** Better engineering evidence, better gate inventory, better mechanism-level analysis of scoped needles and the TEMPORAL gate, more concrete enhancement suggestions, cleaner verification ledger, more neutral tone.
+
+**Weaknesses:** Benchmark substitution; "None" at Medium is too generous; unverifiable comparative claims presented without confidence labels; no engagement with forward modeling, variant views, primary research, model validation, or the source-truth vs. internal-consistency distinction; scope qualifier buried in the final section instead of the headline.
+
+**Overall:** A high-quality technical audit that answers a narrower question than the one the user asked. It should be read alongside mine, not instead of mine. The merged conclusion is: **the engineering is genuinely strong and the alternative report's selftest evidence strengthens that case; but against the user's stated Wall Street benchmark, the skills remain an excellent attribution input, not a complete equity research product.**
