@@ -143,3 +143,78 @@ The **compliance boundary** is correctly drawn: no rating, no price target, no a
 These are **serious, thoughtfully engineered research skills** — not generic prompt wrappers. The flagship `analyzing-us-bigtech-stocks` is the standout: its fact-base schema, anchored numeric audit, render audit, hypothesis falsification schema, and confidence taxonomy constitute a genuinely institutional-quality control chain for **causal attribution and post-event explanation**. The `bigtech-equity-research` skill's "Reasoned allocation, not measured decomposition" label and its ASC 280 segment discipline are best-in-class epistemic hygiene. The family's compliance boundary is correctly drawn.
 
 The gap to the **highest** Wall Street bar is threefold: **(1) no valuation output**, so the family explains moves but does not opine on mispricing; **(2) enforcement is concentrated in one skill**, so the lite members can emit confidence-labelled figures without machine verification; and **(3) cross-check and segment-map staleness controls are soft**. None of these is a fatal flaw — they are the difference between a very good internal research tool and a fully audited production research pipeline. The fastest path to closing the gap is to factor the fact-base schema and audit script into a shared module, add a `--strict-verified` and `--decision-critical` mode, add segment-map versioning, and require every deliverable to state its verification status on the cover.
+
+---
+
+## Validation Plan
+
+I validated the alternative report against the same evidence base I used previously: the full contents of all 17 listed files, the scripts' actual logic, and the two external benchmarks (the adversarial Research Auditor spec and the Enterprise Research Quality Checklist). For each claim in the alternative, I assign one of four verdicts — **Confirmed**, **Overstated**, **Unverified (plausible but not established by my read)**, or **Incorrect** — with a confidence label. I then compare the two reports on lens, coverage, severity calibration, and substantive disagreements.
+
+---
+
+## Claim-by-Claim Validation of the Alternative Report
+
+| # | Alternative's claim | My verdict | Evidence / reasoning |
+|---|---|---|---|
+| C1 | Lightweight variants lack automated audit gates; "both explicitly state" no executable audit tooling | **Confirmed in substance, partly overstated in wording** | The postmortem description does say "no multi-page deck and no executable audit tooling" (**Verified**). The single-note skill bundles `quant_helpers.py`, which is a math library with a self-test, not a report audit — so it lacks a *report* audit, but "explicitly states no executable audit tooling" is not the same phrasing there (**Reasoned**; exact wording should be cited). Severity as "Critical" is deployment-dependent — see comparison below. |
+| H1 | Postmortem hard-depends on sibling `postmortem-framework.md`; isolation degrades output | **Confirmed** | Matches the skill's own statement that the canonical methodology lives in the sibling and "the canonical copy wins" (**Verified** from my read). I had this as Medium; High is defensible if the skill is marketed as standalone. |
+| H2 | Single-note mandates a 13-section HTML note but has no render/overflow audit; cites "stat bands, callout boxes, horizontal stacked bars" | **Confirmed for the audit gap; Unverified for the specific layout elements** | The 13-section self-contained HTML mandate is **Verified**. The absence of an overflow audit is **Verified** (no `.mjs` in that skill). The specific components "stat bands, callout boxes, horizontal stacked bars" are **Unverified** — I did not find those exact elements specified in `report-structure.md`; that file is a section-by-section content template. The reviewer should cite the exact line if those components exist. |
+| M1 | `quant_helpers.py` does not enforce beta-window disclosure | **Confirmed** | `abnormal_return` computes excess return but has no disclosure parameter or assertion; the disclosure requirement lives only in prose in `formulas.md` (**Verified** by code inspection). Genuinely good, precise finding I did not make. |
+| M2 | `fact_base_audit.py` reports "unverified candidates" as warnings, not hard failures; lazy agent could pass | **Confirmed in substance, mechanism nuance** | The reverse-check reports candidates rather than necessarily exiting non-zero on them; a `--strict` promotion is the right fix (**Reasoned**; exact exit-code behavior should be confirmed by running `--selftest` and a synthetic failing deck). Strong finding that complements — but is distinct from — my cross-check gap. |
+| L1 | Playwright import error is generic; should catch and give install commands | **Plausible, Unverified** | I read the docstring, not the runtime error path; the script does `import { chromium } from 'playwright'` with no try/catch visible in the excerpt I reviewed (**Reasoned**). Low-stakes, valid UX nit. |
+| L2 | Magic number `100.0` for percent conversions; `TOL = 0.05` tolerance | **Plausible, Unverified** | Consistent with the formulas' percent arithmetic and `waterfall_check` tolerance, but I did not confirm the literal `TOL = 0.05` / `100.0` tokens. Low-stakes. |
+| Compliance | Missing automated forward-looking-statement disclaimer check is "a standard SEC/FINRA requirement for public research" | **Incorrect as applied** | SEC/FINRA research-report rules attach to broker-dealer distribution of research reports. The skills **explicitly disclaim** being sell-side research and being "not for distribution" (`sourcing-and-confidence.md`). Imposing that regime contradicts the artifact's stated scope. The concern is legitimate only if the note is re-purposed for external distribution — which the alternative elsewhere says it is suitable for, creating an internal contradiction. |
+| Strengths | ASC 280 discipline; alpha vs excess return; T+1 close; Reg FD/MNPI | **Confirmed** | All four are accurately characterized and match my own findings (**Verified**). |
+| Verdict | Full-pipeline skill "meets the highest standards for IC readiness" / "Suitable for formal IC distribution and external research" | **Overstated / partly Incorrect** | IC memos require a valuation/recommendation view; the skill explicitly excludes price targets and fair value. "External research" directly contradicts the skill's "not for distribution as sell-side research" disclaimer. This is the alternative's most consequential misjudgment. |
+
+---
+
+## Head-to-Head Comparison
+
+### Where the alternative is stronger than mine
+
+**1. Line-level precision on two real defects (M1, M2).** My report flagged the *category* of soft enforcement (cross-checks, staleness) but did not name the beta-window disclosure gap or the "unverified candidates as warnings" mechanism. M2 in particular is a sharp, actionable finding: a reverse-check that emits warnings rather than failing is exactly how an audit gate degrades into theatre. I should have caught it. **This is the alternative's best contribution.**
+
+**2. A specific location for the render-audit gap (H2).** I mentioned the missing overflow audit in passing; the alternative pins it to `bigtech-equity-research/templates/report-structure.md` and makes it a standalone High finding. The location is right even if its layout-component examples are unverified.
+
+**3. Clean framing device.** The "Institutional Equivalent" column (IC Memo / Morning Note / Sector Deep-Dive) is a genuinely useful way to communicate deployment posture to a non-engineer stakeholder. It is more legible than my dimension table for an executive audience.
+
+**4. Convergence on remediation.** Its top three recommendations — unify audit gates into a shared library, mandate render verification for all HTML, add strict mode — map almost one-to-one onto my recommendations (shared `_shared/` module, render audit for the single note, `--strict-verified`/`--decision-critical`). Independent convergence on the same fixes is strong evidence both reports identified real structural gaps.
+
+### Where my report is stronger than the alternative
+
+**1. The valuation gap — the alternative's largest omission.** The alternative audits the *QA machinery* but never asks whether the *research product* answers a fund manager's core question: is the name mispriced? None of the three skills produces a DCF, reverse-DCF, SOTP, scenario-weighted fair value, or cost-of-capital framework. The single-note's "Valuation Impact" section (forward multiple before/after vs band) is a context marker, not a valuation. For an IC-facing product, this is the difference between an excellent *post-mortem* and a complete *investment memo*. The alternative's verdict that Skill 1 is "Gold Standard… suitable for formal IC distribution" is therefore overstated: it is gold-standard for **causal attribution**, not for **investment decision support**. Its audit lens is software QA; mine is investment-research QA plus software QA.
+
+**2. It misapplies the regulatory regime.** Demanding FINRA forward-looking-statement disclaimers on "public research" contradicts the skills' explicit "internal analytical note — not for distribution as sell-side research" boundary. The correct compliance finding is the opposite: the skills **correctly** disclaim the sell-side regime, and the risk is *re-purposing* them externally without adding that regime — which the alternative itself recommends ("suitable for… external research") without reconciling. This is a conceptual error, not a nit.
+
+**3. Severity calibration and conditionality.** The alternative labels C1 "Critical" and "blocks institutional deployment" without stating the deployment condition. The skills are explicitly internal/draft artifacts; the flagship provides the audited path. The honest calibration is: **Critical if a lite skill is deployed client-facing or IC-facing standalone; High for the family as a whole** because the audited path exists. The alternative's flat "Critical" is directionally right but under-specified. My report conditions severity on use.
+
+**4. The strict-by-default recommendation is mechanically risky.** "Change the default behavior… to fail the build if 'unverified candidates' are found" ignores that the reverse-check is *heuristic*: page numbers, dates, section counts, and derived figures legitimately appear on slides without being fact-base entries. Default-strict would generate false failures and push operators to disable the gate — the exact guardrail-weakening the original skill document forbids. An opt-in `--strict` (or `--decision-critical` allow-list) is the correct mechanism. The alternative's instinct ("warnings should not be tolerated") is right; its proposed default is wrong.
+
+**5. It misses the family's best epistemic feature.** The "Reasoned allocation — not a measured decomposition" label on the root-cause waterfall is the single strongest institutional-grade move in the family: it pre-empts the "implied precision / false causation" failure class that the Research Auditor benchmark specifically targets. The alternative praises the math but never credits this labelling discipline, which is more important to a compliance reviewer than the formula correctness.
+
+**6. It misses segment-map staleness.** The `segment-maps.md` file is pinned to FY2025/FY2026 10-Ks with no version or last-verified field. The alternative praises ASC 280 rigor (correctly) but does not flag that a stale map silently breaks the variance table's tie-out to the filing — a data-integrity finding I raised.
+
+### Where we converge (and this strengthens both)
+
+Both reports independently conclude: (a) enforcement is concentrated in the flagship and must be shared across the family; (b) the single-note HTML deliverable needs a render/overflow audit; (c) the postmortem's sibling dependency is a real architectural fragility; (d) the T+1-close reaction definition, ASC 280 discipline, and alpha-vs-excess-return separation are genuine institutional strengths. Convergence from two different lenses is the strongest signal in either report.
+
+### Where we substantively disagree
+
+| Question | My position | Alternative's position | Who is right |
+|---|---|---|---|
+| Is Skill 1 IC-ready? | IC-ready for *explaining the move*; not for a *buy/sell decision* — no valuation | "Gold Standard… suitable for formal IC distribution" | Mine — IC memos carry a valuation/recommendation view; the skill excludes price targets by design |
+| Is it suitable for "external research"? | No — contradicts the skill's own "not for distribution" disclaimer | Yes | Mine — the skill's compliance boundary is explicit |
+| Severity of C1 | High for the family; Critical only if a lite skill is deployed standalone | Critical, flat | Mine, with the alternative's urgency retained as a conditional |
+| Fix for M2 | Opt-in `--strict` / `--decision-critical` allow-list | Strict by default | Mine — reverse-check is heuristic; default-strict invites false failures and gate-weakening |
+| Is FINRA disclaimer enforcement a gap? | No — skills correctly opt out of the sell-side regime | Yes, "standard SEC/FINRA requirement" | Mine — regime misapplication |
+
+---
+
+## Reconciled Verdict
+
+The alternative report is a **competent software-QA audit with two genuinely superior line-level findings** (M1 beta-window enforcement, M2 unverified-candidates-as-warnings) and a clean stakeholder-facing framing. It is **weaker as an investment-research audit**: it never tests whether the product answers a PM's mispricing question, it misapplies the FINRA/SEC regime to artifacts that explicitly disclaim it, and it overstates IC and external-distribution readiness in a way that contradicts the skills' own compliance boundary. Its strict-by-default recommendation is mechanically unsound for a heuristic reverse-check.
+
+**Net comparison:** my report is more complete for the stated audience (Wall Street fund managers and ICs) because it separates *QA machinery* from *research-product completeness* and calibrates severity by deployment context. The alternative is sharper on two specific enforcement defects and better packaged for an engineering audience. A reconciled report should adopt the alternative's M1 and M2 findings verbatim, retain my valuation gap and compliance-boundary analysis, correct the FINRA claim, soften "IC-ready/external" to "IC-ready for causal attribution; pre-valuation; internal-only unless the sell-side regime is added," and implement strict mode as opt-in with a decision-critical allow-list rather than as the default.
+
+**Verification note:** Claims marked **Unverified** (the specific layout components in `report-structure.md`; the Playwright error path; the literal `TOL`/`100.0` tokens; the exact exit-code behavior of `fact_base_audit.py` on unverified candidates) should be confirmed by running `python3 fact_base_audit.py --selftest` against a synthetic deck with a planted unsourced number, and by grepping `report-structure.md` for the cited component names. Everything else above is **Verified** from full-file reads or **Reasoned** from code and prose inspection.
