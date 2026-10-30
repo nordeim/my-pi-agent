@@ -195,6 +195,70 @@ event-window rule, multi-class cap, EV matrix, consensus statistic, Reg G,
 legends, licensing, temporal embargo, beta diagnostics, peer hygiene,
 microstructure lens, validation protocol).
 
+## Round-5 remediation — validated against comparative analysis reports 10/11
+
+A fifth remediation round was planned and executed after validating the two
+later comparative reports (`docs/comparative_analysis_report-10.md`, `-11.md`).
+The two reports are complementary by their own admission (report 10: execution
+audit, all selftests executed, "ship it" for the stated scope; report 11:
+standard-compliance audit, static analysis, four decisive product gaps), and
+the round's acceptance list is their **intersection** — the findings both
+reports converge on or report 10's synthesis explicitly concedes ("the
+alternative report wins here"). Report 10's three optional engineering
+suggestions (§5.3) were accepted as-is; report 11's product-completeness gaps
+are mostly the standing rejections, with their in-scope subsets extracted.
+
+| Round-5 item (source finding) | Status | Where |
+| --- | --- | --- |
+| Source-truth snapshots — internal consistency vs source truth (R11 §3.4/§6.9, conceded by R10's synthesis; the round's headline) | Landed | `scripts/source_snapshot.py` vendored byte-identical ×3 (`--record` / `--verify` / `--selftest`); `source_snapshot` field in the flagship schema + both lite templates; SNAPSHOT linkage gate (`--snapshots`, `--strict-snapshots`) in `fact_base_audit.py` + `fact_base_lite_audit.py`; no-snapshot runs print the standing limitation NOTE; seal integration via `provenance_seal.py --inputs`; Phase 1 / Step 8 / hard-rule-13 doctrine family-wide; methodology §2 + §11, sourcing-and-confidence.md, fact-base-schema.md |
+| `--strict-temporal` (R10 §5.3-3) | Landed | both audits: date-only `retrieved_at` on the filing date fails instead of NOTE — intraday-sensitive engagements need time-precise retrieval stamps |
+| `--json` machine-readable CI output (R10 §5.3-2) | Landed | `fact_base_audit.py`, `fact_base_lite_audit.py` (×2), `note_audit.py` (×2), `segment_map_check.py`: stdout = JSON summary, diagnostics to stderr, exit codes unchanged |
+| `--furniture` CLI whitelist (R10 §5.3-1) | **Already implemented** — validated | present in `fact_base_lite_audit.py` since round 3/4 (`--furniture` + `meta.furniture`); report 10's suggestion audited an older state — no change needed, documented here |
+| Unconditional position disclosure once declared (R11 §3.5) | Landed | MANDATE gate hardened in both audits: an IC audience still requires `meta.mandate_context`, and a **declared** context must be complete (fund_position AND position_as_of) whatever the audience; lite MANDATE check added to the registry gate; lite templates demonstrate `meta.mandate_context`; doctrine family-wide |
+| Methodology validation status disclosed (R11 §3.6 / §2.2 "None at Medium is too generous") | Landed | "Methodology status:" is a **required needle** in both lite `checks.json` and a method-page doctrine family-wide: "empirically unvalidated — face validity only (validation harness pending)"; methodology §15 restates it as an always-on disclosure |
+| `undisclosed` consensus statistic surfaces its residual gap (R11 §5.7) | Landed | both CONSENSUS gates print a NOTE directing the licensed-feed pull to the Data-Gap Ledger; doctrine in skill-2 Step 2 / skill-3 sourcing-and-confidence.md / evidence-ledger template |
+| "What the gates do NOT check" caveat (R11 §2.4/§5.5) | Landed | family-wide doctrine: a green run certifies internal consistency, not source truth (snapshots mitigate), not the economic correctness of formula assumptions (arithmetic identity ≠ model validity), not the methodology's empirical calibration; stated in Phase 10 / delivery-gates sections |
+| `note_audit.py` TODO marker (R11 §5.1) | **Verified rendering artifact** — no fix | the only `TODO` tokens in the file are intentional selftest fixtures (visible-placeholder negative cases); the raw-view truncation report 11 saw was a GitHub rendering artifact, as report 10 inferred from the 12,298-byte API size |
+| .mjs env-error exit-code contract (own finding, reproduced locally) | Landed | `a11y_audit.mjs` ×3, `note_overflow_audit.mjs` ×2, `overflow_audit.mjs`: a Chromium launch failure (module resolves, browser binary missing) now exits **2** per the documented exit-code contract instead of crashing with exit 1 — the tests' env-skip fires as designed (6 tests went from FAIL to SKIP in browser-less environments; CI, which installs Chromium, is unaffected) |
+| Family version parity 1.6.0 | Landed | all three SKILL.md + both inventory copies (descriptions updated to the new capability set, still under the 1024-char spec limit) |
+
+Rejected (with reasoning, per the standing round-2/3/4 positions and the
+reports' own head-to-head): the valuation module / forward 3-statement model /
+rating + target price (R11 §3.1/§3.2/§6.1/§6.2 — the valuation-boundary
+firewall is the family's standing scoping; R10's synthesis itself frames the
+firewall as the correct compliance judgment, and the variant-view annex + EV
+fundamental matrix remain the in-scope subsets); the primary-research layer
+(R11 §3.3/§6.3 — public-source-only is a stated limitation, round-4 M-3
+needle); the Reg AC / FINRA 2241 package (R11 §3.5/§6.4 — regime
+misapplication for internal buy-side pre-reads, R10's own critique of R11
+concedes the category error; the unconditional position disclosure above is
+the in-scope subset); product consolidation into one pipeline (R11 §3.10/§6.10
+— R10's comparative section defends the 3-skill split as optimal LLM
+context-window management with byte-identical shared scripts, and the repo
+consistency tests guard the wiring); WORM archival / firm-key signing (R10
+§5.2-1, R11 §5.2/§6 — operational infrastructure; snapshots + SHA-256 sealing
+are the in-scope core); live market-data API integration (R10 §5.2-4 — no
+licensed feeds in skill scope; degraded mode stands); the full empirical
+backtest harness (R11 §6.5 — the protocol is documented, methodology §15; the
+harness needs a curated historical validation set and remains a standing open
+item, now visibly disclosed on every deliverable); index-based peer baskets
+(R10 §5.2-2 — standing round-4 correction: bespoke baskets need
+per-constituent checks).
+
+The regression suite grew from 337 to **398 tests** (392 passing + 6
+Playwright-gated env-skips in browser-less environments; CI installs Chromium
+and runs all 398): new `tests/test_source_snapshot.py` (record/verify/tamper/
+relocation/seal-integration, 13 tests), round-5 gate tests in
+`test_fact_base_audit.py` and `test_fact_base_lite_audit.py` (strict-temporal,
+declared-mandate, snapshot linkage, --json), and
+`test_repo_consistency.py::TestDoctrineGuardsRound5` (~24 doctrine guards:
+snapshot vendoring ×3 + wiring, unconditional-position doctrine, the
+methodology-status needle, --strict-temporal/--json presence, the .mjs
+launch-guard contract, version parity 1.6.0). All vendored copies
+(`source_snapshot.py` ×3, `fact_base_lite_audit.py` ×2, `note_audit.py` ×2,
+`a11y_audit.mjs` ×3, `note_overflow_audit.mjs` ×2, lite templates ×2) are
+byte-identical, guarded by tests.
+
 ## Contents
 
 - `BigTech_Research_Skills_Audit_Report.docx` — the audit report (36 pp. rendered;
