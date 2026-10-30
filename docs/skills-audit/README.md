@@ -137,6 +137,64 @@ carry dedicated test modules (`test_provenance_seal.py`,
 family version parity). The vendored `provenance_seal.py` and `a11y_audit.mjs`
 copies are byte-identical across the three skills, guarded by tests.
 
+## Round-4 remediation — validated against comparative analysis reports 8/9
+
+A fourth remediation round was planned and executed after validating the two
+later comparative reports (`docs/comparative_analysis_report-8.md`, `-9.md`).
+Report 9's reconciled master audit (its unified finding set: 2 Critical /
+6 High / 8 Medium / 4 Low) was the acceptance list, with report 9's own
+corrections applied to report 8's findings: the MNPI temporal gate was
+re-scoped as a **data-integrity control** (not Reg FD — Reg FD binds issuers,
+10b-5 attaches to trading) with a `data_type` discriminator (report 8's
+original fix would have wrongly stripped legitimate pre-event inputs), the
+peer-basket fix was re-scoped to per-constituent corporate-action checks (an
+index-membership API is the wrong control for bespoke analyst baskets), and
+the EV-sizing finding was elevated from Informational to High (H-6).
+
+| Round-4 item (source finding) | Status | Where |
+| --- | --- | --- |
+| Machine-checked number registry for skill 3 (R8/R9 H-2 — "the most surprising inconsistency in the family") | Landed | `fact_base_lite_audit.py` + `fact_base_lite.template.json` vendored byte-identical into `bigtech-equity-research`; wired into SKILL.md hard rule 10, workflow step 8, delivery gates, Definition of Done |
+| Event-window rule — T+0 vs T+1 (R8/R9 H-3) | Landed | after-close → T+1 close; pre-market/intraday → T+0 close; stated in the event charter (`meta.reaction_definition`); doctrine in all three SKILL.md + methodology §1/§2 + skill-3 hard rule 12 |
+| Multi-class market-cap delta (R8/R9 H-4) | Landed | `quant_helpers.market_cap_delta` (per-class sum, method echoed); doctrine family-wide + formulas.md §Market cap + methodology §2.2 |
+| Expected Fundamental Value matrix (R8/R9 H-6, elevated from Informational) | Landed | optional-for-IC scenario probability weighting on *fundamental* outcomes, EV-adjusted range computed in code, `Reasoned (judged)`, strictly never a price target; doctrine in all three SKILL.md + methodology §9 / Phase 7 / postmortem-framework §7 / report-structure §12 |
+| Consensus vintage tightened + mean/median recorded (R8/R9 M-1) | Landed | `--consensus-max-age-days` default 10 → 5 calendar days ≈ 3 trading days; `consensus_statistic` (mean/median/undisclosed) now a required field in the flagship CONSENSUS gate, the lite CONSENSUS check, both lite templates, and the fact-base schema |
+| Reg G / Item 10(e) non-GAAP reconciliation (R8/R9 M-2) | Landed | checklist doctrine: every non-GAAP metric reconciled to its most directly comparable GAAP measure (bridge shown or issuer's table cited) + beat/miss basis stated; family-wide + methodology §7 / Phase 4 |
+| Public-source-only limitation (R8/R9 M-3) | Landed | stated limitation on every deliverable; **required needle** in both lite `checks.json` ("Public-source-only"); doctrine in all three SKILL.md |
+| Data licensing / redistribution (R8/R9 M-4) | Landed | doctrine: vendor figures cited with attribution for internal analytical use; no at-scale reproduction of vendor tables; no external redistribution (rights belong to licensed feeds); family-wide compliance sections |
+| Postmortem standalone arithmetic (R8/R9 M-5) | Landed | `quant_helpers.py` vendored byte-identical ×3 (canonical copy in skill 3); SKILL.md references now point at the bundled copy; byte-identity guarded by tests |
+| Temporal embargo — pre-filing contamination gate (R8/R9 M-6, report-9-corrected design) | Landed | `meta.t1_filing_timestamp` pins the verified T1 filing time; every fact declares `data_type` `pre_event_input`/`post_event_fact`; post-event facts must be retrieved at/after the filing time — TEMPORAL gate in `fact_base_audit.py` + lite TEMPORAL check in `fact_base_lite_audit.py` (selftests + unit tests both); pre-event inputs exempt by design; date-only retrieval on the filing date is a precision NOTE |
+| Beta regime diagnostics (R8/R9 M-7) | Landed | `quant_helpers.beta_diagnostics` (OLS beta + R² + `correlation_breakdown` at `R_SQUARED_FLOOR` 0.30) and `volatility_regime_flag` (trailing-vol z-score vs 2-year mean at threshold 2.0); R² < 0.30 or \|z\| > 2 → justify the canonical window or re-estimate shorter; doctrine family-wide + formulas.md + methodology Phase 2 |
+| Peer-basket constituent hygiene (R8/R9 M-8, report-9-corrected fix) | Landed | `peers.md` §Constituent hygiene: per-named-constituent corporate-action check (T2 news sweep — not an index API) + cache-age gate (>90 days or undated → re-verify); doctrine family-wide; DoD checklists pin it |
+| Microstructure lens (R8/R9 L-4) | Landed | flagship hypothesis-tree lens (i) Market Microstructure & Flow (dealer gamma, CTA unwinds, index rebalances) + conditional pre-event options-OI/skew amplifier input (when sourced; Data-Gap ledger otherwise); methodology §3/§4; template lens enum |
+| C-1 scope hardening, buy-side option (a) (R9 C-1) | Landed | "not a research report" legend + internal-use-only distribution control (no client/external distribution without compliance sign-off) — legend is a **required needle** in both lite checks.json; IC pre-read firewall stated family-wide |
+| Variant-view annex (R9 H-1, in-scope subset) | Landed | optional own-estimates annex with an explicit assumption table + consensus bridge (own − consensus per line), all inputs `Assumed`/`Reasoned (judged)`; forecast gap named in open items when not commissioned |
+| Methodology validation protocol (R9 H-5, documented) | Landed (protocol) | `references/methodology.md` §15: validation set → blind re-run (cutoff discipline) → hit-rate scoring → published accuracy note → re-validation cadence; "face validity only" disclaimer until the harness exists |
+| Dependency minimums (R9 L-3, partial) | Landed | `compatibility:` frontmatter now declares Python ≥ 3.9 / Node ≥ 18 / Playwright ≥ 1.40 minimums in all three skills |
+| Family version parity 1.5.0 | Landed | all three SKILL.md + both inventory copies |
+
+Rejected (with reasoning, per the standing round-2/3 positions and report 9's
+own regime corrections): the full sell-side compliance module / Reg AC /
+FINRA 2241 / supervisory sign-off (regime misapplication — these attach to
+distributed sell-side research; scope hardening option (a) implemented
+instead); the full valuation/recommendation/position-sizing module (the
+family's standing causal-attribution scoping; the H-6 EV fundamental matrix +
+variant-view annex + firewall language are the in-scope subsets); WORM/17a-4
+archival and firm-key signing (operational infrastructure beyond skill scope);
+index-membership APIs for peer baskets (report 9's own correction — bespoke
+baskets need per-constituent checks); SKILL.md router-only restructuring (L-1 —
+surgical patches preferred this round; noted for a future round).
+
+The regression suite grew from 247 to **337 tests** across the same 10 files:
+the round-4 gates carry new unit tests (TEMPORAL gate in
+`test_fact_base_audit.py`, lite CONSENSUS/TEMPORAL + vendoring parity in
+`test_fact_base_lite_audit.py`, beta diagnostics + multi-class cap delta +
+×3 byte-identity in `test_quant_helpers.py`, legend needles in
+`test_note_audit.py`), and `test_repo_consistency.py` gained
+`TestDoctrineGuardsRound4` (~40 doctrine guards: registry vendoring,
+event-window rule, multi-class cap, EV matrix, consensus statistic, Reg G,
+legends, licensing, temporal embargo, beta diagnostics, peer hygiene,
+microstructure lens, validation protocol).
+
 ## Contents
 
 - `BigTech_Research_Skills_Audit_Report.docx` — the audit report (36 pp. rendered;
