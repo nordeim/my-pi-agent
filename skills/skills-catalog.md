@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **340 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **343 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -355,6 +355,9 @@
 | Skill | Description |
 |-------|-------------|
 | **agents-md** | Creates or updates a compact, high-signal AGENTS.md instruction file for a repository, helping future AI coding agents avoid mistakes and onboard faster. |
+| **analyzing-us-bigtech-stocks** | Full-pipeline RCA for US big-tech price events: turns "why did GOOG drop 12%?" into a 12–16 page institutional IC deck via a 10-phase pipeline — machine-checked fact base, competing hypothesis tree with mandatory exclusion, GAAP↔adjusted bridge, and numeric + render audit scripts with self-tests. Use when the deliverable is a complete audited research deck or report on a stock move or trend; for a lighter single-file note use big-tech-earnings-postmortem, and for a quantified note with segment deep-dive use bigtech-equity-research. |
+| **big-tech-earnings-postmortem** | Lightweight, evidence-disciplined post-earnings root-cause analysis producing a single-file HTML research note: pinned event mechanics, financial scorecard vs consensus, two-axis driver attribution (durability × evidentiary basis) with explicit elimination of a plausible-but-wrong driver, sell-side reaction and risk/catalyst matrix. Use for a fast post-earnings deep dive; for a full audited IC deck use analyzing-us-bigtech-stocks, and for quantified segment work use bigtech-equity-research. |
+| **bigtech-equity-research** | Quantified single-note equity research on US big tech: beat/miss deltas, market-adjusted (or beta-adjusted) excess return, ASC 280 segment variance tables separating miss from deceleration, capex/OCF diagnostics, options-implied vs realized move, and a ranked driver decomposition with honestly-labeled Reasoned allocations. Ships deterministic math helpers with an asserting self-test and evidence/data-gap ledger templates. Use for a quantified research note on an event, trend, or pre-event setup; for a full audited deck use analyzing-us-bigtech-stocks. |
 | **cheat-sheet** | 将 PDF/Word/Markdown 学习资料转化为精炼的知识浓缩卡文档。支持三种风格（知识点速查卡/思维导图式/Q&A式），输出双栏小字 PDF。当用户说"生成知识浓缩卡"、"生成 Cheatsheet"、"帮我做个速查表"、"把这个资料整理成一页纸"、"做个知识卡片"时触发。**不处理**：基于材料出题（→ quiz-mastery）、长期学习项目（→ study-buddy）。 |
 | **claude-md** | Generate proper CLAUDE.md files for any codebase. Analyzes codebase structure, detects frameworks and languages, and produces a comprehensive CLAUDE.md following the Meticulous Approach framework. |
 | **codex-ppt** | Generate visually unified image-based PPT/PPTX decks from articles, reports, papers, notes, or outlines. |
@@ -445,10 +448,10 @@
 | 5 | Testing, QA & Performance | 40 |
 | 6 | Code Quality, Security & Architecture | 55 |
 | 7 | Planning, Workflow & Project Management | 54 |
-| 8 | Documentation & Content Creation | 36 |
+| 8 | Documentation & Content Creation | 39 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **340** |
+| | **Total** | **343** |
 
 ---
 

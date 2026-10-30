@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
-> Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-23) — catalog is source of truth.**
-> **340 skills** listed (14485 files, 4 nested sub-skills/templates inside entries). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
+> Auto-generated comprehensive inventory of the spec-compliant skill packages under `skills/`. **Synced with `skills/skills-catalog.md` (2026-10-30) — catalog is source of truth.**
+> **343 skills** listed (14502 files, 4 nested sub-skills/templates inside entries). Two additional spec-compliant folders (`web-application`, `web-application-engineering`) are on disk but not yet cataloged — see [Validation & Exclusions](#validation--exclusions). A skill is listed only when its top-level folder under `skills/` contains a `SKILL.md` with a skill-spec-compliant YAML header — `name` (lowercase letters, digits, hyphens; max 64 chars; matches the folder name) and `description` (non-empty; max 1024 chars). 21 grouping folders without a top-level `SKILL.md` and 0 folders whose frontmatter fails validation are excluded — full list in [Validation & Exclusions](#validation--exclusions) below.
 
 ---
 
@@ -31,7 +31,7 @@ Skills are listed alphabetically within each category. Use the category index be
 5. **Testing, QA & Performance** — 40 skills — [jump](#5-testing-qa--performance)
 6. **Code Quality, Security & Architecture** — 55 skills — [jump](#6-code-quality-security--architecture)
 7. **Planning, Workflow & Project Management** — 54 skills — [jump](#7-planning-workflow--project-management)
-8. **Documentation & Content Creation** — 36 skills — [jump](#8-documentation--content-creation)
+8. **Documentation & Content Creation** — 39 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 12 skills — [jump](#9-career-learning--personal-development)
 10. **DevOps, Infrastructure & External Integrations** — 11 skills — [jump](#10-devops-infrastructure--external-integrations)
 
@@ -3064,7 +3064,7 @@ Skills are listed alphabetically within each category. Use the category index be
 ## 8. Documentation & Content Creation
 
 > Skills that produce documents, presentations, spreadsheets, PDFs, or written content.
-> **36 skills** in this category.
+> **39 skills** in this category.
 
 ### `agents-md`
 
@@ -3076,6 +3076,40 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Structure**: flat
 
 > Creates or updates a compact, high-signal AGENTS.md instruction file for a repository, helping future AI coding agents avoid mistakes and onboard faster.
+
+### `analyzing-us-bigtech-stocks`
+
+- **Path**: `skills/analyzing-us-bigtech-stocks`
+- **SKILL.md**: [`skills/analyzing-us-bigtech-stocks/SKILL.md`](skills/analyzing-us-bigtech-stocks/SKILL.md)
+- **Title**: Analyzing US Big-Tech Stocks — Event RCA & Trend Reports
+- **Version**: 1.1.0
+- **Files**: 8
+- **Structure**: `references/`, `assets/`, `scripts/`
+
+> Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck with audit gates. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render audits. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery.
+
+### `big-tech-earnings-postmortem`
+
+- **Path**: `skills/big-tech-earnings-postmortem`
+- **SKILL.md**: [`skills/big-tech-earnings-postmortem/SKILL.md`](skills/big-tech-earnings-postmortem/SKILL.md)
+- **Title**: Big-Tech Earnings Post-Mortem & Trend Analysis
+- **License**: Apache-2.0
+- **Version**: 1.1.0
+- **Files**: 1
+- **Structure**: flat
+
+> Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce an institutional-grade single-file HTML research note. The lightweight, fastest-ship member of the big-tech research family: layered driver attribution with durability and evidence axes, but no multi-page deck and no executable audit tooling — use analyzing-us-bigtech-stocks when the deliverable is a full audited IC deck, and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla, etc.) moved sharply after earnings, or requests a post-earnings deep dive / market research report with root-cause attribution and trend assessment — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
+
+### `bigtech-equity-research`
+
+- **Path**: `skills/bigtech-equity-research`
+- **SKILL.md**: [`skills/bigtech-equity-research/SKILL.md`](skills/bigtech-equity-research/SKILL.md)
+- **Title**: Big-Tech Equity Research
+- **Version**: 1.1.0
+- **Files**: 8
+- **Structure**: `references/`, `templates/`, `scripts/`
+
+> Produce institutional-grade, evidence-based equity research notes on US big-tech stocks (GOOGL, MSFT, AMZN, AAPL, META, NVDA, TSLA, and peers). Use when asked to explain a stock-price event (post-earnings move, guidance shock, regulatory action), analyze a multi-quarter price trend, attribute a drawdown to its drivers, or build a ranked driver decomposition of a price move. The quantified single-note member of the big-tech research family — segment deep-dive, options math, evidence ledger. For a full audited multi-page IC deck use analyzing-us-bigtech-stocks; for a lighter post-earnings note use big-tech-earnings-postmortem. Outputs a self-contained HTML research note with sourced figures, confidence tags, and a ranked root-cause decomposition. Analytical output only — not investment advice.
 
 ### `cheat-sheet`
 
@@ -3710,12 +3744,12 @@ Skills are listed alphabetically within each category. Use the category index be
 
 ## Summary Statistics
 
-- **Spec-compliant skills listed**: 340
+- **Spec-compliant skills listed**: 343
 - **Top-level folders under `skills/` scanned**: 361
-- **Folders with a top-level `SKILL.md`**: 340
+- **Folders with a top-level `SKILL.md`**: 345
 - **Grouping folders without a top-level `SKILL.md` (excluded)**: 21
 - **Folders whose `SKILL.md` frontmatter fails skill-spec validation (excluded)**: 0
-- **Total files across listed skills**: 14485
+- **Total files across listed skills**: 14502
 - **Listed skills with nested sub-skills / templates**: 4 (4 nested sub-skills total)
 - **Listed skills with `scripts/`**: 69
 - **Listed skills with `references/`**: 62
@@ -3738,7 +3772,7 @@ Skills are listed alphabetically within each category. Use the category index be
 | 8 | Documentation & Content Creation | 36 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **340** |
+| | **Total** | **343** |
 
 ---
 
@@ -3773,6 +3807,10 @@ These folders hold nested sub-skills or auxiliary content but are not skills the
 | `statement-auditor` | `skills/audit-xls`, `skills/nav-tieout`, `skills/xlsx-author` |
 | `thinking-and-docs` | `before-building`, `brain-to-docs`, `decisions`, `level-up`, `next-decision`, `prompt-me`, `read-all-adrs`, `remind`, `save-idea`, `short` |
 | `valuation-reviewer` | `skills/ic-memo`, `skills/portfolio-monitoring`, `skills/returns-analysis`, `skills/xlsx-author` |
+
+### Spec-compliant but not yet cataloged (2)
+
+`web-application` and `web-application-engineering` pass skill-spec validation (spec-compliant `name`/`description`) but post-date the last full catalog sync and have not been through category review — they are deliberately not listed above. The 2026-10-30 sync added the three big-tech research skills (`analyzing-us-bigtech-stocks`, `big-tech-earnings-postmortem`, `bigtech-equity-research`) to category 8.
 
 ### `SKILL.md` frontmatter not spec-compliant (0)
 
