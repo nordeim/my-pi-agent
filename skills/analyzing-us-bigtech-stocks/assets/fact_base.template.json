@@ -7,6 +7,7 @@
     "reaction_definition": "T+1 full-session close (YYYY-MM-DD)",
     "data_cutoff": "YYYY-MM-DDTHH:MM:SS+08:00",
     "prepared": "YYYY-MM-DD",
+    "method_page": "slide_15.html",
     "benchmarks": ["S&P 500", "Nasdaq-100", "PEER1", "PEER2"]
   },
   "hypotheses": [

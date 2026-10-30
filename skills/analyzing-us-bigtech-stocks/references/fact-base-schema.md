@@ -27,6 +27,7 @@ it does not go in the report.
     "reaction_definition": "T+1 full-session close (2026-10-29)",
     "data_cutoff": "2026-10-30T13:00:00+08:00",
     "prepared": "2026-10-30",
+    "method_page": "slide_15.html",
     "benchmarks": ["S&P 500", "Nasdaq-100", "MSFT", "META", "AMZN", "AAPL", "NVDA"]
   },
   "hypotheses": [
@@ -37,6 +38,10 @@ it does not go in the report.
   "facts": [ { ... }, { ... } ]
 }
 ```
+
+`meta.method_page` names the slide that carries the assumptions/method list — the page
+the audit checks for `Assumed` facts (the final Sources & Confidence Ledger page by
+convention; CLI override: `fact_base_audit.py --method-page <file>`).
 
 The `hypotheses` array mirrors the Phase 3 tree; facts link to hypotheses via `supports`,
 which makes the Phase 4 evidence assembly mechanical.
@@ -55,7 +60,7 @@ which makes the Phase 4 evidence assembly mechanical.
 | `source_name` | string | yes | "Motley Fool — Alphabet Q3 2026 earnings call transcript" |
 | `source_url` | string | yes | Resolvable URL; archived link if paywalled at retrieval |
 | `retrieved_at` | string | yes | ISO timestamp of retrieval |
-| `confidence` | enum | yes | `Verified` \| `Reasoned` \| `Assumed` |
+| `confidence` | enum | yes | `Verified` \| `Reasoned` \| `Assumed` \| `Unverifiable` |
 | `cross_checked_with` | array | decision-critical | Other fact IDs or source names confirming the value |
 | `supports` | array | yes | Hypothesis IDs this fact can evidence, e.g. `["H2"]`; `["deck"]` for general context |
 | `slide_pages` | array | recommended | Page filenames where the number must appear — used by the audit |
@@ -70,8 +75,9 @@ which makes the Phase 4 evidence assembly mechanical.
 | Label | Assign when | Audit consequence |
 |---|---|---|
 | `Verified` | Observed directly in ≥1 named source; decision-critical items cross-checked in ≥2 | Must have `source_url` + `retrieved_at`; spot-checked by audit |
-| `Reasoned` | Computed or inferred from `Verified` parents | Must have `derived_from` + `formula` (or a stated inference chain) |
-| `Assumed` | Needed but unavailable; explicit modeling choice | Must appear in the report's assumptions list; keep count at/near zero |
+| `Reasoned` | Computed or inferred from `Verified` parents | Must have `derived_from` + `formula` (or a stated inference chain); arithmetic-checked by audit |
+| `Assumed` | Needed but unavailable; explicit modeling choice | Must appear on the method/assumptions page (`meta.method_page`) — enforced by audit; keep count at/near zero |
+| `Unverifiable` | Source not retrievable with the tools at hand | Logged with the exact pull needed; never in headline statistics; listed with the final confidence legend |
 
 Escalation discipline: never downgrade silently (`Verified` → `Reasoned` after a failed
 cross-check means **record the conflict**, §5). Never upgrade (`Reasoned` ≠ `Verified` no
@@ -142,12 +148,21 @@ at retrieval time on 2026-10-28/30):
 
 1. For each fact, extracts numeric tokens from `value` (e.g. `282.32`, `-12.29`, `63.4`,
    `64.9`) and, if `slide_pages` is set, requires each page to contain all tokens; if
-   `slide_pages` is absent, tokens must appear **somewhere** in the deck.
-2. Reverse mode: pulls every `$…B/%…/$…` pattern out of the slide HTML and reports tokens
-   not covered by any fact as **unverified candidates** — a to-do list for the fact base,
-   not automatically an error (words like "Fiscal 2026" can produce benign hits).
-3. Always runs the placeholder scan and checks that `Assumed` facts are listed on the
-   method/assumptions page.
+   `slide_pages` is absent, tokens must appear **somewhere** in the deck. Matching is
+   **anchored**: a token matches only a complete number on the slide (sign/symbol
+   tolerant), never a digit substring of a longer number — a fact of `82.3` cannot
+   satisfy itself against a slide's `$282.32`.
+2. Reverse mode: pulls every `$…B/%…/$…` pattern out of the visible slide text and
+   reports tokens not covered by any fact as **unverified candidates** — a to-do list
+   for the fact base, not automatically an error (words like "Fiscal 2026" can produce
+   benign hits).
+3. Always runs the placeholder scan (on visible text only — script/style blocks are
+   not reader-visible) and checks that `Assumed` facts are listed on the method/
+   assumptions page designated by `meta.method_page` (or `--method-page`). Assumed
+   facts with no designated method page fail closed.
+4. Evaluates every derived fact's `formula` of the form `LHS = RHS` (numbers and
+   `+ - * / ( )` only, percent-aware): both sides must compute and agree. Formulas
+   containing words are skipped, not failed.
 
 Exit code 0 = clean; 1 = failures (fix before delivery); false positives are documented in
-the delivery note, never ignored silently.
+the delivery note, never ignored silently. `--selftest` proves all of the above works.
