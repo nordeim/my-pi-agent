@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  regression:
+    name: Regression and consistency suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install pytest
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+
+      # Prerequisite of skills/analyzing-us-bigtech-stocks/scripts/overflow_audit.mjs
+      # (render audit). Installed at the repo root with --no-save so neither
+      # package.json nor package-lock.json is modified. The overflow-audit test
+      # skips cleanly (exit 2 is the script's documented env-error code) if this
+      # step ever becomes unavailable.
+      - name: Install Playwright and Chromium (render-audit prerequisite)
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Run regression suite
+        run: python -m pytest tests/ -v --tb=short -ra
