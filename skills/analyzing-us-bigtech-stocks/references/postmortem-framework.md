@@ -59,8 +59,14 @@ labels — never run a second taxonomy):
 | Class | Meaning | Confidence label |
 |---|---|---|
 | **Disclosed** | Management said it, or the filing shows it | `Verified` |
-| **Inferred** | Logical deduction from disclosed data | `Reasoned` |
+| **Inferred (deterministic)** | Arithmetic deduction from disclosed data (a delta, a bridge) | `Reasoned (derived)` |
+| **Inferred (judgment)** | Analytical allocation or classification | `Reasoned (judged)` |
 | **Assumed** | Market narrative or analyst speculation | `Assumed` |
+
+Round 3 splits `Reasoned` into `derived` (deterministic — formula shown, reproducible)
+and `judged` (allocation — signed, sum-checked, explicitly non-causal) so an IC reader
+can tell reproducible math from opinion at the record level; the flagship's audit
+enforces the split via `epistemic_kind`.
 
 **Mapping to Phase 4 verdicts** (the two vocabularies are one system, not two):
 
@@ -113,7 +119,10 @@ A single company's FCF deficit looks like failure in isolation; in a
 sector-wide capex cycle it looks like a regime. Establish:
 
 - **Peer capex/FCF comparison** — same metric, same quarter, 2–4 closest peers:
-  outlier or in line?
+  outlier or in line? A peer is legitimate when it shares the primary revenue driver
+  and sits within roughly an order of magnitude on market cap (the sibling skill's
+  `reference/peers.md` canonical baskets); state the basket and criteria in the note —
+  cherry-picked peers are a construction artifact, not a finding.
 - **Industry-wide guidance trend** — are peers also guiding capex up? Cutting?
 - **Sector reaction** — did peers sell off the same day, and by how much? This
   is the Phase 2 same-day cross-section; it separates idiosyncratic repricing
@@ -158,7 +167,11 @@ catalyst.
 | EV / auto-tech (TSLA) | Deliveries, auto gross margin ex-credits, energy storage, regulatory credits | Traditional ad/cloud metrics |
 
 Always compute FCF = OCF − Capex and show the capex/OCF ratio; a ratio above
-100% means the company is funding growth with external capital or reserves.
+100% means the company is funding growth with external capital or reserves. Pair
+every FCF figure with FCF ex-SBC = OCF − Capex − SBC (SBC from the quarter's
+cash-flow statement, T1) as a mandatory scorecard row for US mega-cap tech — SBC is
+structurally material across the coverage universe, and FCF that ignores it
+overstates the cash generation available for buybacks and dividends.
 
 ## 9. Failure-mode catalog
 
@@ -215,17 +228,26 @@ context → sell-side reaction → risk/catalyst matrix → verification ledger 
 method note. Visual language: restrained, data-dense, institutional palette
 with one accent, monospace numbers, tables over prose, no placeholder values.
 
-**Audit gates do not relax for the lightweight deliverable.** Two enforcement
+**Audit gates do not relax for the lightweight deliverable.** Enforcement
 layers, in order of availability:
 
 1. **Bundled lite gates** (ship with `big-tech-earnings-postmortem` itself, so
    standalone deployments still fail closed):
-   `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
-   (placeholder + disclosure needles: compliance disclaimer, verification-status
-   line, the Reasoned-allocation label when a quantified waterfall is present,
-   the beta estimation-window disclosure) and
+   `python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base <fact_base_lite.json>`
+   (number registry — round 3: every money/percentage figure in the note is
+   machine-checked against its source trail), `python3 scripts/note_audit.py
+   --note <note.html> --checks assets/checks.json` (placeholder + scoped
+   disclosure needles: compliance disclaimer, verification-status line, the
+   Reasoned-(judged)-allocation label adjacent to any quantified waterfall, the
+   beta estimation-window disclosure, the volatility-risk-premium caveat near an
+   implied-move discussion, the fund-position disclosure when IC-facing),
    `node scripts/note_overflow_audit.mjs --note <note.html>` (single-file
-   render/overflow audit). The note's header carries a verification-status
+   render/overflow audit), and `node scripts/a11y_audit.mjs --note <note.html>`
+   (lang / heading order / image alt / WCAG-AA contrast — the claimed bar,
+   enforced). After the gates pass, seal with
+   `python3 scripts/provenance_seal.py --inputs <note.html> <fact_base_lite.json>
+   --out provenance.json` and embed the seal line next to the verification-status
+   line. The note's header carries a verification-status
    line stating which gates passed.
 2. **Full Phase 10 gates** (when this flagship folder is available): build the
    fact base (`assets/fact_base.template.json`) for every figure in the note,
@@ -235,9 +257,11 @@ layers, in order of availability:
 bash scripts/audit_all.sh <note_dir> <fact_base.json>
 ```
 
-The lite gates check placeholders, disclosures, and rendering; only the full
-fact-base mode machine-checks that every number traces to a sourced fact. For
-an IC-facing deliverable, upgrade to layer 2 and set the verification-status
+The lite gates now check numbers (registry), placeholders, disclosures
+(scoped), rendering, and accessibility; the full fact-base mode adds formula
+arithmetic, cross-check enforcement, and the round-3 schema gates (consensus
+vintage, epistemic kinds, waterfall sums, mandate context). For an IC-facing
+deliverable, upgrade to layer 2 and set the verification-status
 line to "full fact-base + render audits passed".
 
 The note carries the same confidence legend, method note, and disclaimer as the

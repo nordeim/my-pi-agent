@@ -452,6 +452,121 @@ class TestDoctrineGuardsRound2:
             "undocumented (report-3 M1)")
 
 
+# --------------------------------------------------------------------------
+# Round 3 — provenance sealing, lite number registry, segment-map gate,
+# scoped needles, buy-side disclosure, canonical beta window, peer baskets
+# (validated against docs/comparative_analysis_report-6/7.md)
+# --------------------------------------------------------------------------
+
+class TestDoctrineGuardsRound3:
+    """Cross-family doctrine added in round 3 (reports 6/7)."""
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_provenance_seal_vendored_and_wired(self, slug):
+        d = REPO_ROOT / "skills" / slug
+        assert (d / "scripts" / "provenance_seal.py").exists(), (
+            f"{slug}: provenance sealing gate not bundled (report-6/7 C-2)")
+        t = read(d / "SKILL.md")
+        assert re.search(r"provenance[_ ]seal", t, re.I), (
+            f"{slug}: SKILL.md does not wire the provenance seal step")
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_position_disclosure_doctrine(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"fund[_ ]position", t, re.I), (
+            f"{slug}: buy-side fund-position disclosure doctrine missing "
+            "(report-6/7 C-1, buy-side regime)")
+
+    def test_skill2_bundles_lite_number_registry(self):
+        d = SKILL2
+        assert (d / "scripts" / "fact_base_lite_audit.py").exists(), (
+            "skill 2: number-registry gate not bundled (report-6/7 H-4/H-5)")
+        assert (d / "assets" / "fact_base_lite.template.json").exists(), (
+            "skill 2: lite fact-base template not bundled")
+        t = read(d / "SKILL.md")
+        assert "fact_base_lite_audit.py" in t and "fact_base_lite" in t, (
+            "skill 2: the number-registry gate is not wired into the workflow")
+
+    def test_skill2_bundles_a11y_gate(self):
+        assert (SKILL2 / "scripts" / "a11y_audit.mjs").exists(), (
+            "skill 2: accessibility gate not bundled (report-6/7 M-5/M-6)")
+        assert "a11y_audit.mjs" in read(SKILL2 / "SKILL.md")
+
+    def test_skill3_segment_map_gate_wired(self):
+        d = SKILL3
+        assert (d / "scripts" / "segment_map_check.py").exists(), (
+            "skill 3: segment-map staleness gate not bundled (report-6/7 H-3)")
+        assert (d / "reference" / "segment-maps.json").exists(), (
+            "skill 3: machine-readable segment map missing")
+        t = read(d / "SKILL.md")
+        assert "segment_map_check.py" in t, (
+            "skill 3: SKILL.md hard rule 9 must run the mechanical staleness gate")
+
+    def test_skill3_peers_reference_bundled(self):
+        p = SKILL3 / "reference" / "peers.md"
+        assert p.exists(), (
+            "skill 3: canonical peer-basket reference missing (report-6/7 M-4)")
+        t = read(p)
+        assert "market-cap proximity" in t.lower() or "order of magnitude" in t.lower(), (
+            "peers.md must state the selection criteria, not just baskets")
+        for ticker in ("GOOGL", "MSFT", "AMZN", "META", "AAPL", "NVDA", "TSLA"):
+            assert ticker in t, f"peers.md: no basket guidance for {ticker}"
+
+    def test_canonical_beta_window_documented(self):
+        t = read(SKILL3 / "reference" / "formulas.md")
+        assert "2-year monthly returns vs QQQ" in t, (
+            "formulas.md: the canonical default beta window (report-6/7 H-2) "
+            "is not stated")
+        m = read(SKILL3 / "reference" / "methodology.md")
+        assert "DEFAULT_BETA_WINDOW" in m, (
+            "methodology.md: the canonical-default code contract is undocumented")
+
+    def test_reasoned_split_documented_family_wide(self, corpora):
+        for slug, text in corpora.items():
+            assert "Reasoned (derived)" in text and "Reasoned (judged)" in text, (
+                f"{slug}: the derived/judged split of the Reasoned label "
+                "(report-6/7 H-2) is not stated")
+
+    def test_consensus_vintage_doctrine_family_wide(self, corpora):
+        for slug, text in corpora.items():
+            assert "consensus_vintage" in text or "vintage" in text.lower(), (
+                f"{slug}: consensus provider/vintage doctrine (report-6/7 H-1) "
+                "is not stated")
+
+    def test_fcf_ex_sbc_doctrine(self, corpora):
+        for slug, text in corpora.items():
+            assert re.search(r"fcf ex[- ]sbc", text, re.I), (
+                f"{slug}: the mandatory FCF ex-SBC pairing (report-6/7 "
+                "synthesized #8) is not stated")
+
+    def test_vrp_caveat_doctrine(self, corpora):
+        for slug, text in corpora.items():
+            assert re.search(r"volatility[ -]risk[ -]premium", text, re.I), (
+                f"{slug}: the implied-move volatility-risk-premium caveat "
+                "(report-6/7 M-3) is not stated")
+
+    def test_schema_documents_round3_fields(self):
+        t = read(SKILL1 / "references" / "fact-base-schema.md")
+        for needle in ("consensus_provider", "consensus_vintage", "epistemic_kind",
+                       "mandate_context", "weights", "realized_move"):
+            assert needle in t, (
+                f"fact-base-schema.md: round-3 field {needle!r} undocumented")
+
+    def test_methodology_documents_strict_pages(self):
+        t = read(SKILL1 / "references" / "methodology.md")
+        assert "--strict-pages" in t, (
+            "methodology.md: the --strict-pages mode (report-7 M-1) is undocumented")
+
+    def test_family_versions_parity(self):
+        """Report-7 L-1: the family version reflects doctrinal equivalence —
+        all three skills carry the same semver after a family-wide round."""
+        versions = [frontmatter(REPO_ROOT / "skills" / slug / "SKILL.md")["version"]
+                    for slug in SKILL_SLUGS]
+        assert len(set(versions)) == 1, (
+            f"family versions diverged: {dict(zip(SKILL_SLUGS, versions))} — "
+            "round 3 landed family-wide; the version must say so")
+
+
 class TestCatalogParity:
     """The two inventory copies stay identical, and their three family entries
     mirror the live SKILL.md frontmatter (versions and descriptions drift

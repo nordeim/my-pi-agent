@@ -1,0 +1,45 @@
+{
+  "_comment": "Machine-readable mirror of reference/segment-maps.md for scripts/segment_map_check.py. The markdown file is the human-readable doctrine; this JSON is what the staleness gate consumes. The two must change together (same commit, same version bump) — tests/test_repo_consistency.py guards the company parity. verified_through is the date through which the map's structures were verified against filed 10-K/10-Q segment notes; segment_map_check.py fails the build when the filing you are using postdates it.",
+  "segment_map_version": "2026-10",
+  "last_verified_against_filing": {
+    "forms": "FY2025/FY2026 10-Ks",
+    "verified_through": "2026-10-30"
+  },
+  "companies": {
+    "GOOGL": {
+      "reportable_segments": ["Google Services", "Google Cloud", "Other Bets"],
+      "disclosed_revenue_lines": ["Search & other", "YouTube ads", "Google Network", "Subscriptions/Platforms/Devices"],
+      "primary_price_movers": ["Search growth", "Cloud growth + margin", "capex/FCF"]
+    },
+    "MSFT": {
+      "reportable_segments": ["Productivity & Business Processes", "Intelligent Cloud", "More Personal Computing"],
+      "disclosed_revenue_lines": ["Azure and other cloud services (within Intelligent Cloud)"],
+      "primary_price_movers": ["Azure growth", "capex", "AI run-rate"]
+    },
+    "AMZN": {
+      "reportable_segments": ["North America", "International", "AWS"],
+      "disclosed_revenue_lines": ["Advertising services", "Subscription services"],
+      "primary_price_movers": ["AWS growth + margin", "ad growth", "capex", "retail margin"]
+    },
+    "AAPL": {
+      "reportable_segments": ["Americas", "Europe", "Greater China", "Japan", "Rest of Asia Pacific"],
+      "disclosed_revenue_lines": ["iPhone", "Mac", "iPad", "Wearables/Home/Accessories", "Services"],
+      "primary_price_movers": ["iPhone revenue + installed-base growth", "Services growth + margin", "China (Greater China segment)"]
+    },
+    "META": {
+      "reportable_segments": ["Family of Apps", "Reality Labs"],
+      "disclosed_revenue_lines": ["Advertising (within FoA)", "Other revenue (within FoA)"],
+      "primary_price_movers": ["Ad revenue", "DAP", "Reality Labs losses", "capex"]
+    },
+    "NVDA": {
+      "reportable_segments": ["Compute & Networking", "Graphics"],
+      "disclosed_revenue_lines": ["Data Center", "Networking", "Automotive", "Professional Visualization", "Gaming", "OEM & Other"],
+      "primary_price_movers": ["Data Center revenue growth", "guidance", "gross margin", "export limits"]
+    },
+    "TSLA": {
+      "reportable_segments": ["Automotive", "Energy Generation and Storage", "Services and Other"],
+      "disclosed_revenue_lines": [],
+      "primary_price_movers": ["Deliveries", "auto margin ex-credits", "energy growth"]
+    }
+  }
+}

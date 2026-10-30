@@ -1,10 +1,10 @@
 ---
 name: big-tech-earnings-postmortem
-version: 1.3.0
+version: 1.4.0
 description: >
-  Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML research note passing bundled lite delivery gates (placeholder, disclosure, render audits). The lightweight, fastest-ship member of the big-tech research family: layered driver attribution with durability and evidence axes, no multi-page deck, lite bundled audits instead of the flagship's machine-checked fact base — use analyzing-us-bigtech-stocks for a full audited IC deck and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla) moved sharply after earnings, or requests a post-earnings deep dive / market research report with root-cause attribution — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
+  Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML note passing bundled lite delivery gates (number registry, placeholder, scoped disclosure, render, accessibility audits) with provenance sealing. The lightweight, fastest-ship member of the big-tech research family: layered driver attribution (durability × evidence axes), no multi-page deck, a machine-checked lite number registry instead of the flagship's full fact base — use analyzing-us-bigtech-stocks for a full audited IC deck and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla) moved sharply after earnings, or requests a post-earnings deep dive — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
 license: Apache-2.0
-compatibility: Requires web search and page-fetch tools for primary-source verification; render gate needs Node.js with Playwright.
+compatibility: Requires web search and page-fetch tools for primary-source verification; render and accessibility gates need Node.js with Playwright.
 ---
 
 # Big-Tech Earnings Post-Mortem & Trend Analysis
@@ -29,17 +29,24 @@ consistency tests, `tests/test_repo_consistency.py`, guard this wiring).
 ```
 big-tech-earnings-postmortem/
 ├── SKILL.md                       # This file: triggers, workflow, gates
-├── assets/checks.json             # Disclosure needles the lite audit enforces
+├── assets/checks.json             # Scoped disclosure needles the lite audit enforces
+├── assets/fact_base_lite.template.json   # Number-registry skeleton (Step 8)
 └── scripts/
-    ├── note_audit.py              # Placeholder + disclosure-needle gate
-    └── note_overflow_audit.mjs     # Render/overflow gate (Node + Playwright)
+    ├── fact_base_lite_audit.py    # Number-registry gate (round 3)
+    ├── note_audit.py              # Placeholder + scoped disclosure-needle gate
+    ├── note_overflow_audit.mjs     # Render/overflow gate (Node + Playwright)
+    ├── a11y_audit.mjs             # Accessibility gate (lang/heading/alt/WCAG-AA contrast)
+    └── provenance_seal.py         # SHA-256 sealing + tamper-evident verification
 ```
 
-The two scripts are the skill's own delivery gates — trimmed ports of the
-flagship's `fact_base_audit.py` placeholder/needle checks and
-`overflow_audit.mjs`, adapted for a single-file scrolling note. They require
-no fact base and no sibling skill: compliance is bundled, not
-"if the flagship happens to be installed".
+The scripts are the skill's own delivery gates — trimmed ports of the
+flagship's `fact_base_audit.py` checks and `overflow_audit.mjs`, adapted for a
+single-file scrolling note. Round 3 added the number-registry gate
+(`fact_base_lite_audit.py`): the note's every money/percentage figure is
+machine-checked against a lite fact base, so even the fastest-ship member has a
+checked number trail (the reports-6/7 "lite-variant verification gap"). They
+require no sibling skill: compliance is bundled, not "if the flagship happens
+to be installed".
 
 ## When this skill applies
 
@@ -89,8 +96,10 @@ Before reading any analysis, establish the observable facts:
 - **Idiosyncratic vs market-wide split**: compute the market-adjusted excess
   return = stock return − same-day benchmark return (QQQ/XLK or the peer basket).
   If a beta estimate is available, subtract `beta × benchmark return` instead and
-  say which convention you used and why. The residual, not the headline move, is
-  what the root-cause analysis must explain.
+  say which convention you used and why — with the beta estimated over the family's
+  canonical default window (2-year monthly returns vs QQQ) unless the company's
+  risk profile structurally changed, in which case justify the alternative window.
+  The residual, not the headline move, is what the root-cause analysis must explain.
 - **Historical rank** of the move ("worst since IPO", "largest one-day cap loss
   ever") — verify against at least two independent sources.
 - **Pre-event positioning**: 52-week high/low, YTD performance, and whether the
@@ -129,12 +138,28 @@ minimum**:
 
 Rules:
 
-- **Always compute FCF = OCF − Capex.** Report the capex/OCF ratio explicitly.
-  A ratio above 100% means the company is funding growth with external capital or
-  cash reserves — this is a high-signal fact for big-tech names. For
-  capital-allocation debates, also show stock-based compensation and, where the
-  Street debate warrants it, unlevered FCF (state the basis: SBC add-back,
-  working-capital moves) — FCF that ignores SBC overstates cash generation.
+- **Always compute FCF = OCF − Capex, in code** (the sibling skill's
+  `quant_helpers.py::fcf`, a scratch script, or any executed tool). Report the
+  capex/OCF ratio explicitly. A ratio above 100% means the company is funding
+  growth with external capital or cash reserves — this is a high-signal fact for
+  big-tech names.
+- **Pair every FCF figure with FCF ex-SBC = OCF − Capex − SBC** (SBC from the
+  quarter's cash-flow statement, T1) as a mandatory reconciliation row of the
+  scorecard — not an optional add-on. SBC is structurally material for every
+  US mega-cap tech name; FCF that ignores it overstates the cash generation
+  available for buybacks and dividends. State which basis (reported FCF or
+  ex-SBC) each beat/miss is computed on, and show stock-based compensation and,
+  where the Street debate warrants it, unlevered FCF (state the basis: SBC
+  add-back, working-capital moves).
+- **Consensus figures carry provider + vintage, T1/T2 sourcing.** The consensus
+  is the denominator of every beat/miss delta: record the named provider
+  (FactSet / Visible Alpha / LSEG / Bloomberg as reported by a named outlet),
+  the as-of date of the estimate set (within ~10 days of the event), and the
+  contributor count when disclosed. Never source a consensus from a lone T3
+  aggregator; a single T2 chain must be cross-verified against a second distinct
+  origination chain. Wire copy rounds, prints the median instead of the mean,
+  or carries a weeks-stale number — a $0.02 vs $0.05 miss is a different causal
+  narrative.
 - **Split GAAP vs. non-GAAP**. Identify every material below-the-line item
   (mark-to-market losses, legal fines, restructuring, tax one-offs) and state
   whether it is **cash or non-cash**, **recurring or one-time**, **dilutive or
@@ -194,7 +219,10 @@ record backlog"). A ranked table of surviving drivers without a tested rejection
 of an attractive wrong one is confirmation-seeking, not analysis.
 
 **Output of this step:** a ranked driver table with durability and evidence tags,
-plus at least one explicitly rejected driver with its falsifying fact.
+plus at least one explicitly rejected driver with its falsifying fact. If a
+quantified allocation accompanies the ranking, it is a `Reasoned (judged)` signed
+allocation whose sum-to-move identity is an arithmetic consistency check —
+labeled adjacent to the chart, never presented as a measured decomposition.
 
 ### Step 4 — Peer and industry context
 
@@ -202,7 +230,12 @@ A single company's FCF deficit looks like failure in isolation; in a sector-wide
 capex cycle it looks like a regime. Establish:
 
 - **Peer capex/FCF comparison**: same metric, same quarter, for 2–4 closest
-  peers. Is the company an outlier or in line?
+  peers. Is the company an outlier or in line? Use the family's canonical
+  basket for the name (same primary revenue driver, market-cap proximity within
+  roughly an order of magnitude — the sibling skill's `reference/peers.md`
+  convention) or a documented alternative, and state the basket and the
+  selection criteria in the note: a mega-cap's capex against a mid-cap's is a
+  construction artifact, not a finding.
 - **Industry-wide guidance trend**: are peers also guiding capex up? Cutting?
 - **Sector reaction**: did peers sell off on the same day, and by how much?
   This separates idiosyncratic from systematic repricing.
@@ -262,7 +295,10 @@ Tag every non-trivial claim:
 
 - `Verified` — executed/checked and observed directly (number cross-checked,
   ratio recomputed, quote confirmed).
-- `Reasoned` — logical inference from verified data, not directly observed.
+- `Reasoned (derived)` — deterministic derivation from verified inputs (a delta,
+  a bridge, a ratio): formula shown, reproducible.
+- `Reasoned (judged)` — analytical judgment (driver weights, structural-vs-
+  mechanical calls): signed, method disclosed, explicitly non-causal.
 - `Assumed` — based on a stated assumption; say what the assumption is.
 - `Unverifiable` — environment does not allow verification; say what would be
   needed.
@@ -270,9 +306,24 @@ Tag every non-trivial claim:
 **Never write "the stock will..." or "this proves..." without a confidence tag.**
 Never present a forward-looking synthesis as a verified fact.
 
-### Step 8 — Build the verification ledger
+### Step 8 — Build the number registry and the verification ledger
 
-Produce a final table listing the **10–15 most load-bearing claims**, each with:
+Two layers, both machine- or human-checkable:
+
+**The lite number registry** (`fact_base_lite.json`, skeleton in
+`assets/fact_base_lite.template.json`) — before assembling the HTML note,
+register every money/percentage figure the note will print, each with id,
+metric, value, source name, URL, retrieval date, and confidence label. This is
+the lightweight counterpart of the flagship's fact base (reports 6/7 finding
+H-4/H-5: the lite note used to ship with confidence tags and a
+verification-status line while nothing machine-checked its numbers — a
+credibility-spillover risk against the family's flagship). The
+`scripts/fact_base_lite_audit.py` gate fails the build on unregistered note
+figures, registry numbers absent from the note, missing source fields, or
+placeholder tokens.
+
+**The verification ledger** — a final table listing the **10–15 most
+load-bearing claims**, each with:
 
 - The claim.
 - Source(s).
@@ -280,7 +331,8 @@ Produce a final table listing the **10–15 most load-bearing claims**, each wit
 - **How it was verified** (cross-checked across N outlets; ratio recomputed;
   direct quote from transcript; filing line).
 
-This ledger is non-negotiable for institutional-quality output. It is the
+Both layers are non-negotiable for institutional-quality output. The registry
+is the machine layer; the ledger is the human layer. Together they are the
 difference between a report that *looks* rigorous and one that *is*.
 
 ### Step 9 — Assemble the HTML deliverable
@@ -307,11 +359,18 @@ Design constraints:
 - No placeholder values, no "TODO", no fabricated citations.
 - A **verification-status line** in the note header stating which gates the
   finished note passed — "Verification status: lite audit gates passed —
-  disclosure needles + render audit", or "Draft — human verification required"
-  with the reason when a gate could not run. Keep the wording free of the
-  audit scan tokens (`todo`, `tbd`, `xxx`, `nan`, `undefined`, `placeholder`,
-  `lorem`, `insert data/numbers`, `foo bar`, `【`) so the gate does not flag
-  the status line itself.
+  number registry + disclosure needles + render audit", or "Draft — human
+  verification required" with the reason when a gate could not run. Keep the
+  wording free of the audit scan tokens (`todo`, `tbd`, `xxx`, `nan`,
+  `undefined`, `placeholder`, `lorem`, `insert data/numbers`, `foo bar`, `【`)
+  so the gate does not flag the status line itself. When the deliverable is
+  sealed, the provenance seal line printed by `scripts/provenance_seal.py`
+  sits next to it.
+- **IC-facing notes carry the fund-position disclosure** — "Fund position:
+  long / short / none / undetermined, as of <date>" — plus any mandate
+  constraint or author conflict that could bear on independence (CFA Institute
+  Standard I(B); buy-side fiduciary duty). The lite audit's conditional needle
+  fails an IC memo without it.
 - Mobile: collapse multi-column KPI rows to 2×2; stack two-column grids.
 
 ## Metric emphasis by company type
@@ -338,6 +397,11 @@ Design constraints:
 - [ ] All deltas, ratios, and market-cap figures were computed in code, never
       in-context (arithmetic discipline).
 - [ ] A verification ledger exists with 10+ load-bearing claims.
+- [ ] The lite number registry exists and every money/percentage figure printed
+      in the note is registered in it (or whitelisted as benign furniture with
+      a justification).
+- [ ] `python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base
+      <fact_base_lite.json>` exits 0 (number-registry gate).
 - [ ] No fabricated numbers, citations, IDs, or analyst targets.
 - [ ] Forward-looking statements are explicitly labeled `Reasoned` or `Assumed`.
 - [ ] At least one plausible-but-wrong driver explicitly rejected with its falsifying fact.
@@ -345,11 +409,17 @@ Design constraints:
       opine on mispricing; the model gap is named as an open item.
 - [ ] `Unverifiable` gaps are listed in a Data-Gap Ledger with the exact pull needed.
 - [ ] `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
-      exits 0 (placeholder + disclosure gates).
+      exits 0 (placeholder + scoped disclosure gates).
 - [ ] `node scripts/note_overflow_audit.mjs --note <note.html>` exits 0 (render
       gate), or the verification-status line says "Draft — human verification
       required" with the reason.
-- [ ] The verification-status line is present and matches the actual gate results.
+- [ ] `node scripts/a11y_audit.mjs --note <note.html>` exits 0 (lang / heading
+      order / image alt / WCAG-AA contrast), or the status line records why it
+      could not run.
+- [ ] The verification-status line is present and matches the actual gate results;
+      when sealed, the provenance seal line is embedded and `provenance.json`
+      ships with the note.
+- [ ] IC-facing notes carry the fund-position disclosure.
 - [ ] Disclaimer present on the deliverable: informational only, not investment
       advice; no price targets published.
 
@@ -369,23 +439,47 @@ are unavailable or fail mid-task:
 These gates are **mandatory and bundled** — they ship with this skill, so
 compliance does not depend on the flagship being installed:
 
-1. **Placeholder + disclosure gate** (always):
+1. **Number-registry gate** (always, round 3):
+   `python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base <fact_base_lite.json>`
+   Fails the build on note figures with no registry entry, registry numbers
+   absent from the note, missing source fields, and placeholder tokens. This
+   closes the reports-6/7 "lite-variant verification gap": the note's numbers
+   are machine-checked even in lightweight mode. `--selftest` proves the
+   script works.
+2. **Placeholder + scoped disclosure gate** (always):
    `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
    Fails the delivery on placeholder tokens in visible text, on a missing
    compliance disclaimer or verification-status line, and — when the note
    quantifies a driver allocation or mentions a beta — on a missing
-   "Reasoned allocation — not a measured decomposition" label or beta
-   estimation-window disclosure. `--selftest` proves the script works.
-2. **Render gate** (always):
+   "allocation — not a measured decomposition" label or beta estimation-window
+   disclosure. Round 3 scoped the needles: the qualifying label must sit
+   adjacent to the content it qualifies (a footer label does not satisfy a
+   waterfall disclosure), and notes discussing the options-implied move must
+   carry the volatility-risk-premium caveat near it. `--selftest` proves the
+   script works.
+3. **Render gate** (always):
    `node scripts/note_overflow_audit.mjs --note <note.html>`
    Flags horizontal overflow, elements spilling past the viewport width, and
    overflow:hidden boxes clipping their content (headless Chromium; install
    with `npm install playwright && npx playwright install chromium` if
    missing — the script prints the exact commands on failure).
-3. If an environment genuinely cannot run the render gate, do not ship
-   silently: set the verification-status line to "Draft — human verification
-   required (render gate not run: <reason>)" and say so in the reply.
-4. For a **full fact-base numeric audit** (every figure machine-checked
+4. **Accessibility gate** (always, round 3):
+   `node scripts/a11y_audit.mjs --note <note.html>`
+   Checks `<html lang>`, heading order, image alt text, and WCAG-AA text
+   contrast — the note's design constraints claim WCAG-AA, so the claim is
+   enforced rather than asserted (reports 6/7 M-5/M-6). Same Playwright
+   prerequisite as the render gate.
+5. **Provenance sealing** (after the gates pass):
+   `python3 scripts/provenance_seal.py --inputs <note.html> <fact_base_lite.json> --out provenance.json`
+   Writes the SHA-256 manifest, prints the seal line to embed next to the
+   verification-status line, and ships as a sidecar; `--verify` re-checks the
+   delivered artifact against the seal later (tamper evidence — reports 6/7
+   C-2's in-scope core; WORM archival and firm-key signing remain out of scope
+   by the standing round-2 rejection).
+6. If an environment genuinely cannot run a gate, do not ship silently: set
+   the verification-status line to "Draft — human verification required
+   (<gate> not run: <reason>)" and say so in the reply.
+7. For a **full fact-base numeric audit** (every figure machine-checked
    against a sourced fact base, formula arithmetic, cross-check enforcement),
    build the sibling flagship's `fact_base.json` and run its
    `fact_base_audit.py` — that is the family's upgrade path to a fully
@@ -399,9 +493,17 @@ every load-bearing claim traceable. Both layers are required.
 - Every deliverable carries the disclaimer: "Informational only — not investment
   advice, not a solicitation. No price targets published."
 - These outputs are internal analytical notes, not sell-side research: no rating,
-  no price target, no analyst certification or conflict disclosures — do not
-  distribute them as if they carried those. Build only from public sources; if
-  any input is suspected to be MNPI (Regulation FD), stop and escalate.
+  no price target, no analyst certification — do not distribute them as if they
+  carried those. Build only from public sources; if any input is suspected to be
+  MNPI (Regulation FD), stop and escalate.
+- **Buy-side conflict disclosure (round 3, reports 6/7 C-1):** an IC-facing note
+  additionally discloses the fund's position in the covered name — "Fund
+  position: long/short/none/undetermined, as of <date>" — plus mandate
+  constraints and author conflicts that could bear on independence (CFA
+  Institute Standard I(B); Advisers Act fiduciary duty). Conflict visibility is
+  what lets the committee discount the analysis for an existing position; the
+  sell-side Reg AC package stays inapplicable by the family's standing scoping
+  position.
 
 ## Common failure modes (avoid these)
 

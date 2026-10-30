@@ -23,6 +23,14 @@ What it enforces on the delivered note:
      "then": needle} — a needle that becomes mandatory only when one of its
      trigger substrings appears (e.g. the waterfall label only when the note
      quantifies an allocation).
+  4. Scoped needles (round 3, reports 6/7 M-2): a `required_if` entry may add
+     "near": [tokens] and "within": N (default 400) — the disclosure must
+     then appear within N normalized characters of one of the near tokens,
+     not just anywhere in the document. A label buried in the footer while
+     the body presents the waterfall as a measured decomposition is an inert
+     disclosure; scoping makes the needle contextual. Entries without "near"
+     keep the document-wide behavior. Choose near tokens that do NOT appear
+     inside the disclosure string itself, or the scoping is vacuous.
 
 Usage:
   python3 note_audit.py --note <file.html> --checks <checks.json>
@@ -69,8 +77,24 @@ def scan_placeholders(fname: str, raw_html: str) -> list:
     return fails
 
 
+def _all_positions(hay: str, needle: str) -> list:
+    """Every occurrence index of needle in hay (needle is already normalized)."""
+    out, start = [], 0
+    while needle:
+        i = hay.find(needle, start)
+        if i == -1:
+            return out
+        out.append(i)
+        start = i + 1
+    return out
+
+
 def run_needle_checks(fname: str, raw_html: str, checks: dict) -> list:
-    """Required and conditional disclosure needles, on normalized visible text."""
+    """Required and conditional disclosure needles, on normalized visible text.
+
+    Conditional entries may be scoped with "near"/"within": the disclosure
+    must sit within `within` normalized characters of a near token, so a
+    qualifying label actually qualifies the content it applies to."""
     fails = []
     body = norm(visible_text(raw_html))
     for needle in checks.get("required", []):
@@ -83,10 +107,25 @@ def run_needle_checks(fname: str, raw_html: str, checks: dict) -> list:
             fails.append(f"CHECKS-BAD   {fname}  required_if entry needs "
                          "'if_any' (non-empty list) and 'then' (string)")
             continue
-        hit = any(norm(str(t)) in body for t in triggers)
-        if hit and norm(str(then)) not in body:
+        if not any(norm(str(t)) in body for t in triggers):
+            continue
+        n_then = norm(str(then))
+        if n_then not in body:
             fails.append(f"MISSING      {fname}  conditional disclosure absent: "
                          f"'{then}' (triggered by {triggers!r})")
+            continue
+        near, within = spec.get("near"), spec.get("within", 400)
+        if not near:
+            continue
+        near_pos = sorted({i for t in near for i in _all_positions(body, norm(str(t)))
+                           if norm(str(t))})
+        then_pos = _all_positions(body, n_then)
+        if near_pos and not any(min(abs(p - q) for q in near_pos) <= int(within)
+                                for p in then_pos):
+            fails.append(f"SCOPED       {fname}  disclosure '{then}' present but "
+                         f"> {within} chars from its trigger context {near!r} — "
+                         "a footer disclosure does not qualify the content it "
+                         "applies to (move it next to the trigger)")
     return fails
 
 
@@ -112,12 +151,26 @@ def selftest() -> int:
             "disclosure needles + render audit.</p>"
             "<p>Informational only — not investment advice.</p>"
             "</body></html>", encoding="utf-8")
+        # Scoped needle: the label is present but parked in the footer far
+        # from the waterfall it must qualify → SCOPED failure (round 3).
+        # NOTE: the near token must not appear inside the disclosure string
+        # itself, or the scoping is vacuous — use content tokens ("waterfall").
+        filler = "<p>" + ("Section narrative content. " * 60) + "</p>"
+        (d / "note_scoped.html").write_text(
+            "<html><body><h2>Driver decomposition</h2>"
+            "<p>Waterfall: benchmark −1.5, FCF −3.9 …</p>" + filler +
+            "<p>Reasoned allocation — not a measured decomposition.</p>"
+            "<p>Verification status: lite audit gates passed — "
+            "disclosure needles + render audit.</p>"
+            "<p>Informational only — not investment advice.</p>"
+            "</body></html>", encoding="utf-8")
         checks = {
             "required": ["Informational only — not investment advice",
                          "Verification status:"],
             "required_if": [
                 {"if_any": ["waterfall", "decomposition", "allocation"],
-                 "then": "Reasoned allocation — not a measured decomposition"},
+                 "then": "Reasoned allocation — not a measured decomposition",
+                 "near": ["waterfall"], "within": 400},
             ],
         }
         (d / "checks.json").write_text(json.dumps(checks), encoding="utf-8")
@@ -128,17 +181,20 @@ def selftest() -> int:
                         "--checks", str(d / "checks.json")])
         r_wf = main(["--note", str(d / "note_waterfall.html"),
                      "--checks", str(d / "checks.json")])
+        r_sc = main(["--note", str(d / "note_scoped.html"),
+                     "--checks", str(d / "checks.json")])
         # Script-block TODO alone must not fail; placeholder scan only, no
         # checks file (missing 'Verification status:' would fail under checks).
         (d / "note_js.html").write_text(
             "<html><head><script>var todo = 1;</script></head><body>"
             "<p>Close $282.32</p></body></html>", encoding="utf-8")
         r_js = main(["--note", str(d / "note_js.html")])
-        ok = (r_clean == 0 and r_place == 1 and r_wf == 1 and r_js == 0)
+        ok = (r_clean == 0 and r_place == 1 and r_wf == 1 and r_js == 0
+              and r_sc == 1)
         print("=" * 60)
         print("SELFTEST:", "PASS" if ok else "FAIL",
               f"(clean {r_clean}, placeholder {r_place}, "
-              f"waterfall-label {r_wf}, js-scope {r_js})")
+              f"waterfall-label {r_wf}, js-scope {r_js}, scoped {r_sc})")
         return 0 if ok else 1
 
 

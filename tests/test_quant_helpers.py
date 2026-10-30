@@ -63,13 +63,21 @@ class TestZeroDivisionAndEmptyInputs:
 
 
 class TestBetaWindowContract:
-    """Report-3 M1 (confirmed by report-4): the estimation-window disclosure
-    formulas.md mandates is enforced in code — abnormal_return refuses to run a
-    beta-adjusted computation without a disclosed window."""
+    """Report-3 M1 (confirmed by report-4) + round-3 refinement (reports 6/7 H-2):
+    the canonical default window is applied when beta is supplied without one
+    (comparability across runs), echoed with its source; an unusable explicit
+    window still raises — the disclosure is the point, now with a default."""
 
-    def test_beta_without_window_raises(self, qh):
-        with pytest.raises(ValueError, match="beta_window"):
-            qh.abnormal_return(-12.29, -1.5, beta=1.2)
+    def test_beta_without_window_uses_canonical_default(self, qh):
+        r = qh.abnormal_return(-12.29, -1.5, beta=1.2)
+        assert r["excess"] == pytest.approx(-10.49, abs=0.005)
+        assert r["beta_window"] == qh.DEFAULT_BETA_WINDOW
+        assert r["beta_window_source"] == "canonical default"
+        assert "2-year monthly returns vs QQQ" in r["beta_window"]
+
+    def test_canonical_default_window_constant(self, qh):
+        assert "2-year monthly" in qh.DEFAULT_BETA_WINDOW
+        assert "QQQ" in qh.DEFAULT_BETA_WINDOW
 
     def test_blank_window_raises(self, qh):
         with pytest.raises(ValueError):
@@ -79,10 +87,17 @@ class TestBetaWindowContract:
         with pytest.raises(ValueError):
             qh.abnormal_return(-12.29, -1.5, beta=1.2, beta_window=250)
 
+    def test_explicit_window_is_echoed_as_explicit(self, qh):
+        r = qh.abnormal_return(-12.29, -1.5, beta=1.2,
+                               beta_window="250 sessions vs QQQ, through 2026-10-27")
+        assert r["beta_window_source"] == "explicit"
+        assert "250 sessions" in r["beta_window"]
+
     def test_market_adjusted_needs_no_window(self, qh):
         # The beta=1 convention has nothing to disclose — must keep working.
         r = qh.abnormal_return(-12.29, -1.5)
         assert r["excess"] == pytest.approx(-10.79, abs=0.005)
+        assert r["beta_window_source"] is None
 
     def test_percent_multiplier_constant_used(self, qh):
         # Report-3 L2: no magic 100.0 — conversions go through the named constant.
@@ -105,8 +120,8 @@ class TestSignConventions:
         assert p == pytest.approx(-0.50, abs=0.005)
 
     def test_abnormal_return_both_conventions(self, qh):
-        # v1.2 contract: abnormal_return returns a dict echoing the convention
-        # (and the estimation window for the beta-adjusted form).
+        # v1.4 contract: abnormal_return returns a dict echoing the convention,
+        # the estimation window, and whether the window was canonical or explicit.
         r = qh.abnormal_return(-12.29, -1.5)
         assert r["excess"] == pytest.approx(-10.79, abs=0.005)
         assert r["convention"] == "market-adjusted"
@@ -117,6 +132,7 @@ class TestSignConventions:
         assert r["convention"] == "beta-adjusted"
         assert r["beta"] == 1.2
         assert "250 sessions" in r["beta_window"]
+        assert r["beta_window_source"] == "explicit"
 
     def test_waterfall_sign_flip_regression(self, qh):
         """A sign-flipped decomposition must NOT match a negative realized move
@@ -132,6 +148,35 @@ class TestSignConventions:
         r = qh.waterfall_check(wf, -12.29)
         assert r["sum"] == pytest.approx(-12.3, abs=0.05)
         assert r["matches"] is True
+
+
+class TestRound3Helpers:
+    """Round-3 additions (reports 6/7): FCF ex-SBC pairing and the
+    segment-variance row."""
+
+    def test_fcf_canonical_print(self, qh):
+        # Alphabet Q3 2026: OCF 42.29, capex 51.36 -> the canonical −9.07.
+        assert qh.fcf(42.29, 51.36) == pytest.approx(-9.07, abs=0.005)
+
+    def test_fcf_ex_sbc_subtracts_sbc(self, qh):
+        # Synthetic fixtures (not company figures).
+        assert qh.fcf_ex_sbc(42.29, 51.36, 6.50) == pytest.approx(-15.57, abs=0.005)
+        assert qh.fcf_ex_sbc(42.29, 51.36, 0) == qh.fcf(42.29, 51.36)
+
+    def test_segment_variance_row(self, qh):
+        sv = qh.segment_variance(110.0, 100.0, 100.0, 50.0)
+        assert sv["delta_abs"] == pytest.approx(10.0)
+        assert sv["delta_pct"] == pytest.approx(10.0)
+        assert sv["qoq"] == pytest.approx(10.0)
+        assert sv["yoy"] == pytest.approx(120.0)
+
+    def test_segment_variance_rejects_zero_base(self, qh):
+        with pytest.raises(ValueError):
+            qh.segment_variance(110.0, 0.0, 100.0, 50.0)
+        with pytest.raises(ValueError):
+            qh.segment_variance(110.0, 100.0, 0.0, 50.0)
+        with pytest.raises(ValueError):
+            qh.segment_variance(110.0, 100.0, 100.0, 0.0)
 
 
 class TestFormulasDocAgreement:

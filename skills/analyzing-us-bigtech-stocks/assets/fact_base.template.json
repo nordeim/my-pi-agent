@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy this file as fact_base.json. Delete the two _example facts and the _comment keys; replace meta. Schema reference: references/fact-base-schema.md. Every report number must exist here with a source. meta.decision_critical lists the headline facts the audit requires to carry >=2 cross_checked_with entries (opt-in --strict-verified extends the rule to every Verified fact).",
+  "_comment": "Copy this file as fact_base.json. Delete the _example facts and the _comment keys; replace meta. Schema reference: references/fact-base-schema.md. Every report number must exist here with a source. meta.decision_critical lists the headline facts the audit requires to carry >=2 cross_checked_with entries (opt-in --strict-verified extends the rule to every Verified fact). Round 3: consensus-side facts carry consensus_provider/consensus_vintage (+contributor_count) and a T1/T2 source_tier; Reasoned facts declare epistemic_kind derived|judged (judged allocations may carry signed weights + realized_move, which the WATERFALL gate sums); an IC-named meta.audience requires meta.mandate_context (fund_position + position_as_of).",
   "meta": {
     "subject": "COMPANY Inc. (NASDAQ: TICK)",
     "event": "EVENT NAME (e.g. Q3 FY2026 earnings release + conference call)",
@@ -17,7 +17,14 @@
       "Nasdaq-100",
       "PEER1",
       "PEER2"
-    ]
+    ],
+    "audience": "institutional PM/IC",
+    "mandate_context": {
+      "fund_position": "long | short | none | undetermined",
+      "position_as_of": "YYYY-MM-DD",
+      "mandate_constraints": "e.g. single-name cap 5%; no leverage (or 'none declared')",
+      "author_conflict": "none declared"
+    }
   },
   "hypotheses": [
     {
@@ -29,13 +36,13 @@
         "P2 falsifiable check",
         "P3 falsifiable check"
       ],
-      "verdict": "PRIMARY — narrative | PRIMARY — mechanical | CONTRIBUTOR | AMPLIFIER | NOISE | EXCLUDED (fill in Phase 4)",
+      "verdict": "PRIMARY \u2014 narrative | PRIMARY \u2014 mechanical | CONTRIBUTOR | AMPLIFIER | NOISE | EXCLUDED (fill in Phase 4)",
       "confidence": "High | Medium | Low"
     }
   ],
   "facts": [
     {
-      "_example_1": "DELETE ME — verified fact pattern",
+      "_example_1": "DELETE ME \u2014 verified fact pattern",
       "id": "F-001",
       "category": "market_reaction",
       "metric": "TICK close on reaction day",
@@ -59,7 +66,7 @@
       ]
     },
     {
-      "_example_2": "DELETE ME — derived fact pattern",
+      "_example_2": "DELETE ME \u2014 derived fact pattern",
       "id": "F-002",
       "category": "market_reaction",
       "metric": "One-day move",
@@ -67,7 +74,7 @@
       "unit": "%",
       "as_of": "2026-10-29 close",
       "source_tier": "T2",
-      "source_name": "Yahoo Finance — named reporter (date)",
+      "source_name": "Yahoo Finance \u2014 named reporter (date)",
       "source_url": "https://...",
       "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
       "confidence": "Reasoned",
@@ -81,6 +88,63 @@
       ],
       "slide_pages": [
         "slide_01.html"
+      ],
+      "epistemic_kind": "derived"
+    },
+    {
+      "_example_3": "DELETE ME \u2014 consensus-side fact pattern (round 3): provider + vintage + T1/T2 tier are mandatory; the consensus is the denominator of every beat/miss delta",
+      "id": "F-004",
+      "category": "fundamentals",
+      "metric": "Revenue consensus, Q3 2026",
+      "value": 128.22,
+      "unit": "$B",
+      "as_of": "Q3 2026 (estimate set as of 2026-10-26)",
+      "source_tier": "T2",
+      "source_name": "LSEG consensus as reported by Reuters (named outlet + date)",
+      "source_url": "https://...",
+      "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
+      "confidence": "Verified",
+      "is_consensus": true,
+      "consensus_provider": "LSEG (via Reuters)",
+      "consensus_vintage": "YYYY-MM-DD (within ~10 days of the event)",
+      "contributor_count": null,
+      "cross_checked_with": [
+        "Visible Alpha as reported by CNBC (second origination chain)"
+      ],
+      "supports": [
+        "deck"
+      ],
+      "slide_pages": [
+        "slide_04.html"
+      ]
+    },
+    {
+      "_example_4": "DELETE ME \u2014 judged-allocation fact pattern (round 3): signed weights must sum to realized_move (WATERFALL gate); explicitly non-causal",
+      "id": "F-005",
+      "category": "narrative_metric",
+      "metric": "Driver decomposition of the session move (judged allocation)",
+      "value": "signed allocation, N factors",
+      "unit": "text",
+      "as_of": "2026-10-29 close",
+      "source_tier": "T2",
+      "source_name": "analyst allocation over verified inputs",
+      "source_url": "n/a (Reasoned (judged) \u2014 not a reported fact)",
+      "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
+      "confidence": "Reasoned",
+      "epistemic_kind": "judged",
+      "weights": {
+        "benchmark": -1.5,
+        "fcf_capex": -3.9,
+        "eps_quality": -2.7,
+        "search": -2.4,
+        "positioning": -1.8
+      },
+      "realized_move": -12.29,
+      "supports": [
+        "H2"
+      ],
+      "slide_pages": [
+        "slide_11.html"
       ]
     },
     {

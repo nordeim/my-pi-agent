@@ -131,6 +131,97 @@ class TestNeedleChecks:
         assert any("CHECKS-BAD" in f for f in fails)
 
 
+class TestScopedNeedles:
+    """Round 3 (reports 6/7 M-2): a disclosure present but parked far from the
+    content it qualifies is inert — scoped needles fail it."""
+
+    def test_scoped_needle_passes_when_adjacent(self, na):
+        checks = {"required": [], "required_if": [
+            {"if_any": ["waterfall"], "then": "not a measured decomposition",
+             "near": ["waterfall"], "within": 400}]}
+        html = ("<html><body><p>Waterfall: benchmark −1.5, FCF −3.9.</p>"
+                "<p>Reasoned (judged) allocation — not a measured decomposition.</p>"
+                "</body></html>")
+        assert na.run_needle_checks("n.html", html, checks) == []
+
+    def test_scoped_needle_fails_when_far_away(self, na):
+        checks = {"required": [], "required_if": [
+            {"if_any": ["waterfall"], "then": "not a measured decomposition",
+             "near": ["waterfall"], "within": 200}]}
+        filler = "Section narrative content. " * 40   # >> 200 normalized chars
+        html = ("<html><body><p>Waterfall: benchmark −1.5.</p>"
+                f"<p>{filler}</p>"
+                "<p>Reasoned allocation — not a measured decomposition.</p>"
+                "</body></html>")
+        fails = na.run_needle_checks("n.html", html, checks)
+        assert any("SCOPED" in f for f in fails), (
+            "a disclosure parked far from its trigger must fail the scoped needle")
+
+    def test_unscoped_needle_still_document_wide(self, na):
+        # Entries without "near" keep the round-2 document-wide behavior.
+        checks = {"required": [], "required_if": [
+            {"if_any": ["waterfall"], "then": "not a measured decomposition"}]}
+        filler = "Section narrative content. " * 40
+        html = ("<html><body><p>Waterfall: benchmark −1.5.</p>"
+                f"<p>{filler}</p>"
+                "<p>Reasoned allocation — not a measured decomposition.</p>"
+                "</body></html>")
+        assert na.run_needle_checks("n.html", html, checks) == []
+
+    def test_scoped_needle_missing_entirely_reports_missing(self, na):
+        checks = {"required": [], "required_if": [
+            {"if_any": ["waterfall"], "then": "not a measured decomposition",
+             "near": ["waterfall"], "within": 400}]}
+        html = "<html><body><p>Waterfall: benchmark −1.5.</p></body></html>"
+        fails = na.run_needle_checks("n.html", html, checks)
+        assert any("MISSING" in f and "conditional disclosure absent" in f
+                   for f in fails)
+        assert not any("SCOPED" in f for f in fails)
+
+
+class TestChecksSpecContentRound3:
+    """Round-3 needle additions: IC fund-position disclosure, implied-move VRP
+    caveat, segment-map vintage line (skill 3), scoped waterfall/beta needles."""
+
+    @pytest.mark.parametrize("checks", [S2_CHECKS, S3_CHECKS], ids=["skill2", "skill3"])
+    def test_waterfall_needle_is_scoped(self, checks):
+        data = json.loads(checks.read_text(encoding="utf-8"))
+        wf = [s for s in data.get("required_if", [])
+              if "waterfall" in [str(t).lower() for t in s.get("if_any", [])]]
+        assert wf and wf[0].get("near"), (
+            "the waterfall label needle must be scoped (near/within) so a footer "
+            "label cannot inertly satisfy it (round-3 M-2)")
+
+    @pytest.mark.parametrize("checks", [S2_CHECKS, S3_CHECKS], ids=["skill2", "skill3"])
+    def test_ic_position_disclosure_needle(self, checks):
+        data = json.loads(checks.read_text(encoding="utf-8"))
+        specs = data.get("required_if", [])
+        pos = [s for s in specs
+               if "investment committee" in [str(t).lower() for t in s.get("if_any", [])]]
+        assert pos and "fund position" in str(pos[0].get("then", "")).lower(), (
+            "IC-facing notes must disclose the fund's position (round-3 C-1, "
+            "buy-side conflict disclosure)")
+
+    @pytest.mark.parametrize("checks", [S2_CHECKS, S3_CHECKS], ids=["skill2", "skill3"])
+    def test_implied_move_vrp_needle(self, checks):
+        data = json.loads(checks.read_text(encoding="utf-8"))
+        specs = data.get("required_if", [])
+        vrp = [s for s in specs
+               if any("straddle" == str(t).lower() for t in s.get("if_any", []))]
+        assert vrp and "volatility risk premium" in str(vrp[0].get("then", "")).lower(), (
+            "an implied-move discussion must carry the volatility-risk-premium "
+            "caveat near it (round-3 M-3)")
+
+    def test_skill3_segment_map_needle(self):
+        data = json.loads(S3_CHECKS.read_text(encoding="utf-8"))
+        specs = data.get("required_if", [])
+        seg = [s for s in specs
+               if "reportable segment" in [str(t).lower() for t in s.get("if_any", [])]]
+        assert seg and "segment map" in str(seg[0].get("then", "")).lower(), (
+            "a segment variance table must state its segment-map vintage check "
+            "(round-3 H-3 doc-side)")
+
+
 class TestEndToEnd:
     """CLI-level: a clean note passes the skill's own checks.json; a note with a
     placeholder or a missing disclosure exits 1."""

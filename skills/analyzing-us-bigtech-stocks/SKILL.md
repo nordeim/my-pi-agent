@@ -1,9 +1,9 @@
 ---
 name: analyzing-us-bigtech-stocks
-version: 1.3.0
-description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck with audit gates. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render audits with opt-in strict compliance modes (cross-check enforcement, fail-on-unverified). For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery."
+version: 1.4.0
+description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render + accessibility audits with consensus/epistemic/waterfall schema gates, opt-in strict modes, and SHA-256 provenance sealing. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery."
 license: Apache-2.0
-compatibility: Requires web search and page-fetch tools for primary-source verification; render audit needs Node.js with Playwright.
+compatibility: Requires web search and page-fetch tools for primary-source verification; render and accessibility audits need Node.js with Playwright.
 ---
 
 # Analyzing US Big-Tech Stocks — Event RCA & Trend Reports
@@ -55,7 +55,7 @@ Every quantitative or causal claim in the report carries exactly one label:
 | Label | Meaning | Hard requirement |
 |---|---|---|
 | `Verified` | Observed directly in ≥1 named primary source; decision-critical numbers cross-checked in ≥2 independent sources | Source name + URL + retrieval date in the fact base |
-| `Reasoned` | Logical inference or computation from `Verified` inputs | The inference chain or formula is stated on the slide or in the fact base |
+| `Reasoned` | Inference or computation from `Verified` inputs — split into `Reasoned (derived)` (deterministic: formula + parents, reproducible) and `Reasoned (judged)` (analytical allocation, signed, non-causal) | The inference chain or formula is stated on the slide or in the fact base; `epistemic_kind` records which kind (audit-enforced) |
 | `Assumed` | Stated assumption used because data was unavailable | Isolated, listed on the method page, minimized toward zero |
 | `Unverifiable` | Source could not be retrieved with the tools at hand | Logged in the fact base with the exact pull needed to close the gap; never used in headline statistics |
 
@@ -104,7 +104,8 @@ Phase 9 until every hypothesis has a verdict.
 1. Collect from **Tier 1** sources first: SEC filings (10-Q/10-K/8-K), company IR press release / shareholder letter, the earnings-call transcript, official company blogs. Tier 2 (Reuters, CNBC, Bloomberg, FT, WSJ, AP) supports consensus figures and market color. Tier 3 (Yahoo Finance, Macrotrends, TIKR, Stooq) supports price/market data only — never fundamental claims.
 2. Log every fact as a structured record (metric, value, period, source, URL, retrieval time, confidence, cross-checks) in `fact_base.json` — schema in `assets/fact_base.template.json`, rules in `references/fact-base-schema.md`.
 3. Cross-check every decision-critical number across ≥2 independent sources; if sources conflict, record both and flag the conflict — never silently pick one.
-4. Derived numbers (percent moves, ex-item figures, market-cap deltas) are computed in code with the formula shown; they are labeled `Reasoned (derived)`.
+4. Derived numbers (percent moves, ex-item figures, market-cap deltas) are computed in code with the formula shown; they are labeled `Reasoned (derived)`; judgment allocations are `Reasoned (judged)` — the audit enforces the split (`epistemic_kind`).
+5. Consensus figures carry a named provider, a vintage, and a T1/T2 source: record `consensus_provider`, `consensus_vintage` (as-of date of the estimate set, within ~10 days of the event) and `contributor_count` when disclosed; cross-verify a single T2 chain against a second distinct origination chain. The audit's CONSENSUS gate fails a consensus fact without them — the consensus is the denominator of every beat/miss delta (see `references/methodology.md` §2.3).
 5. Quote the exact source sentence for any judgment you plan to paraphrase (analyst quotes, guidance language) — paraphrase must not strengthen the claim.
 
 *Source-tier table, price-data hygiene (share class, splits, adjusted closes), transcript protocol: `references/methodology.md` §2; schema: `references/fact-base-schema.md`.*
@@ -114,7 +115,7 @@ Phase 9 until every hypothesis has a verdict.
 1. Compute the move: % change to T+1 close, after-hours print, absolute market-cap delta (shares outstanding × Δprice), distance from the 52-week/all-time high, YTD and 1-year context.
 2. Build the same-day cross-section: S&P 500, Nasdaq-100, peer basket (for big tech: MSFT, META, AMZN, AAPL, NVDA at minimum) — this is what separates idiosyncratic repricing from systematic risk-off.
 3. Verify any "worst day since IPO", "record wipeout", "biggest since" claim against a named source; if unverifiable, drop the ranking and state the plain numbers.
-4. Note volume, options-implied volatility and flows **only if** you have a source for them.
+4. Note volume, options-implied volatility and flows **only if** you have a source for them — and compute the options-implied move from the T-1 closing chain (ATM call + put closes for the nearest post-event expiry, over the T-1 close), never a news article's quoted percentage (a wire figure may only cross-check, tagged `Assumed`); carry the volatility-risk-premium caveat when interpreting realized vs implied (sibling skill's `reference/formulas.md#options-implied-move-vs-realized`).
 
 *Formulas and the historical-ranking protocol: `references/methodology.md` §3.*
 
@@ -191,11 +192,14 @@ Phase 9 until every hypothesis has a verdict.
 2. The numeric audit — every critical figure in the deck must match the fact base / checks file, derived-fact formulas must compute, `Assumed` facts must be listed on the method page, and placeholder tokens must be absent:
    `python3 scripts/fact_base_audit.py --slides <slides_dir> --fact-base <fact_base.json>`
    (designate the assumptions page via `meta.method_page` in the fact base or `--method-page`; `--checks checks.json` for the simple per-slide needle format; `--selftest` proves the script works).
-3. Opt-in strict compliance modes for institutional builds — `--strict-verified` (every `Verified` fact must carry ≥2 `cross_checked_with` entries), `--fail-on-unverified` (reverse-check "unverified candidates" become failures instead of a review list), `--decision-critical F-001,F-014` (named facts must be double-sourced; same effect as `meta.decision_critical` in the fact base). They are opt-in because the reverse-check is heuristic — default-strict would flag benign page furniture and invite disabling the gate. `STRICT=1 bash scripts/audit_all.sh …` turns both flags on.
+3. Opt-in strict compliance modes for institutional builds — `--strict-verified` (every `Verified` fact must carry ≥2 `cross_checked_with` entries), `--fail-on-unverified` (reverse-check "unverified candidates" become failures instead of a review list), `--decision-critical F-001,F-014` (named facts must be double-sourced; same effect as `meta.decision_critical` in the fact base), and `--strict-pages slide_02.html,slide_07.html` (unverified candidates on the decision-critical pages — executive summary, root-cause decomposition — become failures while page furniture elsewhere stays advisory). They are opt-in because the reverse-check is heuristic — default-strict would flag benign page furniture and invite disabling the gate. `STRICT=1 bash scripts/audit_all.sh …` turns the strict flags on.
+3a. Always-on schema gates (round 3, reports 6/7): CONSENSUS (consensus-side facts need provider + vintage + T1/T2 tier, vintage within `--consensus-max-age-days` of the event), EPISTEMIC (`Reasoned` facts declare `epistemic_kind: derived|judged`; derived requires a formula), WATERFALL (facts with a signed `weights` dict must sum to their `realized_move`), and MANDATE (an IC-named `meta.audience` requires `meta.mandate_context` with `fund_position` + `position_as_of`).
 4. Run the render audit — no overflow or clipping at 1280×720 measured against the slide element itself, fonts render, decorative bleeds marked `data-bleed`:
    `node scripts/overflow_audit.mjs --dir <slides_dir>` (`--selftest` proves the script works)
 5. Fix the **generator/brief**, not the rendered page, when an audit fails; re-run until clean. Document any remaining false positives explicitly.
-6. Deliver: pages + viewer + fact base + audit reports. Refresh data if the market has moved since the cutoff, or restate the cutoff. The cover's verification-status line must reflect the final gate results.
+6. Accessibility gate (run alongside the render audit when the deck claims WCAG-AA): `node scripts/a11y_audit.mjs --dir <slides_dir>` checks `lang`, heading order, image alt text and AA text contrast per page.
+7. Deliver: pages + viewer + fact base + audit reports. Refresh data if the market has moved since the cutoff, or restate the cutoff. The cover's verification-status line must reflect the final gate results.
+8. Seal the deliverable (round 3, reports 6/7 C-2): `python3 scripts/provenance_seal.py --inputs <slides_dir>/slide_01.html … <fact_base.json> --out provenance.json` — embed the printed seal line on the cover next to the verification-status line and ship the sidecar with the deck; re-verify later with `--verify` (tamper evidence).
 
 *Audit protocol and refresh rules: `references/methodology.md` §10–11.*
 
@@ -209,8 +213,10 @@ Phase 9 until every hypothesis has a verdict.
 | `references/report-design.md` | Phase 9 — Midnight IC tokens, 15-page archetype map, overflow budget |
 | `assets/fact_base.template.json` | Phase 1 — starting skeleton with worked examples |
 | `assets/slides_brief.template.json` | Phase 9 — deck-plan skeleton |
-| `scripts/fact_base_audit.py` | Phase 10 — numeric + placeholder audit; opt-in `--strict-verified` / `--fail-on-unverified` / `--decision-critical` (`--selftest` to verify) |
+| `scripts/fact_base_audit.py` | Phase 10 — numeric + placeholder audit; always-on CONSENSUS / EPISTEMIC / WATERFALL / MANDATE schema gates; opt-in `--strict-verified` / `--fail-on-unverified` / `--decision-critical` / `--strict-pages` (`--selftest` to verify) |
 | `scripts/overflow_audit.mjs` | Phase 10 — Playwright render/overflow audit |
+| `scripts/a11y_audit.mjs` | Phase 10 — accessibility audit (lang / heading order / image alt / WCAG-AA contrast) |
+| `scripts/provenance_seal.py` | Phase 10 — SHA-256 sealing of the fact base + rendered pages, `provenance.json` sidecar, `--verify` tamper check |
 | `scripts/audit_all.sh` | Phase 10 — one-command wrapper running both gates with a combined exit code (`STRICT=1` adds the strict flags) |
 
 ## Definition of done
@@ -226,6 +232,9 @@ Phase 9 until every hypothesis has a verdict.
 - [ ] Valuation boundary stated (pre-valuation causal-attribution product; valuation model gap named as an open item)
 - [ ] Sources & confidence ledger page with named sources and dates
 - [ ] Verification-status line on the cover reflecting the final gate results
+- [ ] Consensus facts carry provider + vintage + T1/T2 tier (CONSENSUS gate clean)
+- [ ] IC-facing builds disclose fund position via `meta.mandate_context` (MANDATE gate clean)
+- [ ] Provenance sealed: seal line on the cover, `provenance.json` shipped with the deck
 - [ ] `bash scripts/audit_all.sh …` exits clean (false positives documented if any)
 - [ ] Disclaimer present: informational only, not investment advice
 
@@ -239,6 +248,14 @@ Phase 9 until every hypothesis has a verdict.
   discussion, not sell-side research. It carries no rating, no price target, and no
   analyst certification (Reg AC) or FINRA 2241 disclosure package — do not
   distribute it as if it did.
+- **Position & mandate disclosure (buy-side)**: when the deliverable is for an
+  investment-committee audience, the fact base carries `meta.mandate_context`
+  (`fund_position`, `position_as_of`, plus mandate constraints and author
+  conflicts that could bear on independence) and the cover discloses the fund's
+  position — CFA Institute Standard I(B) / Advisers Act fiduciary duty, the
+  buy-side counterpart of sell-side conflict disclosure. The audit's MANDATE
+  gate enforces its presence; the sell-side certification package stays
+  inapplicable by the family's standing scoping position.
 - Every deliverable carries: "Informational only — not investment advice, not a
   solicitation. No price targets published."
 

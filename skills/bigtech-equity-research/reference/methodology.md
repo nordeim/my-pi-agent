@@ -17,6 +17,23 @@ Pull, in order of preference:
    FactSet/Visible Alpha/Refinitiv (LSEG)-referencing notes or Bloomberg consensus
    **as reported by a named outlet**.
 
+   **Consensus sourcing protocol (round 3, reports 6/7 H-1):** the consensus is the
+   denominator of every beat/miss delta, so it gets the same evidentiary rigor as
+   the reported figures, not less. Wire copy rounds, prints the median instead of
+   the mean, or carries a weeks-stale number — a $0.02 vs $0.05 miss is a different
+   causal narrative. For every consensus figure:
+   - record the **provider** (FactSet / Visible Alpha / LSEG / Bloomberg as
+     reported), the **vintage** (the as-of date of the estimate set, within ~10
+     days of the event), and the **contributor count** when the provider discloses
+     it;
+   - source it from **T1/T2 only** — never a lone T3 aggregator print; when only a
+     T2 chain is available, cross-verify across **two distinct origination chains**
+     (e.g. Reuters AND a second outlet carrying a different provider's set), or the
+     company's own IR page when it publishes tracked consensus;
+   - state mean vs median when the outlet discloses which it is printing.
+   The flagship's `fact_base_audit.py` enforces this at the schema level
+   (consensus facts without provider/vintage/T1-T2 tier fail the build).
+
 **Compute the beat/miss delta** for every headline metric — `actual − consensus` and the
 percentage. The delta, not the absolute, is what moves price.
 Formula: `reference/formulas.md#beatmiss-delta`.
@@ -32,16 +49,29 @@ sources to the reported precision.
    Nasdaq fell 2% that day, the "company-specific" story is ~2pp smaller than
    headlines suggest. This is the *market-adjusted* form (implicitly beta = 1); for a
    high-beta name prefer the **beta-adjusted** form — stock return − `beta` × benchmark
-   return — with a beta estimated over a stated pre-event window (e.g. 250 sessions
-   vs QQQ) and the window disclosed. Do not call the benchmark return "beta": beta is
-   a unitless sensitivity, not a percentage. `scripts/quant_helpers.py::abnormal_return`
-   enforces the disclosure in code: it raises when a beta is supplied without
-   `beta_window` and echoes the window in its result — print it next to the figure.
+   return — with a beta estimated over a stated pre-event window and the window
+   disclosed. Do not call the benchmark return "beta": beta is a unitless sensitivity,
+   not a percentage. `scripts/quant_helpers.py::abnormal_return` enforces the window
+   discipline in code: a beta supplied without a window gets the **canonical default**
+   (2-year monthly returns vs QQQ, `DEFAULT_BETA_WINDOW`) and echoes it; an explicit
+   non-default window must be justified in the note (a corporate event that
+   structurally changed the risk profile) — comparability across runs is the point.
    Formula:
    `reference/formulas.md#market-adjusted-excess-return-not-alpha`.
 2. **Options implied move** — the pre-print ATM straddle price vs the realized move.
-   - Realized ≈ implied → market was already positioned; likely de-grossing, not surprise.
-   - Realized ≫ implied → genuine surprise; the information content is higher.
+   - Compute the straddle cost from the **T-1 closing options chain** (ATM call +
+     ATM put closes for the nearest post-event expiry, over the T-1 close) — never
+     a news article's quoted implied-move percentage; a wire figure may only
+     cross-check, tagged `Assumed` with the outlet named.
+   - Realized ≈ implied → market was already positioned; likely de-grossing, not
+     surprise. Realized ≫ implied → genuine surprise; the information content is
+     higher. **Volatility risk premium caveat:** implied exceeds realized on
+     average, so "realized ≈ implied" can be a normal premium rather than
+     positioning — state the name's historical average `realized/implied` ratio
+     over a disclosed window (≥8 prior prints) or tag the read `Assumed`
+     (heuristic). The lite audit's scoped needle fails the note when the implied-
+     move discussion lacks this caveat.
+   Formula: `reference/formulas.md#options-implied-move-vs-realized`.
 3. Report the idiosyncratic residual as the number the root-cause analysis must explain.
 
 **Tag:** benchmark closes and implied move are `Verified` only if pulled; otherwise `Assumed`
@@ -50,15 +80,23 @@ with a stated bound, and routed to the Data-Gap Ledger.
 ## Phase 3 — Segment-level attribution
 **Goal:** find which segment(s) actually caused the delta.
 
-Build a variance table across all reportable segments (map: `reference/segment-maps.md`):
+Build a variance table across all reportable segments (map: `reference/segment-maps.md`;
+compute each row with `scripts/quant_helpers.py::segment_variance`):
 columns = actual, consensus, Δ, YoY, QoQ trend, result.
 
-**Staleness check (before the table is built):** compare `segment-maps.md`'s
-`last_verified_against_filing` with the filing you are using. If the filing is
-newer, re-verify the segment structure against its own segment note and update
-the map (bump `segment_map_version`) first — the variance table must mirror the
-filing's segment note or it will not tie out, and nothing downstream catches a
-stale map. Cite the filing (form type + fiscal period) on the table.
+**Staleness gate (mechanical, round 3 — reports 6/7 H-3):** before building the
+table, run
+`python3 scripts/segment_map_check.py --map reference/segment-maps.json --filing-date <YYYY-MM-DD> [--company <TICKER>]`
+against the filing you are actually using. It **fails the build** when the filing
+postdates the map's `verified_through` — a stale map produces a confidently wrong
+variance table that still passes the numeric audit, because nothing downstream
+catches a misattributed segment. Doctrine: **the filing's own segment note (ASC 280,
+usually Note 10–15) is the source of truth; the map is the cached baseline
+expectation.** On a stale/unknown result, extract the segment structure from that
+filing's segment note directly, update `segment-maps.md` AND `segment-maps.json`
+(bump `segment_map_version`), then re-run the gate. Cite the filing (form type +
+fiscal period) on the table, and print "Segment map: vintage verified against
+<filing>" so the lite audit's scoped needle can check it.
 
 Critical distinction:
 - **Miss** = below consensus.
@@ -73,7 +111,12 @@ decelerates because it funds the growth investment.
 
 - Capex: actual vs prior guidance vs Street. Compute **capex/operating-cash-flow ratio**.
 - **Free-cash-flow trajectory** across the last 4 quarters — the slope matters as much as level.
-  Consecutive negative-FCF quarters is a psychologically important threshold.
+  Consecutive negative-FCF quarters is a psychologically important threshold. Pair
+  every FCF figure with its **FCF ex-SBC companion** (OCF − capex − SBC, SBC from the
+  cash-flow statement, T1): SBC is structurally material for US mega-cap tech, and
+  FCF that ignores it overstates the cash generation available for buybacks and
+  dividends. State which basis the beat/miss is computed on
+  (`reference/formulas.md#fcf-trajectory`; `quant_helpers.fcf` / `fcf_ex_sbc`).
 - Operating-margin trend and stated drivers (AI-infra depreciation, buildout, hiring).
 - **Depreciation-schedule changes** — a frequent "stealth" driver of margin-compression fears.
   Check the CFO remarks / 10-Q MD&A explicitly.
@@ -89,7 +132,11 @@ decelerates because it funds the growth investment.
 - **Macro same week** — rate moves, dollar, AI-capex sentiment across megacaps, any
   competitive-AI-cost shocks applicable to the date.
 - **Peer read-through** — if comps reported the same week, their commentary may be driving the
-  sector, not this company's print.
+  sector, not this company's print. Use the canonical basket for the name
+  (`reference/peers.md`) or a documented alternative — same primary revenue driver,
+  market-cap proximity, 2–4 names, basket and criteria stated in the note. Peer
+  cherry-picking (a mega-cap's capex vs a mid-cap's) is a construction artifact, not
+  a finding.
 
 ## Phase 6 — Sell-side reaction
 **Goal:** capture how the Street repriced within 48 hours.
@@ -117,13 +164,16 @@ Rank the drivers of the realized move across:
 
 Rules:
 - The **ordinal ranking is the primary output.** A quantified allocation may
-  accompany it only as a `Reasoned` analytical allocation: signed weights,
+  accompany it only as a `Reasoned (judged)` analytical allocation: signed weights,
   disclosed method, confidence tag per factor — and labeled on the deliverable as
   an allocation, not a measurement. The weights summing to the realized move is an
-  **arithmetic consistency check**, not evidence the factors caused the move.
-  Never publish a quantified decomposition that pretends to be an observed
-  regression or an event-study residual; if you want a real residual, compute one
-  (Phase 2 beta-adjusted form) and disclose the model.
+  **arithmetic consistency check** (enforced by `quant_helpers.waterfall_check` and,
+  in the flagship, by the WATERFALL schema gate), not evidence the factors caused
+  the move. Deterministic derivations — GAAP bridges, delta arithmetic, options
+  math — are `Reasoned (derived)` facts: they carry a formula and are reproducible;
+  judgment allocations are not. Never publish a quantified decomposition that
+  pretends to be an observed regression or an event-study residual; if you want a
+  real residual, compute one (Phase 2 beta-adjusted form) and disclose the model.
 - Classify each driver **structural** (permanent to the franchise) vs **cyclical/accounting**
   (timing, non-cash, reversible). This classification is the single most important judgment and
   is always `Reasoned`, never presented as a reported fact.
@@ -137,10 +187,12 @@ When the request precedes the print, the deliverable is a setup note, not a
 post-mortem:
 
 1. **Consensus vs whisper**: published consensus (revenue, EPS, segment growth,
-   capex) plus any sourced whisper/positioning color — labeled by tier.
+   capex) plus any sourced whisper/positioning color — labeled by tier, with
+   provider + vintage per the Phase 1 consensus protocol.
 2. **Implied move**: ATM straddle price / spot for the nearest expiry → the move
    the options market is pricing; compare to the realized moves of the last 4–8
-   prints.
+   prints. Compute from the T-1 closing chain, and carry the volatility-risk-
+   premium caveat (formula reference: `formulas.md#options-implied-move-vs-realized`).
 3. **Positioning**: run-up into the print, distance from highs, index weight,
    ownership — only with sources.
 4. **Scenario matrix**: bull/in-line/bear outcomes, each with "what would have to

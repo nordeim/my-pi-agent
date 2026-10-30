@@ -1,17 +1,33 @@
 {
-  "_comment": "Disclosure needles enforced by scripts/note_audit.py on every delivered note (Step 9 / Verification and delivery gates in SKILL.md). 'required' strings must appear in visible text; 'required_if' strings become mandatory only when a trigger substring appears. Matching is dash/case/whitespace-tolerant. Keep in sync with the skill's own rules; extend per engagement (engagement-specific headline figures belong in a per-run checks file passed via --checks, not here).",
+  "_comment": "Disclosure needles enforced by scripts/note_audit.py on every delivered note (Step 9 / Verification and delivery gates in SKILL.md). 'required' strings must appear in visible text; 'required_if' strings become mandatory only when a trigger substring appears. Round 3: entries may be scoped with 'near' + 'within' — the disclosure must sit within N normalized characters of a near token, so a label parked in the footer cannot inertly satisfy a content-adjacent disclosure. Pick near tokens that do NOT appear inside the 'then' string itself, or the scoping is vacuous. Matching is dash/case/whitespace-tolerant. Keep in sync with the skill's own rules; extend per engagement (engagement-specific headline figures belong in a per-run checks file passed via --checks, not here).",
   "required": [
     "not investment advice",
     "Verification status:"
   ],
   "required_if": [
     {
-      "if_any": ["waterfall", "decomposition", "allocation"],
-      "then": "Reasoned allocation — not a measured decomposition"
+      "if_any": ["waterfall", "decomposition", "allocation", "signed"],
+      "then": "allocation — not a measured decomposition",
+      "near": ["waterfall", "signed", "benchmark"],
+      "within": 400
     },
     {
       "if_any": ["beta"],
-      "then": "estimation window"
+      "then": "estimation window",
+      "near": ["beta"],
+      "within": 400
+    },
+    {
+      "if_any": ["implied move", "implied_move", "straddle", "surprise ratio"],
+      "then": "volatility risk premium",
+      "near": ["implied move", "straddle", "surprise ratio"],
+      "within": 600
+    },
+    {
+      "if_any": ["investment committee", "ic memo", "ic pre-read"],
+      "then": "Fund position",
+      "near": ["investment committee", "ic memo", "ic pre-read"],
+      "within": 600
     }
   ]
 }

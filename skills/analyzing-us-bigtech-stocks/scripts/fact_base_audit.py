@@ -15,13 +15,31 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
      ("82.3" does NOT match "$282.32").
      Numbers found on slides but absent from the fact base are reported as
      "unverified candidates" — a to-review list, not automatic failures
-     (promote them to failures with the opt-in --fail-on-unverified).
+     (promote them to failures with the opt-in --fail-on-unverified, or
+     per decision-critical page with --strict-pages).
      Facts carrying a `formula` of the form "LHS = RHS" (numbers and
      + - * / ( ) only) are arithmetically checked: both sides are evaluated
      and must agree (percent-aware: "…= -12.29%" compares against LHS*100).
      Facts with confidence "Assumed" must be listed on the method/
      assumptions page, designated via --method-page FILE or the fact base's
      meta.method_page field.
+     Round-3 schema gates (always on — deterministic, no heuristic false
+     positives; reports 6/7 findings H-1/H-2/C-1):
+       CONSENSUS   consensus-side facts (is_consensus, or a metric naming
+                   consensus/estimates) must carry consensus_provider,
+                   consensus_vintage (YYYY-MM-DD) and a T1/T2 source_tier,
+                   with the vintage inside --consensus-max-age-days (default
+                   10, 0 disables) of meta.event_timestamp — the consensus
+                   is the denominator of every beat/miss delta
+       EPISTEMIC   every `Reasoned` fact must declare epistemic_kind:
+                   "derived" (deterministic — a formula is then required)
+                   or "judged" (analytical allocation, explicitly non-causal)
+       WATERFALL   facts carrying a signed driver `weights` dict must sum
+                   to their realized_move within tolerance — the sum-to-move
+                   identity is enforced in code, not just claimed in prose
+       MANDATE     when meta.audience names an IC / investment committee,
+                   meta.mandate_context (fund_position + position_as_of)
+                   must be present — buy-side conflict-of-interest disclosure
      Opt-in strict compliance modes (institutional builds):
        --strict-verified     every fact tagged `Verified` must carry >=2
                              entries in cross_checked_with (the family's
@@ -34,6 +52,11 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
                              — opt-in only: the reverse-check is heuristic,
                              and page furniture (years, section numbers)
                              legitimately appears without fact-base entries
+       --strict-pages A.html,B.html  decision-critical pages (executive
+                             summary, root-cause decomposition) where
+                             unverified candidates are failures even without
+                             --fail-on-unverified — strict where it matters,
+                             advisory for page furniture elsewhere
   2. Checks mode    : --slides DIR --checks FILE
      FILE = {"slide_01.html": ["-12.29%", "$482B", ...]} — per-slide needles.
   3. Scan-only      : --slides DIR — placeholder scan only.
@@ -240,9 +263,152 @@ def check_cross_checks(fb: dict, strict_verified: bool, extra_ids: str) -> list:
     return fails
 
 
+# ---------- round-3 schema gates (reports 6/7: H-1, H-2, C-1) ----------
+
+def _parse_iso_date(s: str):
+    """Best-effort YYYY-MM-DD prefix parse; None when unparseable."""
+    try:
+        return __import__("datetime").date.fromisoformat(str(s).strip()[:10])
+    except (ValueError, TypeError):
+        return None
+
+
+def _is_consensus_fact(fact: dict) -> bool:
+    if fact.get("is_consensus") is True:
+        return True
+    metric = str(fact.get("metric", "")).lower()
+    return any(k in metric for k in ("consensus", "estimate", "whisper"))
+
+
+def check_consensus_facts(fb: dict, max_age_days: int = 10) -> list:
+    """Consensus-side facts carry provider, vintage and a T1/T2 tier, fresh
+    relative to the event (report-6/7 H-1: the consensus is the denominator of
+    every beat/miss delta — a stale or aggregator-only print corrupts them all)."""
+    fails = []
+    meta = fb.get("meta", {}) or {}
+    event_date = _parse_iso_date(meta.get("event_timestamp", ""))
+    for fact in fb.get("facts", []):
+        fid = fact.get("id", "?")
+        if not _is_consensus_fact(fact):
+            continue
+        missing = [f for f in ("consensus_provider", "consensus_vintage")
+                   if not str(fact.get(f, "")).strip()]
+        tier = str(fact.get("source_tier", "")).strip()
+        if tier not in ("T1", "T2"):
+            missing.append(f"source_tier in T1/T2 (got {tier or 'missing'}; an "
+                           "aggregator consensus print is never sufficient)")
+        if missing:
+            fails.append(f"CONSENSUS    {fid}  consensus-side fact missing: "
+                         + ", ".join(missing))
+            continue
+        if max_age_days and event_date:
+            v = _parse_iso_date(fact.get("consensus_vintage", ""))
+            if v is None:
+                fails.append(f"CONSENSUS    {fid}  consensus_vintage is not "
+                             "YYYY-MM-DD")
+                continue
+            age = (event_date - v).days
+            if age < 0 or age > max_age_days:
+                fails.append(f"CONSENSUS    {fid}  consensus_vintage {v} is {age} "
+                             f"days before the event — outside the {max_age_days}-day "
+                             "window (stale consensus corrupts every delta; re-verify "
+                             "against a fresh named-provider print)")
+            else:
+                print(f"PASS   {fid}  consensus vintage {v} ({age}d before the event, "
+                      f"{fact.get('consensus_provider')})")
+    return fails
+
+
+def check_mandate_context(fb: dict) -> list:
+    """IC-facing fact bases must disclose position/mandate context.
+
+    Reports 6/7 C-1, corrected to the buy-side regime: Reg AC / FINRA 2241
+    apply to distributed sell-side research, which these skills explicitly are
+    not — but an internal IC deliverable still requires conflict-of-interest
+    visibility (CFA Institute Standard I(B), Advisers Act fiduciary duty).
+    Deterministic presence check: no heuristic false positives."""
+    meta = fb.get("meta", {}) or {}
+    audience = meta.get("audience", "")
+    if isinstance(audience, list):
+        audience = " ".join(str(a) for a in audience)
+    if not re.search(r"\b(ic|investment[\s-]committee)\b", str(audience).lower()):
+        return []
+    mc = meta.get("mandate_context") or {}
+    if not isinstance(mc, dict) or not str(mc.get("fund_position", "")).strip() \
+            or not str(mc.get("position_as_of", "")).strip():
+        return ["MANDATE      meta.audience names an IC audience but "
+                "meta.mandate_context is absent or incomplete — an IC-facing "
+                "deliverable must disclose fund_position (long/short/none/"
+                "undetermined) and position_as_of; conflict visibility is what "
+                "lets the committee discount the analysis for an existing "
+                "position"]
+    print(f"PASS   mandate_context present (fund_position: "
+          f"{mc.get('fund_position')}, as of {mc.get('position_as_of')})")
+    return []
+
+
+def check_epistemic_kinds(fb: dict) -> list:
+    """`Reasoned` facts declare epistemic_kind: derived vs judged.
+
+    Report-6/7 H-2: the single `Reasoned` label conflated deterministic
+    derivation (reproducible: formula + parents) with analyst judgment
+    (allocation, non-causal). The split is now schema-enforced so an IC reader
+    can tell reproducible math from opinion at the record level. Accepts the
+    parenthesized forms ("Reasoned (derived)" / "Reasoned (judged)") too."""
+    fails = []
+    for fact in fb.get("facts", []):
+        fid = fact.get("id", "?")
+        conf = str(fact.get("confidence", "")).strip()
+        if conf == "Reasoned":
+            kind = str(fact.get("epistemic_kind", "")).strip().lower()
+        elif conf.lower().startswith("reasoned ("):
+            kind = conf.lower().replace("reasoned", "", 1).strip(" ()")
+        else:
+            continue
+        if kind not in ("derived", "judged"):
+            fails.append(f"EPISTEMIC    {fid}  `Reasoned` fact without epistemic_kind: "
+                         "classify it 'derived' (deterministic — formula + "
+                         "derived_from required, audit-checked) or 'judged' "
+                         "(analytical allocation, signed, explicitly non-causal)")
+            continue
+        if kind == "derived" and not str(fact.get("formula", "")).strip():
+            fails.append(f"EPISTEMIC    {fid}  epistemic_kind 'derived' but no formula "
+                         "— a deterministic derivation must be reproducible")
+    return fails
+
+
+def check_waterfall_sums(fb: dict) -> list:
+    """Facts carrying a signed driver `weights` dict must sum to their
+    realized_move within tolerance (report-6/7 H-2: the sum-to-move identity
+    was claimed in prose; nothing checked it). Arithmetic consistency, not
+    causation — same contract as quant_helpers.waterfall_check."""
+    fails = []
+    for fact in fb.get("facts", []):
+        fid = fact.get("id", "?")
+        weights, realized = fact.get("weights"), fact.get("realized_move")
+        if not isinstance(weights, dict) or realized is None:
+            continue
+        try:
+            total = sum(float(v) for v in weights.values())
+            r = float(realized)
+        except (TypeError, ValueError):
+            fails.append(f"WATERFALL    {fid}  weights/realized_move are not numeric")
+            continue
+        tol = max(0.05, abs(r) * 0.005)
+        if abs(total - r) > tol:
+            fails.append(f"WATERFALL    {fid}  signed weights sum to {total:.2f} vs "
+                         f"realized_move {r:.2f} (tolerance ±{tol:.2f}) — a `Judged` "
+                         "allocation must reproduce the move it allocates")
+        else:
+            print(f"PASS   {fid}  waterfall weights sum to {total:.2f} ≈ realized "
+                  f"{r:.2f} (consistency check, not causation)")
+    return fails
+
+
 def run_fact_base_mode(slides: dict, fb: dict, method_page: str,
                        strict_verified: bool = False,
-                       decision_critical: str = "") -> tuple:
+                       decision_critical: str = "",
+                       consensus_max_age: int = 10) -> tuple:
     """Per-fact presence checks. Returns (failures, skipped_ids, covered_tokens)."""
     fails, skipped, covered = [], [], set()
     deck_text = norm(" ".join(visible_text(v) for v in slides.values()))
@@ -273,22 +439,36 @@ def run_fact_base_mode(slides: dict, fb: dict, method_page: str,
     fails += check_formulas(fb)
     fails += check_assumed_on_method_page(fb, slides, method_page)
     fails += check_cross_checks(fb, strict_verified, decision_critical)
+    fails += check_consensus_facts(fb, consensus_max_age)
+    fails += check_mandate_context(fb)
+    fails += check_epistemic_kinds(fb)
+    fails += check_waterfall_sums(fb)
     return fails, skipped, covered
 
 
 def unverified_candidates(slides: dict, covered: set) -> list:
     """Numbers visible on slides but not covered by any fact — to review.
     Sign-tolerant: a fact recorded as -482 covers a slide's '$48B erased'."""
-    cands = set()
-    for raw in slides.values():
+    return sorted({c for lst in _candidates_by_page(slides, covered).values()
+                   for c in lst})
+
+
+def _candidates_by_page(slides: dict, covered: set) -> dict:
+    """Per-slide unverified candidates — the --strict-pages gate needs to know
+    WHICH decision-critical page an uncovered number sits on."""
+    out = {}
+    for fname, raw in slides.items():
+        cands = []
         for m in re.finditer(r"\$\d[\d,\.]*\s?[BM]?|\d+\.\d+%?|\d{2,}%", visible_text(raw)):
             disp = m.group(0).strip()
             tok = disp.replace(",", "").replace("$", "").replace("%", "").rstrip("BMK.")
             tok = tok.lstrip("-").rstrip(".")
             if tok and tok not in covered and ("-" + tok) not in covered \
                and float(tok) != 0:
-                cands.add(disp)
-    return sorted(cands)
+                cands.append(disp)
+        if cands:
+            out[fname] = cands
+    return out
 
 
 def run_checks_mode(slides: dict, checks: dict) -> list:
@@ -311,7 +491,7 @@ def selftest() -> int:
         d = pathlib.Path(td)
         (d / "slide_01.html").write_text(
             "<html><body><p>GOOG closed $282.32, −12.29%, ≈$482B erased; +103% ignored; "
-            "FCF −$9.1B, ex-fine ≈ −$3.9B.</p>"
+            "FCF −$9.1B, ex-fine ≈ −$3.9B; rev $127.58B vs $128.22B cons; EPS 2.12 vs 3.02.</p>"
             "<div class='ghost' data-bleed='intentional' style='position:absolute;left:1200px'>X</div>"
             "</body></html>", encoding="utf-8")
         (d / "slide_02.html").write_text("<html><body><p>TODO fix this</p></body></html>",
@@ -323,7 +503,12 @@ def selftest() -> int:
         (d / "slide_14.html").write_text(
             "<html><body><h2>Assumptions</h2><p>Event-day beta assumed at 1.5; "
             "no index closes pulled.</p></body></html>", encoding="utf-8")
-        fb = {"meta": {"method_page": "slide_14.html"}, "facts": [
+        fb = {"meta": {"method_page": "slide_14.html",
+                       "event_timestamp": "2026-10-28T16:05:00-04:00",
+                       "audience": "institutional PM/IC",
+                       "mandate_context": {"fund_position": "undetermined",
+                                            "position_as_of": "2026-10-30"}},
+              "facts": [
             {"id": "F-1", "value": 282.32, "slide_pages": ["slide_01.html"]},
             {"id": "F-2", "value": "-12.29%", "slide_pages": ["slide_01.html"]},
             {"id": "F-3", "value": -482, "unit": "$B", "slide_pages": ["slide_01.html"]},
@@ -333,12 +518,15 @@ def selftest() -> int:
             # H-4 regression: substring of a longer slide number must NOT pass.
             {"id": "F-7", "value": 82.3, "slide_pages": ["slide_01.html"]},   # must FAIL
             {"id": "F-8", "value": 12.29, "slide_pages": ["slide_03.html"]},  # must FAIL
-            # Derived-fact formula checks.
+            # Derived-fact formula checks (round-3: epistemic_kind declared).
             {"id": "F-9", "value": -3.9, "confidence": "Reasoned",
+             "epistemic_kind": "derived",
              "formula": "-9.1 + 5.2 = -3.9", "slide_pages": ["slide_01.html"]},
             {"id": "F-10", "value": -3.8, "confidence": "Reasoned",
+             "epistemic_kind": "derived",
              "formula": "-9.1 + 5.2 = -3.8", "slide_pages": ["slide_01.html"]},  # must FORMULA-FAIL
             {"id": "F-11", "value": -12.29, "confidence": "Reasoned",
+             "epistemic_kind": "derived",
              "formula": "(282.32 - 321.89) / 321.89 = -12.29%",
              "slide_pages": ["slide_01.html"]},
             # Assumed fact must be listed on meta.method_page (slide_14);
@@ -352,6 +540,25 @@ def selftest() -> int:
             # --strict-verified when listed via meta.decision_critical).
             {"id": "F-13", "value": 42.29, "confidence": "Verified",
              "cross_checked_with": [], "slide_pages": ["slide_01.html"]},
+            # Round-3 fixtures — epistemic split, waterfall, consensus, mandate.
+            {"id": "F-14", "value": "signed allocation, 5 factors",
+             "confidence": "Reasoned", "epistemic_kind": "judged",
+             "weights": {"benchmark": -1.5, "fcf_capex": -3.9, "eps_quality": -2.7,
+                         "search": -2.4, "positioning": -1.8},
+             "realized_move": -12.29},                          # must WATERFALL-PASS
+            {"id": "F-15", "value": "signed allocation, inconsistent",
+             "confidence": "Reasoned", "epistemic_kind": "judged",
+             "weights": {"benchmark": -1.5, "fcf_capex": -2.0},
+             "realized_move": -12.29},                          # must WATERFALL-FAIL
+            {"id": "F-16", "category": "fundamentals",
+             "metric": "Revenue consensus, Q3 2026", "value": 128.22,
+             "confidence": "Verified", "source_tier": "T2",
+             "consensus_provider": "LSEG (via Reuters)", "consensus_vintage": "2026-10-26",
+             "slide_pages": ["slide_01.html"]},                # must CONSENSUS-PASS
+            {"id": "F-17", "category": "fundamentals",
+             "metric": "EPS consensus, Q3 2026", "value": 3.02,
+             "confidence": "Verified", "source_tier": "T3",
+             "slide_pages": ["slide_01.html"]},                # must CONSENSUS-FAIL
         ]}
         fb["facts"][0]["cross_checked_with"] = ["F-002"]
         fb["facts"][1]["cross_checked_with"] = ["F-001", "F-003"]
@@ -374,7 +581,14 @@ def selftest() -> int:
               # Assumed-on-method-page gate
               and not any("F-12" in f for f in report["failures"])
               and any("F-4" in s for s in report["passes_skipped"])       # text-only skipped
-              and any("103%" in c for c in report["unverified_candidates"]))
+              and any("103%" in c for c in report["unverified_candidates"])
+              # round-3 gates: waterfall, consensus, epistemic, mandate
+              and any("F-15" in f and "WATERFALL" in f for f in report["failures"])
+              and not any("F-14" in f and "WATERFALL" in f for f in report["failures"])
+              and any("F-17" in f and "CONSENSUS" in f for f in report["failures"])
+              and not any("F-16" in f and "CONSENSUS" in f for f in report["failures"])
+              and not any("EPISTEMIC" in f for f in report["failures"])
+              and not any("MANDATE" in f for f in report["failures"]))
         # Default run must NOT enforce cross-checks (opt-in discipline) but
         # MUST enforce meta.decision_critical, and unverified candidates stay
         # advisory notes, not failures.
@@ -403,9 +617,44 @@ def selftest() -> int:
         (d / "fb2.json").write_text(json.dumps(fb2), encoding="utf-8")
         code_c = main(["--slides", str(d), "--fact-base", str(d / "fb2.json"),
                        "--decision-critical", "F-5"])
+        # Round-3: --strict-pages promotes the slide_01 candidate ("103%") to a
+        # failure WITHOUT --fail-on-unverified, while slide furniture elsewhere
+        # (none here) stays advisory; an unknown strict page is a BADREF.
+        code_sp = main(["--slides", str(d), "--fact-base", str(d / "fb.json"),
+                        "--strict-pages", "slide_01.html,slide_77.html",
+                        "--report", str(d / "r_sp.json")])
+        r_sp = json.loads((d / "r_sp.json").read_text())
+        ok = ok and code_sp == 1
+        ok = ok and any("UNVERIFIED" in f and "103%" in f and "slide_01" in f
+                        for f in r_sp["failures"])
+        ok = ok and any("BADREF" in f and "slide_77" in f
+                        for f in r_sp["failures"])
+        # Round-3: an IC audience without mandate_context fails the MANDATE gate.
+        fb3 = json.loads(json.dumps(fb))
+        del fb3["meta"]["mandate_context"]
+        (d / "fb3.json").write_text(json.dumps(fb3), encoding="utf-8")
+        code_m = main(["--slides", str(d), "--fact-base", str(d / "fb3.json"),
+                       "--report", str(d / "r_m.json")])
+        r_m = json.loads((d / "r_m.json").read_text())
+        ok = ok and code_m == 1 and any("MANDATE" in f for f in r_m["failures"])
+        # Round-3: a non-IC audience with no mandate_context stays silent, and
+        # `Reasoned` without epistemic_kind fails EPISTEMIC (fb4 strips kinds).
+        fb4 = json.loads(json.dumps(fb))
+        fb4["meta"]["audience"] = "internal research desk"
+        for fact in fb4["facts"]:
+            fact.pop("epistemic_kind", None)
+        (d / "fb4.json").write_text(json.dumps(fb4), encoding="utf-8")
+        code_e = main(["--slides", str(d), "--fact-base", str(d / "fb4.json"),
+                       "--report", str(d / "r_e.json")])
+        r_e = json.loads((d / "r_e.json").read_text())
+        ok = ok and code_e == 1
+        ok = ok and any("EPISTEMIC" in f and "F-9" in f for f in r_e["failures"])
+        ok = ok and not any("MANDATE" in f for f in r_e["failures"])
         print("=" * 60)
         print("SELFTEST:", "PASS" if ok else "FAIL",
-              f"(default exit {code}, strict exit {code_s}, cli-dc exit {code_c})")
+              f"(default exit {code}, strict exit {code_s}, cli-dc exit {code_c}, "
+              f"strict-pages exit {code_sp}, mandate exit {code_m}, "
+              f"epistemic exit {code_e})")
         return 0 if ok else 1
 
 
@@ -429,6 +678,17 @@ def main(argv=None) -> int:
                     help="opt-in: promote reverse-check 'unverified candidates' "
                          "to failures (exit 1). Default keeps them as a NOTE "
                          "review list because the reverse-check is heuristic")
+    ap.add_argument("--strict-pages", default="",
+                    help="comma-separated slide files where unverified candidates "
+                         "are failures even without --fail-on-unverified — the "
+                         "decision-critical pages (executive summary, root-cause "
+                         "decomposition); page furniture elsewhere stays advisory")
+    ap.add_argument("--consensus-max-age-days", type=int, default=10,
+                    metavar="N",
+                    help="CONSENSUS gate: maximum calendar days between a fact's "
+                         "consensus_vintage and meta.event_timestamp (default 10; "
+                         "0 disables the freshness check — provider/tier still "
+                         "required)")
     ap.add_argument("--report", help="optional path for a JSON audit report")
     ap.add_argument("--selftest", action="store_true", help="run built-in self-test and exit")
     args = ap.parse_args(argv)
@@ -451,7 +711,8 @@ def main(argv=None) -> int:
         failures, skipped, covered = run_fact_base_mode(
             slides, fb, method_page,
             strict_verified=args.strict_verified,
-            decision_critical=args.decision_critical)
+            decision_critical=args.decision_critical,
+            consensus_max_age=args.consensus_max_age_days)
     if args.checks:
         checks = json.loads(pathlib.Path(args.checks).read_text(encoding="utf-8"))
         failures += run_checks_mode(slides, checks)
@@ -463,22 +724,35 @@ def main(argv=None) -> int:
 
     failures += scan_placeholders(slides)
 
-    cands = unverified_candidates(slides, covered) if args.fact_base else []
-    if cands:
-        print("-" * 60)
-        if args.fail_on_unverified:
-            print(f"NOTE   {len(cands)} unverified candidate(s) promoted to "
-                  "failures by --fail-on-unverified:")
-            for c in cands:
+    cands_by_page = _candidates_by_page(slides, covered) if args.fact_base else {}
+    strict_pages = {p.strip() for p in (args.strict_pages or "").split(",")
+                    if p.strip()}
+    # Decision-critical pages fail closed; --fail-on-unverified promotes the rest.
+    for fname in sorted(strict_pages):
+        if fname not in slides:
+            failures.append(f"BADREF      --strict-pages names unknown page {fname}")
+        for c in cands_by_page.get(fname, []):
+            failures.append(f"UNVERIFIED   {fname}  slide number '{c}' has no "
+                            "fact-base entry (--strict-pages: decision-critical "
+                            "page — add it to the fact base or confirm benign)")
+    if args.fail_on_unverified:
+        for fname, lst in cands_by_page.items():
+            if fname in strict_pages:
+                continue  # already failures above — no double count
+            for c in lst:
                 failures.append(f"UNVERIFIED   slide number '{c}' has no "
-                                 "fact-base entry (add it or confirm benign)")
-                print(f"       ! {c}")
-        else:
-            print(f"NOTE   {len(cands)} unverified candidate(s) on slides — add to the fact "
-                  "base or confirm benign (years, page furniture); promoted to "
-                  "failures only with --fail-on-unverified:")
-            for c in cands:
-                print(f"       ? {c}")
+                                "fact-base entry (add it or confirm benign)")
+    cands = sorted({c for lst in cands_by_page.values() for c in lst})
+    advisory = [c for c in cands
+                if not args.fail_on_unverified
+                and not any(c in cands_by_page.get(p, []) for p in strict_pages)]
+    if advisory:
+        print("-" * 60)
+        print(f"NOTE   {len(advisory)} unverified candidate(s) on slides — add to "
+              "the fact base or confirm benign (years, page furniture); promoted "
+              "to failures on --strict-pages pages or with --fail-on-unverified:")
+        for c in advisory:
+            print(f"       ? {c}")
 
     if args.report:
         pathlib.Path(args.report).write_text(json.dumps(

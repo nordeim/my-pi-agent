@@ -16,12 +16,29 @@ knowledge, tag it `Assumed` and flag it.
 ## Confidence taxonomy (tag every figure)
 - **Verified** — observed in ≥2 independent primary/near-primary sources, consistent to the
   reported precision.
-- **Reasoned** — logical inference/derivation from verified inputs (e.g. waterfall weights,
-  implied consensus OCF, structural-vs-cyclical classification). Method disclosed.
+- **Reasoned** — inference or computation from verified inputs. Round 3 splits it into two
+  **mandatory sub-kinds** so an IC reader can tell reproducible math from opinion at the
+  record level (reports 6/7 H-2):
+  - **`Reasoned (derived)`** — deterministic derivation (FCF = OCF − Capex, delta arithmetic,
+    GAAP bridges, options math). Must carry a formula and its parent inputs; reproducible and
+    audit-checked. The parenthesized form or an explicit `epistemic_kind: derived` field both
+    satisfy the flagship's schema gate.
+  - **`Reasoned (judged)`** — analytical allocation or classification (driver-decomposition
+    weights, structural-vs-cyclical calls). Signed, method disclosed, sum-checked when part
+    of a decomposition — and explicitly non-causal: an arithmetic consistency check is not
+    evidence of causation.
 - **Assumed** — based on a stated assumption with explicit bounds (e.g. beta estimate when index
   closes are unavailable).
 - **Unverifiable** — the environment cannot retrieve the source; listed in the Data-Gap Ledger
   with the exact pull needed.
+
+## Consensus sourcing (round 3, reports 6/7 H-1)
+Consensus figures are the denominator of every beat/miss delta and get tier discipline, not
+convenience: named **provider** (FactSet / Visible Alpha / LSEG / Bloomberg as reported),
+**vintage** (as-of date of the estimate set, within ~10 days of the event), **contributor
+count** when disclosed, and a **T1/T2 source** — never a lone aggregator print; a single T2
+chain must be cross-verified against a second distinct origination chain. Record mean vs
+median when the outlet discloses which it prints. See `reference/methodology.md` Phase 1.
 
 ## Anti-hallucination rules
 - No invented API figures, index returns, implied moves, multiples, or filing numbers.
@@ -37,3 +54,15 @@ risk. Internal analytical note — not for distribution as sell-side research: n
 rating, no price target, no analyst certification or conflict disclosures. Built
 from public sources only; if any input is suspected to be material non-public
 information (Regulation FD), stop and escalate.
+
+**Position & mandate disclosure (round 3, reports 6/7 C-1, buy-side regime).**
+When the deliverable is for an investment-committee audience, the note discloses the
+**fund's position** in the covered name — "Fund position: long / short / none /
+undetermined, as of <date>" — plus any mandate constraint or author conflict that
+could bear on independence (CFA Institute Standard I(B); Advisers Act fiduciary
+duty). This is the buy-side counterpart of sell-side conflict disclosure and is
+what lets the committee discount the analysis for an existing position. The lite
+audit's conditional needle fails an IC-facing note without it. (Reg AC / FINRA
+2241 certification remains inapplicable: these notes are not distributed
+sell-side research — the family's standing scoping position, per the round-2
+rejection.)

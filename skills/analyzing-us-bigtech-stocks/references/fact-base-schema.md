@@ -28,6 +28,13 @@ it does not go in the report.
     "data_cutoff": "2026-10-30T13:00:00+08:00",
     "prepared": "2026-10-30",
     "method_page": "slide_15.html",
+    "audience": "institutional PM/IC",
+    "mandate_context": {
+      "fund_position": "undetermined",
+      "position_as_of": "2026-10-30",
+      "mandate_constraints": "no leverage; single-name cap 5%",
+      "author_conflict": "none declared"
+    },
     "benchmarks": ["S&P 500", "Nasdaq-100", "MSFT", "META", "AMZN", "AAPL", "NVDA"],
     "decision_critical": ["F-001", "F-014"]
   },
@@ -48,6 +55,14 @@ convention; CLI override: `fact_base_audit.py --method-page <file>`).
 5–15 headline figures). The audit enforces the ≥2-cross-check rule for exactly these
 facts by default, and for **every** `Verified` fact under the opt-in `--strict-verified`
 mode (see §7).
+
+`meta.audience` + `meta.mandate_context` (round 3, reports 6/7 C-1): when the audience
+names an IC / investment committee, the fact base must carry `mandate_context` with
+`fund_position` (long / short / none / undetermined) and `position_as_of`, plus any
+mandate constraint or author conflict that could bear on independence — buy-side
+conflict-of-interest disclosure (CFA Institute Standard I(B)). The audit's MANDATE
+gate fails an IC-audience fact base without it. For a non-IC audience the block is
+optional and the gate stays silent.
 
 The `hypotheses` array mirrors the Phase 3 tree; facts link to hypotheses via `supports`,
 which makes the Phase 4 evidence assembly mechanical.
@@ -72,6 +87,13 @@ which makes the Phase 4 evidence assembly mechanical.
 | `slide_pages` | array | recommended | Page filenames where the number must appear — used by the audit |
 | `derived_from` | array | derived only | Parent fact IDs |
 | `formula` | string | derived only | The arithmetic shown on the slide, e.g. `"-9.1 + 5.2 = -3.9"` |
+| `epistemic_kind` | enum | `Reasoned` facts | `derived` \| `judged` (round 3): deterministic derivation vs analytical allocation — audit-enforced; the parenthesized confidence forms `Reasoned (derived)` / `Reasoned (judged)` satisfy it too |
+| `weights` | object | judged allocations | Signed driver weights `{factor: pct_points}` — must sum to `realized_move` (WATERFALL gate) |
+| `realized_move` | number | judged allocations | The move the allocation decomposes |
+| `consensus_provider` | string | consensus facts | FactSet / Visible Alpha / LSEG / Bloomberg **as reported by a named outlet** |
+| `consensus_vintage` | date | consensus facts | As-of date of the estimate set, YYYY-MM-DD — within `--consensus-max-age-days` (default 10) of `meta.event_timestamp` |
+| `contributor_count` | number | consensus facts | When the provider discloses it — more contributors, tighter the denominator |
+| `is_consensus` | boolean | optional | Explicit consensus-side marker; facts whose metric names consensus/estimates are detected anyway |
 | `quote` | string | quotes/paraphrases | Exact source sentence captured at retrieval |
 | `notes` | string | optional | Basis notes, hedged language, caveats |
 | `conflict` | object | conflicts only | `{"with": "F-034", "resolution": "used transcript (T1) over press figure"}` |
@@ -96,7 +118,8 @@ chains** — two aggregators scraping the same wire story corroborate nothing.
 | Label | Assign when | Audit consequence |
 |---|---|---|
 | `Verified` | Observed directly in ≥1 named source; decision-critical items cross-checked in ≥2 | Must have `source_url` + `retrieved_at`; spot-checked by audit |
-| `Reasoned` | Computed or inferred from `Verified` parents | Must have `derived_from` + `formula` (or a stated inference chain); arithmetic-checked by audit |
+| `Reasoned (derived)` | Deterministic computation from `Verified` parents — reproducible | Must have `derived_from` + `formula` (or a stated inference chain); arithmetic-checked by audit; `epistemic_kind: derived` |
+| `Reasoned (judged)` | Analytical allocation or classification — judgment, explicitly non-causal | Signed weights that sum to the realized move when part of a decomposition (WATERFALL gate); method disclosed; never presented as measurement |
 | `Assumed` | Needed but unavailable; explicit modeling choice | Must appear on the method/assumptions page (`meta.method_page`) — enforced by audit; keep count at/near zero |
 | `Unverifiable` | Source not retrievable with the tools at hand | Logged with the exact pull needed; never in headline statistics; listed with the final confidence legend |
 
@@ -192,7 +215,22 @@ at retrieval time on 2026-10-28/30):
    `--fail-on-unverified`. The strict modes are opt-in (not defaults) because the
    reverse-check is heuristic and default-strict would flag benign page furniture,
    inviting operators to disable the gate — a warnings-as-failures gate that gets
-   switched off protects nothing.
+   switched off protects nothing. Round 3 adds `--strict-pages slide_02.html,…`:
+   unverified candidates on the named decision-critical pages become failures while
+   furniture elsewhere stays advisory.
+6. Round-3 schema gates (always on — deterministic, no heuristic false positives):
+   CONSENSUS (consensus-side facts need provider + vintage + T1/T2 tier, vintage
+   within `--consensus-max-age-days`, default 10, of `meta.event_timestamp`),
+   EPISTEMIC (`Reasoned` facts declare `epistemic_kind` derived/judged; derived
+   requires `formula`), WATERFALL (signed `weights` must sum to `realized_move`
+   within tolerance), MANDATE (an IC-named `meta.audience` requires
+   `meta.mandate_context` with `fund_position` + `position_as_of`).
+7. Provenance sealing (after the gates pass): `scripts/provenance_seal.py --inputs
+   <slides…> <fact_base.json> --out provenance.json` writes the SHA-256 manifest,
+   prints the seal line for the cover, and verifies the delivered artifact later
+   with `--verify` — the tamper-evident link between the audited fact base and the
+   shipped deck (reports 6/7 C-2; WORM archival and firm-key signing stay out of
+   scope by the standing round-2 rejection).
 
 Exit code 0 = clean; 1 = failures (fix before delivery); false positives are documented in
 the delivery note, never ignored silently. `--selftest` proves all of the above works.

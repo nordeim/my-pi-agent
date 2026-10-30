@@ -72,6 +72,17 @@ Rules:
 ### 2.3 Consensus & estimates
 
 - Consensus revenue/EPS/segment estimates: take from T2 (Reuters/CNBC/Bloomberg story on the print, or FactSet/Visible Alpha as reported). Record the outlet, not "the Street said".
+- **Provider + vintage discipline (round 3, reports 6/7 H-1):** the consensus is the
+  denominator of every beat/miss delta, so it gets the same rigor as the reported
+  figures. Every consensus fact carries `consensus_provider` (FactSet / Visible Alpha /
+  LSEG / Bloomberg as reported by a named outlet), `consensus_vintage` (the as-of date
+  of the estimate set — within ~10 days of the event), and `contributor_count` when
+  the provider discloses it. Never a lone T3 aggregator print; a single T2 chain is
+  cross-verified against a second distinct origination chain (two outlets scraping
+  the same wire story corroborate nothing), or the company's own IR page when it
+  publishes tracked consensus. State mean vs median when the outlet discloses which
+  it is printing. `fact_base_audit.py`'s CONSENSUS gate fails a consensus fact
+  without provider/vintage/T1-T2 tier, or with a stale vintage.
 - For segment-level consensus (e.g. Search $64.9B vs actual $63.4B), cite the specific story or data page; if only the total is available, present segment "short of estimates" qualitatively rather than inventing a number.
 - Price targets: shop, analyst name, old PT, new PT, date, source. Consensus PT before/after with analyst count (e.g. FactSet consensus $426.20 → $404.63 across 61 analysts, Oct 29 2026).
 
@@ -104,7 +115,13 @@ Compute (in code, not by hand) and record as facts:
 - **Historical ranking**: "worst day since 2004 IPO", "second-largest one-day market-cap loss ever for a US-listed stock (behind Nvidia, Jan 2025)" — only from T2 sources that state the ranking. If none, drop the ranking.
 - **Distance from highs**: ATH close $402.12 (May 13 2026) → −29.8% below; pre-print close was already −20% off the high. The pre-event drawdown context matters: it tells you how much hope was still priced in.
 - **Same-day cross-section**: S&P 500 and Nasdaq-100 moves, each peer's move with reason (e.g. "MSFT beat and spiked same evening — rotation within AI, not blanket risk-off", "AMZN −4.3% next day after its own miss"). This cross-section is the single best discriminator between narrative repricing and market-wide de-risking: **target down + peers up = idiosyncratic verdict against the name.**
-- **Volume/IV/flows**: include only with a source; otherwise omit entirely.
+- **Volume/IV/flows**: include only with a source; otherwise omit entirely. When the
+  options-implied move is used, compute it from the T-1 closing chain (ATM call + ATM
+  put closes for the nearest post-event expiry, over the T-1 close) — a news article's
+  quoted percentage may only cross-check, tagged `Assumed` — and carry the
+  volatility-risk-premium caveat (implied exceeds realized on average; state the name's
+  historical realized/implied ratio over a disclosed window or tag the read
+  `Assumed`).
 
 **Presentation artifact:** a price-ladder or drawdown chart (ATH → pre-print close → post-print close → after-hours), pure CSS where possible (§10).
 
@@ -267,7 +284,7 @@ an IC trust the rest of the analysis.
 ## 10. Phase 9 — Report production workflow
 
 1. **Brief first**: write `assets/slides_brief.template.json`-style `slides_brief.json` with per-page title, layout archetype, and a task brief that already contains the exact figures, quotes and sources. Building pages while improvising content is how numbers drift from the fact base.
-2. **Cover verification-status line**: the cover states which gates the finished deck passed — "Verification status: full fact-base + render audits passed", or "Draft — human verification required" with the reason when a gate could not run. Update it after the final Phase 10 run; a deliverable whose audit state is implicit is a draft.
+2. **Cover verification-status line**: the cover states which gates the finished deck passed — "Verification status: full fact-base + render audits passed", or "Draft — human verification required" with the reason when a gate could not run. Update it after the final Phase 10 run; a deliverable whose audit state is implicit is a draft. IC-facing decks also carry the fund-position disclosure ("Fund position: … as of <date>", from `meta.mandate_context`), and sealed decks carry the provenance seal line printed by `scripts/provenance_seal.py` next to the status line.
 3. **Page architecture** (15-page default; compress to 12–16 as needed):
    01 Cover (title, 4-stat strip, verification-status line, cutoff + disclaimer) · 02 Verdict (3 tagged cards + "what the panic missed" band) · 03 Event timeline · 04 Results scorecard table · 05 Price action + drawdown ladder · 06 Section divider: The Hypothesis Tree · 07 H-page (primary narrative) · 08 H-page (primary mechanical) · 09 Contributor pages (H3+H4 combined) · 10 Amplifier page · 11 Evidence matrix (all hypotheses, verdicts, confidence) · 12 Overlooked case · 13 Street reaction & valuation damage · 14 Scenarios & falsifiers · 15 Sources & confidence ledger.
 4. **Design system**: Midnight IC tokens, components and the 1280×720 overflow budget are specified in `references/report-design.md`. Follow the budget — it is derived from real overflow failures.
@@ -295,6 +312,22 @@ python3 scripts/fact_base_audit.py --selftest
 
 - `audit_all.sh` runs the numeric and render gates with a single combined exit code — use it as the default Phase 10 entry point so the second gate cannot be forgotten.
 - The fact-base mode verifies every fact's numeric tokens appear in the assigned pages (anchored, sign/symbol-tolerant matching — a digit substring of a longer slide number never satisfies a fact), arithmetically checks derived-fact formulas, enforces the Assumed-on-method-page rule (`meta.method_page` or `--method-page`), and reverse-checks numbers found in slides against the fact base to surface **unverified candidates**.
+- **Round-3 schema gates (always on, reports 6/7):** CONSENSUS — consensus-side facts
+  (an `is_consensus` flag or a metric naming consensus/estimates) must carry
+  `consensus_provider`, `consensus_vintage` (YYYY-MM-DD) and a T1/T2 `source_tier`,
+  with the vintage inside `--consensus-max-age-days` (default 10, 0 disables) of
+  `meta.event_timestamp`. EPISTEMIC — every `Reasoned` fact declares
+  `epistemic_kind: derived` (formula required, reproducible) or `judged` (analytical
+  allocation, explicitly non-causal). WATERFALL — a fact carrying a signed `weights`
+  dict must sum to its `realized_move` within tolerance: the sum-to-move identity is
+  enforced in code, not just claimed in prose. MANDATE — when `meta.audience` names
+  an IC / investment committee, `meta.mandate_context` (`fund_position` +
+  `position_as_of`) must be present: buy-side conflict-of-interest disclosure
+  (CFA Institute Standard I(B)); the sell-side Reg AC package stays inapplicable.
+- **`--strict-pages slide_02.html,slide_07.html`** (round 3, report-7 M-1): unverified
+  candidates on the named decision-critical pages (executive summary, root-cause
+  decomposition) become failures while page furniture elsewhere stays advisory —
+  strict where it matters, lenient where the heuristic legitimately fires.
 - **Cross-check enforcement**: facts listed in `meta.decision_critical` (or `--decision-critical F-001,F-014`) must carry ≥2 `cross_checked_with` entries. Opt-in strict modes for institutional builds: `--strict-verified` extends the ≥2 rule to every `Verified` fact; `--fail-on-unverified` promotes reverse-check candidates to failures. These are deliberately opt-in — the reverse-check is heuristic, and a default-strict gate that flags benign page furniture (years, section numbers) gets switched off, protecting nothing. `STRICT=1` on the wrapper turns both on.
 - The checks-file format is `{"slide_01.html": ["-12.29%", "$482B", ...]}` — one needle list per page, same as used successfully in the Alphabet engagement (212 checks).
 - Placeholder scan always runs, on visible text only: `lorem`, `todo`, `placeholder`, `xxx`, `【`, `tbd`, `nan`, `undefined`, `insert …`.
@@ -359,6 +392,13 @@ Working rules that experience says matter most:
 - Every report carries: "Informational only — not investment advice, not a solicitation. No price targets published." (If the user insists on targets, they become `Assumed` scenario inputs, clearly labeled, never recommendations.)
 - **MNPI / Regulation FD**: build only from public sources (filings, IR materials, press). If an input is suspected to be material non-public information, stop and escalate. Never incorporate it into a fact base.
 - **Internal-use framing**: the deliverable is an internal analytical pre-read, not sell-side research — no rating, no price target, no Reg AC analyst certification, no FINRA 2241 disclosure package. Do not distribute it as if it carried those.
+- **Position & mandate disclosure (round 3, reports 6/7 C-1, buy-side regime)**: an
+  IC-facing deliverable discloses the fund's existing position in the covered name
+  ("Fund position: long / short / none / undetermined, as of <date>") plus mandate
+  constraints and author conflicts that could bear on independence — CFA Institute
+  Standard I(B) and Advisers Act fiduciary duty, the buy-side counterpart of
+  sell-side conflict disclosure. Record it in `meta.mandate_context`; the audit's
+  MANDATE gate fails an IC-audience fact base without it.
 - Two-sided by construction: the counter-case page and the `AGAINST` evidence columns are mandatory. A report that only justifies the move's direction is advocacy, not research.
 - Tone: institutional, concrete, zero hyperbole. Let magnitudes carry the drama ("−12.29% to $282.32" beats "sky fell").
 - Name humans with roles and shops ("Pivotal Research CEO Jeffrey Wlodarczak"), quote exactly, attribute always.

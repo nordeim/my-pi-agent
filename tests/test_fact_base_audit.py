@@ -7,6 +7,7 @@ scan sees visible text only, never <script>/<style> blocks).
 Run from the repository root:  python3 -m pytest tests/ -v
 """
 import importlib.util
+import json
 import pathlib
 import subprocess
 import sys
@@ -187,6 +188,184 @@ class TestStrictComplianceModes:
         fails = fba.check_cross_checks(fb, strict_verified=False, extra_ids="C")
         assert [f.split()[1] for f in fails] == ["C"]
         assert fba.check_cross_checks(fb, strict_verified=False, extra_ids="") == []
+
+
+class TestRound3SchemaGates:
+    """Round 3 (reports 6/7): consensus sourcing, epistemic kinds, waterfall
+    sums, and mandate context — always-on, deterministic schema checks."""
+
+    def _fb(self, **over):
+        fb = {"meta": {"event_timestamp": "2026-10-28T16:05:00-04:00"},
+              "facts": []}
+        fb.update(over)
+        return fb
+
+    def test_consensus_fact_requires_provider_vintage_tier(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-1", "metric": "Revenue consensus, Q3 2026", "value": 128.22}])
+        fails = fba.check_consensus_facts(fb)
+        assert any("C-1" in f and "CONSENSUS" in f for f in fails), (
+            "a consensus fact without provider/vintage/tier must fail (H-1)")
+
+    def test_t3_consensus_source_fails(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-2", "metric": "EPS consensus", "value": 3.02,
+             "source_tier": "T3", "consensus_provider": "an aggregator",
+             "consensus_vintage": "2026-10-26"}])
+        fails = fba.check_consensus_facts(fb)
+        assert any("C-2" in f and "T1/T2" in f for f in fails), (
+            "an aggregator consensus print is never sufficient (H-1)")
+
+    def test_fresh_consensus_fact_passes(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-3", "metric": "Revenue consensus", "value": 128.22,
+             "source_tier": "T2", "consensus_provider": "LSEG (via Reuters)",
+             "consensus_vintage": "2026-10-26"}])
+        assert fba.check_consensus_facts(fb) == []
+
+    def test_stale_consensus_vintage_fails(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-4", "metric": "Revenue consensus", "value": 128.22,
+             "source_tier": "T2", "consensus_provider": "LSEG",
+             "consensus_vintage": "2026-09-01"}])   # 57 days before the event
+        fails = fba.check_consensus_facts(fb)
+        assert any("C-4" in f and "CONSENSUS" in f for f in fails)
+
+    def test_consensus_age_window_configurable(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-5", "metric": "Revenue consensus", "value": 128.22,
+             "source_tier": "T2", "consensus_provider": "LSEG",
+             "consensus_vintage": "2026-09-01"}])
+        assert fba.check_consensus_facts(fb, max_age_days=0) == [], (
+            "max_age_days=0 must disable the freshness check while keeping "
+            "the provider/tier requirements")
+
+    def test_is_consensus_flag_detected(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-6", "metric": "Street revenue estimate set", "value": 128.22,
+             "is_consensus": True}])
+        fails = fba.check_consensus_facts(fb)
+        assert any("C-6" in f and "CONSENSUS" in f for f in fails), (
+            "the is_consensus marker must route a fact into the consensus gate")
+
+    def test_reasoned_fact_requires_epistemic_kind(self, fba):
+        fb = self._fb(facts=[
+            {"id": "E-1", "value": -3.9, "confidence": "Reasoned",
+             "formula": "-9.1 + 5.2 = -3.9"}])
+        fails = fba.check_epistemic_kinds(fb)
+        assert any("E-1" in f and "EPISTEMIC" in f for f in fails), (
+            "a Reasoned fact without epistemic_kind conflates reproducible math "
+            "with opinion (H-2)")
+
+    def test_derived_kind_requires_formula(self, fba):
+        fb = self._fb(facts=[
+            {"id": "E-2", "value": -3.9, "confidence": "Reasoned",
+             "epistemic_kind": "derived"}])
+        fails = fba.check_epistemic_kinds(fb)
+        assert any("E-2" in f and "formula" in f for f in fails)
+
+    def test_parenthesized_forms_accepted(self, fba):
+        fb = self._fb(facts=[
+            {"id": "E-3", "value": -3.9, "confidence": "Reasoned (derived)",
+             "formula": "-9.1 + 5.2 = -3.9"},
+            {"id": "E-4", "value": "allocation", "confidence": "Reasoned (judged)"}])
+        assert fba.check_epistemic_kinds(fb) == []
+
+    def test_waterfall_weights_must_sum_to_move(self, fba):
+        fb = self._fb(facts=[
+            {"id": "W-1", "value": "allocation",
+             "weights": {"benchmark": -1.5, "fcf_capex": -3.9, "eps_quality": -2.7,
+                         "search": -2.4, "positioning": -1.8},
+             "realized_move": -12.29}])
+        assert fba.check_waterfall_sums(fb) == []
+
+    def test_waterfall_mismatch_fails(self, fba):
+        fb = self._fb(facts=[
+            {"id": "W-2", "value": "allocation",
+             "weights": {"benchmark": -1.5, "fcf_capex": -2.0},
+             "realized_move": -12.29}])
+        fails = fba.check_waterfall_sums(fb)
+        assert any("W-2" in f and "WATERFALL" in f for f in fails), (
+            "the sum-to-move identity must be enforced in code, not just prose (H-2)")
+
+    def test_waterfall_sign_flip_fails(self, fba):
+        fb = self._fb(facts=[
+            {"id": "W-3", "value": "allocation",
+             "weights": {"benchmark": 1.5, "fcf_capex": 3.9},
+             "realized_move": -12.29}])
+        assert any("W-3" in f for f in fba.check_waterfall_sums(fb))
+
+    def test_ic_audience_requires_mandate_context(self, fba):
+        fb = self._fb(meta={"event_timestamp": "2026-10-28T16:05:00-04:00",
+                            "audience": "institutional PM/IC"}, facts=[])
+        fails = fba.check_mandate_context(fb)
+        assert any("MANDATE" in f for f in fails), (
+            "an IC-facing fact base must disclose fund_position + position_as_of "
+            "(C-1, buy-side conflict disclosure)")
+
+    def test_mandate_context_passes_when_present(self, fba):
+        fb = self._fb(meta={"event_timestamp": "2026-10-28T16:05:00-04:00",
+                            "audience": "investment committee",
+                            "mandate_context": {"fund_position": "none",
+                                                "position_as_of": "2026-10-30"}},
+                      facts=[])
+        assert fba.check_mandate_context(fb) == []
+
+    def test_non_ic_audience_stays_silent(self, fba):
+        fb = self._fb(meta={"event_timestamp": "2026-10-28T16:05:00-04:00",
+                            "audience": "internal research desk"}, facts=[])
+        assert fba.check_mandate_context(fb) == []
+
+
+class TestStrictPagesMode:
+    """Round 3 (report-7 M-1): --strict-pages promotes unverified candidates on
+    the decision-critical pages to failures, leaving furniture advisory."""
+
+    @pytest.fixture(scope="class")
+    def slides(self, tmp_path_factory):
+        d = tmp_path_factory.mktemp("strictpages")
+        (d / "slide_01.html").write_text(
+            "<html><body><p>Exec summary: move −12.29% and an unsourced "
+            "103% surprise figure.</p></body></html>", encoding="utf-8")
+        (d / "slide_02.html").write_text(
+            "<html><body><p>Timeline with furniture year 2026 and an unsourced "
+            "98% figure.</p></body></html>", encoding="utf-8")
+        return d
+
+    @pytest.fixture(scope="class")
+    def fb(self, tmp_path_factory):
+        p = tmp_path_factory.mktemp("strictpagesfb") / "fb.json"
+        p.write_text(json.dumps({
+            "meta": {}, "facts": [
+                {"id": "F-1", "value": -12.29, "slide_pages": ["slide_01.html"]},
+            ]}), encoding="utf-8")
+        return p
+
+    def _run(self, fba, slides, fb, *extra):
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            rp = pathlib.Path(td) / "r.json"
+            code = fba.main(["--slides", str(slides), "--fact-base", str(fb),
+                             "--report", str(rp), *extra])
+            report = json.loads(rp.read_text())
+        return code, report
+
+    def test_strict_pages_promotes_only_named_pages(self, fba, slides, fb):
+        code, report = self._run(fba, slides, fb, "--strict-pages", "slide_01.html")
+        assert code == 1
+        assert any("UNVERIFIED" in f and "103%" in f and "slide_01" in f
+                   for f in report["failures"]), (
+            "the unsourced figure on the decision-critical page must fail")
+        assert not any("UNVERIFIED" in f and "98%" in f for f in report["failures"]), (
+            "furniture-page candidates stay advisory without --fail-on-unverified")
+
+    def test_unknown_strict_page_is_badref(self, fba, slides, fb):
+        code, report = self._run(fba, slides, fb, "--strict-pages", "slide_99.html")
+        assert any("BADREF" in f and "slide_99" in f for f in report["failures"])
+
+    def test_default_stays_advisory(self, fba, slides, fb):
+        code, report = self._run(fba, slides, fb)
+        assert not any("UNVERIFIED" in f for f in report["failures"])
 
 
 class TestSelftest:

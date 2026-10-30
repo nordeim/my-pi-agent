@@ -2,6 +2,9 @@
 
 > **Map version:** `segment_map_version: 2026-10` · `last_verified_against_filing:
 > FY2025/FY2026 10-Ks` (verified 2026-10-30 against the filed 10-K segment notes).
+> A machine-readable mirror of this file lives at `reference/segment-maps.json`
+> (same version, same companies) — the two change together in the same commit,
+> and `scripts/segment_map_check.py` consumes the JSON.
 
 Use the EDGAR 10-Q/10-K segment table as the source of truth. This map distinguishes
 **reportable segments** (ASC 280 — what the filing's segment note actually presents)
@@ -10,15 +13,19 @@ revenue note or MD&A but that are not reportable segments). Do not present a dis
 revenue line as a "segment" — the variance table must mirror the filing's own segment
 note or the auditor cannot tie it out.
 
-**Staleness rule (hard):** before building any variance table, compare this map's
-`last_verified_against_filing` above with the filing you are actually using. If your
-filing is newer (a more recent 10-K/10-Q, or a filing whose segment note restructures
-the map below), re-verify the segment structure against that filing's own segment note
-first and update this map (bump `segment_map_version`, set the new
-`last_verified_against_filing`) — a variance table tied to a stale map will not tie
-out to the current filing, and nothing downstream will catch it. Segment structures
-change (divestitures, reorganizations, new GAAP segment rules) — treat the map as a
-cached verification, never as the filing itself.
+**Staleness rule (hard, machine-enforced since round 3):** before building any
+variance table, run the gate —
+`python3 scripts/segment_map_check.py --map reference/segment-maps.json --filing-date <YYYY-MM-DD> [--company <TICKER>]`
+— against the filing you are actually using. It **fails the build** when the filing
+postdates the map's `verified_through` (or when the company has no cached entry).
+On failure: re-verify the segment structure against that filing's **own segment
+note** — the filing is the source of truth, this map is the cached baseline
+expectation that flags unexpected structural changes, never the other way around —
+update this file AND `segment-maps.json` (bump `segment_map_version`, set the new
+`last_verified_against_filing`), then re-run the gate. A variance table tied to a
+stale map will not tie out to the current filing, and nothing downstream will catch
+it. Segment structures change (divestitures, reorganizations, new GAAP segment
+rules) — treat the map as a cached verification, never as the filing itself.
 
 | Company | Reportable segments (ASC 280) | Disclosed revenue lines (not segments) | Primary price movers |
 |---|---|---|---|

@@ -19,9 +19,12 @@ Two tables in the deliverable appendix.
 
 ## Method note (always include)
 State the source hierarchy used, that no "executed verification" is claimed for price targets or
-forward guidance, and that root-cause weights are `Reasoned` judgment, not reported fact —
-the sum-to-move identity is an arithmetic consistency check, not evidence of causation.
+forward guidance, and that root-cause weights are `Reasoned (judged)` — analytical judgment, not
+reported fact — while deterministic figures (deltas, bridges, options math) are `Reasoned
+(derived)` with their formulas shown. The sum-to-move identity is an arithmetic consistency
+check, not evidence of causation.
 Also state the valuation boundary: no intrinsic valuation (DCF/SOTP/scenario-weighted fair
 value) is produced — the forward-multiple band is context only, and the model gap is the
 open item a valuation pass would close (forward estimates, discount-rate framework,
-scenario weights). Close with the verification-status line matching the note's cover.
+scenario weights). Close with the verification-status line matching the note's cover,
+and the provenance seal line when the deliverable was sealed.
