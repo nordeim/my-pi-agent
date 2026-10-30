@@ -1,8 +1,8 @@
 ---
 name: big-tech-earnings-postmortem
-version: 1.5.0
+version: 1.6.0
 description: >
-  Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML note passing bundled lite delivery gates (number registry with consensus + temporal-order checks, placeholder, scoped disclosure, render, accessibility audits) with provenance sealing. The lightweight, fastest-ship member of the big-tech research family: layered driver attribution (durability × evidence axes), no multi-page deck, a machine-checked lite number registry instead of the flagship's full fact base — use analyzing-us-bigtech-stocks for a full audited IC deck and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock moved sharply after earnings, or requests a post-earnings deep dive — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
+  Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML note passing bundled lite delivery gates (number registry with consensus + temporal-order + snapshot-linkage checks, placeholder, scoped disclosure, render, accessibility audits) with provenance sealing and source snapshots. The lightweight, fastest-ship member of the big-tech research family: layered driver attribution (durability × evidence axes), a machine-checked lite number registry instead of the flagship's full fact base — use analyzing-us-bigtech-stocks for a full audited IC deck and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock moved sharply after earnings, or requests a post-earnings deep dive — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
 license: Apache-2.0
 compatibility: Requires web search and page-fetch tools for primary-source verification; Python >= 3.9 for the audit/quant scripts; render and accessibility gates need Node.js >= 18 with Playwright >= 1.40.
 ---
@@ -33,10 +33,14 @@ big-tech-earnings-postmortem/
 ├── assets/fact_base_lite.template.json   # Number-registry skeleton (Step 8)
 └── scripts/
     ├── fact_base_lite_audit.py    # Number-registry gate (round 3; consensus +
-    │                              #   temporal-order checks in round 4)
+    │                              #   temporal-order checks round 4; snapshot
+    │                              #   linkage + --strict-temporal + --json round 5)
     ├── quant_helpers.py           # Bundled arithmetic + beta/market-cap math
     │                              #   (byte-identical family copy, round 4)
+    ├── source_snapshot.py         # Source-truth snapshots: record/verify the
+    │                              #   fetched source content (round 5)
     ├── note_audit.py              # Placeholder + scoped disclosure-needle gate
+    │                              #   (--json for CI, round 5)
     ├── note_overflow_audit.mjs     # Render/overflow gate (Node + Playwright)
     ├── a11y_audit.mjs             # Accessibility gate (lang/heading/alt/WCAG-AA contrast)
     └── provenance_seal.py         # SHA-256 sealing + tamper-evident verification
@@ -52,7 +56,12 @@ checked number trail (the reports-6/7 "lite-variant verification gap"). Round 4
 borrows the sibling's helper — standalone means standalone) and extended the
 registry gate with the lite CONSENSUS check (provider + vintage + mean/median
 statistic, M-1) and the TEMPORAL check (pre-filing embargo with the
-`data_type` discriminator, M-6). They require no sibling skill: compliance is
+`data_type` discriminator, M-6). Round 5 (reports 10/11) adds the SNAPSHOT
+linkage check (`--snapshots` / `--strict-snapshots` — the registry is tied to
+hashed snapshots of the fetched sources, closing the internal-consistency-vs-
+source-truth gap), `--strict-temporal` (date-only retrieval stamps fail on
+intraday-sensitive engagements), `--json` machine-readable output for CI, and
+`source_snapshot.py` itself. They require no sibling skill: compliance is
 bundled, not "if the flagship happens to be installed".
 
 ## When this skill applies
@@ -183,10 +192,12 @@ Rules:
   days of the event** — round 4 tightened this from ~10 days, reports 8/9 M-1;
   the registry gate checks the fields), the **statistic printed** (`mean` /
   `median` / `undisclosed` — record it even when the outlet does not say: a
-  $0.02-vs-$0.05 miss flips on which statistic the wire printed), and the
-  contributor count when disclosed. Never source a consensus from a lone T3
-  aggregator; a single T2 chain must be cross-verified against a second distinct
-  origination chain.
+  $0.02-vs-$0.05 miss flips on which statistic the wire printed; when it is
+  genuinely `undisclosed`, the audit prints a NOTE and the licensed-feed pull
+  needed to close the gap goes in the Data-Gap Ledger — round 5, reports 10/11
+  §5.7), and the contributor count when disclosed. Never source a consensus
+  from a lone T3 aggregator; a single T2 chain must be cross-verified against a
+  second distinct origination chain.
 - **Reg G / Item 10(e) discipline (round 4, reports 8/9 M-2)**: every non-GAAP
   metric presented is reconciled to its most directly comparable GAAP measure —
   show the bridge or cite the issuer's own reconciliation table — and state
@@ -370,6 +381,22 @@ data-integrity control, not a Reg FD control). The
 figures, registry numbers absent from the note, missing source fields,
 consensus/temporal violations, or placeholder tokens.
 
+**Source snapshots (round 5, reports 10/11 §3.4/§6.9) — pin what was actually
+fetched.** The registry gate certifies that the note matches the registry —
+internal consistency — not that the registry matches the cited source: a wrong
+figure with a valid-looking URL passes every check. For decision-critical T1
+pulls (the scorecard numbers the verdict leans on), save the fetched source
+content as a file and record it: `python3 scripts/source_snapshot.py --record
+--url <url> --content <file> --out source_snapshots.json`; reference the
+printed SHA-256 in the entry's `source_snapshot` field. The registry gate's
+SNAPSHOT check (`--snapshots source_snapshots.json`) then fails the build if
+the registry and the snapshot archive drift apart; `--strict-snapshots`
+requires every `Verified` entry to carry one; `source_snapshot.py --verify`
+re-hashes the saved files (tamper evidence); seal the snapshots with the note
+via `provenance_seal.py --inputs`. Before delivery, re-open each
+snapshot and re-check the number against the raw text — the snapshot makes the
+re-verification pass possible; the pass itself is the analyst's checklist.
+
 **The verification ledger** — a final table listing the **10–15 most
 load-bearing claims**, each with:
 
@@ -414,16 +441,27 @@ Design constraints:
   so the gate does not flag the status line itself. When the deliverable is
   sealed, the provenance seal line printed by `scripts/provenance_seal.py`
   sits next to it.
+- **Methodology-status line (round 5, reports 10/11 §3.6)** — required needle
+  in `assets/checks.json`: "Methodology status: empirically unvalidated — face
+  validity only (validation harness pending)". The driver-attribution
+  methodology has no backtested track record yet; a green gate run is internal
+  consistency, not evidence of calibration, and the reader must not have to
+  guess that.
 - **Scope legends (round 4, reports 8/9 C-1/M-3)**: the note header carries
   "Internal analytical pre-read — not a research report" and the
   "Public-source-only" limitation line (no channel checks, expert calls,
   surveys, or management access). Both are required needles in
   `assets/checks.json` — the note fails the disclosure gate without them.
-- **IC-facing notes carry the fund-position disclosure** — "Fund position:
+- **Position disclosure is unconditional once declared (round 5, reports 10/11
+  §3.5)**: IC-facing notes carry the fund-position disclosure — "Fund position:
   long / short / none / undetermined, as of <date>" — plus any mandate
   constraint or author conflict that could bear on independence (CFA Institute
-  Standard I(B); buy-side fiduciary duty). The lite audit's conditional needle
-  fails an IC memo without it.
+  Standard I(B); buy-side fiduciary duty), and the lite audit's conditional
+  needle fails an IC memo without it. **And once any position in the covered
+  name exists — any `meta.mandate_context` in the registry — the disclosure is
+  required whatever the audience**: the registry gate fails a declared-but-
+  incomplete `mandate_context`, because a position does not stop being a
+  conflict when the reader is not a committee.
 - Mobile: collapse multi-column KPI rows to 2×2; stack two-column grids.
 
 ## Metric emphasis by company type
@@ -460,9 +498,14 @@ Design constraints:
       a justification); consensus-side entries carry provider + vintage +
       statistic; entries are `data_type`-classified and temporally clean when
       `meta.t1_filing_timestamp` is pinned.
+- [ ] Decision-critical T1 pulls carry `source_snapshot` hashes; the
+      `--snapshots` linkage is clean (or the no-snapshots NOTE is consciously
+      accepted); `source_snapshot.py --verify` exits 0 when snapshots exist
+      (round 5).
 - [ ] `python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base
-      <fact_base_lite.json>` exits 0 (number-registry + consensus + temporal
-      gates).
+      <fact_base_lite.json>` exits 0 (number-registry + consensus + temporal +
+      mandate + snapshot gates); `--strict-temporal` used for intraday-
+      sensitive engagements; `--json` available for CI.
 - [ ] Peer-basket corporate-action check run (each named constituent verified
       alive/unmerged at the comparison date).
 - [ ] No fabricated numbers, citations, IDs, or analyst targets.
@@ -482,8 +525,13 @@ Design constraints:
 - [ ] The verification-status line is present and matches the actual gate results;
       when sealed, the provenance seal line is embedded and `provenance.json`
       ships with the note.
-- [ ] IC-facing notes carry the fund-position disclosure.
+- [ ] IC-facing notes carry the fund-position disclosure; any declared
+      `meta.mandate_context` is complete (fund_position + position_as_of)
+      whatever the audience (round 5).
 - [ ] "Not a research report" and "Public-source-only" legends present.
+- [ ] The **methodology-status line** is present: "Methodology status:
+      empirically unvalidated — face validity only (validation harness
+      pending)" (round 5 — required needle).
 - [ ] Disclaimer present on the deliverable: informational only, not investment
       advice; no price targets published.
 
@@ -503,7 +551,7 @@ are unavailable or fail mid-task:
 These gates are **mandatory and bundled** — they ship with this skill, so
 compliance does not depend on the flagship being installed:
 
-1. **Number-registry gate** (always, round 3 + round 4 extensions):
+1. **Number-registry gate** (always, round 3 + round 4 + round 5 extensions):
    `python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base <fact_base_lite.json>`
    Fails the build on note figures with no registry entry, registry numbers
    absent from the note, missing source fields, and placeholder tokens. This
@@ -513,18 +561,31 @@ compliance does not depend on the flagship being installed:
    reports 8/9 M-1) and the TEMPORAL check (when `meta.t1_filing_timestamp` is
    set: every entry classified `data_type`, post-event entries retrieved
    at/after the filing time — pre-filing contamination fails the build,
-   reports 8/9 M-6). `--selftest` proves the script works.
+   reports 8/9 M-6). Round 5 (reports 10/11) adds the MANDATE check (a
+   declared `meta.mandate_context` must be complete whatever the audience,
+   §3.5), the SNAPSHOT linkage check (`--snapshots source_snapshots.json`:
+   declared `source_snapshot` hashes must exist in the manifest;
+   `--strict-snapshots` requires them on every `Verified` entry — §3.4),
+   `--strict-temporal` (date-only retrieval on the filing date fails — for
+   intraday-sensitive engagements), and `--json` (machine-readable stdout for
+   CI). `--selftest` proves the script works.
 2. **Placeholder + scoped disclosure gate** (always):
    `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
    Fails the delivery on placeholder tokens in visible text, on a missing
-   compliance disclaimer or verification-status line, and — when the note
-   quantifies a driver allocation or mentions a beta — on a missing
-   "allocation — not a measured decomposition" label or beta estimation-window
-   disclosure. Round 3 scoped the needles: the qualifying label must sit
-   adjacent to the content it qualifies (a footer label does not satisfy a
-   waterfall disclosure), and notes discussing the options-implied move must
-   carry the volatility-risk-premium caveat near it. `--selftest` proves the
-   script works.
+   compliance disclaimer, verification-status line, or methodology-status line
+   (round 5 required needle), and — when the note quantifies a driver
+   allocation or mentions a beta — on a missing "allocation — not a measured
+   decomposition" label or beta estimation-window disclosure. Round 3 scoped
+   the needles: the qualifying label must sit adjacent to the content it
+   qualifies (a footer label does not satisfy a waterfall disclosure), and
+   notes discussing the options-implied move must carry the
+   volatility-risk-premium caveat near it. `--selftest` proves the script
+   works; `--json` gives CI a machine-readable summary (round 5).
+   **What these gates do NOT check (round 5, reports 10/11 §2.4/§3.4)**: a
+   clean run certifies internal consistency (note ↔ registry) and disclosure
+   presence — not source truth (snapshots mitigate), not the economic
+   correctness of assumptions, and not the methodology's empirical calibration
+   (face validity only; hence the methodology-status needle).
 3. **Render gate** (always):
    `node scripts/note_overflow_audit.mjs --note <note.html>`
    Flags horizontal overflow, elements spilling past the viewport width, and
@@ -543,7 +604,10 @@ compliance does not depend on the flagship being installed:
    verification-status line, and ships as a sidecar; `--verify` re-checks the
    delivered artifact against the seal later (tamper evidence — reports 6/7
    C-2's in-scope core; WORM archival and firm-key signing remain out of scope
-   by the standing round-2 rejection).
+   by the standing round-2 rejection). When source snapshots are on record,
+   add the manifest and saved content files to `--inputs` so the seal covers
+   the evidence trail end to end, and run `source_snapshot.py --verify` first
+   (round 5, reports 10/11 §6.9).
 6. If an environment genuinely cannot run a gate, do not ship silently: set
    the verification-status line to "Draft — human verification required
    (<gate> not run: <reason>)" and say so in the reply.
@@ -576,14 +640,17 @@ every load-bearing claim traceable. Both layers are required.
   internal analytical use only; do not reproduce vendor tables at scale and do
   not redistribute the note externally — redistribution rights belong to the
   licensed feeds.
-- **Buy-side conflict disclosure (round 3, reports 6/7 C-1):** an IC-facing note
-  additionally discloses the fund's position in the covered name — "Fund
-  position: long/short/none/undetermined, as of <date>" — plus mandate
-  constraints and author conflicts that could bear on independence (CFA
-  Institute Standard I(B); Advisers Act fiduciary duty). Conflict visibility is
-  what lets the committee discount the analysis for an existing position; the
-  sell-side Reg AC package stays inapplicable by the family's standing scoping
-  position.
+- **Buy-side conflict disclosure (round 3, reports 6/7 C-1; round 5 hardening,
+  reports 10/11 §3.5):** an IC-facing note additionally discloses the fund's
+  position in the covered name — "Fund position: long/short/none/undetermined,
+  as of <date>" — plus mandate constraints and author conflicts that could
+  bear on independence (CFA Institute Standard I(B); Advisers Act fiduciary
+  duty). Conflict visibility is what lets the committee discount the analysis
+  for an existing position. **Once any position exists, the disclosure is
+  unconditional**: declare `meta.mandate_context` with both `fund_position` and
+  `position_as_of` in the registry whatever the intended audience — the
+  registry gate fails a declared-but-incomplete block. The sell-side Reg AC
+  package stays inapplicable by the family's standing scoping position.
 
 ## Common failure modes (avoid these)
 

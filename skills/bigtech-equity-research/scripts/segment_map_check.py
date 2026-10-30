@@ -25,14 +25,21 @@ Usage:
 
 --filing-date : publication date (YYYY-MM-DD) of the 10-Q/10-K/8-K you are actually using.
 --company     : optional ticker; when given, the map must have an entry for it.
+--json        : machine-readable summary on stdout {"tool", "ok", "problems"} —
+                the human-readable diagnostics go to stderr (round 5, reports
+                10/11: CI/CD integration). Exit codes unchanged.
 Exit codes: 0 gate passed, 1 stale/unknown — fix the map (or the filing) before building
 the variance table, 2 usage/environment error.
 """
 import argparse
+import contextlib
 import datetime as _dt
+import io
 import json
 import pathlib
 import sys
+
+TOOL_ID = "segment_map_check.py (big-tech research family, round 5)"
 
 
 def _load_map(map_path: pathlib.Path) -> dict:
@@ -139,12 +146,28 @@ def main(argv=None) -> int:
     ap.add_argument("--form", default="",
                     help="optional form type echo (10-Q / 10-K / 8-K) for messages")
     ap.add_argument("--selftest", action="store_true", help="run built-in self-test and exit")
+    ap.add_argument("--json", action="store_true",
+                    help="machine-readable summary on stdout (diagnostics go "
+                         "to stderr) for CI/CD integration (round 5)")
     args = ap.parse_args(argv)
     if args.selftest:
         return selftest()
     if not args.filing_date:
         print("ERROR  --filing-date is required (or --selftest)", file=sys.stderr)
         return 2
+    if args.json:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            rc = check_map(pathlib.Path(args.map), args.filing_date,
+                           company=args.company, form=args.form)
+        problems = [l for l in buf.getvalue().splitlines() if l.strip()]
+        print(json.dumps({
+            "tool": TOOL_ID,
+            "ok": rc == 0,
+            "problems": problems,
+        }, indent=2))
+        return rc
     return check_map(pathlib.Path(args.map), args.filing_date,
                      company=args.company, form=args.form)
 

@@ -89,6 +89,7 @@ which makes the Phase 4 evidence assembly mechanical.
 | `source_name` | string | yes | "Motley Fool — Alphabet Q3 2026 earnings call transcript" |
 | `source_url` | string | yes | Resolvable URL; archived link if paywalled at retrieval |
 | `retrieved_at` | string | yes | ISO timestamp of retrieval |
+| `source_snapshot` | string (64-hex) | optional; `Verified` facts under `--strict-snapshots` | SHA-256 of the fetched source content, recorded by `scripts/source_snapshot.py --record` into `source_snapshots.json` (round 5, reports 10/11 §3.4): pins WHAT was fetched so the SNAPSHOT gate can verify the fact base ↔ snapshot-archive linkage — internal consistency vs source truth. `source_snapshot.py --verify` re-hashes the saved files; seal them with the deck via `provenance_seal.py --inputs` |
 | `data_type` | enum | when `meta.t1_filing_timestamp` is set | `pre_event_input` \| `post_event_fact` (round 4, reports 8/9 M-6): pre-event inputs (consensus, positioning, prior guidance, options OI) legitimately predate the event; post-event facts must carry `retrieved_at` ≥ the T1 filing time or the TEMPORAL gate fails them as pre-filing contamination |
 | `confidence` | enum | yes | `Verified` \| `Reasoned` \| `Assumed` \| `Unverifiable` |
 | `cross_checked_with` | array | decision-critical | Other fact IDs or source names confirming the value — ≥2 entries required for decision-critical facts (enforced by audit; §7) |

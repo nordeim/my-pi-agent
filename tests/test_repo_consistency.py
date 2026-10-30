@@ -801,6 +801,196 @@ class TestDoctrineGuardsRound4:
 
 
 # --------------------------------------------------------------------------
+# Round 5 — validated against comparative analysis reports 10/11:
+# source snapshots (internal consistency vs source truth), unconditional
+# position disclosure, methodology-status disclosure, --strict-temporal,
+# --json CI output, the .mjs env-error exit-code contract
+# --------------------------------------------------------------------------
+
+class TestDoctrineGuardsRound5:
+    """Cross-family doctrine added in round 5 (reports 10/11)."""
+
+    # --- §3.4/§6.9: source snapshots -----------------------------------------
+
+    def test_source_snapshot_vendored_x3_byte_identical(self):
+        scripts = [REPO_ROOT / "skills" / slug / "scripts" / "source_snapshot.py"
+                   for slug in SKILL_SLUGS]
+        assert all(s.exists() for s in scripts), (
+            "source_snapshot.py must ship with all three family skills "
+            "(round 5, reports 10/11 §3.4)")
+        bodies = {s.read_bytes() for s in scripts}
+        assert len(bodies) == 1, (
+            "the three source_snapshot.py copies drifted — vendoring is "
+            "byte-identical by design")
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_snapshot_doctrine_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "source_snapshot" in t, (
+            f"{slug}: the source-snapshot discipline (round 5, reports 10/11 "
+            "§3.4 — internal consistency vs source truth) is not stated")
+        assert "internal consistency" in t.lower(), (
+            f"{slug}: the internal-consistency-vs-source-truth caveat is not "
+            "stated (reports 10/11 §3.4)")
+
+    def test_snapshot_gate_in_both_audits(self):
+        for script in (SKILL1 / "scripts" / "fact_base_audit.py",
+                       SKILL2 / "scripts" / "fact_base_lite_audit.py",
+                       SKILL3 / "scripts" / "fact_base_lite_audit.py"):
+            assert "check_source_snapshots" in read(script), (
+                f"{script.name}: the SNAPSHOT gate is missing")
+        assert (SKILL2 / "scripts" / "fact_base_lite_audit.py").read_bytes() == \
+            (SKILL3 / "scripts" / "fact_base_lite_audit.py").read_bytes(), (
+                "the two lite audit copies drifted")
+
+    def test_schema_documents_source_snapshot_field(self):
+        t = read(SKILL1 / "references" / "fact-base-schema.md")
+        assert "`source_snapshot`" in t, (
+            "fact-base-schema.md: the source_snapshot field (round 5) is "
+            "undocumented")
+
+    def test_snapshot_doctrine_in_methodology(self):
+        t = read(SKILL1 / "references" / "methodology.md")
+        assert "Source snapshots" in t, (
+            "methodology.md: the Phase 1 snapshot doctrine (round 5) is missing")
+        assert "--strict-temporal" in t, (
+            "methodology.md: the --strict-temporal flag (round 5) is undocumented")
+
+    def test_lite_templates_demonstrate_snapshot_field(self):
+        for tpl in (SKILL2 / "assets" / "fact_base_lite.template.json",
+                    SKILL3 / "assets" / "fact_base_lite.template.json"):
+            data = json.loads(tpl.read_text(encoding="utf-8"))
+            assert any("source_snapshot" in str(f) for f in data["facts"]), (
+                f"{tpl.parent.parent.name}: lite template does not demonstrate "
+                "the source_snapshot field")
+            assert "mandate_context" in data.get("meta", {}), (
+                f"{tpl.parent.parent.name}: lite template does not demonstrate "
+                "meta.mandate_context")
+
+    # --- §3.5: unconditional position disclosure ---------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_unconditional_position_disclosure_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"unconditional", t, re.I), (
+            f"{slug}: the unconditional position disclosure doctrine "
+            "(round 5, reports 10/11 §3.5) is not stated")
+
+    def test_mandate_gate_hardened_in_both_audits(self):
+        for script in (SKILL1 / "scripts" / "fact_base_audit.py",
+                       SKILL2 / "scripts" / "fact_base_lite_audit.py"):
+            body = read(script)
+            assert "incomplete" in body and "MANDATE" in body, (
+                f"{script.name}: the declared-but-incomplete mandate failure "
+                "(round 5, reports 10/11 §3.5) is missing")
+
+    # --- §3.6: methodology-status disclosure ---------------------------------------
+
+    @pytest.mark.parametrize("slug", ("big-tech-earnings-postmortem",
+                                      "bigtech-equity-research"))
+    def test_methodology_status_needle_in_lite_checks(self, slug):
+        checks = json.loads(
+            (REPO_ROOT / "skills" / slug / "assets" / "checks.json")
+            .read_text(encoding="utf-8"))
+        assert "Methodology status:" in checks.get("required", []), (
+            f"{slug}: the methodology-status required needle (round 5, "
+            "reports 10/11 §3.6) is missing from checks.json")
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_methodology_status_doctrine_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"methodology[- ]status", t, re.I), (
+            f"{slug}: the methodology-status line doctrine (round 5, reports "
+            "10/11 §3.6) is not stated")
+        assert re.search(r"face validity", t, re.I), (
+            f"{slug}: the face-validity-only caveat is not stated")
+
+    def test_methodology_status_in_report_structure_template(self):
+        t = read(SKILL3 / "templates" / "report-structure.md")
+        assert re.search(r"methodology[- ]status", t, re.I), (
+            "report-structure.md: the methodology-status line (round 5) is "
+            "undocumented for the note template")
+
+    def test_methodology_status_in_evidence_ledger_template(self):
+        t = read(SKILL3 / "templates" / "evidence-ledger.md")
+        assert re.search(r"methodology status", t, re.I), (
+            "evidence-ledger.md: the method-note methodology status (round 5) "
+            "is undocumented")
+
+    # --- §5.3: --strict-temporal + --json ------------------------------------------
+
+    def test_strict_temporal_flag_in_both_audits(self):
+        for script in (SKILL1 / "scripts" / "fact_base_audit.py",
+                       SKILL2 / "scripts" / "fact_base_lite_audit.py"):
+            body = read(script)
+            assert "--strict-temporal" in body, (
+                f"{script.name}: the --strict-temporal flag (round 5, "
+                "reports 10/11 §5.3) is missing")
+
+    def test_json_mode_in_all_python_gates(self):
+        gates = [
+            SKILL1 / "scripts" / "fact_base_audit.py",
+            SKILL2 / "scripts" / "fact_base_lite_audit.py",
+            SKILL2 / "scripts" / "note_audit.py",
+            SKILL3 / "scripts" / "segment_map_check.py",
+        ]
+        for g in gates:
+            assert '"--json"' in read(g) or "--json" in read(g), (
+                f"{g.name}: the --json CI mode (round 5, reports 10/11 §5.3) "
+                "is missing")
+
+    # --- report 11 §5.7: undisclosed consensus NOTE -----------------------------------
+
+    def test_undisclosed_consensus_note_in_both_audits(self):
+        for script in (SKILL1 / "scripts" / "fact_base_audit.py",
+                       SKILL2 / "scripts" / "fact_base_lite_audit.py"):
+            body = read(script)
+            assert "undisclosed" in body and "Data-Gap Ledger" in body, (
+                f"{script.name}: the undisclosed-statistic NOTE pointing at "
+                "the Data-Gap Ledger (round 5, reports 10/11 §5.7) is missing")
+
+    # --- .mjs env-error exit-code contract (own finding, reproduced) ------------------
+
+    def test_mjs_gates_exit_2_on_missing_browser_binary(self):
+        """The gates' documented exit-code contract says 2 = environment
+        error; a Chromium launch failure used to crash with exit 1, so the
+        tests' env-skip never fired. Each .mjs gate guards the launch."""
+        mjs = [
+            SKILL1 / "scripts" / "a11y_audit.mjs",
+            SKILL2 / "scripts" / "a11y_audit.mjs",
+            SKILL3 / "scripts" / "a11y_audit.mjs",
+            SKILL1 / "scripts" / "overflow_audit.mjs",
+            SKILL2 / "scripts" / "note_overflow_audit.mjs",
+            SKILL3 / "scripts" / "note_overflow_audit.mjs",
+        ]
+        for m in mjs:
+            assert m.exists(), f"{m} missing"
+            body = read(m)
+            assert "launchBrowser" in body, (
+                f"{m.name}: the guarded browser launch (exit 2 env error, "
+                "round 5) is missing")
+        bodies_a11y = {(REPO_ROOT / "skills" / s / "scripts" /
+                        "a11y_audit.mjs").read_bytes()
+                       for s in SKILL_SLUGS}
+        assert len(bodies_a11y) == 1, "a11y_audit.mjs copies drifted"
+        bodies_nof = {(REPO_ROOT / "skills" / s / "scripts" /
+                       "note_overflow_audit.mjs").read_bytes()
+                      for s in ("big-tech-earnings-postmortem",
+                                "bigtech-equity-research")}
+        assert len(bodies_nof) == 1, "note_overflow_audit.mjs copies drifted"
+
+    # --- family version parity ---------------------------------------------------------
+
+    def test_family_version_is_1_6_0(self):
+        """Round 5 landed family-wide — the semver says so in all three
+        skills (reports 10/11 remediation round)."""
+        for slug in SKILL_SLUGS:
+            v = frontmatter(REPO_ROOT / "skills" / slug / "SKILL.md")["version"]
+            assert v == "1.6.0", (
+                f"{slug}: version {v} != 1.6.0 — round 5 landed family-wide")
+
+
+# --------------------------------------------------------------------------
 # Catalog parity (kept last: the inventory copies mirror live frontmatter)
 # --------------------------------------------------------------------------
 

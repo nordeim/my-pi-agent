@@ -41,8 +41,22 @@ the CONSENSUS gate default is 5 calendar days ≈ 3 trading days), **statistic**
 not say which it prints; a $0.02-vs-$0.05 miss flips on it), **contributor
 count** when disclosed, and a **T1/T2 source** — never a lone aggregator print; a single T2
 chain must be cross-verified against a second distinct origination chain. State mean vs
-median on the note when the outlet discloses which it prints. See
+median on the note when the outlet discloses which it prints. When the statistic is
+genuinely `undisclosed`, the registry gate prints a NOTE and the licensed-feed pull that
+would close the gap goes in the Data-Gap Ledger (round 5, reports 10/11 §5.7). See
 `reference/methodology.md` Phase 1.
+
+## Source snapshots (round 5, reports 10/11 §3.4/§6.9)
+The registry gate certifies note ↔ registry consistency — internal consistency — not
+that the registry matches the cited source: a wrong figure with a valid-looking URL
+passes every gate (the ingestion-error gap). For decision-critical T1 pulls, save the
+fetched source content as a file and record it — `scripts/source_snapshot.py --record
+--url <url> --content <file> --out source_snapshots.json` — then reference the printed
+SHA-256 in the entry's `source_snapshot` field. The registry gate's SNAPSHOT check
+(`--snapshots source_snapshots.json`; `--strict-snapshots` for every `Verified` entry)
+verifies the registry ↔ archive linkage; `source_snapshot.py --verify` re-hashes the
+saved files; seal them with the note via `provenance_seal.py --inputs`. Before delivery,
+re-check each decision-critical number against the raw snapshot text.
 
 ## Anti-hallucination rules
 - No invented API figures, index returns, implied moves, multiples, or filing numbers.

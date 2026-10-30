@@ -72,6 +72,19 @@ Rules:
 - If sources conflict, record **both** values in the fact base with a `conflict` flag and resolve explicitly on the slide ("Reuters says X, transcript says Y — we use the transcript"). Silent picking is forbidden.
 - An aggregator may confirm but not originate a fundamental number.
 - Store the URL and retrieval timestamp for every source, and verify URLs resolve before delivery.
+- **Source snapshots (round 5, reports 10/11 §3.4/§6.9): pin what was actually fetched.**
+  The audit gates certify deck ↔ fact-base consistency — internal consistency — not that
+  the fact base matches the cited source (a wrong figure with a valid-looking URL passes
+  every gate: the ingestion-error gap). For decision-critical T1 pulls, save the fetched
+  source content as a file, record it (`scripts/source_snapshot.py --record --url <url>
+  --content <file> --out source_snapshots.json`), and reference the printed SHA-256 in
+  the fact's `source_snapshot` field. The audit's SNAPSHOT gate (`--snapshots`) then
+  verifies the fact base ↔ snapshot-archive linkage; `--strict-snapshots` requires a
+  snapshot on every `Verified` fact; `source_snapshot.py --verify` re-hashes the saved
+  files (tamper evidence — run it before sealing); seal the snapshots with the deck via
+  `provenance_seal.py --inputs`. Before delivery, re-open each decision-critical T1
+  snapshot and re-check the number against the raw text: the snapshot makes the
+  re-verification pass possible; the pass itself is the analyst's checklist.
 
 ### 2.2 Price-data hygiene
 
@@ -397,7 +410,32 @@ python3 scripts/fact_base_audit.py --selftest
   OI) legitimately predate the event and are exempt by design; date-only
   `retrieved_at` on the filing date itself is a precision NOTE, not a failure. A
   data-integrity control, not a Reg FD control. Silent when
-  `meta.t1_filing_timestamp` is absent.
+  `meta.t1_filing_timestamp` is absent. SNAPSHOT (round 5, reports 10/11 §3.4) —
+  with `--snapshots source_snapshots.json`, a fact's declared `source_snapshot`
+  hash (64-hex SHA-256, recorded by `scripts/source_snapshot.py --record`) must
+  exist in the manifest: the fact-base ↔ snapshot-archive linkage. Without a
+  manifest, a declared snapshot fails (unverifiable claim); with none on record
+  at all, the run prints the standing limitation NOTE — internal consistency,
+  not source truth. MANDATE was hardened in round 5 (reports 10/11 §3.5): a
+  DECLARED `mandate_context` must be complete whatever the audience — the
+  position disclosure is unconditional once a position exists.
+- **Round-5 audit flags (reports 10/11):** `--strict-temporal` — a date-only
+  `retrieved_at` on the filing date FAILS instead of NOTE (intraday-sensitive
+  engagements: a same-day date-only stamp cannot distinguish a pre-filing pull
+  from a post-filing one); `--snapshots <manifest>` / `--strict-snapshots` —
+  the SNAPSHOT gate, strict mode requiring a snapshot on every `Verified` fact
+  (requires `--snapshots`); `--json` — machine-readable summary on stdout
+  (diagnostics to stderr) for CI pipelines. `source_snapshot.py --verify`
+  re-hashes the saved content files — run it before sealing so the sealed
+  snapshots are the verified ones.
+- **What the audit does NOT certify (round 5, reports 10/11 §2.4/§3.4/§5.5):**
+  a green run is internal consistency (deck ↔ fact base) plus schema discipline.
+  It is not source truth (the registry matching the cited filing — snapshots +
+  the re-verification pass mitigate), not the economic correctness of formula
+  assumptions (arithmetic identity, not model validity — a wrong economic
+  assumption with internally consistent arithmetic passes), and not the
+  methodology's empirical calibration (face validity only until the §15
+  harness lands). The method page's methodology-status line says so.
 - **`--strict-pages slide_02.html,slide_07.html`** (round 3, report-7 M-1): unverified
   candidates on the named decision-critical pages (executive summary, root-cause
   decomposition) become failures while page furniture elsewhere stays advisory —
@@ -522,4 +560,11 @@ is a standing open item; the protocol it must follow:
 
 Until the harness exists, state "methodology validation: not yet performed — face
 validity only" in the deliverable's method note when an IC reader would otherwise
-assume a track record.
+assume a track record. Round 5 (reports 10/11 §3.6) makes that conditional prose a
+stated-always disclosure: the method page carries a **methodology-status line** —
+"Methodology status: empirically unvalidated — face validity only (validation
+harness pending)" — and the lite siblings enforce it as a required needle in
+`assets/checks.json`. A green gate run is internal consistency, not a track record;
+report 11 correctly rates the missing validation as at least a Medium finding for a
+research framework, and the disclosure is the in-scope remedy while the harness
+remains a standing open item.

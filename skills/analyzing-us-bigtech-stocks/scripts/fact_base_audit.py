@@ -42,7 +42,10 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
                    identity is enforced in code, not just claimed in prose
        MANDATE     when meta.audience names an IC / investment committee,
                    meta.mandate_context (fund_position + position_as_of)
-                   must be present — buy-side conflict-of-interest disclosure
+                   must be present — buy-side conflict-of-interest disclosure.
+                   Round 5 (reports 10/11 §3.5): a DECLARED mandate_context
+                   must be complete whatever the audience — the position
+                   disclosure is unconditional once a position exists
        TEMPORAL    (round 4, reports 8/9 M-6, report-9-corrected design) when
                    meta.t1_filing_timestamp is set (the verified T1
                    filing/publication time), every fact must declare data_type
@@ -53,7 +56,20 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
                    data-integrity control, not a Reg FD control: pre-event
                    inputs (consensus, positioning, prior guidance, options
                    OI) legitimately predate the event and are exempt. Silent
-                   when meta.t1_filing_timestamp is absent.
+                   when meta.t1_filing_timestamp is absent. Date-only
+                   retrieved_at on the filing date is a NOTE — a failure
+                   under --strict-temporal (round 5, reports 10/11: for
+                   intraday-sensitive engagements).
+       SNAPSHOT    (round 5, reports 10/11 §3.4 — internal consistency vs
+                   source truth) facts may carry `source_snapshot`, the
+                   SHA-256 of the fetched source content recorded by
+                   scripts/source_snapshot.py --record. With --snapshots
+                   <manifest> a declared hash missing from the manifest fails
+                   (registry <-> archive linkage); --strict-snapshots
+                   additionally requires every `Verified` fact to declare
+                   one. Without snapshots the run prints the standing
+                   limitation NOTE — the audit certifies internal consistency,
+                   not source truth.
      Opt-in strict compliance modes (institutional builds):
        --strict-verified     every fact tagged `Verified` must carry >=2
                              entries in cross_checked_with (the family's
@@ -75,11 +91,18 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
      FILE = {"slide_01.html": ["-12.29%", "$482B", ...]} — per-slide needles.
   3. Scan-only      : --slides DIR — placeholder scan only.
 
+--json (round 5, reports 10/11 — CI/CD integration): stdout carries a
+machine-readable summary {"tool", "ok", "failure_count", "failures", "flags"};
+the human-readable PASS/NOTE diagnostics go to stderr so pipelines can
+consume stdout directly. Exit codes unchanged.
+
 Self-test: python3 fact_base_audit.py --selftest
 Exit codes: 0 clean, 1 failures found, 2 usage/environment error.
 """
 import argparse, ast, json, re, sys, tempfile, pathlib
 from datetime import date, datetime
+
+TOOL_ID = "fact_base_audit.py (big-tech research family, round 5)"
 
 PLACEHOLDER_PATTERNS = [
     r"lorem", r"\btodo\b", r"placeholder", r"\btbd\b", r"\bxxx\b", r"\bnan\b",
@@ -359,13 +382,20 @@ def check_consensus_facts(fb: dict, max_age_days: int = 5) -> list:
                              "window (stale consensus corrupts every delta; re-verify "
                              "against a fresh named-provider print)")
             else:
+                if stat == "undisclosed":
+                    # Round 5, reports 10/11 §5.7: honest but weaker than a
+                    # licensed point-in-time feed — surface the residual gap.
+                    print(f"NOTE   {fid}  consensus_statistic is 'undisclosed' — "
+                          "the outlet does not say which statistic it prints; "
+                          "log the licensed-feed pull needed to close the gap "
+                          "in the Data-Gap Ledger")
                 print(f"PASS   {fid}  consensus vintage {v} ({age}d before the event, "
                       f"{fact.get('consensus_provider')}, "
                       f"{fact.get('consensus_statistic')})")
     return fails
 
 
-def check_temporal_order(fb: dict) -> list:
+def check_temporal_order(fb: dict, strict: bool = False) -> list:
     """TEMPORAL gate (round 4, reports 8/9 M-6, report-9-corrected design).
 
     Active only when meta.t1_filing_timestamp is set (the verified T1
@@ -378,8 +408,12 @@ def check_temporal_order(fb: dict) -> list:
     design: the report-9 correction — stripping every pre-filing retrieval
     would purge legitimate pre-event inputs, so the gate discriminates on
     data_type. Date-only retrieved_at on the filing date itself is a NOTE
-    (precision insufficient), not a failure. A data-integrity control, not
-    a Reg FD control (Reg FD binds issuers; 10b-5 attaches to trading)."""
+    (precision insufficient), not a failure — with strict=True (round 5,
+    reports 10/11 --strict-temporal) it fails instead: intraday-sensitive
+    engagements require time-precise retrieval stamps (a same-day date-only
+    stamp cannot distinguish a pre-filing pull from a post-filing one). A
+    data-integrity control, not a Reg FD control (Reg FD binds issuers;
+    10b-5 attaches to trading)."""
     meta = fb.get("meta", {}) or {}
     t1_raw = str(meta.get("t1_filing_timestamp", "")).strip()
     if not t1_raw:
@@ -419,9 +453,17 @@ def check_temporal_order(fb: dict) -> list:
         if ordered:
             if not exact and (ret.date() if hasattr(ret, "date") else ret) == \
                     (t1.date() if hasattr(t1, "date") else t1):
-                print(f"NOTE   {fid}  retrieved_at is date-only on the filing "
-                      "date — timestamp precision would make the temporal "
-                      "check exact")
+                if strict:
+                    fails.append(f"TEMPORAL    {fid}  retrieved_at is date-only on "
+                                 "the filing date — --strict-temporal: an "
+                                 "intraday-sensitive engagement needs a "
+                                 "time-precise retrieval stamp (YYYY-MM-"
+                                 "DDTHH:MM:SS) to prove the pull came at/after "
+                                 "the verified filing time")
+                else:
+                    print(f"NOTE   {fid}  retrieved_at is date-only on the filing "
+                          "date — timestamp precision would make the temporal "
+                          "check exact")
             else:
                 print(f"PASS   {fid}  post_event_fact retrieved at/after the T1 "
                       "filing time")
@@ -440,25 +482,120 @@ def check_mandate_context(fb: dict) -> list:
     apply to distributed sell-side research, which these skills explicitly are
     not — but an internal IC deliverable still requires conflict-of-interest
     visibility (CFA Institute Standard I(B), Advisers Act fiduciary duty).
-    Deterministic presence check: no heuristic false positives."""
+    Round 5 (reports 10/11 §3.5): a DECLARED meta.mandate_context must be
+    complete whatever the audience — a position disclosure is unconditional
+    once a position exists; it does not get to be optional because the
+    deliverable happens to face a non-IC audience. A partially-declared block
+    is the worst state: it hints at a position while omitting the as-of date
+    that makes it interpretable. Deterministic presence check: no heuristic
+    false positives."""
     meta = fb.get("meta", {}) or {}
     audience = meta.get("audience", "")
     if isinstance(audience, list):
         audience = " ".join(str(a) for a in audience)
-    if not re.search(r"\b(ic|investment[\s-]committee)\b", str(audience).lower()):
+    ic_facing = bool(re.search(r"\b(ic|investment[\s-]committee)\b",
+                               str(audience).lower()))
+    mc = meta.get("mandate_context")
+    mc = mc if isinstance(mc, dict) else {}
+    declared = any(str(v).strip() for v in mc.values())
+    if not ic_facing and not declared:
         return []
-    mc = meta.get("mandate_context") or {}
-    if not isinstance(mc, dict) or not str(mc.get("fund_position", "")).strip() \
+    if not str(mc.get("fund_position", "")).strip() \
             or not str(mc.get("position_as_of", "")).strip():
-        return ["MANDATE      meta.audience names an IC audience but "
-                "meta.mandate_context is absent or incomplete — an IC-facing "
-                "deliverable must disclose fund_position (long/short/none/"
-                "undetermined) and position_as_of; conflict visibility is what "
-                "lets the committee discount the analysis for an existing "
-                "position"]
+        if ic_facing:
+            return ["MANDATE      meta.audience names an IC audience but "
+                    "meta.mandate_context is absent or incomplete — an IC-facing "
+                    "deliverable must disclose fund_position (long/short/none/"
+                    "undetermined) and position_as_of; conflict visibility is what "
+                    "lets the committee discount the analysis for an existing "
+                    "position"]
+        return ["MANDATE      meta.mandate_context is present but incomplete — "
+                "fund_position AND position_as_of are required once any "
+                "mandate context is declared (round 5, reports 10/11: the "
+                "position disclosure is unconditional whatever the audience); "
+                "complete the block or remove it"]
     print(f"PASS   mandate_context present (fund_position: "
           f"{mc.get('fund_position')}, as of {mc.get('position_as_of')})")
     return []
+
+
+def check_source_snapshots(fb: dict, manifest: dict = None,
+                           strict: bool = False) -> list:
+    """SNAPSHOT gate (round 5, reports 10/11 — internal consistency vs source truth).
+
+    The rest of this audit verifies the deck matches the fact base; it does
+    NOT verify the fact base matches the cited source document — a fact
+    entry with a wrong figure and a valid-looking URL passes every other
+    gate (report 11 §3.4, conceded by report 10's synthesis: the gates
+    prevent generation hallucinations, not ingestion errors). Facts close
+    that gap by carrying `source_snapshot`: the SHA-256 of the fetched
+    source content, recorded by scripts/source_snapshot.py --record into a
+    manifest passed via --snapshots. This gate enforces the registry <->
+    archive linkage:
+      - a declared hash missing from the manifest fails (registry drift);
+      - --strict-snapshots: every `Verified` fact must declare a snapshot
+        (opt-in like the family's other strict modes — routine T3 price
+        pulls may not warrant archiving; decision-critical T1 pulls do);
+      - without a manifest, a declared snapshot fails (an unverifiable
+        claim), and a run with no snapshots at all prints the standing
+        limitation NOTE so the gap is visible in every log, never silent.
+    Content-file integrity (does the saved file still hash to the recorded
+    digest?) is source_snapshot.py --verify's job; this gate stays a
+    deterministic offline check."""
+    fails = []
+    facts = fb.get("facts", [])
+    hashes_in_manifest = set()
+    if manifest is not None:
+        for s in manifest.get("snapshots", []):
+            h = str(s.get("sha256", "")).strip().lower()
+            if h:
+                hashes_in_manifest.add(h)
+    declared_any = False
+    for fact in facts:
+        fid = fact.get("id", "?")
+        h = str(fact.get("source_snapshot", "")).strip().lower()
+        if not h:
+            if strict and str(fact.get("confidence", "")).strip() \
+                    .lower().startswith("verified"):
+                fails.append(f"SNAPSHOT    {fid}  Verified fact carries no "
+                             "source_snapshot — --strict-snapshots: every "
+                             "Verified figure needs the SHA-256 of its fetched "
+                             "source (scripts/source_snapshot.py --record)")
+            continue
+        declared_any = True
+        if not re.fullmatch(r"[0-9a-f]{64}", h):
+            fails.append(f"SNAPSHOT    {fid}  source_snapshot {h[:16]!r} is not a "
+                         "64-hex SHA-256 — record it with "
+                         "scripts/source_snapshot.py --record")
+            continue
+        if manifest is None:
+            fails.append(f"SNAPSHOT    {fid}  declares source_snapshot "
+                         f"sha256:{h[:12]} but no --snapshots manifest was "
+                         "passed — re-run with --snapshots "
+                         "source_snapshots.json to verify the linkage")
+            continue
+        if h not in hashes_in_manifest:
+            fails.append(f"SNAPSHOT    {fid}  declares source_snapshot "
+                         f"sha256:{h[:12]} which the manifest does not contain "
+                         "— the fact base and the snapshot archive drifted "
+                         "apart; re-record the source or fix the reference")
+        else:
+            print(f"PASS   {fid}  source_snapshot sha256:{h[:12]} linked")
+    if manifest is not None:
+        referenced = {str(f.get("source_snapshot", "")).strip().lower()
+                      for f in facts}
+        for s in manifest.get("snapshots", []):
+            h = str(s.get("sha256", "")).strip().lower()
+            if h and h not in referenced:
+                print(f"NOTE   orphan snapshot sha256:{h[:12]} "
+                      f"({s.get('url', '?')}) referenced by no fact — prune it "
+                      "or register the fact it supports")
+    elif not declared_any and not strict:
+        print("NOTE   no source snapshots on record — this audit certifies "
+              "internal consistency, not source truth (reports 10/11 §3.4); "
+              "snapshot decision-critical T1 sources with "
+              "scripts/source_snapshot.py --record to close the gap")
+    return fails
 
 
 def check_epistemic_kinds(fb: dict) -> list:
@@ -522,7 +659,10 @@ def check_waterfall_sums(fb: dict) -> list:
 def run_fact_base_mode(slides: dict, fb: dict, method_page: str,
                        strict_verified: bool = False,
                        decision_critical: str = "",
-                       consensus_max_age: int = 10) -> tuple:
+                       consensus_max_age: int = 10,
+                       strict_temporal: bool = False,
+                       snapshots_manifest: dict = None,
+                       strict_snapshots: bool = False) -> tuple:
     """Per-fact presence checks. Returns (failures, skipped_ids, covered_tokens)."""
     fails, skipped, covered = [], [], set()
     deck_text = norm(" ".join(visible_text(v) for v in slides.values()))
@@ -554,10 +694,12 @@ def run_fact_base_mode(slides: dict, fb: dict, method_page: str,
     fails += check_assumed_on_method_page(fb, slides, method_page)
     fails += check_cross_checks(fb, strict_verified, decision_critical)
     fails += check_consensus_facts(fb, consensus_max_age)
-    fails += check_temporal_order(fb)
+    fails += check_temporal_order(fb, strict=strict_temporal)
     fails += check_mandate_context(fb)
     fails += check_epistemic_kinds(fb)
     fails += check_waterfall_sums(fb)
+    fails += check_source_snapshots(fb, snapshots_manifest,
+                                    strict=strict_snapshots)
     return fails, skipped, covered
 
 
@@ -806,11 +948,102 @@ def selftest() -> int:
                             for f in r_t["failures"])
         ok = ok and not any("F-18" in f and "TEMPORAL" in f
                             for f in r_t["failures"])
+        # Round 5 (reports 10/11) — STRICT-TEMPORAL: F-1 retrieved date-only ON
+        # the filing date is a NOTE by default but FAILS under --strict-temporal.
+        fb6 = json.loads(json.dumps(fb5))
+        fb6["facts"][0]["retrieved_at"] = "2026-10-28"     # date-only, filing date
+        (d / "fb6.json").write_text(json.dumps(fb6), encoding="utf-8")
+        r_t6 = d / "r_t6.json"
+        code_t6 = main(["--slides", str(d), "--fact-base", str(d / "fb6.json"),
+                        "--report", str(r_t6)])
+        rep_t6 = json.loads(r_t6.read_text())
+        ok = ok and not any("F-1 " in f and "TEMPORAL" in f
+                            for f in rep_t6["failures"])
+        r_t6s = d / "r_t6s.json"
+        code_t6s = main(["--slides", str(d), "--fact-base", str(d / "fb6.json"),
+                         "--strict-temporal", "--report", str(r_t6s)])
+        rep_t6s = json.loads(r_t6s.read_text())
+        ok = ok and any("F-1 " in f and "TEMPORAL" in f
+                        for f in rep_t6s["failures"])
+        # Round 5 (reports 10/11 §3.5) — MANDATE: a declared-but-incomplete
+        # mandate_context fails even for a NON-IC audience (unconditional once
+        # a position exists).
+        fb7 = json.loads(json.dumps(fb))
+        fb7["meta"]["audience"] = "internal research desk"
+        fb7["meta"]["mandate_context"] = {"fund_position": "long"}
+        (d / "fb7.json").write_text(json.dumps(fb7), encoding="utf-8")
+        r_m7 = d / "r_m7.json"
+        code_m7 = main(["--slides", str(d), "--fact-base", str(d / "fb7.json"),
+                        "--report", str(r_m7)])
+        rep_m7 = json.loads(r_m7.read_text())
+        ok = ok and any("MANDATE" in f and "incomplete" in f
+                        for f in rep_m7["failures"])
+        # Round 5 (reports 10/11 §3.4) — SNAPSHOT linkage: a declared hash
+        # without a manifest fails; with a matching manifest F-1 links clean;
+        # a mismatched manifest fails; --strict-snapshots without --snapshots
+        # is a usage error (exit 2).
+        import hashlib
+        src_content = "Alphabet Q3 2026 8-K — GOOG close 282.32 (reaction day)"
+        snap_hash = hashlib.sha256(src_content.encode("utf-8")).hexdigest()
+        (d / "source.html").write_text(src_content, encoding="utf-8")
+        manifest = {"schema_version": 1, "tool": "source_snapshot.py",
+                    "snapshots": [{"url": "https://x/8k", "source_name": "SEC 8-K",
+                                   "fetched_at_utc": "2026-10-29T00:00:00Z",
+                                   "content_path": str(d / "source.html"),
+                                   "sha256": snap_hash,
+                                   "bytes": len(src_content)}]}
+        (d / "snaps.json").write_text(json.dumps(manifest), encoding="utf-8")
+        fb8 = json.loads(json.dumps(fb))
+        fb8["facts"][0]["source_snapshot"] = snap_hash
+        (d / "fb8.json").write_text(json.dumps(fb8), encoding="utf-8")
+        r_s8 = d / "r_s8.json"
+        code_s8 = main(["--slides", str(d), "--fact-base", str(d / "fb8.json"),
+                        "--report", str(r_s8)])
+        rep_s8 = json.loads(r_s8.read_text())
+        ok = ok and any("F-1 " in f and "SNAPSHOT" in f
+                        for f in rep_s8["failures"])            # no manifest
+        r_s8m = d / "r_s8m.json"
+        code_s8m = main(["--slides", str(d), "--fact-base", str(d / "fb8.json"),
+                         "--snapshots", str(d / "snaps.json"),
+                         "--report", str(r_s8m)])
+        rep_s8m = json.loads(r_s8m.read_text())
+        ok = ok and not any("SNAPSHOT" in f for f in rep_s8m["failures"])
+        manifest_bad = json.loads(json.dumps(manifest))
+        manifest_bad["snapshots"][0]["sha256"] = "0" * 64
+        (d / "snaps_bad.json").write_text(json.dumps(manifest_bad),
+                                          encoding="utf-8")
+        r_s8b = d / "r_s8b.json"
+        code_s8b = main(["--slides", str(d), "--fact-base", str(d / "fb8.json"),
+                         "--snapshots", str(d / "snaps_bad.json"),
+                         "--report", str(r_s8b)])
+        rep_s8b = json.loads(r_s8b.read_text())
+        ok = ok and any("F-1 " in f and "SNAPSHOT" in f
+                        for f in rep_s8b["failures"])           # hash mismatch
+        code_s8u = main(["--slides", str(d), "--fact-base", str(d / "fb8.json"),
+                         "--strict-snapshots"])
+        ok = ok and code_s8u == 2
+        # Round 5 — --json: stdout is a machine-readable summary.
+        import contextlib, io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code_j = main(["--slides", str(d), "--fact-base", str(d / "fb.json"),
+                           "--json"])
+        try:
+            payload = json.loads(buf.getvalue())
+            json_ok = (payload.get("ok") is False
+                       and payload.get("failure_count", 0) >= 1
+                       and payload.get("tool", "").startswith("fact_base_audit"))
+        except json.JSONDecodeError:
+            json_ok = False
+        ok = ok and code_j == 1 and json_ok
         print("=" * 60)
         print("SELFTEST:", "PASS" if ok else "FAIL",
               f"(default exit {code}, strict exit {code_s}, cli-dc exit {code_c}, "
               f"strict-pages exit {code_sp}, mandate exit {code_m}, "
-              f"epistemic exit {code_e}, temporal exit {code_t})")
+              f"epistemic exit {code_e}, temporal exit {code_t}, "
+              f"strict-temporal exit {code_t6s}, mandate-declared exit {code_m7}, "
+              f"snapshots {code_s8}/{code_s8m}/{code_s8b}/{code_s8u}, "
+              f"json exit {code_j})")
         return 0 if ok else 1
 
 
@@ -847,10 +1080,40 @@ def main(argv=None) -> int:
                          "M-1 tightened it from 10; 0 disables the freshness "
                          "check — provider/statistic/tier still required)")
     ap.add_argument("--report", help="optional path for a JSON audit report")
+    ap.add_argument("--snapshots", metavar="MANIFEST",
+                    help="source_snapshots.json recorded by "
+                         "scripts/source_snapshot.py --record; enables the "
+                         "SNAPSHOT linkage gate (round 5, reports 10/11)")
+    ap.add_argument("--strict-snapshots", action="store_true",
+                    help="opt-in: every `Verified` fact must carry a "
+                         "source_snapshot hash present in the --snapshots "
+                         "manifest (requires --snapshots)")
+    ap.add_argument("--strict-temporal", action="store_true",
+                    help="opt-in (round 5, reports 10/11): a date-only "
+                         "retrieved_at on the filing date FAILS instead of "
+                         "NOTE — for intraday-sensitive engagements")
+    ap.add_argument("--json", action="store_true",
+                    help="machine-readable summary on stdout (diagnostics go "
+                         "to stderr) for CI/CD integration (round 5)")
     ap.add_argument("--selftest", action="store_true", help="run built-in self-test and exit")
     args = ap.parse_args(argv)
     if args.selftest:
         return selftest()
+    if args.strict_snapshots and not args.snapshots:
+        print("ERROR  --strict-snapshots requires --snapshots <manifest>",
+              file=sys.stderr)
+        return 2
+    snapshots_manifest = None
+    if args.snapshots:
+        sp = pathlib.Path(args.snapshots)
+        if not sp.is_file():
+            print(f"ERROR  snapshots manifest not found: {sp}", file=sys.stderr)
+            return 2
+        try:
+            snapshots_manifest = json.loads(sp.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as e:
+            print(f"ERROR  cannot read snapshots manifest: {e}", file=sys.stderr)
+            return 2
 
     sdir = pathlib.Path(args.slides)
     if not sdir.is_dir():
@@ -862,59 +1125,84 @@ def main(argv=None) -> int:
         return 2
 
     failures, skipped, covered = [], [], set()
-    if args.fact_base:
-        fb = json.loads(pathlib.Path(args.fact_base).read_text(encoding="utf-8"))
-        method_page = args.method_page or (fb.get("meta", {}) or {}).get("method_page")
-        failures, skipped, covered = run_fact_base_mode(
-            slides, fb, method_page,
-            strict_verified=args.strict_verified,
-            decision_critical=args.decision_critical,
-            consensus_max_age=args.consensus_max_age_days)
-    if args.checks:
-        checks = json.loads(pathlib.Path(args.checks).read_text(encoding="utf-8"))
-        failures += run_checks_mode(slides, checks)
-        for needles in checks.values():
-            covered.update(str(n) for n in needles)
-    if not args.fact_base and not args.checks:
-        print(f"Scanned {len(slides)} slide(s) — placeholder scan only "
-              "(no fact base / checks given).")
+    real_stdout = sys.stdout
+    if args.json:
+        sys.stdout = sys.stderr      # diagnostics to stderr; stdout stays JSON
+    try:
+        if args.fact_base:
+            fb = json.loads(pathlib.Path(args.fact_base).read_text(encoding="utf-8"))
+            method_page = args.method_page or (fb.get("meta", {}) or {}).get("method_page")
+            failures, skipped, covered = run_fact_base_mode(
+                slides, fb, method_page,
+                strict_verified=args.strict_verified,
+                decision_critical=args.decision_critical,
+                consensus_max_age=args.consensus_max_age_days,
+                strict_temporal=args.strict_temporal,
+                snapshots_manifest=snapshots_manifest,
+                strict_snapshots=args.strict_snapshots)
+        if args.checks:
+            checks = json.loads(pathlib.Path(args.checks).read_text(encoding="utf-8"))
+            failures += run_checks_mode(slides, checks)
+            for needles in checks.values():
+                covered.update(str(n) for n in needles)
+        if not args.fact_base and not args.checks:
+            print(f"Scanned {len(slides)} slide(s) — placeholder scan only "
+                  "(no fact base / checks given).")
 
-    failures += scan_placeholders(slides)
+        failures += scan_placeholders(slides)
 
-    cands_by_page = _candidates_by_page(slides, covered) if args.fact_base else {}
-    strict_pages = {p.strip() for p in (args.strict_pages or "").split(",")
-                    if p.strip()}
-    # Decision-critical pages fail closed; --fail-on-unverified promotes the rest.
-    for fname in sorted(strict_pages):
-        if fname not in slides:
-            failures.append(f"BADREF      --strict-pages names unknown page {fname}")
-        for c in cands_by_page.get(fname, []):
-            failures.append(f"UNVERIFIED   {fname}  slide number '{c}' has no "
-                            "fact-base entry (--strict-pages: decision-critical "
-                            "page — add it to the fact base or confirm benign)")
-    if args.fail_on_unverified:
-        for fname, lst in cands_by_page.items():
-            if fname in strict_pages:
-                continue  # already failures above — no double count
-            for c in lst:
-                failures.append(f"UNVERIFIED   slide number '{c}' has no "
-                                "fact-base entry (add it or confirm benign)")
-    cands = sorted({c for lst in cands_by_page.values() for c in lst})
-    advisory = [c for c in cands
-                if not args.fail_on_unverified
-                and not any(c in cands_by_page.get(p, []) for p in strict_pages)]
-    if advisory:
-        print("-" * 60)
-        print(f"NOTE   {len(advisory)} unverified candidate(s) on slides — add to "
-              "the fact base or confirm benign (years, page furniture); promoted "
-              "to failures on --strict-pages pages or with --fail-on-unverified:")
-        for c in advisory:
-            print(f"       ? {c}")
+        cands_by_page = _candidates_by_page(slides, covered) if args.fact_base else {}
+        strict_pages = {p.strip() for p in (args.strict_pages or "").split(",")
+                        if p.strip()}
+        # Decision-critical pages fail closed; --fail-on-unverified promotes the rest.
+        for fname in sorted(strict_pages):
+            if fname not in slides:
+                failures.append(f"BADREF      --strict-pages names unknown page {fname}")
+            for c in cands_by_page.get(fname, []):
+                failures.append(f"UNVERIFIED   {fname}  slide number '{c}' has no "
+                                "fact-base entry (--strict-pages: decision-critical "
+                                "page — add it to the fact base or confirm benign)")
+        if args.fail_on_unverified:
+            for fname, lst in cands_by_page.items():
+                if fname in strict_pages:
+                    continue  # already failures above — no double count
+                for c in lst:
+                    failures.append(f"UNVERIFIED   slide number '{c}' has no "
+                                    "fact-base entry (add it or confirm benign)")
+        cands = sorted({c for lst in cands_by_page.values() for c in lst})
+        advisory = [c for c in cands
+                    if not args.fail_on_unverified
+                    and not any(c in cands_by_page.get(p, []) for p in strict_pages)]
+        if advisory:
+            print("-" * 60)
+            print(f"NOTE   {len(advisory)} unverified candidate(s) on slides — add to "
+                  "the fact base or confirm benign (years, page furniture); promoted "
+                  "to failures on --strict-pages pages or with --fail-on-unverified:")
+            for c in advisory:
+                print(f"       ? {c}")
+    finally:
+        if args.json:
+            sys.stdout = real_stdout
 
     if args.report:
         pathlib.Path(args.report).write_text(json.dumps(
             {"failures": failures, "passes_skipped": skipped,
              "unverified_candidates": cands}, indent=2), encoding="utf-8")
+
+    if args.json:
+        print(json.dumps({
+            "tool": TOOL_ID,
+            "ok": not failures,
+            "failure_count": len(failures),
+            "failures": failures,
+            "unverified_candidates": cands,
+            "flags": {"strict_verified": bool(args.strict_verified),
+                      "fail_on_unverified": bool(args.fail_on_unverified),
+                      "strict_temporal": bool(args.strict_temporal),
+                      "strict_snapshots": bool(args.strict_snapshots),
+                      "snapshots": bool(args.snapshots)},
+        }, indent=2))
+        return 0 if not failures else 1
 
     print("=" * 60)
     print("AUDIT RESULT:", "CLEAN" if not failures else f"{len(failures)} failure(s)")

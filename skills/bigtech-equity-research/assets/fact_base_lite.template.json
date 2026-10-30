@@ -1,29 +1,37 @@
 {
-  "_comment": "Copy this file as fact_base_lite.json for the engagement and fill it in BEFORE assembling the HTML note (it is the note's number registry — every money/percentage figure the note prints must exist here with a source). Then run: python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base fact_base_lite.json — the gate fails on unregistered note numbers, registry numbers absent from the note, missing source fields, consensus-side facts without provider/vintage/statistic, temporal-order violations (when meta.t1_filing_timestamp is set), and placeholder tokens. meta.furniture whitelists benign repeated tokens the reverse check would otherwise flag (e.g. years, section numbers); prefer an empty list. Round 4 (reports 8/9): consensus facts carry consensus_statistic (mean | median | undisclosed); when meta.t1_filing_timestamp is set, every fact declares data_type pre_event_input | post_event_fact and post-event facts must have been retrieved at/after the filing time. The worked-example entries below use the family's canonical Alphabet Q3 2026 event; delete them and the _* keys when starting a real engagement.",
+  "_comment": "Copy this file as fact_base_lite.json for the engagement and fill it in BEFORE assembling the HTML note (it is the note's number registry \u2014 every money/percentage figure the note prints must exist here with a source). Then run: python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base fact_base_lite.json \u2014 the gate fails on unregistered note numbers, registry numbers absent from the note, missing source fields, consensus-side facts without provider/vintage/statistic, temporal-order violations (when meta.t1_filing_timestamp is set), and placeholder tokens. meta.furniture whitelists benign repeated tokens the reverse check would otherwise flag (e.g. years, section numbers); prefer an empty list. Round 4 (reports 8/9): consensus facts carry consensus_statistic (mean | median | undisclosed); when meta.t1_filing_timestamp is set, every fact declares data_type pre_event_input | post_event_fact and post-event facts must have been retrieved at/after the filing time. The worked-example entries below use the family's canonical Alphabet Q3 2026 event; delete them and the _* keys when starting a real engagement. Round 5 (reports 10/11): entries may carry source_snapshot \u2014 the SHA-256 of the fetched source content recorded by scripts/source_snapshot.py --record; the lite audit's SNAPSHOT check (--snapshots source_snapshots.json, --strict-snapshots) verifies the registry <-> snapshot-archive linkage (internal consistency vs source truth). meta.mandate_context (fund_position + position_as_of) is optional but, once declared, must be complete whatever the audience \u2014 the position disclosure is unconditional.",
   "meta": {
     "subject": "Alphabet Inc. (NASDAQ: GOOG / GOOGL)",
     "event": "Q3 FY2026 earnings release + conference call",
     "data_cutoff": "2026-10-30T13:00:00+08:00",
     "t1_filing_timestamp": "2026-10-28T16:05:00-04:00",
-    "furniture": []
+    "furniture": [],
+    "mandate_context": {
+      "_doc": "OPTIONAL: declare when the fund holds any position in the covered name \u2014 then fund_position + position_as_of are required (unconditional disclosure, round 5 reports 10/11)",
+      "fund_position": "long | short | none | undetermined (delete key if not applicable)",
+      "position_as_of": "YYYY-MM-DD (delete key if not applicable)"
+    }
   },
   "facts": [
     {
-      "_example_1": "DELETE ME — verified price fact pattern (T3 supports prices only)",
+      "_example_1": "DELETE ME \u2014 verified price fact pattern (T3 supports prices only)",
       "id": "L-001",
       "metric": "GOOG close, reaction day",
       "value": 282.32,
       "unit": "$",
       "as_of": "2026-10-29 close",
-      "source_name": "Yahoo Finance — GOOG quote history",
+      "source_name": "Yahoo Finance \u2014 GOOG quote history",
       "source_url": "https://finance.yahoo.com/quote/GOOG",
       "retrieved_at": "2026-10-30T13:00:00+08:00",
       "confidence": "Verified",
       "data_type": "post_event_fact",
-      "cross_checked_with": ["CNN Markets"]
+      "cross_checked_with": [
+        "CNN Markets"
+      ],
+      "source_snapshot": "<64-hex SHA-256 of the fetched source content \u2014 scripts/source_snapshot.py --record (optional; required for Verified entries under --strict-snapshots)>"
     },
     {
-      "_example_2": "DELETE ME — consensus-side fact pattern (provider + vintage mandatory; the consensus is the denominator of every beat/miss delta)",
+      "_example_2": "DELETE ME \u2014 consensus-side fact pattern (provider + vintage mandatory; the consensus is the denominator of every beat/miss delta)",
       "id": "L-002",
       "metric": "Revenue consensus, Q3 2026",
       "value": 128.22,
@@ -38,22 +46,26 @@
       "consensus_vintage": "2026-10-28",
       "consensus_statistic": "mean",
       "contributor_count": null,
-      "cross_checked_with": ["Visible Alpha as reported by CNBC"]
+      "cross_checked_with": [
+        "Visible Alpha as reported by CNBC"
+      ]
     },
     {
-      "_example_3": "DELETE ME — derived fact pattern (formula shown; computed in code, never in-context)",
+      "_example_3": "DELETE ME \u2014 derived fact pattern (formula shown; computed in code, never in-context)",
       "id": "L-003",
       "metric": "Session move, reaction day",
       "value": "-12.29%",
       "unit": "%",
       "as_of": "2026-10-29 close vs 2026-10-28 close",
-      "source_name": "computed — (282.32 − 321.89) / 321.89",
+      "source_name": "computed \u2014 (282.32 \u2212 321.89) / 321.89",
       "source_url": "n/a (derived from L-001 and the sourced prior close)",
       "retrieved_at": "2026-10-30T13:00:00+08:00",
       "confidence": "Reasoned (derived)",
       "data_type": "post_event_fact",
       "formula": "(282.32 - 321.89) / 321.89 = -12.29%",
-      "cross_checked_with": ["press-reported −12.29% (CNBC)"]
+      "cross_checked_with": [
+        "press-reported \u221212.29% (CNBC)"
+      ]
     }
   ]
 }

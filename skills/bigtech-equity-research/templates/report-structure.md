@@ -16,9 +16,19 @@ Responsive. WCAG-AA contrast. Print-friendly. Confidence tag inline on every fig
    `assets/checks.json`.
    **IC-facing covers** also carry the position disclosure — "Fund position:
    long/short/none/undetermined, as of <date>" (buy-side conflict visibility, CFA
-   Institute Standard I(B); the lite audit's conditional needle enforces it). When
-   the deliverable is sealed, the cover (or footer) carries the provenance seal line
-   printed by `scripts/provenance_seal.py` next to the verification-status line.
+   Institute Standard I(B); the lite audit's conditional needle enforces it).
+   **Round 5 (reports 10/11 §3.5)**: once any position in the covered name exists
+   (any `meta.mandate_context` in the registry), the disclosure is required
+   whatever the audience — a position does not stop being a conflict when the
+   reader is not a committee.
+   **Methodology-status line (round 5, reports 10/11 §3.6 — required needle)**:
+   the cover (or the method note) carries "Methodology status: empirically
+   unvalidated — face validity only (validation harness pending)" — a green
+   gate run is internal consistency, not a track record.
+   When the deliverable is sealed, the cover (or footer) carries the provenance seal line
+   printed by `scripts/provenance_seal.py` next to the verification-status line —
+   include the source-snapshot manifest and saved content files in `--inputs`
+   when snapshots are on record (round 5, reports 10/11 §6.9).
 2. **Executive Summary** — 4–6 bullet root-cause thesis, ranked by contribution; key stat band.
 3. **Price Reaction Timeline** — annotated chart (pre-market → intraday → next sessions) with an
    abnormal-return overlay vs QQQ/XLK. *(Trend mode: multi-quarter price chart instead.)*

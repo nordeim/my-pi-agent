@@ -267,6 +267,8 @@ class TestEndToEnd:
             "<html><body><h1>GOOG −12.29%</h1>"
             "<p>Verification status: lite audit gates passed — disclosure needles "
             "+ render audit.</p>"
+            "<p>Methodology status: empirically unvalidated — face validity only "
+            "(validation harness pending).</p>"
             "<p>Informational only — not investment advice, not a solicitation. "
             "No price targets published.</p>"
             "<p>Internal analytical pre-read — not a research report. "

@@ -35,7 +35,13 @@ What it enforces on the delivered note:
 Usage:
   python3 note_audit.py --note <file.html> --checks <checks.json>
   python3 note_audit.py --note <file.html>                # placeholder scan only
+  python3 note_audit.py --note <file.html> --checks <checks.json> --json
   python3 note_audit.py --selftest
+
+--json (round 5, reports 10/11 — CI/CD integration): stdout carries a
+machine-readable summary {"tool", "ok", "failure_count", "failures"}; the
+human-readable diagnostics go to stderr so pipelines can consume stdout
+directly. Exit codes unchanged.
 
 Exit codes: 0 clean, 1 failures found, 2 usage/environment error.
 
@@ -48,6 +54,8 @@ bigtech-equity-research/scripts/ are byte-identical by design;
 tests/test_note_audit.py fails the build if they drift apart.
 """
 import argparse, json, re, sys, tempfile, pathlib
+
+TOOL_ID = "note_audit.py (big-tech research family, round 5)"
 
 PLACEHOLDER_PATTERNS = [
     r"lorem", r"\btodo\b", r"placeholder", r"\btbd\b", r"\bxxx\b", r"\bnan\b",
@@ -189,12 +197,26 @@ def selftest() -> int:
             "<html><head><script>var todo = 1;</script></head><body>"
             "<p>Close $282.32</p></body></html>", encoding="utf-8")
         r_js = main(["--note", str(d / "note_js.html")])
+        # Round 5 — --json: stdout is a machine-readable summary.
+        import contextlib, io
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            r_json = main(["--note", str(d / "note_placeholder.html"),
+                           "--json"])
+        try:
+            payload = json.loads(buf.getvalue())
+            json_ok = (payload.get("ok") is False
+                       and payload.get("failure_count", 0) >= 1
+                       and payload.get("tool", "").startswith("note_audit"))
+        except json.JSONDecodeError:
+            json_ok = False
         ok = (r_clean == 0 and r_place == 1 and r_wf == 1 and r_js == 0
-              and r_sc == 1)
+              and r_sc == 1 and r_json == 1 and json_ok)
         print("=" * 60)
         print("SELFTEST:", "PASS" if ok else "FAIL",
               f"(clean {r_clean}, placeholder {r_place}, "
-              f"waterfall-label {r_wf}, js-scope {r_js}, scoped {r_sc})")
+              f"waterfall-label {r_wf}, js-scope {r_js}, scoped {r_sc}, "
+              f"json {r_json})")
         return 0 if ok else 1
 
 
@@ -206,6 +228,9 @@ def main(argv=None) -> int:
                          "'required_if' conditional disclosures "
                          "(see assets/checks.json)")
     ap.add_argument("--report", help="optional path for a JSON audit report")
+    ap.add_argument("--json", action="store_true",
+                    help="machine-readable summary on stdout (diagnostics go "
+                         "to stderr) for CI/CD integration (round 5)")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in self-test and exit")
     args = ap.parse_args(argv)
@@ -225,30 +250,49 @@ def main(argv=None) -> int:
     except (OSError, UnicodeDecodeError) as e:
         print(f"ERROR  cannot read {note}: {e}", file=sys.stderr)
         return 2
-    failures += scan_placeholders(note.name, raw)
+    real_stdout = sys.stdout
+    if args.json:
+        sys.stdout = sys.stderr      # diagnostics to stderr; stdout stays JSON
+    try:
+        failures += scan_placeholders(note.name, raw)
 
-    checks = {}
-    if args.checks:
-        cpath = pathlib.Path(args.checks)
-        if not cpath.is_file():
-            print(f"ERROR  checks file not found: {cpath}", file=sys.stderr)
-            return 2
-        try:
-            checks = json.loads(cpath.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as e:
-            print(f"ERROR  checks file is not valid JSON: {e}", file=sys.stderr)
-            return 2
-        if not isinstance(checks, dict):
-            print("ERROR  checks file must be a JSON object", file=sys.stderr)
-            return 2
-        failures += run_needle_checks(note.name, raw, checks)
-    else:
-        print(f"Scanned {note.name} — placeholder scan only (no checks file "
-              "given; the skill's assets/checks.json is the default gate).")
+        checks = {}
+        if args.checks:
+            cpath = pathlib.Path(args.checks)
+            if not cpath.is_file():
+                sys.stdout = real_stdout
+                print(f"ERROR  checks file not found: {cpath}", file=sys.stderr)
+                return 2
+            try:
+                checks = json.loads(cpath.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as e:
+                sys.stdout = real_stdout
+                print(f"ERROR  checks file is not valid JSON: {e}", file=sys.stderr)
+                return 2
+            if not isinstance(checks, dict):
+                sys.stdout = real_stdout
+                print("ERROR  checks file must be a JSON object", file=sys.stderr)
+                return 2
+            failures += run_needle_checks(note.name, raw, checks)
+        else:
+            print(f"Scanned {note.name} — placeholder scan only (no checks file "
+                  "given; the skill's assets/checks.json is the default gate).")
+    finally:
+        if args.json:
+            sys.stdout = real_stdout
 
     if args.report:
         pathlib.Path(args.report).write_text(
             json.dumps({"failures": failures}, indent=2), encoding="utf-8")
+
+    if args.json:
+        print(json.dumps({
+            "tool": TOOL_ID,
+            "ok": not failures,
+            "failure_count": len(failures),
+            "failures": failures,
+        }, indent=2))
+        return 0 if not failures else 1
 
     print("=" * 60)
     print("AUDIT RESULT:", "CLEAN" if not failures else f"{len(failures)} failure(s)")

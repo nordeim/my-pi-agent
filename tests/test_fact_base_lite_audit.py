@@ -331,3 +331,106 @@ class TestCLI:
 class TestSelftest:
     def test_module_selftest_returns_zero(self, fla):
         assert fla.selftest() == 0
+
+
+class TestRound5Gates:
+    """Round 5 (reports 10/11): the lite MANDATE rule (unconditional once
+    declared), the SNAPSHOT linkage check, --strict-temporal, and --json."""
+
+    def test_declared_but_incomplete_mandate_fails_for_non_ic(self, fla):
+        fb = {"meta": {"mandate_context": {"fund_position": "long"}},
+              "facts": []}
+        fails = fla.check_mandate_context(fb)
+        assert any("MANDATE" in f and "incomplete" in f for f in fails), (
+            "reports 10/11 §3.5: the position disclosure is unconditional "
+            "once a position exists — audience independence was the gap")
+
+    def test_complete_mandate_passes_for_non_ic(self, fla):
+        fb = {"meta": {"mandate_context": {"fund_position": "long",
+                                           "position_as_of": "2026-10-30"}},
+              "facts": []}
+        assert fla.check_mandate_context(fb) == []
+
+    def test_ic_audience_still_requires_mandate(self, fla):
+        fb = {"meta": {"audience": "institutional PM/IC"}, "facts": []}
+        fails = fla.check_mandate_context(fb)
+        assert any("MANDATE" in f and "IC audience" in f for f in fails)
+
+    def test_no_mandate_no_ic_stays_silent(self, fla):
+        assert fla.check_mandate_context({"meta": {}, "facts": []}) == []
+
+    def test_strict_temporal_fails_date_only_on_filing_date(self, fla):
+        fb = {"meta": {"t1_filing_timestamp": "2026-10-28T16:05:00-04:00"},
+              "facts": [
+            {"id": "R5-L1", "value": 2.0, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-28"}]}
+        fails = fla.check_temporal_order(fb, strict=True)
+        assert any("R5-L1" in f and "TEMPORAL" in f
+                   and "--strict-temporal" in f for f in fails)
+
+    def test_date_only_stays_advisory_by_default(self, fla):
+        fb = {"meta": {"t1_filing_timestamp": "2026-10-28T16:05:00-04:00"},
+              "facts": [
+            {"id": "R5-L2", "value": 2.0, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-28"}]}
+        assert fla.check_temporal_order(fb) == []
+
+    # --- SNAPSHOT linkage (reports 10/11 §3.4) ---
+
+    def _snap_hash(self):
+        import hashlib
+        return hashlib.sha256(b"<html>Alphabet Q3 2026 press release</html>").hexdigest()
+
+    def _fb(self):
+        return {"meta": {}, "facts": [
+            {"id": "SN-1", "metric": "revenue actual", "value": 127.58,
+             "source_name": "press release", "source_url": "https://x",
+             "retrieved_at": "2026-10-30", "confidence": "Verified",
+             "source_snapshot": self._snap_hash()},
+            {"id": "SN-2", "metric": "move", "value": "-12.29%",
+             "source_name": "computed", "source_url": "n/a",
+             "retrieved_at": "2026-10-30",
+             "confidence": "Reasoned (derived)"}]}
+
+    def _manifest(self, sha=None):
+        return {"schema_version": 1, "tool": "source_snapshot.py",
+                "snapshots": [{"url": "https://x",
+                               "sha256": sha or self._snap_hash()}]}
+
+    def test_declared_snapshot_without_manifest_fails(self, fla):
+        fails = fla.check_source_snapshots(self._fb(), None)
+        assert any("SN-1" in f and "SNAPSHOT" in f for f in fails)
+
+    def test_linked_snapshot_passes(self, fla):
+        assert fla.check_source_snapshots(self._fb(), self._manifest()) == []
+
+    def test_mismatched_manifest_fails(self, fla):
+        fails = fla.check_source_snapshots(self._fb(), self._manifest("0" * 64))
+        assert any("SN-1" in f and "SNAPSHOT" in f
+                   and "does not contain" in f for f in fails)
+
+    def test_strict_snapshots_binds_verified_only(self, fla):
+        fails = fla.check_source_snapshots(self._fb(), self._manifest(),
+                                           strict=True)
+        assert fails == [], (
+            "SN-1 declares a snapshot; SN-2 is Reasoned (derived) — strict "
+            "mode should pass this registry")
+
+    def test_strict_snapshots_fails_verified_without_snapshot(self, fla):
+        fb = {"meta": {}, "facts": [
+            {"id": "SN-3", "metric": "close", "value": 282.32,
+             "source_name": "Yahoo", "source_url": "https://x",
+             "retrieved_at": "2026-10-30", "confidence": "Verified"}]}
+        fails = fla.check_source_snapshots(fb, self._manifest(), strict=True)
+        assert any("SN-3" in f and "SNAPSHOT" in f for f in fails)
+
+    def test_template_documents_mandate_context_and_snapshot(self):
+        data = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        assert "mandate_context" in data.get("meta", {}), (
+            "the lite template must demonstrate meta.mandate_context "
+            "(round 5, reports 10/11 §3.5)")
+        assert any("source_snapshot" in str(f) for f in data.get("facts", [])), (
+            "the lite template must demonstrate the source_snapshot field "
+            "(round 5, reports 10/11 §3.4)")

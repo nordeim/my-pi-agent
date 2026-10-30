@@ -519,3 +519,144 @@ class TestEvidenceHarness:
             capture_output=True, text=True, cwd=str(REPO_ROOT))
         assert p.returncode == 0, p.stdout + p.stderr
         assert "H-4" in p.stdout
+
+
+class TestRound5Gates:
+    """Round 5 (reports 10/11): --strict-temporal, the unconditional MANDATE
+    rule, the SNAPSHOT linkage gate, and --json machine-readable output."""
+
+    def test_strict_temporal_fails_date_only_on_filing_date(self, fba):
+        fb = {"meta": {"t1_filing_timestamp": "2026-10-28T16:05:00-04:00"},
+              "facts": [
+            {"id": "R5-1", "value": 2.0, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-28"}]}
+        fails = fba.check_temporal_order(fb, strict=True)
+        assert any("R5-1" in f and "TEMPORAL" in f
+                   and "--strict-temporal" in f for f in fails), (
+            "intraday-sensitive engagements need time-precise retrieval stamps: "
+            "a same-day date-only stamp cannot distinguish pre-filing from "
+            "post-filing (reports 10/11 §5.3)")
+
+    def test_strict_temporal_keeps_time_precise_stamp_clean(self, fba):
+        fb = {"meta": {"t1_filing_timestamp": "2026-10-28T16:05:00-04:00"},
+              "facts": [
+            {"id": "R5-2", "value": 2.0, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-28T20:00:00-04:00"}]}
+        assert fba.check_temporal_order(fb, strict=True) == []
+
+    def test_declared_but_incomplete_mandate_fails_for_non_ic(self, fba):
+        """Reports 10/11 §3.5: the position disclosure is unconditional once
+        a position exists — audience independence was the round-4 gap."""
+        fb = {"meta": {"audience": "internal research desk",
+                       "mandate_context": {"fund_position": "long"}},
+              "facts": []}
+        fails = fba.check_mandate_context(fb)
+        assert any("MANDATE" in f and "incomplete" in f for f in fails), (
+            "a declared mandate_context must carry fund_position AND "
+            "position_as_of whatever the audience")
+
+    def test_complete_mandate_passes_for_non_ic(self, fba):
+        fb = {"meta": {"audience": "internal research desk",
+                       "mandate_context": {"fund_position": "long",
+                                           "position_as_of": "2026-10-30"}},
+              "facts": []}
+        assert fba.check_mandate_context(fb) == []
+
+    def test_ic_audience_still_requires_mandate(self, fba):
+        fb = {"meta": {"audience": "institutional PM/IC"}, "facts": []}
+        fails = fba.check_mandate_context(fb)
+        assert any("MANDATE" in f and "IC audience" in f for f in fails)
+
+    # --- SNAPSHOT linkage gate (reports 10/11 §3.4) ---
+
+    def _snap_hash(self):
+        import hashlib
+        return hashlib.sha256(b"<html>Alphabet Q3 2026 8-K</html>").hexdigest()
+
+    def _fb_with_snapshot(self):
+        return {"meta": {}, "facts": [
+            {"id": "S-1", "value": 282.32, "confidence": "Verified",
+             "source_snapshot": self._snap_hash()}]}
+
+    def _manifest(self, sha=None):
+        return {"schema_version": 1, "tool": "source_snapshot.py",
+                "snapshots": [{"url": "https://x/8k",
+                               "sha256": sha or self._snap_hash()}]}
+
+    def test_declared_snapshot_without_manifest_fails(self, fba):
+        fails = fba.check_source_snapshots(self._fb_with_snapshot(), None)
+        assert any("S-1" in f and "SNAPSHOT" in f
+                   and "no --snapshots manifest" in f for f in fails)
+
+    def test_linked_snapshot_passes(self, fba):
+        fails = fba.check_source_snapshots(self._fb_with_snapshot(),
+                                           self._manifest())
+        assert fails == []
+
+    def test_mismatched_manifest_fails(self, fba):
+        fails = fba.check_source_snapshots(self._fb_with_snapshot(),
+                                           self._manifest(sha="0" * 64))
+        assert any("S-1" in f and "SNAPSHOT" in f
+                   and "does not contain" in f for f in fails), (
+            "registry <-> archive drift must fail the build")
+
+    def test_strict_snapshots_requires_verified_facts_to_declare(self, fba):
+        fb = {"meta": {}, "facts": [
+            {"id": "S-2", "value": 1.0, "confidence": "Verified"},
+            {"id": "S-3", "value": "-12.29%", "confidence": "Reasoned (derived)"}]}
+        fails = fba.check_source_snapshots(fb, self._manifest(), strict=True)
+        assert any("S-2" in f and "SNAPSHOT" in f for f in fails)
+        assert not any("S-3" in f and "SNAPSHOT" in f for f in fails), (
+            "strict mode binds Verified facts; derived facts are exempt")
+
+    def test_malformed_snapshot_hash_fails(self, fba):
+        fb = {"meta": {}, "facts": [
+            {"id": "S-4", "value": 1.0, "confidence": "Verified",
+             "source_snapshot": "not-a-hash"}]}
+        fails = fba.check_source_snapshots(fb, self._manifest())
+        assert any("S-4" in f and "64-hex" in f for f in fails)
+
+    # --- --json CI mode (reports 10/11 §5.3) ---
+
+    def test_json_mode_stdout_is_machine_readable(self, fba, tmp_path):
+        import contextlib, io
+        d = tmp_path
+        (d / "slide_01.html").write_text(
+            "<html><body><p>Close $282.32 — move −12.29%.</p></body></html>",
+            encoding="utf-8")
+        fb = {"meta": {}, "facts": [
+            {"id": "J-1", "value": 282.32, "confidence": "Verified",
+             "slide_pages": ["slide_01.html"]},
+            {"id": "J-2", "value": 63.4, "confidence": "Verified",
+             "slide_pages": ["slide_01.html"]}]}   # missing on the slide
+        fbp = d / "fb.json"
+        fbp.write_text(json.dumps(fb), encoding="utf-8")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = fba.main(["--slides", str(d), "--fact-base", str(fbp),
+                             "--json"])
+        payload = json.loads(buf.getvalue())
+        assert code == 1
+        assert payload["ok"] is False
+        assert payload["failure_count"] >= 1
+        assert any("J-2" in f and "MISSING" in f for f in payload["failures"])
+        assert payload["tool"].startswith("fact_base_audit")
+
+    def test_strict_snapshots_without_manifest_is_usage_error(self, tmp_path):
+        d = tmp_path
+        (d / "slide_01.html").write_text(
+            "<html><body><p>Close $282.32.</p></body></html>", encoding="utf-8")
+        fb = {"meta": {}, "facts": [
+            {"id": "U-1", "value": 282.32, "confidence": "Verified",
+             "slide_pages": ["slide_01.html"]}]}
+        fbp = d / "fb.json"
+        fbp.write_text(json.dumps(fb), encoding="utf-8")
+        p = subprocess.run(
+            [sys.executable, str(SCRIPT), "--slides", str(d),
+             "--fact-base", str(fbp), "--strict-snapshots"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT))
+        assert p.returncode == 2, (
+            "--strict-snapshots without --snapshots is a usage error, "
+            "not a silent no-op")

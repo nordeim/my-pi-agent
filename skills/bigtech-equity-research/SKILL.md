@@ -1,7 +1,7 @@
 ---
 name: bigtech-equity-research
-version: 1.5.0
-description: "Produce institutional-grade, evidence-based equity research notes on US big-tech stocks (GOOGL, MSFT, AMZN, AAPL, META, NVDA, TSLA, and peers). Use when asked to explain a stock-price event (post-earnings move, guidance shock, regulatory action), analyze a multi-quarter price trend, attribute a drawdown to its drivers, or build a ranked driver decomposition of a price move. The quantified single-note member of the big-tech research family — segment deep-dive with a machine-checked ASC 280 segment-map staleness gate, options math, canonical peer baskets, machine-checked lite number registry with consensus and temporal-order gates, and bundled lite delivery audits (placeholder, scoped disclosure, render, a11y) with SHA-256 provenance sealing. For a full audited multi-page IC deck use analyzing-us-bigtech-stocks; for a lighter post-earnings note use big-tech-earnings-postmortem. Outputs a self-contained HTML note with a ranked root-cause decomposition. Analytical output only — not investment advice."
+version: 1.6.0
+description: "Produce institutional-grade, evidence-based equity research notes on US big-tech stocks (GOOGL, MSFT, AMZN, AAPL, META, NVDA, TSLA, and peers). Use when asked to explain a stock-price event (post-earnings move, guidance shock, regulatory action), analyze a multi-quarter price trend, attribute a drawdown to its drivers, or build a ranked driver decomposition of a price move. The quantified single-note member of the big-tech research family — segment deep-dive with a machine-checked ASC 280 segment-map staleness gate, options math, canonical peer baskets, machine-checked lite number registry with consensus, temporal-order and snapshot-linkage gates, and bundled lite delivery audits with SHA-256 provenance sealing and --json CI output. For a full audited multi-page IC deck use analyzing-us-bigtech-stocks; for a lighter post-earnings note use big-tech-earnings-postmortem. Outputs a self-contained HTML note with a ranked root-cause decomposition. Analytical output only — not investment advice."
 license: Apache-2.0
 compatibility: Requires web search and page-fetch tools for primary-source verification; Python >= 3.9 for the audit/quant helpers; render and accessibility gates need Node.js >= 18 with Playwright >= 1.40.
 ---
@@ -30,7 +30,11 @@ bigtech-equity-research/
     ├── quant_helpers.py              # Deterministic delta/excess-return/decomposition math
     │                                 #   + beta regime diagnostics + multi-class cap delta
     ├── fact_base_lite_audit.py       # Number-registry gate (round 4, H-2 — byte-identical
-    │                                 #   family copy with consensus + temporal checks)
+    │                                 #   family copy with consensus + temporal checks;
+    │                                 #   round 5: snapshot linkage, mandate, --strict-
+    │                                 #   temporal, --json)
+    ├── source_snapshot.py            # Source-truth snapshots: record/verify fetched
+    │                                 #   source content (round 5, reports 10/11)
     ├── segment_map_check.py          # ASC 280 staleness gate (fails the build, not warns)
     ├── note_audit.py                 # Placeholder + scoped disclosure-needle gate
     ├── note_overflow_audit.mjs       # Render/overflow gate (Node + Playwright)
@@ -99,6 +103,17 @@ fund-manager-quality, fact-based research note.
     is the T+1 full-session close; pre-market/intraday event → the T+0 close. T+1 for an
     intraday event contaminates the event return and the benchmark excess return with an
     extra session — state the rule applied in the note.
+13. **Snapshot decision-critical sources (round 5, reports 10/11 §3.4/§6.9).** The
+    registry gate certifies note ↔ registry consistency — not that the registry matches
+    the cited source. For decision-critical T1 pulls, save the fetched source content and
+    record it with `scripts/source_snapshot.py --record --url <url> --content <file> --out
+    source_snapshots.json`; reference the printed SHA-256 in the entry's `source_snapshot`
+    field and re-run the registry gate with `--snapshots source_snapshots.json`
+    (`--strict-snapshots` on institutional builds: every `Verified` entry needs one).
+    `source_snapshot.py --verify` re-hashes the saved files; seal them with the note via
+    `provenance_seal.py --inputs`. Before delivery, re-check each decision-critical number
+    against the raw snapshot text — the ingestion-error gap (a wrong figure with a
+    valid-looking URL passing every gate) is closed by the snapshot + re-verification pass.
 
 ## Step 0 — Pick the mode
 | Request shape | Mode | Phases |
@@ -149,9 +164,13 @@ fund-manager-quality, fact-based research note.
    money/percentage figure the note will print, each with id, metric, value, source
    name, URL, retrieval date, and confidence label; consensus-side entries carry
    provider + vintage + statistic; entries are `data_type`-classified when
-   `meta.t1_filing_timestamp` is pinned. The registry is the machine layer of the
-   evidence trail; the `templates/evidence-ledger.md` verification ledger is the human
-   layer. Both are required.
+   `meta.t1_filing_timestamp` is pinned. **Round 5 (reports 10/11 §3.4): snapshot the
+   decision-critical T1 sources** — `scripts/source_snapshot.py --record --url <url>
+   --content <file>` — and reference the printed SHA-256 in each entry's
+   `source_snapshot` field, so the registry gate's SNAPSHOT check (`--snapshots`)
+   can tie the registry to the hashed source archive (hard rule 13). The registry
+   is the machine layer of the evidence trail; the `templates/evidence-ledger.md`
+   verification ledger is the human layer. Both are required.
 9. **Assemble deliverable** — 14-section self-contained HTML note.
    → `templates/report-structure.md`, `templates/evidence-ledger.md`
 10. **Run the delivery gates** (mandatory, bundled — no sibling skill required):
@@ -159,9 +178,16 @@ fund-manager-quality, fact-based research note.
    <fact_base_lite.json>` (number-registry gate — round 4, H-2: unregistered note
    figures, registry numbers absent from the note, missing source fields,
    consensus-side entries without provider/vintage/statistic, and temporal-order
-   violations all fail the build),
+   violations all fail the build; round 5: a declared-but-incomplete
+   `meta.mandate_context` fails whatever the audience, `--snapshots
+   source_snapshots.json` verifies the registry↔snapshot-archive linkage,
+   `--strict-snapshots` requires a snapshot on every `Verified` entry,
+   `--strict-temporal` fails date-only retrieval stamps on the filing date, and
+   `--json` emits a machine-readable summary for CI),
    `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
-   (placeholder + scoped disclosure needles: disclaimer, verification-status line, the
+   (placeholder + scoped disclosure needles: disclaimer, verification-status line,
+   methodology-status line (round 5 required needle — empirically unvalidated,
+   face validity only), the
    Reasoned-(judged)-allocation label adjacent to any quantified waterfall, beta
    estimation-window disclosure, the volatility-risk-premium caveat near any implied-move
    discussion, the segment-map vintage line near the variance table, the fund-position
@@ -220,15 +246,20 @@ If market-data or web tools are unavailable:
       intrinsic valuation; the model gap is named as an open item; IC pre-read firewall.
 - [ ] EV fundamental matrix (if included) labeled `Reasoned (judged)` — never a price
       target or fair-value claim.
-- [ ] IC-facing deliverables carry the fund-position disclosure ("Fund position: … as of
-      <date>").
 - [ ] All `Assumed`/`Unverifiable` items listed in the Data-Gap Ledger.
 - [ ] The lite number registry (`fact_base_lite.json`) exists and every money/percentage
       figure printed in the note is registered; consensus-side entries carry provider +
       vintage + statistic; entries are `data_type`-classified and temporally clean when
       `meta.t1_filing_timestamp` is pinned.
+- [ ] Decision-critical T1 pulls carry `source_snapshot` hashes; `--snapshots` linkage
+      clean (or the no-snapshots NOTE consciously accepted); `source_snapshot.py
+      --verify` exits 0 when snapshots exist (round 5, hard rule 13).
+- [ ] A declared `meta.mandate_context` is complete (fund_position + position_as_of)
+      whatever the audience; IC-facing deliverables carry the fund-position disclosure
+      ("Fund position: … as of <date>") (round 5).
 - [ ] `python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base
-      <fact_base_lite.json>` exits 0 (number-registry + consensus + temporal gates).
+      <fact_base_lite.json>` exits 0 (number-registry + consensus + temporal +
+      mandate + snapshot gates).
 - [ ] `python3 scripts/quant_helpers.py` self-test exits 0 after any helper change.
 - [ ] `python3 scripts/segment_map_check.py --selftest`,
       `python3 scripts/fact_base_lite_audit.py --selftest`, and
@@ -239,8 +270,12 @@ If market-data or web tools are unavailable:
       or the verification-status line says "Draft — human verification required" with
       the reason.
 - [ ] Verification-status line present and matches the actual gate results; provenance
-      seal line embedded and `provenance.json` shipped when sealed.
-- [ ] "Not a research report" and "Public-source-only" legends present on the deliverable.
+      seal line embedded and `provenance.json` shipped when sealed (snapshots included in
+      `--inputs` when on record).
+- [ ] "Not a research report" and "Public-source-only" legends present on the deliverable;
+      the **methodology-status line** is present: "Methodology status: empirically
+      unvalidated — face validity only (validation harness pending)" (round 5 — required
+      needle).
 - [ ] No fabricated numbers; no investment advice; disclaimer and internal-use framing
       present on the deliverable.
 
@@ -257,6 +292,17 @@ If market-data or web tools are unavailable:
   with attribution for internal analytical use; do not reproduce vendor tables at scale
   or redistribute the deliverable externally — redistribution rights belong to the
   licensed feeds. Build only from public sources; suspect MNPI → stop and escalate.
+- **Position disclosure is unconditional once declared (round 5, reports 10/11 §3.5)**:
+  IC-facing deliverables carry the fund-position disclosure ("Fund position: … as of
+  <date>"); once any position in the covered name exists — any `meta.mandate_context`
+  in the registry — the disclosure is required whatever the audience, and the registry
+  gate fails a declared-but-incomplete block. A position does not stop being a conflict
+  when the reader is not a committee.
+- **Methodology validation status (round 5, reports 10/11 §3.6)**: the attribution
+  methodology is empirically unvalidated — face validity only — until the validation
+  harness lands (the flagship's `references/methodology.md` §15 protocol). The note
+  carries the methodology-status line; a green gate run is internal consistency, not a
+  track record.
 
 ## Supporting files
 - `reference/methodology.md` — the 7-phase process in full.
@@ -270,7 +316,12 @@ If market-data or web tools are unavailable:
 - `assets/checks.json` — scoped disclosure needles enforced by the lite audit.
 - `assets/fact_base_lite.template.json` — number-registry skeleton (round 4, H-2), with the round-4 consensus/statistic and `data_type`/`t1_filing_timestamp` fields.
 - `scripts/quant_helpers.py` — deterministic delta/excess-return/decomposition math (canonical beta window + regime diagnostics, multi-class market-cap delta, FCF ex-SBC, segment variance); canonical family copy, vendored byte-identical into all three skills.
-- `scripts/fact_base_lite_audit.py` — number-registry delivery gate (round 4, H-2): forward/reverse registry checks, consensus fields, temporal order; byte-identical family copy.
+- `scripts/fact_base_lite_audit.py` — number-registry delivery gate (round 4, H-2;
+  round 5: snapshot linkage + mandate + `--strict-temporal` + `--json`): forward/reverse
+  registry checks, consensus fields, temporal order; byte-identical family copy.
+- `scripts/source_snapshot.py` — source-truth snapshots (round 5, reports 10/11
+  §3.4/§6.9): `--record` hashes fetched source content into `source_snapshots.json`,
+  `--verify` re-hashes for tamper evidence; byte-identical family copy.
 - `scripts/segment_map_check.py` — mechanical segment-map staleness gate.
 - `scripts/note_audit.py` — placeholder + scoped disclosure-needle delivery gate.
 - `scripts/note_overflow_audit.mjs` — single-file render/overflow delivery gate.
@@ -299,4 +350,9 @@ the a11y gate, the canonical beta window, and provenance sealing. Round 4 (repor
 closed the family's most surprising inconsistency: the most quantitative member now
 ships its own machine-checked number registry (H-2), plus beta regime diagnostics
 (M-7), the multi-class market-cap method (H-4), the event-window rule (H-3), the
-temporal embargo (M-6), and the EV fundamental matrix option (H-6).
+temporal embargo (M-6), and the EV fundamental matrix option (H-6). Round 5 (reports
+10/11) attacked the internal-consistency ceiling itself: source snapshots tie the
+registry to hashed copies of the fetched sources (SNAPSHOT linkage, §3.4), the
+position disclosure became unconditional once declared (§3.5), the methodology-status
+line states face-validity-only openly (§3.6), `undisclosed` consensus statistics get
+their residual gap ledgered (§5.7), and the Python gates speak `--json` for CI (§5.3).

@@ -3082,12 +3082,12 @@ Skills are listed alphabetically within each category. Use the category index be
 - **Path**: `skills/analyzing-us-bigtech-stocks`
 - **SKILL.md**: [`skills/analyzing-us-bigtech-stocks/SKILL.md`](skills/analyzing-us-bigtech-stocks/SKILL.md)
 - **Title**: Analyzing US Big-Tech Stocks — Event RCA & Trend Reports
-- **Version**: 1.5.0
+- **Version**: 1.6.0
 - **License**: Apache-2.0
 - **Files**: 13
 - **Structure**: `references/`, `assets/`, `scripts/`
 
-> Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render + accessibility audits with consensus/epistemic/waterfall schema gates, opt-in strict modes, and SHA-256 provenance sealing. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery.
+> Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render + accessibility audits with consensus/epistemic/waterfall/mandate/temporal/snapshot schema gates, opt-in strict modes, source-snapshot verification, SHA-256 provenance sealing, and --json CI output. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery.
 
 ### `big-tech-earnings-postmortem`
 
@@ -3095,23 +3095,23 @@ Skills are listed alphabetically within each category. Use the category index be
 - **SKILL.md**: [`skills/big-tech-earnings-postmortem/SKILL.md`](skills/big-tech-earnings-postmortem/SKILL.md)
 - **Title**: Big-Tech Earnings Post-Mortem & Trend Analysis
 - **License**: Apache-2.0
-- **Version**: 1.5.0
+- **Version**: 1.6.0
 - **Files**: 9
 - **Structure**: `scripts/`, `assets/`
 
-> Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML note passing bundled lite delivery gates (number registry, placeholder, scoped disclosure, render, accessibility audits) with provenance sealing. The lightweight, fastest-ship member of the big-tech research family: layered driver attribution (durability × evidence axes), no multi-page deck, a machine-checked lite number registry instead of the flagship's full fact base — use analyzing-us-bigtech-stocks for a full audited IC deck and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla) moved sharply after earnings, or requests a post-earnings deep dive — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
+> Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML note passing bundled lite delivery gates (number registry with consensus, temporal-order, snapshot-linkage and mandate checks, placeholder, scoped disclosure, render, accessibility audits) with provenance sealing and source snapshots. The lightweight, fastest-ship member of the big-tech research family: layered driver attribution (durability × evidence axes), a machine-checked lite number registry instead of the flagship's full fact base — use analyzing-us-bigtech-stocks for a full audited IC deck and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla) moved sharply after earnings, or requests a post-earnings deep dive — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
 
 ### `bigtech-equity-research`
 
 - **Path**: `skills/bigtech-equity-research`
 - **SKILL.md**: [`skills/bigtech-equity-research/SKILL.md`](skills/bigtech-equity-research/SKILL.md)
 - **Title**: Big-Tech Equity Research
-- **Version**: 1.5.0
+- **Version**: 1.6.0
 - **License**: Apache-2.0
 - **Files**: 18
 - **Structure**: `references/`, `templates/`, `scripts/`, `assets/`
 
-> Produce institutional-grade, evidence-based equity research notes on US big-tech stocks (GOOGL, MSFT, AMZN, AAPL, META, NVDA, TSLA, and peers). Use when asked to explain a stock-price event (post-earnings move, guidance shock, regulatory action), analyze a multi-quarter price trend, attribute a drawdown to its drivers, or build a ranked driver decomposition of a price move. The quantified single-note member of the big-tech research family — segment deep-dive with a machine-checked ASC 280 segment-map staleness gate, options math, canonical peer baskets, evidence ledger, and bundled lite delivery audits (placeholder, scoped disclosure, render, accessibility gates) with SHA-256 provenance sealing. For a full audited multi-page IC deck use analyzing-us-bigtech-stocks; for a lighter post-earnings note use big-tech-earnings-postmortem. Outputs a self-contained HTML research note with sourced figures, confidence tags, and a ranked root-cause decomposition. Analytical output only — not investment advice.
+> Produce institutional-grade, evidence-based equity research notes on US big-tech stocks (GOOGL, MSFT, AMZN, AAPL, META, NVDA, TSLA, and peers). Use when asked to explain a stock-price event (post-earnings move, guidance shock, regulatory action), analyze a multi-quarter price trend, attribute a drawdown to its drivers, or build a ranked driver decomposition of a price move. The quantified single-note member of the big-tech research family — segment deep-dive with a machine-checked ASC 280 segment-map staleness gate, options math, canonical peer baskets, evidence ledger, and bundled lite delivery audits (placeholder, scoped disclosure, render, accessibility gates) with SHA-256 provenance sealing, source-snapshot verification of decision-critical pulls, and --json CI output. For a full audited multi-page IC deck use analyzing-us-bigtech-stocks; for a lighter post-earnings note use big-tech-earnings-postmortem. Outputs a self-contained HTML research note with sourced figures, confidence tags, and a ranked root-cause decomposition. Analytical output only — not investment advice.
 
 ### `cheat-sheet`
 

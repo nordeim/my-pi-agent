@@ -83,6 +83,21 @@ if (args.help || (!args.note && !args.selftest)) {
 
 const { chromium } = loadPlaywright();
 
+/** Launch with the documented env-error contract: a browser binary that cannot
+ *  launch (installed module, missing chromium download) is exit 2 — an
+ *  environment error — not an unhandled crash (exit 1). Round 5: the
+ *  exit-code contract in the header is load-bearing; tests env-skip on 2. */
+async function launchBrowser() {
+  try {
+    return await chromium.launch();
+  } catch (e) {
+    console.error('ERROR  cannot launch Chromium — ' + String(e.message).split('\n')[0]);
+    console.error('       Install the browser binary: npx playwright install chromium');
+    console.error('       (documented environment error — exiting 2 per the exit-code contract)');
+    process.exit(2);
+  }
+}
+
 /**
  * Audit one loaded page: returns { err?, docW, docSW, overs: [...] } where
  * overs mixes document-level and element-level and clipping findings.
@@ -138,7 +153,7 @@ async function auditPage(page, W, TOL) {
  * assert on outcomes without parsing console output.
  */
 async function runAudit(files, opts) {
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   const page = await browser.newPage({ viewport: { width: opts.width, height: opts.height } });
   let problemNotes = 0;
   const lines = [];
