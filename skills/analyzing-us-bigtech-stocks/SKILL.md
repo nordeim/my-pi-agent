@@ -1,6 +1,7 @@
 ---
 name: analyzing-us-bigtech-stocks
-description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or deck. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed), a hypothesis tree, and numeric + render audit gates before delivery."
+version: 1.1.0
+description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck with audit gates. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render audits. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery."
 ---
 
 # Analyzing US Big-Tech Stocks — Event RCA & Trend Reports
@@ -53,10 +54,11 @@ Every quantitative or causal claim in the report carries exactly one label:
 | `Verified` | Observed directly in ≥1 named primary source; decision-critical numbers cross-checked in ≥2 independent sources | Source name + URL + retrieval date in the fact base |
 | `Reasoned` | Logical inference or computation from `Verified` inputs | The inference chain or formula is stated on the slide or in the fact base |
 | `Assumed` | Stated assumption used because data was unavailable | Isolated, listed on the method page, minimized toward zero |
+| `Unverifiable` | Source could not be retrieved with the tools at hand | Logged in the fact base with the exact pull needed to close the gap; never used in headline statistics |
 
 Never present a `Reasoned` number as `Verified`, and never let an `Assumed` value into a
 headline statistic. The final page of every report carries a confidence legend and lists
-remaining assumptions.
+remaining assumptions and open data gaps.
 
 ## Pipeline (Phases 0–10)
 
@@ -179,11 +181,11 @@ Phase 9 until every hypothesis has a verdict.
 
 ### Phase 10 — Audit & deliver
 
-1. Run the numeric audit — every critical figure in the deck must match the fact base / checks file, and placeholder tokens must be absent:
+1. Run the numeric audit — every critical figure in the deck must match the fact base / checks file, derived-fact formulas must compute, `Assumed` facts must be listed on the method page, and placeholder tokens must be absent:
    `python3 scripts/fact_base_audit.py --slides <slides_dir> --fact-base <fact_base.json>`
-   (or `--checks checks.json` for the simple per-slide needle format; `--selftest` proves the script works).
-2. Run the render audit — no overflow or clipping at 1280×720, fonts render, decorative bleeds marked `data-bleed`:
-   `node scripts/overflow_audit.mjs --dir <slides_dir>`
+   (designate the assumptions page via `meta.method_page` in the fact base or `--method-page`; `--checks checks.json` for the simple per-slide needle format; `--selftest` proves the script works).
+2. Run the render audit — no overflow or clipping at 1280×720 measured against the slide element itself, fonts render, decorative bleeds marked `data-bleed`:
+   `node scripts/overflow_audit.mjs --dir <slides_dir>` (`--selftest` proves the script works)
 3. Fix the **generator/brief**, not the rendered page, when an audit fails; re-run until clean. Document any remaining false positives explicitly.
 4. Deliver: pages + viewer + fact base + audit reports. Refresh data if the market has moved since the cutoff, or restate the cutoff.
 
@@ -206,7 +208,7 @@ Phase 9 until every hypothesis has a verdict.
 - [ ] Event charter with data cutoff stamped on the cover
 - [ ] `fact_base.json` complete; decision-critical numbers double-sourced
 - [ ] ≥5 hypotheses tested; ≥1 explicitly excluded with evidence
-- [ ] Every quantitative claim carries a confidence label; assumptions listed
+- [ ] Every quantitative claim carries a confidence label; assumptions listed; `Unverifiable` gaps logged with the exact pull needed
 - [ ] GAAP↔adjusted reconciliation shown; headline miss restated on comparable basis
 - [ ] Benchmark/peer cross-section included; amplifier layer separated from trigger
 - [ ] Counter-case ("what the market ignored") present and sourced
@@ -215,6 +217,19 @@ Phase 9 until every hypothesis has a verdict.
 - [ ] `fact_base_audit.py` exits clean (false positives documented if any)
 - [ ] `overflow_audit.mjs` exits clean
 - [ ] Disclaimer present: informational only, not investment advice
+
+## Distribution & compliance
+
+- **Information barrier hygiene**: these reports are built exclusively from public
+  sources (filings, transcripts, press). Never incorporate material non-public
+  information (MNPI); if any input is suspected to be MNPI, stop and escalate —
+  see SEC Regulation FD.
+- **Internal analytical artifact**: the output is an internal research pre-read for
+  discussion, not sell-side research. It carries no rating, no price target, and no
+  analyst certification (Reg AC) or FINRA 2241 disclosure package — do not
+  distribute it as if it did.
+- Every deliverable carries: "Informational only — not investment advice, not a
+  solicitation. No price targets published."
 
 ## Top pitfalls (full catalog: `references/methodology.md` §13)
 

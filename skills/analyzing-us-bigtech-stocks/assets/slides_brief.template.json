@@ -5,7 +5,7 @@
     "style_name": "Midnight IC",
     "palette": { "background": "#0A1628", "primary": "#F2EDE4", "accent": "#C9A227" },
     "typography": { "heading": "IBM Plex Sans", "body": "IBM Plex Serif", "numeric": "IBM Plex Mono" },
-    "reference": "Goldman Sachs / BlackRock IC-memo aesthetic: deep navy canvas, ivory serif body, gold accents, mono numerals, hairline borders, generous data density",
+    "reference": "Classic institutional IC-memo aesthetic: deep navy canvas, ivory serif body, gold accents, mono numerals, hairline borders, generous data density (style inspiration only; no affiliation with any firm)",
     "canvas": "1280x720 fixed; global.css tokens from references/report-design.md"
   },
   "global_css_path": "<slides_dir>/global.css",

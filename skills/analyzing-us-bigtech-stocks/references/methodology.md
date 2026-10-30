@@ -51,8 +51,8 @@ with a source. Build it with web search/fetch against the tiers below.
 
 | Tier | Sources | Allowed to support |
 |---|---|---|
-| **T1 — Primary** | SEC EDGAR filings (10-Q, 10-K, 8-K); company IR press release / shareholder letter; the earnings-call transcript (company-hosted, or full transcripts from Motley Fool / Seeking Alpha / roic.ai); official company blogs & product pages | All fundamental figures: revenue, segments, margins, EPS, capex, FCF, guidance language, one-off items, AI/usage metrics |
-| **T2 — Named press** | Reuters, Bloomberg, CNBC, FT, WSJ, AP, Fortune, Barron's; FactSet/LSEG consensus **as reported** by these outlets or by TradingView/MarketBeat | Consensus estimates and surprise framing; market-reaction color; analyst actions (rating/PT changes with shop + analyst name); macro prints |
+| **T1 — Primary** | SEC EDGAR filings (10-Q, 10-K, 8-K); company IR press release / shareholder letter; the earnings-call transcript **as hosted by the company's own IR site** (or audio); official company blogs & product pages | All fundamental figures: revenue, segments, margins, EPS, capex, FCF, guidance language, one-off items, AI/usage metrics |
+| **T2 — Named press & verified transcripts** | Reuters, Bloomberg, CNBC, FT, WSJ, AP, Fortune, Barron's; FactSet/LSEG consensus **as reported** by these outlets or by TradingView/MarketBeat; full third-party transcripts (Motley Fool / Seeking Alpha / roic.ai) — treat as T2 **until cross-checked against the IR audio/transcript**, then upgrade the cross-checked figures | Consensus estimates and surprise framing; market-reaction color; analyst actions (rating/PT changes with shop + analyst name); macro prints; transcript quotes once cross-checked |
 | **T3 — Data aggregators** | Yahoo Finance, Stooq, Macrotrends, TIKR, CNN Markets, Google Finance | Price history, closes, market cap, 52-week ranges, YTD/1y performance, after-hours prints. **Never** fundamental claims |
 
 Rules:
@@ -98,7 +98,7 @@ The call transcript is where the real signal lives. While reading it:
 Compute (in code, not by hand) and record as facts:
 
 - **Headline move**: T+1 close vs pre-event close, % and $. Example: GOOG −12.29% to $282.32 (Oct 29 2026) from $321.89.
-- **Cross-class check**: GOOGL same-day (−11.71%) — divergence between classes is itself data on which holders flinched.
+- **Cross-class check**: quote the other share class with its own sourced print — for the Alphabet example, GOOGL (Class A) closed Oct 28 at $324.89 and printed ≈−12.8% intraday on Oct 29 (Yahoo Finance); its class-A close was not independently pinned, so only the sourced prints are used. Divergence between classes is itself data on which holders flinched — record the class, print time and source for both, and never mix classes in one computation.
 - **After-hours**: the AH print ("~−10% to ~$290 per AP") labeled as after-hours, secondary.
 - **Market-cap delta**: shares × Δprice (§2.2), cross-checked to press "≈$482B erased".
 - **Historical ranking**: "worst day since 2004 IPO", "second-largest one-day market-cap loss ever for a US-listed stock (behind Nvidia, Jan 2025)" — only from T2 sources that state the ranking. If none, drop the ranking.
@@ -289,19 +289,20 @@ python3 scripts/fact_base_audit.py --slides <slides_dir>                        
 python3 scripts/fact_base_audit.py --selftest
 ```
 
-- The fact-base mode verifies every fact's numeric tokens appear in the assigned pages, and reverse-checks numbers found in slides against the fact base to surface **unverified candidates**.
+- The fact-base mode verifies every fact's numeric tokens appear in the assigned pages (anchored, sign/symbol-tolerant matching — a digit substring of a longer slide number never satisfies a fact), arithmetically checks derived-fact formulas, enforces the Assumed-on-method-page rule (`meta.method_page` or `--method-page`), and reverse-checks numbers found in slides against the fact base to surface **unverified candidates**.
 - The checks-file format is `{"slide_01.html": ["-12.29%", "$482B", ...]}` — one needle list per page, same as used successfully in the Alphabet engagement (212 checks).
-- Placeholder scan always runs: `lorem`, `todo`, `placeholder`, `xxx`, `【`, `tbd`, `nan`, `undefined`, `insert …`.
-- Investigate every failure. The Alphabet engagement's two documented false positives are the model: needles `$205` and `$500` failed only because the slides print those figures inside ranges (`$195–205B`, `$300–500`) — the numbers were present and correct. Prefer fact-base mode (sign/symbol-tolerant token matching) over needle mode for exactly this reason, and when a needle fails, check for range/abbreviated formatting before touching the slide.
+- Placeholder scan always runs, on visible text only: `lorem`, `todo`, `placeholder`, `xxx`, `【`, `tbd`, `nan`, `undefined`, `insert …`.
+- Investigate every failure. The Alphabet engagement's two documented false positives are the model: needles `$205` and `$500` failed only because the slides print those figures inside ranges (`$195–205B`, `$300–500`) — the numbers were present and correct. Prefer fact-base mode (anchored token matching) over needle mode for exactly this reason, and when a needle fails, check for range/abbreviated formatting before touching the slide.
 
 ### 11.2 Render audit
 
 ```
 node scripts/overflow_audit.mjs --dir <slides_dir>            # 1280x720 overflow/clipping
 node scripts/overflow_audit.mjs --dir <slides_dir> --shots /tmp/shots   # + screenshots
+node scripts/overflow_audit.mjs --selftest
 ```
 
-- Flags elements extending past the canvas by >2px; elements marked `data-bleed="intentional"` (decorative) are skipped.
+- Flags visible elements extending past the slide canvas by >2px, **measured relative to the `.slide` element itself** (default body margins cannot fake a pass or a failure). Only the explicit non-content markers are skipped: `data-bleed="intentional"`, `data-decor`, `aria-hidden="true"` — no class-name guessing.
 - Fix failures in the brief/generator (reduce content, shrink type a step, restructure), never by nudging the rendered HTML ad hoc. Re-run until clean.
 
 ### 11.3 Data freshness
@@ -349,6 +350,8 @@ Working rules that experience says matter most:
 ## 14. Compliance, tone & two-sidedness
 
 - Every report carries: "Informational only — not investment advice, not a solicitation. No price targets published." (If the user insists on targets, they become `Assumed` scenario inputs, clearly labeled, never recommendations.)
+- **MNPI / Regulation FD**: build only from public sources (filings, IR materials, press). If an input is suspected to be material non-public information, stop and escalate. Never incorporate it into a fact base.
+- **Internal-use framing**: the deliverable is an internal analytical pre-read, not sell-side research — no rating, no price target, no Reg AC analyst certification, no FINRA 2241 disclosure package. Do not distribute it as if it carried those.
 - Two-sided by construction: the counter-case page and the `AGAINST` evidence columns are mandatory. A report that only justifies the move's direction is advocacy, not research.
 - Tone: institutional, concrete, zero hyperbole. Let magnitudes carry the drama ("−12.29% to $282.32" beats "sky fell").
 - Name humans with roles and shops ("Pivotal Research CEO Jeffrey Wlodarczak"), quote exactly, attribute always.

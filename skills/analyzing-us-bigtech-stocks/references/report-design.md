@@ -18,27 +18,32 @@ is the content plan that precedes any page.
 
 ## 1. Design tokens
 
-Aesthetic reference: Goldman Sachs / BlackRock IC memo — deep navy canvas, ivory serif body,
-gold accents, mono numerals, hairline borders, generous data density. No photos, no emoji,
-no gradients beyond the tokens below.
+Aesthetic reference: classic institutional IC memo — deep navy canvas, ivory serif body,
+gold accents, mono numerals, hairline borders, generous data density (style inspiration
+only; no affiliation with any firm). No photos, no emoji, no gradients beyond the tokens below.
 
 ```css
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+/* The @import is progressive enhancement. For offline/air-gapped environments
+   the local fallbacks in the stacks below carry the deck (metrics differ slightly —
+   the render audit tolerates both). To make a deck fully self-contained, download
+   the IBM Plex families into the deck folder and swap the @import for @font-face. */
 
 :root {
-  /* Midnight IC palette */
+  /* Midnight IC palette — all text tokens below clear WCAG 2.2 AA (4.5:1)
+     against both --bg and --card; see the contrast table in §1.1. */
   --bg: #0A1628;            /* slide canvas */
   --bg-2: #0E1D33;          /* secondary zones */
   --card: #10233E;          /* standard card */
   --card-2: #142A4A;        /* elevated card */
   --ink: #F2EDE4;           /* primary text (ivory) */
   --muted: #9DA9BC;         /* secondary text */
-  --faint: #6B7A90;         /* tertiary text */
+  --faint: #8493A8;         /* tertiary text (AA on bg and card) */
   --accent: #C9A227;        /* gold — kickers, key numbers, verdict bands */
   --accent-soft: rgba(201, 162, 39, 0.13);
   --gold-line: rgba(201, 162, 39, 0.38);
   --line: rgba(242, 237, 228, 0.14);   /* hairlines & card borders */
-  --neg: #E05C4F;  --neg-soft: rgba(224, 92, 79, 0.13);   /* misses / evidence FOR */
+  --neg: #E66A5F;  --neg-soft: rgba(230, 106, 95, 0.13);   /* misses / evidence FOR (AA on bg and card) */
   --pos: #4CA97A;  --pos-soft: rgba(76, 169, 122, 0.13);  /* beats / evidence AGAINST */
 
   /* Typography */
@@ -51,6 +56,24 @@ no gradients beyond the tokens below.
 .slide { position: relative; width: 1280px; height: 720px; overflow: hidden;
          background: var(--bg); color: var(--ink); font-family: var(--font-body); }
 ```
+
+### 1.1 Text-contrast budget (WCAG 2.2 AA — 4.5:1 for normal-size text)
+
+Computed with the standard WCAG relative-luminance formula; verify again after any
+palette change, and treat a token swap without a re-check as a defect:
+
+| Token | On `--bg` #0A1628 | On `--card` #10233E |
+|---|---|---|
+| `--ink` #F2EDE4 | 15.55:1 ✓ | 13.52:1 ✓ |
+| `--muted` #9DA9BC | 7.63:1 ✓ | 6.63:1 ✓ |
+| `--faint` #8493A8 | 5.80:1 ✓ | 5.05:1 ✓ |
+| `--accent` #C9A227 | 7.49:1 ✓ | 6.52:1 ✓ |
+| `--neg` #E66A5F | 5.69:1 ✓ | 4.95:1 ✓ |
+| `--pos` #4CA97A | 6.27:1 ✓ | 5.45:1 ✓ |
+
+`--fs-micro` (10.5px) text must still use a token from this table — it is normal-size
+for contrast purposes (AA large-text is ≥18pt/24px or 14pt bold), so the 3:1 large-text
+threshold never applies to chips and kickers.
 
 Semantic mapping (used consistently across all pages):
 
@@ -73,7 +96,8 @@ Semantic mapping (used consistently across all pages):
 | `.hairline` | 1px `--line` divider |
 
 Confidence chips (micro badges after any claim): `VERIFIED` (gold border), `REASONED`
-(muted border), `ASSUMED` (red border — must not appear on headline stats). Build as
+(muted border), `ASSUMED` (red border — must not appear on headline stats),
+`UNVERIFIED` (dashed muted border — links to the data-gap list). Build as
 `.src-chip` variants; keep text uppercase at `--fs-micro`.
 
 Verdict chips for the hypothesis system: `PRIMARY — NARRATIVE`, `PRIMARY — MECHANICAL`,
@@ -118,8 +142,8 @@ Budgets validated on real decks:
 - Table rows: ≤ 9 including header; `--fs-small` for body cells, mono for numbers.
 - One headline per page at `--fs-h1` 33px; hero stat per zone at 40–56px mono.
 - Stat cards: value + 2-line label max. Bento grids: 4 cards + 1 band maximum.
-- Decorative bleed elements (ghost numerals, edge geometry) must be non-content and marked — `data-bleed="intentional"`, or the common `data-decor` / `aria-hidden="true"` conventions — so the overflow audit skips them.
-- After building, run `scripts/overflow_audit.mjs` — treat any non-bleed flag as a failure and fix by restructuring the page, not by nudging pixels.
+- Decorative bleed elements (ghost numerals, edge geometry) must be non-content and marked — `data-bleed="intentional"`, or the common `data-decor` / `aria-hidden="true"` conventions — so the overflow audit skips them. Marking by class **name** alone (e.g. a `.bleed` class) is not recognized: the audit only honors the three explicit attributes.
+- After building, run `scripts/overflow_audit.mjs` — treat any non-bleed flag as a failure and fix by restructuring the page, not by nudging pixels. Measurement is relative to the `.slide` element, so page margins never mask or fake overflow.
 
 ## 6. Charts
 
