@@ -1,15 +1,21 @@
 ---
 name: big-tech-earnings-postmortem
+version: 1.1.0
 description: >
   Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed
   big-tech stock's price move around earnings, and produce an institutional-grade
-  HTML research deliverable. Use when the user asks why a big-tech stock (Alphabet,
-  Microsoft, Amazon, Meta, Apple, Nvidia, Tesla, etc.) moved sharply after
-  earnings, or requests a post-earnings deep dive / market research report with
-  root-cause attribution and trend assessment. Trigger on phrases like
-  "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem",
-  "stock price drop root cause", or "big tech earnings deep dive".
-license: Apache 2.0
+  single-file HTML research note. The lightweight, fastest-ship member of the
+  big-tech research family: layered driver attribution with durability and
+  evidence axes, but no multi-page deck and no executable audit tooling — use
+  analyzing-us-bigtech-stocks when the deliverable is a full audited IC deck,
+  and bigtech-equity-research for a quantified single-note with segment
+  deep-dive and options math. Trigger when the user asks why a big-tech stock
+  (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla, etc.) moved sharply
+  after earnings, or requests a post-earnings deep dive / market research
+  report with root-cause attribution and trend assessment — phrases like
+  "post-earnings analysis", "why did X drop after earnings", "earnings
+  post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
+license: Apache-2.0
 compatibility: Requires web search and page-fetch tools for primary-source verification.
 ---
 
@@ -47,17 +53,38 @@ narrative without attribution.
 
 Before reading any analysis, establish the observable facts:
 
-- **Exact date and session** of the move (regular vs. after-hours; report both
-  if they differ materially).
-- **Point move and percentage move**; market-cap change in dollars.
+- **Exact date and session** of the move: the primary reaction is the **first
+  full-session close after the event (T+1 close)**; after-hours and T+0 intraday
+  are secondary color. Report both if they differ materially.
+- **Share class and basis**: pin the ticker class (GOOG vs GOOGL, BRK.A/B) and
+  split-adjusted basis in writing before pulling prices — never mix classes in
+  one computation.
+- **Point move and percentage move** on the pinned class; market-cap change in
+  dollars (shares outstanding × Δprice).
+- **Idiosyncratic vs market-wide split**: compute the market-adjusted excess
+  return = stock return − same-day benchmark return (QQQ/XLK or the peer basket).
+  If a beta estimate is available, subtract `beta × benchmark return` instead and
+  say which convention you used and why. The residual, not the headline move, is
+  what the root-cause analysis must explain.
 - **Historical rank** of the move ("worst since IPO", "largest one-day cap loss
   ever") — verify against at least two independent sources.
 - **Pre-event positioning**: 52-week high/low, YTD performance, and whether the
   stock was already in a drawdown or at an all-time high. A −13% move from a
   peak means something different from −13% after a 40% run.
 - **Sector/session context**: did peers move the same day? Was there a macro
-  catalyst (Fed, CPI, another company's print)? Isolate company-specific
-  abnormal return from sector beta.
+  catalyst (Fed, CPI, another company's print)?
+
+**Source tiers** (what each source class may support — mirrors the family
+convention in `analyzing-us-bigtech-stocks`):
+
+| Tier | Sources | May support |
+|---|---|---|
+| **T1 — Primary** | SEC EDGAR (8-K/10-Q/10-K), company IR press release, company-hosted transcript/audio | All fundamentals: revenue, segments, margins, EPS, capex, FCF, guidance, one-offs |
+| **T2 — Named press** | Reuters, Bloomberg, CNBC, FT, WSJ, AP; third-party transcripts (Motley Fool, Seeking Alpha) cross-checked against IR | Consensus, surprise framing, analyst actions, macro prints |
+| **T3 — Aggregators** | Yahoo Finance, Stooq, Macrotrends, TIKR | Prices, closes, market cap, ranges. **Never** fundamentals or consensus |
+
+"Two independent sources" means two **different tiers or origination chains** — two
+aggregators scraping the same wire story do not corroborate anything.
 
 **Output of this step:** a verified event box with source citations. Do not
 proceed until the move is numerically pinned.
@@ -79,7 +106,10 @@ Rules:
 
 - **Always compute FCF = OCF − Capex.** Report the capex/OCF ratio explicitly.
   A ratio above 100% means the company is funding growth with external capital or
-  cash reserves — this is a high-signal fact for big-tech names.
+  cash reserves — this is a high-signal fact for big-tech names. For
+  capital-allocation debates, also show stock-based compensation and, where the
+  Street debate warrants it, unlevered FCF (state the basis: SBC add-back,
+  working-capital moves) — FCF that ignores SBC overstates cash generation.
 - **Split GAAP vs. non-GAAP**. Identify every material below-the-line item
   (mark-to-market losses, legal fines, restructuring, tax one-offs) and state
   whether it is **cash or non-cash**, **recurring or one-time**, **dilutive or
@@ -132,7 +162,14 @@ explanatory power:
 Adjust order based on what the data actually shows — the heuristic is a prior,
 not a straitjacket.
 
-**Output of this step:** a ranked driver table with durability and evidence tags.
+**Elimination is a finding, not a failure.** Identify at least one superficially
+plausible driver that the data contradicts, and reject it explicitly with the
+falsifying fact (e.g. "Cloud demand failure — rejected: Cloud grew +103% with
+record backlog"). A ranked table of surviving drivers without a tested rejection
+of an attractive wrong one is confirmation-seeking, not analysis.
+
+**Output of this step:** a ranked driver table with durability and evidence tags,
+plus at least one explicitly rejected driver with its falsifying fact.
 
 ### Step 4 — Peer and industry context
 
@@ -264,6 +301,38 @@ Design constraints:
 - [ ] A verification ledger exists with 10+ load-bearing claims.
 - [ ] No fabricated numbers, citations, IDs, or analyst targets.
 - [ ] Forward-looking statements are explicitly labeled `Reasoned` or `Assumed`.
+- [ ] At least one plausible-but-wrong driver explicitly rejected with its falsifying fact.
+- [ ] `Unverifiable` gaps are listed in a Data-Gap Ledger with the exact pull needed.
+- [ ] The verification ledger was actually checked row-by-row (or machine-audited
+      via the sibling skill's `fact_base_audit.py`) before delivery.
+- [ ] Disclaimer present on the deliverable: informational only, not investment
+      advice; no price targets published.
+
+## Degraded mode (tools offline or rate-limited)
+
+Web search and page-fetch tools are a hard dependency of this skill. When they
+are unavailable or fail mid-task:
+
+1. Proceed only on figures already retrieved and verified in this session.
+2. Tag every remaining gap `Unverifiable` (or `Assumed` with stated bounds) and
+   list it in a **Data-Gap Ledger**: the exact source and pull needed to close it.
+3. Never backfill a missing figure from memory or model prior knowledge — shrink
+   the scope instead and say so.
+
+## Verification and delivery gates
+
+- This skill ships no executable tooling of its own. If the sibling skill
+  `analyzing-us-bigtech-stocks` is installed, build its `fact_base.json` ledger
+  for your figures and run its audit:
+  `python3 <path-to>/analyzing-us-bigtech-stocks/scripts/fact_base_audit.py --slides <dir> --fact-base <file>`
+  Otherwise, verify the Step 8 ledger line-by-line against sources before
+  delivery — the ledger is only a control if every row was actually checked.
+- Every deliverable carries the disclaimer: "Informational only — not investment
+  advice, not a solicitation. No price targets published."
+- These outputs are internal analytical notes, not sell-side research: no rating,
+  no price target, no analyst certification or conflict disclosures — do not
+  distribute them as if they carried those. Build only from public sources; if
+  any input is suspected to be MNPI (Regulation FD), stop and escalate.
 
 ## Common failure modes (avoid these)
 
