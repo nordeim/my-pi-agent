@@ -27,10 +27,13 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
      positives; reports 6/7 findings H-1/H-2/C-1):
        CONSENSUS   consensus-side facts (is_consensus, or a metric naming
                    consensus/estimates) must carry consensus_provider,
-                   consensus_vintage (YYYY-MM-DD) and a T1/T2 source_tier,
-                   with the vintage inside --consensus-max-age-days (default
-                   10, 0 disables) of meta.event_timestamp — the consensus
-                   is the denominator of every beat/miss delta
+                   consensus_vintage (YYYY-MM-DD), consensus_statistic in
+                   {mean, median, undisclosed} (round 4, reports 8/9 M-1 —
+                   mean-vs-median is a recorded disclosure) and a T1/T2
+                   source_tier, with the vintage inside
+                   --consensus-max-age-days (default 5 calendar days ≈ 3
+                   trading days, 0 disables) of meta.event_timestamp — the
+                   consensus is the denominator of every beat/miss delta
        EPISTEMIC   every `Reasoned` fact must declare epistemic_kind:
                    "derived" (deterministic — a formula is then required)
                    or "judged" (analytical allocation, explicitly non-causal)
@@ -40,6 +43,17 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
        MANDATE     when meta.audience names an IC / investment committee,
                    meta.mandate_context (fund_position + position_as_of)
                    must be present — buy-side conflict-of-interest disclosure
+       TEMPORAL    (round 4, reports 8/9 M-6, report-9-corrected design) when
+                   meta.t1_filing_timestamp is set (the verified T1
+                   filing/publication time), every fact must declare data_type
+                   in {pre_event_input, post_event_fact}, and every
+                   post_event_fact must carry retrieved_at >= the T1 timestamp
+                   — a post-event claim retrieved pre-filing is contamination:
+                   flag it Unverifiable and strip it from the fact base. A
+                   data-integrity control, not a Reg FD control: pre-event
+                   inputs (consensus, positioning, prior guidance, options
+                   OI) legitimately predate the event and are exempt. Silent
+                   when meta.t1_filing_timestamp is absent.
      Opt-in strict compliance modes (institutional builds):
        --strict-verified     every fact tagged `Verified` must carry >=2
                              entries in cross_checked_with (the family's
@@ -65,6 +79,7 @@ Self-test: python3 fact_base_audit.py --selftest
 Exit codes: 0 clean, 1 failures found, 2 usage/environment error.
 """
 import argparse, ast, json, re, sys, tempfile, pathlib
+from datetime import date, datetime
 
 PLACEHOLDER_PATTERNS = [
     r"lorem", r"\btodo\b", r"placeholder", r"\btbd\b", r"\bxxx\b", r"\bnan\b",
@@ -268,9 +283,29 @@ def check_cross_checks(fb: dict, strict_verified: bool, extra_ids: str) -> list:
 def _parse_iso_date(s: str):
     """Best-effort YYYY-MM-DD prefix parse; None when unparseable."""
     try:
-        return __import__("datetime").date.fromisoformat(str(s).strip()[:10])
+        return date.fromisoformat(str(s).strip()[:10])
     except (ValueError, TypeError):
         return None
+
+
+def _parse_moment(raw):
+    """Best-effort ISO parse -> (datetime-or-date, has_time); None when
+    unparseable. Timezone offsets are kept so aware-vs-aware comparison is
+    exact across offsets; date-only strings compare at date granularity."""
+    s = str(raw or "").strip()
+    if not s:
+        return None, False
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        v = datetime.fromisoformat(s)      # date-only -> midnight datetime
+        return v, len(s) > 10
+    except ValueError:
+        pass
+    try:
+        return date.fromisoformat(s[:10]), False
+    except ValueError:
+        return None, False
 
 
 def _is_consensus_fact(fact: dict) -> bool:
@@ -280,10 +315,12 @@ def _is_consensus_fact(fact: dict) -> bool:
     return any(k in metric for k in ("consensus", "estimate", "whisper"))
 
 
-def check_consensus_facts(fb: dict, max_age_days: int = 10) -> list:
-    """Consensus-side facts carry provider, vintage and a T1/T2 tier, fresh
-    relative to the event (report-6/7 H-1: the consensus is the denominator of
-    every beat/miss delta — a stale or aggregator-only print corrupts them all)."""
+def check_consensus_facts(fb: dict, max_age_days: int = 5) -> list:
+    """Consensus-side facts carry provider, vintage, recorded statistic and
+    a T1/T2 tier, fresh relative to the event (report-6/7 H-1 + round-4
+    reports 8/9 M-1: the consensus is the denominator of every beat/miss
+    delta — a stale, aggregator-only, or mean-vs-median-undisclosed print
+    corrupts them all)."""
     fails = []
     meta = fb.get("meta", {}) or {}
     event_date = _parse_iso_date(meta.get("event_timestamp", ""))
@@ -291,7 +328,8 @@ def check_consensus_facts(fb: dict, max_age_days: int = 10) -> list:
         fid = fact.get("id", "?")
         if not _is_consensus_fact(fact):
             continue
-        missing = [f for f in ("consensus_provider", "consensus_vintage")
+        missing = [f for f in ("consensus_provider", "consensus_vintage",
+                               "consensus_statistic")
                    if not str(fact.get(f, "")).strip()]
         tier = str(fact.get("source_tier", "")).strip()
         if tier not in ("T1", "T2"):
@@ -300,6 +338,13 @@ def check_consensus_facts(fb: dict, max_age_days: int = 10) -> list:
         if missing:
             fails.append(f"CONSENSUS    {fid}  consensus-side fact missing: "
                          + ", ".join(missing))
+            continue
+        stat = str(fact.get("consensus_statistic", "")).strip().lower()
+        if stat not in ("mean", "median", "undisclosed"):
+            fails.append(f"CONSENSUS    {fid}  consensus_statistic {stat!r} is "
+                         "not one of mean / median / undisclosed — record "
+                         "which statistic the provider prints (undisclosed "
+                         "only when the outlet genuinely does not say)")
             continue
         if max_age_days and event_date:
             v = _parse_iso_date(fact.get("consensus_vintage", ""))
@@ -315,7 +360,76 @@ def check_consensus_facts(fb: dict, max_age_days: int = 10) -> list:
                              "against a fresh named-provider print)")
             else:
                 print(f"PASS   {fid}  consensus vintage {v} ({age}d before the event, "
-                      f"{fact.get('consensus_provider')})")
+                      f"{fact.get('consensus_provider')}, "
+                      f"{fact.get('consensus_statistic')})")
+    return fails
+
+
+def check_temporal_order(fb: dict) -> list:
+    """TEMPORAL gate (round 4, reports 8/9 M-6, report-9-corrected design).
+
+    Active only when meta.t1_filing_timestamp is set (the verified T1
+    filing/publication time). Enforces, per fact: a data_type classification
+    in {pre_event_input, post_event_fact}; and for post_event_fact entries,
+    retrieved_at >= the T1 timestamp. A post-event claim retrieved before
+    the filing is pre-filing contamination — flag it Unverifiable and strip
+    it from the fact base. Pre-event inputs (consensus, positioning, prior
+    guidance, options OI) legitimately predate the event and are exempt by
+    design: the report-9 correction — stripping every pre-filing retrieval
+    would purge legitimate pre-event inputs, so the gate discriminates on
+    data_type. Date-only retrieved_at on the filing date itself is a NOTE
+    (precision insufficient), not a failure. A data-integrity control, not
+    a Reg FD control (Reg FD binds issuers; 10b-5 attaches to trading)."""
+    meta = fb.get("meta", {}) or {}
+    t1_raw = str(meta.get("t1_filing_timestamp", "")).strip()
+    if not t1_raw:
+        return []          # gate opted out: no verified T1 timestamp on record
+    t1, t1_has_time = _parse_moment(t1_raw)
+    if t1 is None:
+        return ["TEMPORAL    meta.t1_filing_timestamp is not ISO-parseable — "
+                "pin the verified T1 filing time as YYYY-MM-DD[THH:MM:SS] "
+                "or remove it to disable the gate"]
+    fails = []
+    for fact in fb.get("facts", []):
+        fid = fact.get("id", "?")
+        dtype = str(fact.get("data_type", "")).strip().lower()
+        if dtype not in ("pre_event_input", "post_event_fact"):
+            fails.append(f"TEMPORAL    {fid}  missing/invalid data_type "
+                         f"{dtype or '(absent)'} — classify every fact "
+                         "pre_event_input or post_event_fact when the T1 "
+                         "filing time is on record")
+            continue
+        if dtype != "post_event_fact":
+            continue       # pre-event inputs legitimately predate the event
+        ret, ret_has_time = _parse_moment(fact.get("retrieved_at", ""))
+        if ret is None:
+            fails.append(f"TEMPORAL    {fid}  retrieved_at is not ISO-parseable — "
+                         "a post_event_fact needs a usable retrieval timestamp")
+            continue
+        exact = t1_has_time and ret_has_time
+        try:
+            if exact:
+                ordered = ret >= t1
+            else:
+                ordered = (ret.date() if hasattr(ret, "date") else ret) >= \
+                          (t1.date() if hasattr(t1, "date") else t1)
+        except TypeError:    # mixed aware/naive — date-level fallback
+            ordered = (ret.date() if hasattr(ret, "date") else ret) >= \
+                      (t1.date() if hasattr(t1, "date") else t1)
+        if ordered:
+            if not exact and (ret.date() if hasattr(ret, "date") else ret) == \
+                    (t1.date() if hasattr(t1, "date") else t1):
+                print(f"NOTE   {fid}  retrieved_at is date-only on the filing "
+                      "date — timestamp precision would make the temporal "
+                      "check exact")
+            else:
+                print(f"PASS   {fid}  post_event_fact retrieved at/after the T1 "
+                      "filing time")
+        else:
+            fails.append(f"TEMPORAL    {fid}  post_event_fact retrieved_at "
+                         f"{fact.get('retrieved_at')} precedes the verified T1 "
+                         f"filing time {t1_raw} — pre-filing contamination: tag "
+                         "the fact Unverifiable and strip it from the fact base")
     return fails
 
 
@@ -440,6 +554,7 @@ def run_fact_base_mode(slides: dict, fb: dict, method_page: str,
     fails += check_assumed_on_method_page(fb, slides, method_page)
     fails += check_cross_checks(fb, strict_verified, decision_critical)
     fails += check_consensus_facts(fb, consensus_max_age)
+    fails += check_temporal_order(fb)
     fails += check_mandate_context(fb)
     fails += check_epistemic_kinds(fb)
     fails += check_waterfall_sums(fb)
@@ -554,6 +669,7 @@ def selftest() -> int:
              "metric": "Revenue consensus, Q3 2026", "value": 128.22,
              "confidence": "Verified", "source_tier": "T2",
              "consensus_provider": "LSEG (via Reuters)", "consensus_vintage": "2026-10-26",
+             "consensus_statistic": "mean",
              "slide_pages": ["slide_01.html"]},                # must CONSENSUS-PASS
             {"id": "F-17", "category": "fundamentals",
              "metric": "EPS consensus, Q3 2026", "value": 3.02,
@@ -617,7 +733,7 @@ def selftest() -> int:
         (d / "fb2.json").write_text(json.dumps(fb2), encoding="utf-8")
         code_c = main(["--slides", str(d), "--fact-base", str(d / "fb2.json"),
                        "--decision-critical", "F-5"])
-        # Round-3: --strict-pages promotes the slide_01 candidate ("103%") to a
+        # Round-4: --strict-pages promotes the slide_01 candidate ("103%") to a
         # failure WITHOUT --fail-on-unverified, while slide furniture elsewhere
         # (none here) stays advisory; an unknown strict page is a BADREF.
         code_sp = main(["--slides", str(d), "--fact-base", str(d / "fb.json"),
@@ -650,11 +766,51 @@ def selftest() -> int:
         ok = ok and code_e == 1
         ok = ok and any("EPISTEMIC" in f and "F-9" in f for f in r_e["failures"])
         ok = ok and not any("MANDATE" in f for f in r_e["failures"])
+        # Round-4 (reports 8/9 M-6): TEMPORAL gate. fb5 pins the verified T1
+        # filing time; F-1 is a post-event fact retrieved after the filing
+        # (PASS), F-18 is a pre-event consensus input retrieved before it
+        # (exempt by design), F-19 is a post-event fact retrieved BEFORE the
+        # filing (contamination — must fail), F-20 lacks a data_type (must
+        # fail). Consensus facts need the round-4 statistic field, so F-16's
+        # vintage/statistic are kept and F-18 carries the full set.
+        fb5 = json.loads(json.dumps(fb))
+        fb5["meta"]["t1_filing_timestamp"] = "2026-10-28T16:05:00-04:00"
+        fb5["facts"][0]["data_type"] = "post_event_fact"
+        fb5["facts"][0]["retrieved_at"] = "2026-10-29T20:00:00+08:00"
+        fb5["facts"][1]["data_type"] = "post_event_fact"
+        fb5["facts"][1]["retrieved_at"] = "2026-10-29T20:00:00+08:00"
+        fb5["facts"].extend([
+            {"id": "F-18", "value": 128.22, "metric": "Revenue consensus, Q3 2026",
+             "confidence": "Verified", "source_tier": "T2",
+             "consensus_provider": "LSEG (via Reuters)",
+             "consensus_vintage": "2026-10-26", "consensus_statistic": "mean",
+             "data_type": "pre_event_input",
+             "retrieved_at": "2026-10-28T09:00:00+08:00",
+             "slide_pages": ["slide_01.html"]},              # exempt: pre-event
+            {"id": "F-19", "value": 42.29, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-28T10:00:00-04:00",
+             "slide_pages": ["slide_01.html"]},                # TEMPORAL-FAIL
+            {"id": "F-20", "value": 40.6, "confidence": "Verified",
+             "retrieved_at": "2026-10-29T20:00:00+08:00",
+             "slide_pages": ["slide_01.html"]},                # data_type-FAIL
+        ])
+        (d / "fb5.json").write_text(json.dumps(fb5), encoding="utf-8")
+        code_t = main(["--slides", str(d), "--fact-base", str(d / "fb5.json"),
+                       "--report", str(d / "r_t.json")])
+        r_t = json.loads((d / "r_t.json").read_text())
+        ok = ok and code_t == 1
+        ok = ok and any("F-19" in f and "TEMPORAL" in f for f in r_t["failures"])
+        ok = ok and any("F-20" in f and "data_type" in f for f in r_t["failures"])
+        ok = ok and not any("F-1 " in f and "TEMPORAL" in f
+                            for f in r_t["failures"])
+        ok = ok and not any("F-18" in f and "TEMPORAL" in f
+                            for f in r_t["failures"])
         print("=" * 60)
         print("SELFTEST:", "PASS" if ok else "FAIL",
               f"(default exit {code}, strict exit {code_s}, cli-dc exit {code_c}, "
               f"strict-pages exit {code_sp}, mandate exit {code_m}, "
-              f"epistemic exit {code_e})")
+              f"epistemic exit {code_e}, temporal exit {code_t})")
         return 0 if ok else 1
 
 
@@ -683,12 +839,13 @@ def main(argv=None) -> int:
                          "are failures even without --fail-on-unverified — the "
                          "decision-critical pages (executive summary, root-cause "
                          "decomposition); page furniture elsewhere stays advisory")
-    ap.add_argument("--consensus-max-age-days", type=int, default=10,
+    ap.add_argument("--consensus-max-age-days", type=int, default=5,
                     metavar="N",
                     help="CONSENSUS gate: maximum calendar days between a fact's "
-                         "consensus_vintage and meta.event_timestamp (default 10; "
-                         "0 disables the freshness check — provider/tier still "
-                         "required)")
+                         "consensus_vintage and meta.event_timestamp (default 5 "
+                         "calendar days ≈ 3 trading days — round 4, reports 8/9 "
+                         "M-1 tightened it from 10; 0 disables the freshness "
+                         "check — provider/statistic/tier still required)")
     ap.add_argument("--report", help="optional path for a JSON audit report")
     ap.add_argument("--selftest", action="store_true", help="run built-in self-test and exit")
     args = ap.parse_args(argv)

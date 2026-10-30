@@ -222,6 +222,40 @@ class TestChecksSpecContentRound3:
             "(round-3 H-3 doc-side)")
 
 
+class TestChecksSpecContentRound4:
+    """Round-4 needle additions (reports 8/9): the internal-use legend and the
+    public-source-only limitation are required on every delivered note."""
+
+    @pytest.mark.parametrize("checks", [S2_CHECKS, S3_CHECKS], ids=["skill2", "skill3"])
+    def test_not_a_research_report_legend_required(self, checks):
+        data = json.loads(checks.read_text(encoding="utf-8"))
+        req = " ".join(str(x).lower() for x in data["required"])
+        assert "not a research report" in req, (
+            "the internal-use legend (reports 8/9 C-1 scope hardening) is not "
+            "an enforced needle — a deliverable can ship without it")
+
+    @pytest.mark.parametrize("checks", [S2_CHECKS, S3_CHECKS], ids=["skill2", "skill3"])
+    def test_public_source_only_limitation_required(self, checks):
+        data = json.loads(checks.read_text(encoding="utf-8"))
+        req = " ".join(str(x).lower() for x in data["required"])
+        assert "public-source-only" in req, (
+            "the public-source-only limitation (reports 8/9 M-3) is not an "
+            "enforced needle")
+
+    @pytest.mark.parametrize("checks", [S2_CHECKS, S3_CHECKS], ids=["skill2", "skill3"])
+    def test_missing_legend_fails_the_gate(self, checks, na):
+        """End-to-end: a note without the round-4 legends fails the disclosure
+        gate even when every other required needle is present."""
+        data = json.loads(checks.read_text(encoding="utf-8"))
+        note_body = ("<html><body><p>Verification status: lite audit gates passed. "
+                     "Informational only — not investment advice.</p></body></html>")
+        fails = na.run_needle_checks("n.html", note_body, data)
+        assert any("not a research report" in f for f in fails), (
+            "a note shipping without the internal-use legend must fail")
+        assert any("Public-source-only" in f for f in fails), (
+            "a note shipping without the public-source-only limitation must fail")
+
+
 class TestEndToEnd:
     """CLI-level: a clean note passes the skill's own checks.json; a note with a
     placeholder or a missing disclosure exits 1."""
@@ -235,6 +269,9 @@ class TestEndToEnd:
             "+ render audit.</p>"
             "<p>Informational only — not investment advice, not a solicitation. "
             "No price targets published.</p>"
+            "<p>Internal analytical pre-read — not a research report. "
+            "Public-source-only: no channel checks, expert calls, surveys, or "
+            "management access.</p>"
             "<h2>Data-Gap Ledger</h2><p>none open</p>"
             "</body></html>", encoding="utf-8")
         return p

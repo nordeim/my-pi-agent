@@ -24,7 +24,8 @@ it does not go in the report.
     "subject": "Alphabet Inc. (NASDAQ: GOOG / GOOGL)",
     "event": "Q3 FY2026 earnings release + conference call",
     "event_timestamp": "2026-10-28T16:05:00-04:00",
-    "reaction_definition": "T+1 full-session close (2026-10-29)",
+    "t1_filing_timestamp": "2026-10-28T16:05:00-04:00",
+    "reaction_definition": "after-close event -> T+1 full-session close (2026-10-29)",
     "data_cutoff": "2026-10-30T13:00:00+08:00",
     "prepared": "2026-10-30",
     "method_page": "slide_15.html",
@@ -64,6 +65,13 @@ conflict-of-interest disclosure (CFA Institute Standard I(B)). The audit's MANDA
 gate fails an IC-audience fact base without it. For a non-IC audience the block is
 optional and the gate stays silent.
 
+`meta.t1_filing_timestamp` (round 4, reports 8/9 M-6): the verified T1
+filing/publication time — an 8-K acceptance stamp, the IR press-release timestamp,
+or equivalent. When present, it activates the **TEMPORAL gate**: every fact must
+declare `data_type`, and post-event facts must have been retrieved at/after this
+time (see `data_type` below). Omit it and the gate stays silent — pin it whenever
+the event is a filing/print.
+
 The `hypotheses` array mirrors the Phase 3 tree; facts link to hypotheses via `supports`,
 which makes the Phase 4 evidence assembly mechanical.
 
@@ -81,6 +89,7 @@ which makes the Phase 4 evidence assembly mechanical.
 | `source_name` | string | yes | "Motley Fool — Alphabet Q3 2026 earnings call transcript" |
 | `source_url` | string | yes | Resolvable URL; archived link if paywalled at retrieval |
 | `retrieved_at` | string | yes | ISO timestamp of retrieval |
+| `data_type` | enum | when `meta.t1_filing_timestamp` is set | `pre_event_input` \| `post_event_fact` (round 4, reports 8/9 M-6): pre-event inputs (consensus, positioning, prior guidance, options OI) legitimately predate the event; post-event facts must carry `retrieved_at` ≥ the T1 filing time or the TEMPORAL gate fails them as pre-filing contamination |
 | `confidence` | enum | yes | `Verified` \| `Reasoned` \| `Assumed` \| `Unverifiable` |
 | `cross_checked_with` | array | decision-critical | Other fact IDs or source names confirming the value — ≥2 entries required for decision-critical facts (enforced by audit; §7) |
 | `supports` | array | yes | Hypothesis IDs this fact can evidence, e.g. `["H2"]`; `["deck"]` for general context |
@@ -91,7 +100,8 @@ which makes the Phase 4 evidence assembly mechanical.
 | `weights` | object | judged allocations | Signed driver weights `{factor: pct_points}` — must sum to `realized_move` (WATERFALL gate) |
 | `realized_move` | number | judged allocations | The move the allocation decomposes |
 | `consensus_provider` | string | consensus facts | FactSet / Visible Alpha / LSEG / Bloomberg **as reported by a named outlet** |
-| `consensus_vintage` | date | consensus facts | As-of date of the estimate set, YYYY-MM-DD — within `--consensus-max-age-days` (default 10) of `meta.event_timestamp` |
+| `consensus_vintage` | date | consensus facts | As-of date of the estimate set, YYYY-MM-DD — within `--consensus-max-age-days` (default 5 calendar days ≈ 3 trading days, round 4) of `meta.event_timestamp` |
+| `consensus_statistic` | enum | consensus facts | `mean` \| `median` \| `undisclosed` (round 4, reports 8/9 M-1) — the recorded mean-vs-median disclosure; `undisclosed` only when the outlet genuinely does not say |
 | `contributor_count` | number | consensus facts | When the provider discloses it — more contributors, tighter the denominator |
 | `is_consensus` | boolean | optional | Explicit consensus-side marker; facts whose metric names consensus/estimates are detected anyway |
 | `quote` | string | quotes/paraphrases | Exact source sentence captured at retrieval |
@@ -219,12 +229,18 @@ at retrieval time on 2026-10-28/30):
    unverified candidates on the named decision-critical pages become failures while
    furniture elsewhere stays advisory.
 6. Round-3 schema gates (always on — deterministic, no heuristic false positives):
-   CONSENSUS (consensus-side facts need provider + vintage + T1/T2 tier, vintage
-   within `--consensus-max-age-days`, default 10, of `meta.event_timestamp`),
+   CONSENSUS (consensus-side facts need provider + vintage + statistic + T1/T2 tier, vintage
+   within `--consensus-max-age-days`, default 5 calendar days ≈ 3 trading days — round 4
+   tightened it from 10 and added the `consensus_statistic` requirement — of
+   `meta.event_timestamp`),
    EPISTEMIC (`Reasoned` facts declare `epistemic_kind` derived/judged; derived
    requires `formula`), WATERFALL (signed `weights` must sum to `realized_move`
    within tolerance), MANDATE (an IC-named `meta.audience` requires
-   `meta.mandate_context` with `fund_position` + `position_as_of`).
+   `meta.mandate_context` with `fund_position` + `position_as_of`), and TEMPORAL
+   (round 4: when `meta.t1_filing_timestamp` is set, every fact declares `data_type`
+   pre_event_input/post_event_fact and post-event facts must be retrieved at/after the
+   verified filing time — pre-filing contamination fails the build; a data-integrity
+   control, not a Reg FD control).
 7. Provenance sealing (after the gates pass): `scripts/provenance_seal.py --inputs
    <slides…> <fact_base.json> --out provenance.json` writes the SHA-256 manifest,
    prints the seal line for the cover, and verifies the delivered artifact later

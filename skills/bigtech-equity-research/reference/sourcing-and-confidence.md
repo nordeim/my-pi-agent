@@ -32,13 +32,17 @@ knowledge, tag it `Assumed` and flag it.
 - **Unverifiable** — the environment cannot retrieve the source; listed in the Data-Gap Ledger
   with the exact pull needed.
 
-## Consensus sourcing (round 3, reports 6/7 H-1)
+## Consensus sourcing (round 3, reports 6/7 H-1; tightened round 4, reports 8/9 M-1)
 Consensus figures are the denominator of every beat/miss delta and get tier discipline, not
 convenience: named **provider** (FactSet / Visible Alpha / LSEG / Bloomberg as reported),
-**vintage** (as-of date of the estimate set, within ~10 days of the event), **contributor
+**vintage** (as-of date of the estimate set, within **1–3 trading days** of the event —
+the CONSENSUS gate default is 5 calendar days ≈ 3 trading days), **statistic**
+(`consensus_statistic`: mean / median / undisclosed — recorded even when the outlet does
+not say which it prints; a $0.02-vs-$0.05 miss flips on it), **contributor
 count** when disclosed, and a **T1/T2 source** — never a lone aggregator print; a single T2
-chain must be cross-verified against a second distinct origination chain. Record mean vs
-median when the outlet discloses which it prints. See `reference/methodology.md` Phase 1.
+chain must be cross-verified against a second distinct origination chain. State mean vs
+median on the note when the outlet discloses which it prints. See
+`reference/methodology.md` Phase 1.
 
 ## Anti-hallucination rules
 - No invented API figures, index returns, implied moves, multiples, or filing numbers.
@@ -50,10 +54,15 @@ median when the outlet discloses which it prints. See `reference/methodology.md`
 
 ## Disclaimer
 Analysis only. Not investment advice, not a solicitation. All investments involve
-risk. Internal analytical note — not for distribution as sell-side research: no
-rating, no price target, no analyst certification or conflict disclosures. Built
-from public sources only; if any input is suspected to be material non-public
-information (Regulation FD), stop and escalate.
+risk. Internal analytical note — **not a research report** (round 4, reports 8/9 C-1):
+internal use only, no client or external distribution, wider distribution requires
+compliance sign-off. No rating, no price target, no analyst certification or conflict
+disclosures. **Public-source-only** (round 4, reports 8/9 M-3): no channel checks,
+expert calls, surveys, or management access inform the analysis — a stated limitation.
+**Data licensing** (round 4, reports 8/9 M-4): vendor figures are cited with
+attribution for internal analytical use; do not reproduce vendor tables at scale or
+redistribute the deliverable externally. Built from public sources only; if any input is
+suspected to be material non-public information (Regulation FD), stop and escalate.
 
 **Position & mandate disclosure (round 3, reports 6/7 C-1, buy-side regime).**
 When the deliverable is for an investment-committee audience, the note discloses the

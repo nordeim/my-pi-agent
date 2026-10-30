@@ -10,6 +10,10 @@ Responsive. WCAG-AA contrast. Print-friendly. Confidence tag inline on every fig
    when a gate could not run. Keep the wording free of the audit scan tokens
    (`todo`, `tbd`, `xxx`, `nan`, `undefined`, `placeholder`, `lorem`,
    `insert data/numbers`, `foo bar`, `【`) so the gate does not flag the line itself.
+   **Scope legends (round 4, reports 8/9 C-1/M-3)**: the cover also carries "Internal
+   analytical pre-read — not a research report" and "Public-source-only" (no channel
+   checks, expert calls, surveys, or management access) — both are required needles in
+   `assets/checks.json`.
    **IC-facing covers** also carry the position disclosure — "Fund position:
    long/short/none/undetermined, as of <date>" (buy-side conflict visibility, CFA
    Institute Standard I(B); the lite audit's conditional needle enforces it). When
@@ -44,7 +48,12 @@ Responsive. WCAG-AA contrast. Print-friendly. Confidence tag inline on every fig
     model gap is named as an open item (forward estimates, discount-rate framework,
     scenario weights).
 12. **Bull/Bear Forward View** — what would confirm vs invalidate the market's reaction,
-    as scenario frames (never predictions).
+    as scenario frames (never predictions). **Expected Fundamental Value matrix**
+    (round 4, reports 8/9 H-6 — optional, recommended for IC-facing notes): subjective
+    probabilities on the fundamental outcomes (e.g. FY+1 FCF path bull/base/bear at
+    25/50/25) computed in code into an EV-adjusted fundamental range — `Reasoned
+    (judged)` probabilities, method disclosed, never a price target or fair-value
+    claim (labeled adjacent to the matrix).
 13. **Risk Factors & Falsification Conditions** — the note's own falsifiers (what
     evidence would flip each root-cause verdict), the key risk factors to the thesis
     with observable, dated triggers, and the explicitly excluded hypotheses with
@@ -66,7 +75,10 @@ Responsive. WCAG-AA contrast. Print-friendly. Confidence tag inline on every fig
   the layout (not the audit) until it exits 0. Decorative bleed elements are marked
   `data-bleed="intentional"`, `data-decor`, or `aria-hidden="true"` so the render
   gate skips them.
-- Final gates before delivery: `python3 scripts/note_audit.py --note <note.html>
+- Final gates before delivery: `python3 scripts/fact_base_lite_audit.py --note
+  <note.html> --fact-base <fact_base_lite.json>` (number registry — round 4, H-2:
+  every printed money/percentage figure registered, consensus fields present,
+  temporal order clean) must exit 0; `python3 scripts/note_audit.py --note <note.html>
   --checks assets/checks.json` (placeholder + disclosure needles, scoped) must exit 0;
   `node scripts/note_overflow_audit.mjs --note <note.html>` (render) and
   `node scripts/a11y_audit.mjs --note <note.html>` (lang / heading order / image alt /

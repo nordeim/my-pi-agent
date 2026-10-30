@@ -40,6 +40,20 @@ default"`; an explicitly passed window is echoed as `"explicit"`; a blank or
 non-string window raises. Print the echoed `beta_window` next to the figure in
 the note either way — the disclosure is the point.
 
+**Beta regime diagnostics (round 4, reports 8/9 M-7)**: the canonical window is
+only trustworthy while the stock/benchmark correlation holds and realized vol is
+in its historical regime. Run `quant_helpers.beta_diagnostics(stock_rets,
+bench_rets)` → `{beta, r_squared, correlation, r_squared_floor,
+correlation_breakdown}` and `quant_helpers.volatility_regime_flag(monthly_rets)` →
+`{recent_vol, baseline_vol, z_score, regime_shift}` on the estimation window
+before trusting the beta. **If R² < 0.30 (`R_SQUARED_FLOOR`) or |z| > 2
+(`VOL_REGIME_Z_THRESHOLD`), the 2-year monthly beta is fitting a broken regime**
+(2022 rate shock, 2023 AI re-rating): either explicitly justify the window or
+re-estimate over a shorter (e.g. 6-month daily) window and disclose it.
+"Structurally changed" is a quantitative trigger now, not a judgment call the
+LLM makes unaided — applying an obsolete beta misattributes market-driven moves
+to company-specific failures.
+
 If benchmark closes are unavailable, bound the benchmark return (e.g. −1.0% to
 −2.0% during a sector de-rating) and report the excess return as a range, tagged
 `Assumed`.
@@ -137,14 +151,20 @@ Chart vs the 3–5yr band to show de-rating/re-rating.
 
 ## Market cap
 ```
-market_cap_erased = shares_outstanding × |Δprice|
-cross-check:  market_cap_erased ≈ pre_print_market_cap × |move %|   (approximation)
+market_cap_delta_class = shares_class × (price_after − price_before)
+market_cap_delta_total = Σ over share classes                       (round 4: multi-class method)
+cross-check:  market_cap_delta_total ≈ pre_print_market_cap × move %   (approximation)
 ```
-Compute the erased value from **shares outstanding × price change** (shares from the
-latest 10-Q/10-K cover page) — it is independent of any market-cap quote. The
-percentage form needs the pre-print market cap and is labeled an approximation; the
-two methods agreeing is itself a cross-check, not a derivation of one from the other.
-Example: ≈12.1B GOOG shares × $39.57 ≈ **−$479B**, consistent with the ≈$482B the
+Compute the market-cap change **per share class and sum** (round 4, reports 8/9
+H-4: `quant_helpers.market_cap_delta` takes the per-class {label, shares,
+price_before, price_after} list) — shares from the latest 10-Q/10-K cover page
+(T1). One class's shares must **never** be multiplied by another class's price
+(GOOG/GOOGL, META A/B are the classics); when classes diverge, the single-class
+shortcut materially misstates the cap change. Disclose the method on the note.
+The percentage form needs the pre-print market cap and is labeled an
+approximation; the two methods agreeing is itself a cross-check, not a
+derivation of one from the other.
+Example: ≈12.1B GOOG shares × −$39.57 ≈ **−$479B**, consistent with the ≈$482B the
 press reported.
 ```
 Run the math with `scripts/quant_helpers.py` to avoid arithmetic errors.

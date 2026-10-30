@@ -17,22 +17,40 @@ Pull, in order of preference:
    FactSet/Visible Alpha/Refinitiv (LSEG)-referencing notes or Bloomberg consensus
    **as reported by a named outlet**.
 
-   **Consensus sourcing protocol (round 3, reports 6/7 H-1):** the consensus is the
+   **Consensus sourcing protocol (round 3, reports 6/7 H-1; tightened in round 4,
+   reports 8/9 M-1):** the consensus is the
    denominator of every beat/miss delta, so it gets the same evidentiary rigor as
    the reported figures, not less. Wire copy rounds, prints the median instead of
    the mean, or carries a weeks-stale number — a $0.02 vs $0.05 miss is a different
    causal narrative. For every consensus figure:
    - record the **provider** (FactSet / Visible Alpha / LSEG / Bloomberg as
-     reported), the **vintage** (the as-of date of the estimate set, within ~10
-     days of the event), and the **contributor count** when the provider discloses
+     reported), the **vintage** (the as-of date of the estimate set, **within 1–3
+     trading days of the event** — the CONSENSUS gate default is 5 calendar days
+     ≈ 3 trading days, tightened from 10), the **statistic**
+     (`consensus_statistic`: mean / median / undisclosed — the recorded
+     mean-vs-median disclosure; a $0.02-vs-$0.05 miss flips on which statistic the
+     wire printed), and the **contributor count** when the provider discloses
      it;
    - source it from **T1/T2 only** — never a lone T3 aggregator print; when only a
      T2 chain is available, cross-verify across **two distinct origination chains**
      (e.g. Reuters AND a second outlet carrying a different provider's set), or the
      company's own IR page when it publishes tracked consensus;
-   - state mean vs median when the outlet discloses which it is printing.
+   - state mean vs median on the note when the outlet discloses which it is printing.
    The flagship's `fact_base_audit.py` enforces this at the schema level
-   (consensus facts without provider/vintage/T1-T2 tier fail the build).
+   (consensus facts without provider/vintage/statistic/T1-T2 tier fail the build),
+   and the lite registry's `fact_base_lite_audit.py` checks provider + vintage +
+   statistic on consensus-side entries.
+
+**Temporal embargo discipline (round 4, reports 8/9 M-6).** Pin the verified T1
+filing/publication time (8-K acceptance stamp, IR press-release timestamp) as
+`meta.t1_filing_timestamp` in the number registry, and classify every entry
+`data_type`: `pre_event_input` (consensus, positioning, prior guidance, options
+OI — legitimately pre-event) or `post_event_fact` (anything the event itself made
+knowable). A post-event fact retrieved before the filing time is pre-filing
+contamination — flag it `Unverifiable` and strip it from the registry; the lite
+audit's TEMPORAL check fails the build on it. A data-integrity control (never
+launder unconfirmed pre-filing chatter into a confirmed fact), not a Reg FD
+control.
 
 **Compute the beat/miss delta** for every headline metric — `actual − consensus` and the
 percentage. The delta, not the absolute, is what moves price.
@@ -43,6 +61,13 @@ sources to the reported precision.
 
 ## Phase 2 — Isolate idiosyncratic vs market-wide move
 **Goal:** separate the company-specific move from the market/sector component.
+
+**Event-window rule (round 4, reports 8/9 H-3)**: set the primary reaction by the
+event's timestamp relative to market hours — after-close event → T+1 full-session
+close; pre-market/intraday event (guidance shock, regulatory ruling, product
+launch) → T+0 close. Applying T+1 to an intraday event contaminates the event
+return and the benchmark excess return with an extra session. State the rule
+applied in the note.
 
 1. **Market-adjusted excess return** = stock return − same-day benchmark return. Use
    QQQ or XLK as the broad benchmark and the direct comps as a cross-check. If the
@@ -56,6 +81,13 @@ sources to the reported precision.
    (2-year monthly returns vs QQQ, `DEFAULT_BETA_WINDOW`) and echoes it; an explicit
    non-default window must be justified in the note (a corporate event that
    structurally changed the risk profile) — comparability across runs is the point.
+   **Beta regime diagnostics (round 4, reports 8/9 M-7)**: before trusting the
+   canonical window, run `quant_helpers.beta_diagnostics` (OLS beta, R²,
+   correlation-breakdown flag) and `volatility_regime_flag` (trailing 3-month
+   realized vol vs its 2-year mean, z-score). If R² < 0.30 or |z| > 2, the window is
+   fitting a broken regime (2022 rate shock, 2023 AI re-rating) — justify it
+   explicitly or re-estimate over a shorter (e.g. 6-month daily) window and disclose
+   it. "Structurally changed" is a quantitative trigger now, not a vibe.
    Formula:
    `reference/formulas.md#market-adjusted-excess-return-not-alpha`.
 2. **Options implied move** — the pre-print ATM straddle price vs the realized move.
@@ -118,6 +150,12 @@ decelerates because it funds the growth investment.
   dividends. State which basis the beat/miss is computed on
   (`reference/formulas.md#fcf-trajectory`; `quant_helpers.fcf` / `fcf_ex_sbc`).
 - Operating-margin trend and stated drivers (AI-infra depreciation, buildout, hiring).
+- **Reg G / Item 10(e) discipline (round 4, reports 8/9 M-2)**: every non-GAAP metric
+  presented (Adj. EPS, FCF, FCF ex-SBC) is reconciled to its most directly comparable
+  GAAP measure — show the bridge or cite the issuer's own reconciliation table from
+  the press release / 10-Q — and state which basis (GAAP vs non-GAAP) each beat/miss
+  is computed on. Non-GAAP commentary without a reconciliation trail does not meet
+  institutional disclosure standards.
 - **Depreciation-schedule changes** — a frequent "stealth" driver of margin-compression fears.
   Check the CFO remarks / 10-Q MD&A explicitly.
 - Derived insight to test: if capex beat Street but FCF still missed, the shortfall is in
@@ -136,7 +174,13 @@ decelerates because it funds the growth investment.
   (`reference/peers.md`) or a documented alternative — same primary revenue driver,
   market-cap proximity, 2–4 names, basket and criteria stated in the note. Peer
   cherry-picking (a mega-cap's capex vs a mid-cap's) is a construction artifact, not
-  a finding.
+  a finding. **Constituent hygiene (round 4, reports 8/9 M-8)**: before the read-through,
+  run a corporate-action check on each named constituent (M&A, spin-off, delisting,
+  bankruptcy — a T2 news check per name; these are bespoke analyst baskets, not index
+  constituents, so an index-membership API is the wrong control) and a cache-age gate
+  (re-verify when basket facts are >90 days old or undated) — a basket that silently
+  lost a distressed constituent flatters the peer average and misprices the target's
+  relative position.
 
 ## Phase 6 — Sell-side reaction
 **Goal:** capture how the Street repriced within 48 hours.
@@ -180,6 +224,24 @@ Rules:
 - State explicitly when a weight is an analytical allocation rather than an observed regression.
 
 Formula and worked example: `reference/formulas.md#root-cause-driver-decomposition-the-waterfall`.
+
+**Expected Fundamental Value matrix (round 4, reports 8/9 H-6 — optional, recommended
+for IC-facing notes)**: weight the *fundamental* outcomes of the forward scenarios
+with subjective probabilities (e.g. FY+1 FCF path bull/base/bear at 25/50/25) and
+compute the EV-adjusted fundamental range in code — `Reasoned (judged)`
+probabilities, method disclosed, strictly a fundamental-expectation construct,
+**never a price target or a fair-value claim** (labeled adjacent to the matrix). An
+unweighted scenario triptych cannot feed position sizing; the EV matrix is the
+minimum quantitative asymmetry profile the family ships while the valuation module
+stays out of scope.
+
+**Variant-view annex (round 4, reports 8/9 H-1 — optional)**: when the engagement
+asks for a forward view, build the analyst's own estimates (revenue / EPS / capex /
+FCF) with an explicit assumption table and a **consensus bridge** (own − consensus
+per line — where and why you differ from the Street); every input
+`Assumed`/`Reasoned (judged)` and labeled, never presented as verified. When not
+commissioned, name the forecast gap in the open-items list alongside the valuation
+boundary.
 
 ## Pre-event mode ("what's priced in?")
 

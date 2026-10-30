@@ -1,9 +1,10 @@
 {
-  "_comment": "Copy this file as fact_base_lite.json for the engagement and fill it in BEFORE assembling the HTML note (it is the note's number registry — every money/percentage figure the note prints must exist here with a source). Then run: python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base fact_base_lite.json — the gate fails on unregistered note numbers, registry numbers absent from the note, missing source fields, and placeholder tokens. meta.furniture whitelists benign repeated tokens the reverse check would otherwise flag (e.g. years, section numbers); prefer an empty list. The worked-example entries below use the family's canonical Alphabet Q3 2026 event; delete them and the _* keys when starting a real engagement.",
+  "_comment": "Copy this file as fact_base_lite.json for the engagement and fill it in BEFORE assembling the HTML note (it is the note's number registry — every money/percentage figure the note prints must exist here with a source). Then run: python3 scripts/fact_base_lite_audit.py --note <note.html> --fact-base fact_base_lite.json — the gate fails on unregistered note numbers, registry numbers absent from the note, missing source fields, consensus-side facts without provider/vintage/statistic, temporal-order violations (when meta.t1_filing_timestamp is set), and placeholder tokens. meta.furniture whitelists benign repeated tokens the reverse check would otherwise flag (e.g. years, section numbers); prefer an empty list. Round 4 (reports 8/9): consensus facts carry consensus_statistic (mean | median | undisclosed); when meta.t1_filing_timestamp is set, every fact declares data_type pre_event_input | post_event_fact and post-event facts must have been retrieved at/after the filing time. The worked-example entries below use the family's canonical Alphabet Q3 2026 event; delete them and the _* keys when starting a real engagement.",
   "meta": {
     "subject": "Alphabet Inc. (NASDAQ: GOOG / GOOGL)",
     "event": "Q3 FY2026 earnings release + conference call",
     "data_cutoff": "2026-10-30T13:00:00+08:00",
+    "t1_filing_timestamp": "2026-10-28T16:05:00-04:00",
     "furniture": []
   },
   "facts": [
@@ -18,6 +19,7 @@
       "source_url": "https://finance.yahoo.com/quote/GOOG",
       "retrieved_at": "2026-10-30T13:00:00+08:00",
       "confidence": "Verified",
+      "data_type": "post_event_fact",
       "cross_checked_with": ["CNN Markets"]
     },
     {
@@ -31,8 +33,10 @@
       "source_url": "https://www.reuters.com/...",
       "retrieved_at": "2026-10-29T08:00:00+08:00",
       "confidence": "Verified",
+      "data_type": "pre_event_input",
       "consensus_provider": "LSEG",
       "consensus_vintage": "2026-10-28",
+      "consensus_statistic": "mean",
       "contributor_count": null,
       "cross_checked_with": ["Visible Alpha as reported by CNBC"]
     },
@@ -47,6 +51,7 @@
       "source_url": "n/a (derived from L-001 and the sourced prior close)",
       "retrieved_at": "2026-10-30T13:00:00+08:00",
       "confidence": "Reasoned (derived)",
+      "data_type": "post_event_fact",
       "formula": "(282.32 - 321.89) / 321.89 = -12.29%",
       "cross_checked_with": ["press-reported −12.29% (CNBC)"]
     }

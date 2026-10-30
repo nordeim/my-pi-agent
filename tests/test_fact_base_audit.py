@@ -220,14 +220,16 @@ class TestRound3SchemaGates:
         fb = self._fb(facts=[
             {"id": "C-3", "metric": "Revenue consensus", "value": 128.22,
              "source_tier": "T2", "consensus_provider": "LSEG (via Reuters)",
-             "consensus_vintage": "2026-10-26"}])
+             "consensus_vintage": "2026-10-26",
+             "consensus_statistic": "mean"}])
         assert fba.check_consensus_facts(fb) == []
 
     def test_stale_consensus_vintage_fails(self, fba):
         fb = self._fb(facts=[
             {"id": "C-4", "metric": "Revenue consensus", "value": 128.22,
              "source_tier": "T2", "consensus_provider": "LSEG",
-             "consensus_vintage": "2026-09-01"}])   # 57 days before the event
+             "consensus_vintage": "2026-09-01",             # 57 days before the event
+             "consensus_statistic": "mean"}])
         fails = fba.check_consensus_facts(fb)
         assert any("C-4" in f and "CONSENSUS" in f for f in fails)
 
@@ -235,10 +237,52 @@ class TestRound3SchemaGates:
         fb = self._fb(facts=[
             {"id": "C-5", "metric": "Revenue consensus", "value": 128.22,
              "source_tier": "T2", "consensus_provider": "LSEG",
-             "consensus_vintage": "2026-09-01"}])
+             "consensus_vintage": "2026-09-01",
+             "consensus_statistic": "mean"}])
         assert fba.check_consensus_facts(fb, max_age_days=0) == [], (
             "max_age_days=0 must disable the freshness check while keeping "
-            "the provider/tier requirements")
+            "the provider/statistic/tier requirements")
+
+    def test_vintage_at_the_round4_default_boundary_passes(self, fba):
+        """Round 4 (reports 8/9 M-1): the default window tightened 10 -> 5
+        calendar days ≈ 3 trading days. 5 days old passes, 6 days old fails."""
+        fb = self._fb(facts=[
+            {"id": "C-7", "metric": "Revenue consensus", "value": 128.22,
+             "source_tier": "T2", "consensus_provider": "LSEG",
+             "consensus_vintage": "2026-10-23",               # 5 days before the event
+             "consensus_statistic": "mean"}])
+        assert fba.check_consensus_facts(fb) == []
+        fb["facts"][0]["consensus_vintage"] = "2026-10-22"   # 6 days — now stale
+        fails = fba.check_consensus_facts(fb)
+        assert any("C-7" in f and "outside the 5-day" in f for f in fails)
+
+    def test_consensus_statistic_required(self, fba):
+        """Round 4 (reports 8/9 M-1): mean-vs-median is a recorded disclosure —
+        a consensus fact without consensus_statistic fails the gate."""
+        fb = self._fb(facts=[
+            {"id": "C-8", "metric": "EPS consensus", "value": 3.02,
+             "source_tier": "T2", "consensus_provider": "LSEG",
+             "consensus_vintage": "2026-10-26"}])
+        fails = fba.check_consensus_facts(fb)
+        assert any("C-8" in f and "consensus_statistic" in f for f in fails), (
+            "the recorded mean/median/undisclosed statistic is mandatory")
+
+    def test_consensus_statistic_must_be_valid(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-9", "metric": "EPS consensus", "value": 3.02,
+             "source_tier": "T2", "consensus_provider": "LSEG",
+             "consensus_vintage": "2026-10-26",
+             "consensus_statistic": "average-ish"}])
+        fails = fba.check_consensus_facts(fb)
+        assert any("C-9" in f and "mean / median / undisclosed" in f for f in fails)
+
+    def test_undisclosed_statistic_is_valid(self, fba):
+        fb = self._fb(facts=[
+            {"id": "C-10", "metric": "EPS consensus", "value": 3.02,
+             "source_tier": "T2", "consensus_provider": "LSEG",
+             "consensus_vintage": "2026-10-26",
+             "consensus_statistic": "undisclosed"}])
+        assert fba.check_consensus_facts(fb) == []
 
     def test_is_consensus_flag_detected(self, fba):
         fb = self._fb(facts=[
@@ -315,6 +359,86 @@ class TestRound3SchemaGates:
         fb = self._fb(meta={"event_timestamp": "2026-10-28T16:05:00-04:00",
                             "audience": "internal research desk"}, facts=[])
         assert fba.check_mandate_context(fb) == []
+
+
+class TestTemporalGate:
+    """Round 4 (reports 8/9 M-6, report-9-corrected design): the pre-filing
+    embargo with the data_type discriminator. Post-event facts retrieved
+    before the verified T1 filing time fail; pre-event inputs are exempt;
+    the gate is silent without meta.t1_filing_timestamp."""
+
+    def _fb(self, **over):
+        fb = {"meta": {"t1_filing_timestamp": "2026-10-28T16:05:00-04:00"},
+              "facts": []}
+        fb.update(over)
+        return fb
+
+    def test_pre_filing_post_event_fact_fails(self, fba):
+        fb = self._fb(facts=[
+            {"id": "T-1", "value": 42.29, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-28T10:00:00-04:00"}])
+        fails = fba.check_temporal_order(fb)
+        assert any("T-1" in f and "TEMPORAL" in f
+                   and "pre-filing contamination" in f for f in fails), (
+            "a post-event claim retrieved before the filing is contamination")
+
+    def test_post_filing_post_event_fact_passes(self, fba):
+        fb = self._fb(facts=[
+            {"id": "T-2", "value": 282.32, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-29T20:00:00+08:00"}])
+        assert fba.check_temporal_order(fb) == []
+
+    def test_pre_event_input_retrieved_pre_filing_is_exempt(self, fba):
+        """The report-9 correction: stripping ALL pre-filing retrievals would
+        purge legitimate pre-event inputs (consensus, positioning, guidance)."""
+        fb = self._fb(facts=[
+            {"id": "T-3", "value": 128.22, "confidence": "Verified",
+             "data_type": "pre_event_input",
+             "retrieved_at": "2026-10-28T09:00:00+08:00"}])
+        assert fba.check_temporal_order(fb) == []
+
+    def test_unclassified_fact_fails_when_t1_pinned(self, fba):
+        fb = self._fb(facts=[
+            {"id": "T-4", "value": 40.6, "confidence": "Verified",
+             "retrieved_at": "2026-10-29T20:00:00+08:00"}])
+        fails = fba.check_temporal_order(fb)
+        assert any("T-4" in f and "data_type" in f for f in fails), (
+            "every fact must be classified when the T1 filing time is on record")
+
+    def test_gate_silent_without_t1_timestamp(self, fba):
+        fb = {"meta": {}, "facts": [
+            {"id": "T-5", "value": 42.29, "confidence": "Verified",
+             "retrieved_at": "2026-10-20T10:00:00-04:00"}]}
+        assert fba.check_temporal_order(fb) == []
+
+    def test_unparseable_t1_timestamp_fails(self, fba):
+        fb = self._fb()
+        fb["meta"]["t1_filing_timestamp"] = "not-a-date"
+        fails = fba.check_temporal_order(fb)
+        assert any("t1_filing_timestamp" in f and "not ISO-parseable" in f
+                   for f in fails)
+
+    def test_cross_timezone_comparison_is_exact(self, fba):
+        """An aware retrieved_at in +08:00 compared against an aware T1 in
+        -04:00 must compare on instant, not clock face (regression guard
+        for the s[:19] offset-stripping bug)."""
+        fb = self._fb(facts=[
+            # 2026-10-29T04:05+08:00 == the filing instant; 08:00 is after it.
+            {"id": "T-6", "value": 1.0, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-29T08:00:00+08:00"}])
+        assert fba.check_temporal_order(fb) == []
+
+    def test_date_only_retrieval_on_filing_date_is_advisory(self, fba):
+        fb = self._fb(facts=[
+            {"id": "T-7", "value": 2.0, "confidence": "Verified",
+             "data_type": "post_event_fact",
+             "retrieved_at": "2026-10-28"}])
+        assert fba.check_temporal_order(fb) == [], (
+            "date-only retrieval landing on the filing date is a precision NOTE, "
+            "not a failure — it may legitimately be post-filing")
 
 
 class TestStrictPagesMode:

@@ -23,6 +23,7 @@ which produced a −12.29% session on Oct 29 — the worst day since its 2004 IP
 12. [The fact base in practice](#12-the-fact-base-in-practice)
 13. [Full pitfall catalog](#13-full-pitfall-catalog)
 14. [Compliance, tone & two-sidedness](#14-compliance-tone--two-sidedness)
+15. [Methodology validation protocol](#15-methodology-validation-protocol-round-4-reports-89-h-5--documented-harness-pending)
 
 ---
 
@@ -32,7 +33,17 @@ Write a one-page **event charter** before touching data. It contains:
 
 - **Trigger**: the event and its exact timestamp ("Q3 FY2026 earnings release + conference call, Oct 28 2026, 16:05 ET release / 17:30 ET call").
 - **Subject**: ticker + share class + why that class (GOOG is the more liquid C-share line; GOOGL carries votes — quote both when they diverge materially). Note any split/dividend basis.
-- **Reaction definition**: primary reaction = first **full-session close after the event** (T+1 close). After-hours and T+0 intraday are secondary color, always labeled as such. Rationale: after-hours prints are thin and headline writers anchor on them; the close is what clears real size.
+- **Reaction definition — the event-window rule (round 4, reports 8/9 H-3)**: the
+  primary reaction is set by the event's timestamp relative to market hours, not by a
+  single convention. An event **after the close** (the classic evening earnings
+  release) → primary reaction = the **first full-session close after the event (T+1
+  close)**. An event **pre-market or intraday** (guidance shock, regulatory ruling,
+  product launch) → primary reaction = the **T+0 close** — applying T+1 to an intraday
+  event adds an extra session and contaminates the event return, the benchmark excess
+  return, and the attribution. State the rule and the chosen window in the event charter
+  (`meta.reaction_definition` in the fact base). After-hours and intraday prints are
+  secondary color, always labeled as such. Rationale: after-hours prints are thin and
+  headline writers anchor on them; the close is what clears real size.
 - **Observation window**: pre-event baseline (typically −90 trading days for trend, prior close for the move), event day, post-event through the data cutoff.
 - **Benchmarks**: S&P 500, Nasdaq-100, and a named peer basket. For mega-cap tech use MSFT, META, AMZN, AAPL, NVDA at minimum; add sector-adjacent names (e.g. TSM, Samsung for semis/hardware exposure) when relevant.
 - **Deliverable spec**: audience (institutional PM/IC), format (default 12–16 page HTML deck, 1280×720, Midnight IC system), language, whether speaker notes are wanted, citation style (inline source chips + closing ledger).
@@ -66,23 +77,35 @@ Rules:
 
 - **Share class**: GOOG vs GOOGL, BRK.A/B, LEN/LEN.B — quote the class the press quotes for headline comparisons, and say which you used for your own computations.
 - **Splits/adjustments**: for trend work use split-adjusted series; for event-day headlines use the raw quoted close. Never mix bases in one table.
-- **Market-cap delta**: compute as shares outstanding × Δprice (shares outstanding from the latest 10-Q cover page, T1). If you instead scale the prior market cap by the % move, label the approximation. Example: GOOG shares ≈ 12.1B × (−$39.57) ≈ −$479B ≈ the ≈$482B figure the press reported — agreement between the two methods is itself a cross-check.
+- **Market-cap delta — the multi-class method (round 4, reports 8/9 H-4)**: compute
+  **each share class separately and sum** — `quant_helpers.market_cap_delta` takes the
+  per-class {shares, price_before, price_after} list. Shares outstanding from the latest
+  10-Q cover page (T1); one class's shares must never be multiplied by another class's
+  price (GOOG/GOOGL, META A/B are the classics). Disclose the method on the slide. If
+  you instead scale the prior market cap by the % move, label the approximation.
+  Example: GOOG shares ≈ 12.1B × (−$39.57) ≈ −$479B ≈ the ≈$482B figure the press
+  reported — agreement between the two methods is itself a cross-check.
 - **Ath/drawdown**: verify the all-time-high date and price with a T3 source (e.g. Macrotrends) before using "−X% from ATH".
 
 ### 2.3 Consensus & estimates
 
 - Consensus revenue/EPS/segment estimates: take from T2 (Reuters/CNBC/Bloomberg story on the print, or FactSet/Visible Alpha as reported). Record the outlet, not "the Street said".
-- **Provider + vintage discipline (round 3, reports 6/7 H-1):** the consensus is the
+- **Provider + vintage + statistic discipline (round 3, reports 6/7 H-1; tightened in
+  round 4, reports 8/9 M-1):** the consensus is the
   denominator of every beat/miss delta, so it gets the same rigor as the reported
   figures. Every consensus fact carries `consensus_provider` (FactSet / Visible Alpha /
   LSEG / Bloomberg as reported by a named outlet), `consensus_vintage` (the as-of date
-  of the estimate set — within ~10 days of the event), and `contributor_count` when
-  the provider discloses it. Never a lone T3 aggregator print; a single T2 chain is
+  of the estimate set — **within 1–3 trading days of the event**; the CONSENSUS gate's
+  default is 5 calendar days ≈ 3 trading days, tightened from 10), `consensus_statistic`
+  (`mean` / `median` / `undisclosed` — the recorded mean-vs-median disclosure; use
+  `undisclosed` only when the outlet genuinely does not say), and `contributor_count`
+  when the provider discloses it. Never a lone T3 aggregator print; a single T2 chain is
   cross-verified against a second distinct origination chain (two outlets scraping
   the same wire story corroborate nothing), or the company's own IR page when it
-  publishes tracked consensus. State mean vs median when the outlet discloses which
-  it is printing. `fact_base_audit.py`'s CONSENSUS gate fails a consensus fact
-  without provider/vintage/T1-T2 tier, or with a stale vintage.
+  publishes tracked consensus. State mean vs median on the slide when the outlet
+  discloses which it is printing. `fact_base_audit.py`'s CONSENSUS gate fails a
+  consensus fact without provider/vintage/statistic/T1-T2 tier, or with a stale
+  vintage.
 - For segment-level consensus (e.g. Search $64.9B vs actual $63.4B), cite the specific story or data page; if only the total is available, present segment "short of estimates" qualitatively rather than inventing a number.
 - Price targets: shop, analyst name, old PT, new PT, date, source. Consensus PT before/after with analyst count (e.g. FactSet consensus $426.20 → $404.63 across 61 analysts, Oct 29 2026).
 
@@ -100,7 +123,7 @@ The call transcript is where the real signal lives. While reading it:
 - Positioning/crowding: pre-event run-up %, index weight, ownership stats — only with a named source (TIKR, 13F filings, ETF factsheets). If you cannot source it, write the qualitative version ("a crowded, record-weight mega-cap") and mark the causal use `Reasoned`.
 - Same-week peer prints: log peer event → peer stock reaction as standalone facts (e.g. "META Oct 21: revenue beat $64.6B, FCF −$2.12B, capex floor raised to $135–145B, stock −7%" — T2-sourced). These become amplifier evidence in Phase 7.
 
-**Gate:** every fact the RCA will turn on is in `fact_base.json` with tier, URL, retrieval time; decision-critical numbers are double-sourced; zero numbers from memory.
+**Gate:** every fact the RCA will turn on is in `fact_base.json` with tier, URL, retrieval time; decision-critical numbers are double-sourced; zero numbers from memory. **Temporal embargo (round 4, reports 8/9 M-6)**: pin the verified T1 filing/publication time as `meta.t1_filing_timestamp`, classify every fact `data_type: pre_event_input` (consensus, positioning, prior guidance, options OI — legitimately pre-event) or `post_event_fact`, and keep post-event facts retrieved at/after the filing time — the TEMPORAL gate fails pre-filing contamination so unconfirmed chatter never launders into a confirmed fact (a data-integrity control, not a Reg FD control).
 
 ---
 
@@ -108,20 +131,30 @@ The call transcript is where the real signal lives. While reading it:
 
 Compute (in code, not by hand) and record as facts:
 
-- **Headline move**: T+1 close vs pre-event close, % and $. Example: GOOG −12.29% to $282.32 (Oct 29 2026) from $321.89.
+- **Headline move**: primary-reaction close (per the §1 event-window rule) vs pre-event close, % and $. Example: GOOG −12.29% to $282.32 (Oct 29 2026) from $321.89.
 - **Cross-class check**: quote the other share class with its own sourced print — for the Alphabet example, GOOGL (Class A) closed Oct 28 at $324.89 and printed ≈−12.8% intraday on Oct 29 (Yahoo Finance); its class-A close was not independently pinned, so only the sourced prints are used. Divergence between classes is itself data on which holders flinched — record the class, print time and source for both, and never mix classes in one computation.
 - **After-hours**: the AH print ("~−10% to ~$290 per AP") labeled as after-hours, secondary.
-- **Market-cap delta**: shares × Δprice (§2.2), cross-checked to press "≈$482B erased".
+- **Market-cap delta**: per-class sum method (§2.2, `quant_helpers.market_cap_delta`), cross-checked to press "≈$482B erased".
 - **Historical ranking**: "worst day since 2004 IPO", "second-largest one-day market-cap loss ever for a US-listed stock (behind Nvidia, Jan 2025)" — only from T2 sources that state the ranking. If none, drop the ranking.
 - **Distance from highs**: ATH close $402.12 (May 13 2026) → −29.8% below; pre-print close was already −20% off the high. The pre-event drawdown context matters: it tells you how much hope was still priced in.
-- **Same-day cross-section**: S&P 500 and Nasdaq-100 moves, each peer's move with reason (e.g. "MSFT beat and spiked same evening — rotation within AI, not blanket risk-off", "AMZN −4.3% next day after its own miss"). This cross-section is the single best discriminator between narrative repricing and market-wide de-risking: **target down + peers up = idiosyncratic verdict against the name.**
+- **Same-day cross-section**: S&P 500 and Nasdaq-100 moves, each peer's move with reason (e.g. "MSFT beat and spiked same evening — rotation within AI, not blanket risk-off", "AMZN −4.3% next day after its own miss"). This cross-section is the single best discriminator between narrative repricing and market-wide de-risking: **target down + peers up = idiosyncratic verdict against the name.** **Peer-basket hygiene (round 4, reports 8/9 M-8)**: run a corporate-action check on each named constituent (M&A, spin-off, delisting, bankruptcy — a T2 news check per name; these are bespoke analyst baskets, not index constituents, so an index-membership API is the wrong control) plus a cache-age gate — re-verify when the basket's facts are >90 days old or undated; a basket that silently lost a distressed constituent flatters the average and misprices the target's relative position.
 - **Volume/IV/flows**: include only with a source; otherwise omit entirely. When the
   options-implied move is used, compute it from the T-1 closing chain (ATM call + ATM
   put closes for the nearest post-event expiry, over the T-1 close) — a news article's
   quoted percentage may only cross-check, tagged `Assumed` — and carry the
   volatility-risk-premium caveat (implied exceeds realized on average; state the name's
   historical realized/implied ratio over a disclosed window or tag the read
-  `Assumed`).
+  `Assumed`). **Options open-interest skew (round 4, reports 8/9 L-4)**: when a
+  source for pre-event OI/put-call skew is available (vendor-grade, often T3), record
+  it as an amplifier input for the microstructure lens; if unavailable, log the exact
+  pull in the Data-Gap ledger instead of guessing.
+- **Beta regime diagnostics when beta-adjusting (round 4, reports 8/9 M-7)**: run
+  `quant_helpers.beta_diagnostics` (OLS beta, R², correlation-breakdown flag) and
+  `volatility_regime_flag` (trailing 3-month realized vol vs its 2-year mean, z-score)
+  on the estimation window. If R² < 0.30 or |z| > 2, the canonical 2-year monthly beta
+  is fitting a broken regime (2022 rate shock, 2023 AI re-rating): either explicitly
+  justify the window or re-estimate over a shorter (e.g. 6-month daily) window and
+  disclose it. "Structurally changed" is a quantitative trigger now, not a vibe.
 
 **Presentation artifact:** a price-ladder or drawdown chart (ATH → pre-print close → post-print close → after-hours), pure CSS where possible (§10).
 
@@ -131,7 +164,7 @@ Compute (in code, not by hand) and record as facts:
 
 ## 4. Phase 3 — Construct the hypothesis tree
 
-Enumerate 5–8 competing hypotheses **before** writing any narrative. Use the eight lenses:
+Enumerate 5–8 competing hypotheses **before** writing any narrative. Use the nine lenses:
 
 | Lens | Question | Alphabet worked example |
 |---|---|---|
@@ -143,6 +176,7 @@ Enumerate 5–8 competing hypotheses **before** writing any narrative. Use the e
 | (f) Structural narrative | Is a secular threat now evidenced? | AI (Claude/ChatGPT) visibly denting Search monetization |
 | (g) Positioning + macro | Was the entry too crowded for any miss? | +46% y/y into print, ATH in May, 10Y ~4.99%, PCE 3.6%, Meta capex scare 7 days prior |
 | (h) One-off noise | Is the headline miss mostly non-operating? | −$8.2B unrealized SpaceX markdown inside OI&E; $5.2B EU fine inside FCF |
+| (i) Market microstructure & flow (round 4, reports 8/9 L-4) | Did dealer gamma, CTA unwinds, or index rebalancing amplify the move? | Massive put open interest → forced dealer delta-hedging deepening the drop; check pre-event OI/skew when sourced |
 
 For each hypothesis write a **card**:
 
@@ -234,14 +268,25 @@ The most common RCA failure is explaining the wrong miss. Procedure:
 
 1. Build the GAAP↔adjusted bridge for every headline line. Inventory one-offs:
    unrealized gains/losses on equity stakes (mark-to-market of holdings like SpaceX), regulatory fines (accrued **and** cash-paid), restructuring charges, legal reserves, discrete tax items, FX.
-2. Recompute organic figures, arithmetic on the slide:
+2. **Reg G / Item 10(e) discipline (round 4, reports 8/9 M-2)** — the non-GAAP
+   checklist:
+   - Every non-GAAP metric presented (Adj. EPS, FCF, FCF ex-SBC, ex-item figures) is
+     **reconciled to the most directly comparable GAAP measure** — either show the
+     bridge on the slide or cite the issuer's own Reg G reconciliation table from the
+     press release / 10-Q.
+   - State which basis (GAAP vs non-GAAP, and *which* non-GAAP convention) each
+     beat/miss is computed on — the Street usually trades one specific basis.
+   - Label recomputed ex-item figures `Reasoned (derived)` with the formula; never let
+     an ex-item figure masquerade as a reported one.
+   - Non-GAAP commentary without a reconciliation trail does not meet institutional
+     disclosure standards (SEC Reg G / Reg S-K Item 10(e)).
+3. Recompute organic figures, arithmetic on the slide:
    - Example A (EPS): GAAP EPS $2.12 vs $3.02 consensus — but OI&E was −$8.2B, primarily an **unrealized, non-cash** SpaceX markdown; operating income actually rose +30% y/y to $40.6B (31.8% margin). Adjusted EPS $2.67 — still short, so the miss is real but far smaller than −30%.
    - Example B (FCF): headline FCF −$9.1B vs −$3.5B expected; per the CFO on the call it included the **$5.2B EU fine payment** → ex-fine ≈ −$3.9B, roughly in line with the Street. The "clean" miss is narrower than the headline.
-3. Determine the **consensus basis**: state which number the market actually trades on (usually the adjusted/consensus basis) and re-express the miss on that basis. "−12% on a −0.5% revenue miss" is the sentence that launches the whole RCA.
-4. Label recomputed figures `Reasoned (derived)` with the formula. Never let an ex-item figure masquerade as a reported one.
+4. Determine the **consensus basis**: state which number the market actually trades on (usually the adjusted/consensus basis) and re-express the miss on that basis. "−12% on a −0.5% revenue miss" is the sentence that launches the whole RCA.
 5. Keep the noise verdict honest in both directions: one-offs explain the *headline gap*, but if the adjusted number still missed, say so — noise-stripping must not become spin.
 
-**Gate:** bridge table shown on a slide; headline miss restated on comparable basis; ex-item arithmetic visible.
+**Gate:** bridge table shown on a slide; headline miss restated on comparable basis; ex-item arithmetic visible; every non-GAAP figure carries its GAAP reconciliation.
 
 ---
 
@@ -274,6 +319,22 @@ an IC trust the rest of the analysis.
 - **Valuation boundary** (mandatory): the deck is a causal-attribution product — it explains why the price moved and does **not** opine on mispricing. State this in one line on the synthesis page and name the model gap as an open item: "no DCF / SOTP / scenario-weighted fair value is produced; a valuation pass would require forward estimates, a discount-rate framework, and scenario weights — logged as the open valuation item." An IC reader must never mistake an excellent post-mortem for a complete investment memo.
 - **Ranked driver table**: ordinal ranks only. Publish a percentage attribution **only if** it is computable from sourced data; otherwise write "attribution is qualitative". Fake precision is worse than admitted ambiguity.
 - **Scenario table** (bull/base/bear): each scenario = narrative + 2–3 quantifiable conditions + the signposts that would confirm/refute it. Explicitly label scenarios as analytic frames, **not price targets**. Example watch conditions: "Q4 Search growth ≥ +12% y/y", "2027 capex guided ≥$230B", "sequential Search deceleration below +8%".
+- **Expected Fundamental Value matrix (round 4, reports 8/9 H-6 — optional, recommended
+  for IC-facing builds)**: assign subjective probabilities to the scenarios'
+  *fundamental* outcomes (e.g. FY+1 FCF path bull/base/bear at 25/50/25) and compute
+  the EV-adjusted fundamental range **in code** — probabilities are `Reasoned
+  (judged)`, method disclosed, and the construct is strictly a fundamental-expectation
+  range, **never a price target or a fair-value claim** (say so on the slide, next to
+  the matrix). An unweighted scenario triptych cannot feed position sizing; the EV
+  matrix is the minimum quantitative asymmetry profile the family ships while the
+  valuation module stays out of scope.
+- **Variant-view annex (round 4, reports 8/9 H-1 — optional)**: when the engagement
+  asks for a forward view, build the analyst's own estimates (revenue / EPS / capex /
+  FCF) with an explicit assumption table and a **consensus bridge** (own − consensus
+  per line — where and why you differ from the Street); every input is
+  `Assumed`/`Reasoned (judged)` and labeled, never presented as verified. When not
+  commissioned, name the forecast gap in the open-items list alongside the valuation
+  boundary.
 - **Falsifiers for your own RCA**: state what evidence would flip each verdict — an RCA without falsifiers is an opinion.
 - **Dated watchlist**: 5–8 items with dates/quarters, each mapped to the hypothesis it tests (next print, capex guide, monetization disclosures, regulatory calendar, FCF path ex-one-offs).
 
@@ -314,9 +375,12 @@ python3 scripts/fact_base_audit.py --selftest
 - The fact-base mode verifies every fact's numeric tokens appear in the assigned pages (anchored, sign/symbol-tolerant matching — a digit substring of a longer slide number never satisfies a fact), arithmetically checks derived-fact formulas, enforces the Assumed-on-method-page rule (`meta.method_page` or `--method-page`), and reverse-checks numbers found in slides against the fact base to surface **unverified candidates**.
 - **Round-3 schema gates (always on, reports 6/7):** CONSENSUS — consensus-side facts
   (an `is_consensus` flag or a metric naming consensus/estimates) must carry
-  `consensus_provider`, `consensus_vintage` (YYYY-MM-DD) and a T1/T2 `source_tier`,
-  with the vintage inside `--consensus-max-age-days` (default 10, 0 disables) of
-  `meta.event_timestamp`. EPISTEMIC — every `Reasoned` fact declares
+  `consensus_provider`, `consensus_vintage` (YYYY-MM-DD), `consensus_statistic` in
+  mean/median/undisclosed (round 4, reports 8/9 M-1 — the recorded mean-vs-median
+  disclosure) and a T1/T2 `source_tier`, with the vintage inside
+  `--consensus-max-age-days` (default 5 calendar days ≈ 3 trading days — round 4,
+  reports 8/9 M-1, tightened from 10; 0 disables) of `meta.event_timestamp`.
+  EPISTEMIC — every `Reasoned` fact declares
   `epistemic_kind: derived` (formula required, reproducible) or `judged` (analytical
   allocation, explicitly non-causal). WATERFALL — a fact carrying a signed `weights`
   dict must sum to its `realized_move` within tolerance: the sum-to-move identity is
@@ -324,6 +388,16 @@ python3 scripts/fact_base_audit.py --selftest
   an IC / investment committee, `meta.mandate_context` (`fund_position` +
   `position_as_of`) must be present: buy-side conflict-of-interest disclosure
   (CFA Institute Standard I(B)); the sell-side Reg AC package stays inapplicable.
+  TEMPORAL (round 4, reports 8/9 M-6, report-9-corrected design) — when
+  `meta.t1_filing_timestamp` is set (the verified T1 filing/publication time), every
+  fact must declare `data_type` in {`pre_event_input`, `post_event_fact`} and every
+  `post_event_fact` must carry `retrieved_at` ≥ the T1 timestamp: a post-event claim
+  retrieved pre-filing is contamination — flag it `Unverifiable` and strip it from
+  the fact base. Pre-event inputs (consensus, positioning, prior guidance, options
+  OI) legitimately predate the event and are exempt by design; date-only
+  `retrieved_at` on the filing date itself is a precision NOTE, not a failure. A
+  data-integrity control, not a Reg FD control. Silent when
+  `meta.t1_filing_timestamp` is absent.
 - **`--strict-pages slide_02.html,slide_07.html`** (round 3, report-7 M-1): unverified
   candidates on the named decision-critical pages (executive summary, root-cause
   decomposition) become failures while page furniture elsewhere stays advisory —
@@ -371,8 +445,8 @@ Working rules that experience says matter most:
 | 1 | Explaining the wrong miss (GAAP vs adjusted basis confusion) | §7 bridge before any causal claim; state the consensus basis |
 | 2 | Attributing one-off noise (impairments, fines) to narrative | §7 one-off inventory; ex-item arithmetic on the slide |
 | 3 | Consensus numbers from memory | §2.3 every estimate carries outlet + date |
-| 4 | Treating the after-hours print as the reaction | §1 reaction = T+1 close; AH labeled secondary |
-| 5 | Share-class / split-basis errors | §2.2 ticker-class check at Phase 0 |
+| 4 | Treating the after-hours print as the reaction | §1 event-window rule: after-close → T+1 close; pre-market/intraday → T+0 close; AH labeled secondary |
+| 5 | Share-class / split-basis errors | §2.2 ticker-class check at Phase 0; per-class market-cap delta (never one class's shares × another's price) |
 | 6 | Macro attribution while peers moved idiosyncratically | §3 same-day peer cross-section before any macro claim |
 | 7 | Fake-precision attribution percentages | §9 ordinal ranks unless computable |
 | 8 | Skipping call Q&A | §2.4 transcript protocol is mandatory, not optional |
@@ -384,14 +458,32 @@ Working rules that experience says matter most:
 | 14 | Publishing scenarios that read as price targets | §9 explicit "analytic frames, not price targets" |
 | 15 | Stale data shipped after market moved | §11.3 cutoff stamp + refresh duty |
 | 16 | In-context arithmetic (mental deltas/ratios in the running text) | golden rule 6 — compute in code, transcribe the output |
+| 17 | Stale beta across a regime break (round 4, reports 8/9 M-7) | §3 `beta_diagnostics` R² + `volatility_regime_flag` z-score before trusting the canonical window |
+| 18 | Pre-filing chatter laundered into confirmed facts (round 4, reports 8/9 M-6) | §2 temporal embargo: `t1_filing_timestamp` + `data_type` classification; TEMPORAL gate |
+| 19 | Non-GAAP figures without a reconciliation trail (round 4, reports 8/9 M-2) | §7 Reg G / Item 10(e) checklist — bridge shown or cited |
+| 20 | Silent survivorship in a peer basket (round 4, reports 8/9 M-8) | §3 corporate-action check per named constituent + cache-age gate |
 
 ---
 
 ## 14. Compliance, tone & two-sidedness
 
 - Every report carries: "Informational only — not investment advice, not a solicitation. No price targets published." (If the user insists on targets, they become `Assumed` scenario inputs, clearly labeled, never recommendations.)
-- **MNPI / Regulation FD**: build only from public sources (filings, IR materials, press). If an input is suspected to be material non-public information, stop and escalate. Never incorporate it into a fact base.
-- **Internal-use framing**: the deliverable is an internal analytical pre-read, not sell-side research — no rating, no price target, no Reg AC analyst certification, no FINRA 2241 disclosure package. Do not distribute it as if it carried those.
+- **MNPI / Regulation FD**: build only from public sources (filings, IR materials, press). If an input is suspected to be material non-public information, stop and escalate. Never incorporate it into a fact base. The temporal embargo (§2, TEMPORAL gate) is the data-integrity control that keeps pre-filing chatter out of the fact base.
+- **Internal-use framing — operational scope control (round 4, reports 8/9 C-1)**: the
+  deliverable is an internal analytical pre-read, **not a research report** (the cover
+  carries that legend), and it is for internal use only — no client or external
+  distribution; any wider distribution requires compliance sign-off first. No rating,
+  no price target, no Reg AC analyst certification, no FINRA 2241 disclosure package. Do
+  not distribute it as if it carried those. Until a valuation module exists, firewalled
+  as an IC pre-read attribution note — an input to the IC memo, not the memo.
+- **Public-source-only limitation (round 4, reports 8/9 M-3)**: every deliverable states
+  "Public-source-only" — no channel checks, expert calls, surveys, or management access
+  inform the analysis. A stated limitation, not an aspiration.
+- **Data licensing & redistribution (round 4, reports 8/9 M-4)**: vendor figures (Yahoo
+  Finance, Stooq, Macrotrends, TIKR, consensus providers) are cited with attribution
+  for internal analytical use; do not reproduce vendor tables or charts at scale in the
+  deliverable and do not redistribute it externally — redistribution rights belong to
+  the licensed feeds. Prefer licensed API access when the engagement has it.
 - **Position & mandate disclosure (round 3, reports 6/7 C-1, buy-side regime)**: an
   IC-facing deliverable discloses the fund's existing position in the covered name
   ("Fund position: long / short / none / undetermined, as of <date>") plus mandate
@@ -403,3 +495,31 @@ Working rules that experience says matter most:
 - Tone: institutional, concrete, zero hyperbole. Let magnitudes carry the drama ("−12.29% to $282.32" beats "sky fell").
 - Name humans with roles and shops ("Pivotal Research CEO Jeffrey Wlodarczak"), quote exactly, attribute always.
 - Never invent, round toward the thesis, or drop a conflicting source. If the evidence is genuinely ambiguous, the report says so — ambiguity stated is credibility earned.
+
+---
+
+## 15. Methodology validation protocol (round 4, reports 8/9 H-5 — documented, harness pending)
+
+The attribution methodology (hypothesis tree, two-axis classification, ranking
+heuristic) is a model, and until it is validated its correctness rests on face
+validity. The full harness (a retrospective validation set plus an accuracy ledger)
+is a standing open item; the protocol it must follow:
+
+1. **Validation set**: select 20–30 historical big-tech earnings events with known
+   post-hoc consensus on the dominant driver (from sell-side retrospectives and
+   subsequent-quarter confirmations across ≥2 independent outlets each).
+2. **Blind re-run**: run the full pipeline on each event's as-of-then public data
+   (cutoff discipline enforced via `meta.t1_filing_timestamp` + `data_cutoff`) — no
+   hindsight inputs, no post-event sources on pre-event claims.
+3. **Score**: top-ranked driver hit rate (does the pipeline's #1 match the recorded
+   consensus driver), sign accuracy, and the exclusion precision (how often the
+   explicitly-excluded hypothesis stays excluded).
+4. **Report**: publish a methodology validation note with per-event results, aggregate
+   accuracy, known failure clusters, and what would change the ranking heuristic —
+   the accuracy track record a PM needs before trusting the RCA's ranking.
+5. **Re-run cadence**: after any material methodology change (new lens, new gate),
+   re-validate on the frozen set before the change ships as doctrine.
+
+Until the harness exists, state "methodology validation: not yet performed — face
+validity only" in the deliverable's method note when an IC reader would otherwise
+assume a track record.

@@ -60,3 +60,23 @@ be in the cross-section without being in the metric basket and vice versa.
 - Baskets are reference doctrine, not analysis: they change here first and mirror into
   the family skills in the same commit, per the canonical-copy discipline
   (`tests/test_repo_consistency.py` guards the wiring).
+
+## Constituent hygiene (round 4, reports 8/9 M-8)
+
+A static basket cached in this file is a survivorship-bias vector: M&A, spin-offs,
+delistings, and bankruptcies silently remove or transform constituents, and a basket
+that lost its distressed member flatters the peer average — making the covered name
+look worse than it is. Before computing any peer cross-section or metric comparison:
+
+1. **Corporate-action check per named constituent**: a T2 news check on each basket
+   member (M&A, spin-off, delisting, bankruptcy, material restructuring) dated within
+   the comparison window. These are **bespoke analyst baskets, not index
+   constituents** — an index-membership API is the wrong control; the named-member
+   news check is the right one.
+2. **Cache-age gate**: if the basket's underlying facts (the quarter's metrics, the
+   constituent list as verified) are >90 days old or undated, re-verify before use.
+3. **Record the check**: state "Basket verified against corporate actions as of
+   <date>" in the deliverable, and log any substitution the check forced.
+
+The hygiene check is procedural (an agent-run news sweep), not a machine gate — the
+Definition-of-Done checklists in the family skills pin it per engagement.

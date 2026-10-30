@@ -116,7 +116,7 @@ Compress or extend to 12–16 pages; keep the order — it is the argument itsel
 
 | # | Page | Archetype | Must contain |
 |---|---|---|---|
-| 01 | Cover | `cover` | Kicker, display title, serif-italic subtitle, 4-card stat strip (move / mkt-cap delta / headline miss / ignored beat), verification-status line ("Verification status: full fact-base + render audits passed", or "Draft — human verification required" + reason), fund-position disclosure + provenance seal line when sealed (round 3), data-cutoff + disclaimer footer |
+| 01 | Cover | `cover` | Kicker, display title, serif-italic subtitle, 4-card stat strip (move / mkt-cap delta / headline miss / ignored beat), verification-status line ("Verification status: full fact-base + render audits passed", or "Draft — human verification required" + reason), fund-position disclosure + provenance seal line when sealed (round 3), scope legends "Internal analytical pre-read — not a research report" + "Public-source-only" (round 4, reports 8/9 C-1/M-3), data-cutoff + disclaimer footer |
 | 02 | The Verdict | `three verdict cards` | PRIMARY-structural, PRIMARY-mechanical, AMPLIFIER cards + gold "what the panic missed" band |
 | 03 | Event Timeline | `vertical event rows` | Date-chip rows: priming events → print → AH → T+1 close → peer prints → follow-through; source chip per row |
 | 04 | The Scorecard | `data table` | METRIC / ACTUAL / CONSENSUS / VS EST / Y/Y with red-green cells; optical-miss + real-damage footnote cards |

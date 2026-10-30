@@ -23,6 +23,24 @@ What it enforces on the delivered note + its registry (fact_base_lite.json):
      number-registry gate; it fails closed by design). Benign repeated tokens
      (years, section numbers) can be whitelisted via meta.furniture in the registry or
      --furniture "2026,Q3" on the command line; keep the whitelist short and justified.
+  5. CONSENSUS check (round 4, reports 8/9 M-1): consensus-side registry facts
+     (is_consensus flag, or a metric naming consensus/estimate/whisper) must carry
+     consensus_provider, consensus_vintage, and consensus_statistic in
+     {mean, median, undisclosed} — mean-vs-median is now a recorded disclosure,
+     not a courtesy. "undisclosed" is a valid entry for outlets that do not say
+     which statistic they print; the point is that the recorder had to look.
+  6. TEMPORAL check (round 4, reports 8/9 M-6, report-9-corrected design): when
+     meta.t1_filing_timestamp is set (the verified T1 filing/publication time),
+     every registry fact must declare data_type in {pre_event_input,
+     post_event_fact}, and every post_event_fact must carry retrieved_at >= the
+     T1 timestamp. A post-event claim retrieved before the filing is pre-filing
+     contamination — flag it Unverifiable and strip it from the registry. This is
+     a DATA-INTEGRITY control (never launder unconfirmed pre-filing chatter into
+     a confirmed fact), not a Reg FD control: pre_event_input entries (consensus,
+     positioning, prior guidance, options OI) legitimately predate the event and
+     are exempt. Date-only retrieved_at on the filing date itself is a NOTE
+     (timestamp precision insufficient), not a failure. The gate is silent when
+     meta.t1_filing_timestamp is absent.
 
 Usage:
   python3 fact_base_lite_audit.py --note <note.html> --fact-base <fact_base_lite.json>
@@ -38,6 +56,7 @@ import re
 import sys
 import tempfile
 import pathlib
+from datetime import date, datetime
 
 PLACEHOLDER_PATTERNS = [
     r"lorem", r"\btodo\b", r"placeholder", r"\btbd\b", r"\bxxx\b", r"\bnan\b",
@@ -47,6 +66,8 @@ NUM_RE = re.compile(r"-?\d[\d,]*(?:\.\d+)?")
 EXTRACT_RE = re.compile(r"\$\d[\d,\.]*\s?[BM]?|\d+\.\d+%?|\d{2,}%")
 CONFIDENCE_LABELS = {"Verified", "Reasoned", "Assumed", "Unverifiable",
                      "Reasoned (derived)", "Reasoned (judged)"}
+DATA_TYPES = {"pre_event_input", "post_event_fact"}
+CONSENSUS_STATISTICS = {"mean", "median", "undisclosed"}
 
 
 def norm(s: str) -> str:
@@ -125,6 +146,129 @@ def check_registry_schema(fb: dict) -> list:
     return fails
 
 
+def _is_consensus_fact(fact: dict) -> bool:
+    """Same routing rule as the flagship's CONSENSUS gate."""
+    if fact.get("is_consensus") is True:
+        return True
+    metric = str(fact.get("metric", "")).lower()
+    return any(k in metric for k in ("consensus", "estimate", "whisper"))
+
+
+def check_consensus_facts(fb: dict) -> list:
+    """Lite CONSENSUS gate (round 4, reports 8/9 M-1): provider + vintage +
+    recorded mean-vs-median statistic on every consensus-side registry fact."""
+    fails = []
+    for fact in fb.get("facts", []):
+        if not _is_consensus_fact(fact):
+            continue
+        fid = str(fact.get("id", "?"))
+        missing = [f for f in ("consensus_provider", "consensus_vintage",
+                               "consensus_statistic")
+                   if not str(fact.get(f, "")).strip()]
+        if missing:
+            fails.append(f"CONSENSUS    {fid}  consensus-side fact missing: "
+                         + ", ".join(missing)
+                         + " (mean vs median is a recorded disclosure, not a "
+                           "courtesy — use 'undisclosed' only when the outlet "
+                           "genuinely does not say)")
+            continue
+        stat = str(fact.get("consensus_statistic", "")).strip().lower()
+        if stat not in CONSENSUS_STATISTICS:
+            fails.append(f"CONSENSUS    {fid}  consensus_statistic {stat!r} is not "
+                         f"one of {sorted(CONSENSUS_STATISTICS)}")
+        else:
+            print(f"PASS   {fid}  consensus carries provider + vintage "
+                  f"({fact.get('consensus_provider')}, "
+                  f"{fact.get('consensus_statistic')})")
+    return fails
+
+
+def _parse_moment(raw):
+    """Best-effort ISO parse -> (value, has_time). value is an aware/naive
+    datetime or a date; None when unparseable. Timezone offsets are kept
+    (aware-vs-aware comparison is exact across offsets); date-only strings
+    parse to a date and compare at date granularity."""
+    s = str(raw or "").strip()
+    if not s:
+        return None, False
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        v = datetime.fromisoformat(s)      # date-only -> midnight datetime
+        return v, len(s) > 10
+    except ValueError:
+        pass
+    try:
+        return date.fromisoformat(s[:10]), False
+    except ValueError:
+        return None, False
+
+
+def check_temporal_order(fb: dict) -> list:
+    """TEMPORAL gate (round 4, reports 8/9 M-6, report-9-corrected design).
+
+    Active only when meta.t1_filing_timestamp is set (the verified T1
+    filing/publication time). Enforces, per fact: a data_type classification
+    in {pre_event_input, post_event_fact}; and for post_event_fact entries,
+    retrieved_at >= the T1 timestamp. Pre-filing retrieval of a post-event
+    claim is contamination: flag it Unverifiable and strip it from the
+    registry. Pre-event inputs (consensus, positioning, prior guidance,
+    options OI) legitimately predate the event and are exempt by design.
+    Date-only retrieved_at landing on the filing date is a precision NOTE,
+    not a failure. A data-integrity control, not a Reg FD control."""
+    meta = fb.get("meta", {}) or {}
+    t1_raw = str(meta.get("t1_filing_timestamp", "")).strip()
+    if not t1_raw:
+        return []          # gate opted out: no verified T1 timestamp on record
+    t1, t1_has_time = _parse_moment(t1_raw)
+    if t1 is None:
+        return ["TEMPORAL    meta.t1_filing_timestamp is not ISO-parseable — "
+                "pin the verified T1 filing time as YYYY-MM-DD[THH:MM:SS] or "
+                "remove it to disable the gate"]
+    fails = []
+    for fact in fb.get("facts", []):
+        fid = str(fact.get("id", "?"))
+        dtype = str(fact.get("data_type", "")).strip().lower()
+        if dtype not in DATA_TYPES:
+            fails.append(f"TEMPORAL    {fid}  missing/invalid data_type "
+                         f"{dtype or '(absent)'} — classify every registry fact "
+                         "pre_event_input or post_event_fact when the T1 filing "
+                         "time is on record")
+            continue
+        if dtype != "post_event_fact":
+            continue       # pre-event inputs legitimately predate the event
+        ret, ret_has_time = _parse_moment(fact.get("retrieved_at", ""))
+        if ret is None:
+            fails.append(f"TEMPORAL    {fid}  retrieved_at is not ISO-parseable — "
+                         "a post_event_fact needs a usable retrieval timestamp")
+            continue
+        exact = t1_has_time and ret_has_time
+        try:
+            if exact:
+                ordered = ret >= t1
+            else:            # date-level comparison at best available precision
+                ordered = (ret.date() if hasattr(ret, "date") else ret) >= \
+                          (t1.date() if hasattr(t1, "date") else t1)
+        except TypeError:    # mixed aware/naive datetimes — fall back to dates
+            ordered = (ret.date() if hasattr(ret, "date") else ret) >= \
+                      (t1.date() if hasattr(t1, "date") else t1)
+        if ordered:
+            if not exact and (ret.date() if hasattr(ret, "date") else ret) == \
+                    (t1.date() if hasattr(t1, "date") else t1):
+                print(f"NOTE   {fid}  retrieved_at is date-only on the filing "
+                      "date — timestamp precision would make the temporal "
+                      "check exact")
+            else:
+                print(f"PASS   {fid}  post_event_fact retrieved at/after the T1 "
+                      "filing time")
+        else:
+            fails.append(f"TEMPORAL    {fid}  post_event_fact retrieved_at "
+                         f"{fact.get('retrieved_at')} precedes the verified T1 "
+                         f"filing time {t1_raw} — pre-filing contamination: tag "
+                         "the fact Unverifiable and strip it from the registry")
+    return fails
+
+
 def check_forward(fname: str, raw_html: str, fb: dict) -> list:
     """Every registry number must actually appear in the note."""
     fails = []
@@ -193,7 +337,9 @@ def selftest() -> int:
              "retrieved_at": "2026-10-30", "confidence": "Verified"},
             {"id": "L-4", "metric": "revenue consensus", "value": 128.22,
              "source_name": "LSEG via Reuters", "source_url": "https://x",
-             "retrieved_at": "2026-10-30", "confidence": "Verified"},
+             "retrieved_at": "2026-10-30", "confidence": "Verified",
+             "consensus_provider": "LSEG", "consensus_vintage": "2026-10-28",
+             "consensus_statistic": "mean"},
         ]}
         (d / "fb_ok.json").write_text(json.dumps(fb), encoding="utf-8")
         code_ok = main(["--note", str(d / "note_ok.html"),
@@ -221,11 +367,80 @@ def selftest() -> int:
         (d / "fb_bad.json").write_text(json.dumps(fb_bad), encoding="utf-8")
         code_bad = main(["--note", str(d / "note_ok.html"),
                          "--fact-base", str(d / "fb_bad.json")])
-        ok = (code_ok == 0 and code_extra == 1 and code_furn == 0 and code_bad == 1)
+        # Round 4 — CONSENSUS: a consensus-side fact without the recorded
+        # provider/vintage/statistic fails (mean vs median is a disclosure).
+        fb_cons = {"meta": {}, "facts": [
+            {"id": "L-10", "metric": "EPS consensus", "value": 3.02,
+             "source_name": "Reuters", "source_url": "https://x",
+             "retrieved_at": "2026-10-30", "confidence": "Verified"}]}
+        (d / "fb_cons.json").write_text(json.dumps(fb_cons), encoding="utf-8")
+        r_cons = d / "r_cons.json"
+        code_cons = main(["--note", str(d / "note_ok.html"),
+                          "--fact-base", str(d / "fb_cons.json"),
+                          "--report", str(r_cons)])
+        rep_cons = json.loads(r_cons.read_text()) if r_cons.exists() else {
+            "failures": []}
+        # Round 4 — TEMPORAL (clean): t1 filing time on record; every fact
+        # classified; the post-event fact retrieved after the filing; the
+        # pre-event consensus legitimately predates it.
+        fb_temp_ok = {"meta": {"t1_filing_timestamp": "2026-10-28T16:05:00-04:00"},
+                      "facts": [
+            {"id": "L-11", "metric": "close", "value": 282.32,
+             "source_name": "Yahoo", "source_url": "https://x",
+             "retrieved_at": "2026-10-29T20:00:00+08:00", "confidence": "Verified",
+             "data_type": "post_event_fact"},
+            {"id": "L-12", "metric": "revenue consensus", "value": 128.22,
+             "source_name": "LSEG via Reuters", "source_url": "https://x",
+             "retrieved_at": "2026-10-28T09:00:00+08:00", "confidence": "Verified",
+             "data_type": "pre_event_input",
+             "consensus_provider": "LSEG", "consensus_vintage": "2026-10-28",
+             "consensus_statistic": "mean"},
+            {"id": "L-15", "metric": "revenue actual", "value": 127.58,
+             "source_name": "press release", "source_url": "https://x",
+             "retrieved_at": "2026-10-29T20:00:00+08:00", "confidence": "Verified",
+             "data_type": "post_event_fact"},
+            {"id": "L-16", "metric": "move", "value": "-12.29%",
+             "source_name": "computed", "source_url": "n/a",
+             "retrieved_at": "2026-10-29T20:00:00+08:00",
+             "confidence": "Reasoned (derived)", "data_type": "post_event_fact"}]}
+        (d / "fb_temp_ok.json").write_text(json.dumps(fb_temp_ok),
+                                             encoding="utf-8")
+        code_temp_ok = main(["--note", str(d / "note_ok.html"),
+                             "--fact-base", str(d / "fb_temp_ok.json")])
+        # Round 4 — TEMPORAL (dirty): a post_event_fact retrieved before the
+        # verified filing time (pre-filing contamination), an unclassified
+        # fact, and a bad statistic — all must fail.
+        fb_temp_bad = {"meta": {"t1_filing_timestamp": "2026-10-28T16:05:00-04:00"},
+                       "facts": [
+            {"id": "L-13", "metric": "close", "value": 282.32,
+             "source_name": "Yahoo", "source_url": "https://x",
+             "retrieved_at": "2026-10-28T10:00:00-04:00", "confidence": "Verified",
+             "data_type": "post_event_fact"},
+            {"id": "L-14", "metric": "move", "value": "-12.29%",
+             "source_name": "computed", "source_url": "n/a",
+             "retrieved_at": "2026-10-29", "confidence": "Reasoned (derived)"}]}
+        (d / "fb_temp_bad.json").write_text(json.dumps(fb_temp_bad),
+                                              encoding="utf-8")
+        r_temp = d / "r_temp.json"
+        code_temp_bad = main(["--note", str(d / "note_ok.html"),
+                              "--fact-base", str(d / "fb_temp_bad.json"),
+                              "--report", str(r_temp)])
+        rep_temp = json.loads(r_temp.read_text()) if r_temp.exists() else {
+            "failures": []}
+        ok = (code_ok == 0 and code_extra == 1 and code_furn == 0
+              and code_bad == 1 and code_cons == 1
+              and any("L-10" in f and "CONSENSUS" in f
+                      for f in rep_cons["failures"])
+              and code_temp_ok == 0 and code_temp_bad == 1
+              and any("L-13" in f and "TEMPORAL" in f
+                      for f in rep_temp["failures"])
+              and any("L-14" in f and "data_type" in f
+                      for f in rep_temp["failures"]))
         print("=" * 60)
         print("SELFTEST:", "PASS" if ok else "FAIL",
               f"(clean {code_ok}, unregistered {code_extra}, "
-              f"furniture {code_furn}, schema {code_bad})")
+              f"furniture {code_furn}, schema {code_bad}, consensus {code_cons}, "
+              f"temporal-clean {code_temp_ok}, temporal-dirty {code_temp_bad})")
         return 0 if ok else 1
 
 
@@ -272,6 +487,8 @@ def main(argv=None) -> int:
     failures = []
     failures += scan_placeholders(note.name, raw)
     failures += check_registry_schema(fb)
+    failures += check_consensus_facts(fb)
+    failures += check_temporal_order(fb)
     failures += check_forward(note.name, raw, fb)
     failures += check_reverse(note.name, raw, fb, furniture)
 

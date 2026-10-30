@@ -30,6 +30,7 @@ other family skills in the same commit, then update the expectation here.
 Run from the repository root:  python3 -m pytest tests/ -v
 """
 import pathlib
+import json
 import re
 
 import pytest
@@ -567,7 +568,243 @@ class TestDoctrineGuardsRound3:
             "round 3 landed family-wide; the version must say so")
 
 
-class TestCatalogParity:
+# --------------------------------------------------------------------------
+# Round 4 — validated against comparative analysis reports 8/9:
+# number registry for skill 3, event-window rule, multi-class cap delta,
+# EV fundamental matrix, consensus statistic, Reg G, legends, temporal
+# embargo, beta regime diagnostics, peer hygiene, microstructure lens
+# --------------------------------------------------------------------------
+
+class TestDoctrineGuardsRound4:
+    """Cross-family doctrine added in round 4 (reports 8/9)."""
+
+    # --- H-2: skill 3 finally ships a machine-checked number registry --------
+
+    def test_skill3_bundles_lite_number_registry(self):
+        assert (SKILL3 / "scripts" / "fact_base_lite_audit.py").exists(), (
+            "skill 3: number-registry gate not vendored (reports 8/9 H-2 — the "
+            "most quantitative member shipped untraceable numbers)")
+        assert (SKILL3 / "assets" / "fact_base_lite.template.json").exists(), (
+            "skill 3: lite fact-base template not vendored (reports 8/9 H-2)")
+        t = read(SKILL3 / "SKILL.md")
+        assert "fact_base_lite_audit.py" in t and "fact_base_lite" in t, (
+            "skill 3: the number-registry gate is not wired into the workflow")
+
+    def test_skill3_gate_byte_identical_to_skill2(self):
+        s2 = (SKILL2 / "scripts" / "fact_base_lite_audit.py").read_bytes()
+        s3 = (SKILL3 / "scripts" / "fact_base_lite_audit.py").read_bytes()
+        assert s2 == s3, ("the two fact_base_lite_audit.py copies drifted — "
+                          "vendoring is byte-identical by design")
+
+    # --- H-3: event-window rule -----------------------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_event_window_rule_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"pre-market|intraday", t, re.I), (
+            f"{slug}: the event-window rule (intraday -> T+0 close, "
+            "reports 8/9 H-3) is not stated")
+        assert "T+0" in t and "T+1" in t
+
+    def test_event_window_rule_in_flagship_methodology(self):
+        t = read(SKILL1 / "references" / "methodology.md")
+        assert "event-window rule" in t.lower(), (
+            "methodology.md: the Phase 0 event-window rule is undocumented")
+
+    # --- H-4: multi-class market-cap delta --------------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_multiclass_cap_delta_doctrine_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"market[- ]cap delta", t, re.I), (
+            f"{slug}: the multi-class market-cap delta doctrine "
+            "(reports 8/9 H-4) is not stated")
+        assert "market_cap_delta" in t or "per class" in t.lower()
+
+    def test_multiclass_helper_and_formula_documented(self):
+        assert "market_cap_delta" in read(SKILL3 / "scripts" / "quant_helpers.py")
+        f = read(SKILL3 / "reference" / "formulas.md")
+        assert "per share class and sum" in f, (
+            "formulas.md: the per-class sum method is not stated")
+
+    # --- H-6: Expected Fundamental Value matrix ---------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_ev_fundamental_matrix_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "Expected Fundamental Value" in t, (
+            f"{slug}: the EV fundamental matrix option (reports 8/9 H-6) "
+            "is not stated")
+        assert "never a price target" in t.lower() or "not a price target" in t.lower()
+
+    # --- M-1: consensus statistic ----------------------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_consensus_statistic_family_wide(self, slug):
+        t = squash(read(REPO_ROOT / "skills" / slug / "SKILL.md"))
+        assert "consensus_statistic" in t, (
+            f"{slug}: the recorded mean/median statistic (reports 8/9 M-1) "
+            "is not stated")
+        assert "1–3 trading days" in t or "1-3 trading days" in t, (
+            f"{slug}: the tightened consensus vintage window is not stated")
+
+    def test_schema_documents_round4_fields(self):
+        t = read(SKILL1 / "references" / "fact-base-schema.md")
+        for needle in ("consensus_statistic", "data_type", "t1_filing_timestamp"):
+            assert needle in t, (
+                f"fact-base-schema.md: round-4 field {needle!r} undocumented")
+
+    def test_flagship_gate_default_window_tightened(self):
+        t = read(SKILL1 / "scripts" / "fact_base_audit.py")
+        assert 'default=5' in t, (
+            "fact_base_audit.py: --consensus-max-age-days default must be 5 "
+            "calendar days (≈ 3 trading days, reports 8/9 M-1)")
+        assert "consensus_statistic" in t
+
+    # --- M-2: Reg G / Item 10(e) ------------------------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_reg_g_doctrine_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"reg g / item 10\(e\)", t, re.I), (
+            f"{slug}: the non-GAAP reconciliation discipline (reports 8/9 M-2) "
+            "is not stated")
+
+    # --- M-3 / C-1: legends ------------------------------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_not_a_research_report_legend_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "not a research report" in t.lower(), (
+            f"{slug}: the internal-use legend (reports 8/9 C-1 scope hardening) "
+            "is not stated")
+        assert "internal use only" in t.lower()
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_public_source_only_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "Public-source-only" in t or "public-source-only" in t.lower(), (
+            f"{slug}: the public-source-only limitation (reports 8/9 M-3) "
+            "is not stated")
+
+    def test_lite_checks_json_carry_round4_legends(self):
+        for slug in ("big-tech-earnings-postmortem", "bigtech-equity-research"):
+            data = json.loads(read(REPO_ROOT / "skills" / slug / "assets" /
+                                   "checks.json"))
+            req = " ".join(str(x).lower() for x in data.get("required", []))
+            assert "not a research report" in req, (
+                f"{slug}: 'not a research report' legend is not an enforced needle")
+            assert "public-source-only" in req, (
+                f"{slug}: 'Public-source-only' limitation is not an enforced needle")
+
+    # --- M-4: data licensing -----------------------------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_data_licensing_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"data licensing", t, re.I), (
+            f"{slug}: the data-licensing/redistribution doctrine "
+            "(reports 8/9 M-4) is not stated")
+
+    # --- M-5: the postmortem bundles its own arithmetic helper -------------------
+
+    def test_quant_helpers_vendored_byte_identical_x3(self):
+        bodies = [(d / "scripts" / "quant_helpers.py").read_bytes()
+                  for d in (SKILL1, SKILL2, SKILL3)]
+        assert all(bodies), "a quant_helpers.py copy is missing"
+        assert len(set(bodies)) == 1, (
+            "quant_helpers.py drifted across the family (reports 8/9 M-5: the "
+            "postmortem must be standalone — byte-identical vendoring)")
+
+    def test_postmortem_no_longer_depends_on_sibling_helper(self):
+        t = read(SKILL2 / "SKILL.md")
+        assert "sibling skill's" not in t or "bundled" in t.lower(), (
+            "skill 2 still routes arithmetic to a sibling helper without "
+            "bundling its own (reports 8/9 M-5)")
+
+    # --- M-6: temporal embargo ----------------------------------------------------
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_temporal_embargo_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "t1_filing_timestamp" in t, (
+            f"{slug}: the temporal embargo pin (reports 8/9 M-6) is not stated")
+        assert "data_type" in t
+        assert "pre_event_input" in t and "post_event_fact" in t
+
+    def test_flagship_temporal_gate_implemented(self):
+        t = read(SKILL1 / "scripts" / "fact_base_audit.py")
+        assert "TEMPORAL" in t and "check_temporal_order" in t, (
+            "fact_base_audit.py: the TEMPORAL gate is not implemented")
+
+    def test_lite_temporal_gate_implemented(self):
+        t = read(SKILL2 / "scripts" / "fact_base_lite_audit.py")
+        assert "TEMPORAL" in t and "check_temporal_order" in t, (
+            "fact_base_lite_audit.py: the lite TEMPORAL check is not implemented")
+
+    # --- M-7: beta regime diagnostics ----------------------------------------------
+
+    def test_beta_regime_diagnostics_implemented_and_documented(self):
+        qh = read(SKILL3 / "scripts" / "quant_helpers.py")
+        assert "beta_diagnostics" in qh and "volatility_regime_flag" in qh, (
+            "quant_helpers.py: the beta regime diagnostics (reports 8/9 M-7) "
+            "are not implemented")
+        f = read(SKILL3 / "reference" / "formulas.md")
+        assert "beta_diagnostics" in f and "R_SQUARED_FLOOR" in f, (
+            "formulas.md: the regime diagnostics contract is undocumented")
+        m = read(SKILL3 / "reference" / "methodology.md")
+        assert "beta_diagnostics" in m, (
+            "methodology.md: the regime diagnostics are not wired into Phase 2")
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_beta_regime_doctrine_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "beta_diagnostics" in t or "R²" in t or "R2" in t, (
+            f"{slug}: the beta regime diagnostic doctrine (reports 8/9 M-7) "
+            "is not stated")
+
+    # --- M-8: peer-basket hygiene ---------------------------------------------------
+
+    def test_peer_hygiene_in_peers_reference(self):
+        t = read(SKILL3 / "reference" / "peers.md")
+        assert "Constituent hygiene" in t, (
+            "peers.md: the constituent-hygiene protocol (reports 8/9 M-8) "
+            "is missing")
+        assert "corporate-action" in t.lower() and "index-membership" in t.lower()
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_peer_hygiene_family_wide(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "corporate-action" in t.lower(), (
+            f"{slug}: the peer corporate-action check (reports 8/9 M-8) "
+            "is not stated")
+
+    # --- L-4: microstructure lens -----------------------------------------------------
+
+    def test_microstructure_lens_in_flagship(self):
+        t = read(SKILL1 / "SKILL.md")
+        assert re.search(r"\(i\) market microstructure", t, re.I) or \
+            "market microstructure" in t.lower(), (
+            "flagship: the microstructure lens (reports 8/9 L-4) is missing "
+            "from the hypothesis tree")
+        m = read(SKILL1 / "references" / "methodology.md")
+        assert "Market microstructure & flow" in m, (
+            "methodology.md: lens (i) is undocumented")
+
+    # --- H-5: validation protocol -------------------------------------------------------
+
+    def test_validation_protocol_documented(self):
+        t = read(SKILL1 / "references" / "methodology.md")
+        assert "Methodology validation protocol" in t, (
+            "methodology.md: the validation protocol (reports 8/9 H-5, "
+            "documented-pending) is missing")
+
+
+# --------------------------------------------------------------------------
+# Catalog parity (kept last: the inventory copies mirror live frontmatter)
+# --------------------------------------------------------------------------
+
+class TestCatalogInventoryParity:
     """The two inventory copies stay identical, and their three family entries
     mirror the live SKILL.md frontmatter (versions and descriptions drift
     otherwise — L-1 class hygiene)."""

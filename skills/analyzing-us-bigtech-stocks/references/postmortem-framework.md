@@ -122,7 +122,13 @@ sector-wide capex cycle it looks like a regime. Establish:
   outlier or in line? A peer is legitimate when it shares the primary revenue driver
   and sits within roughly an order of magnitude on market cap (the sibling skill's
   `reference/peers.md` canonical baskets); state the basket and criteria in the note —
-  cherry-picked peers are a construction artifact, not a finding.
+  cherry-picked peers are a construction artifact, not a finding. **Constituent
+  hygiene (round 4, reports 8/9 M-8)**: before reading the comparison, run a
+  corporate-action check on each named peer (M&A, spin-off, delisting, bankruptcy —
+  a T2 news check per name) and a cache-age gate (re-verify when basket facts are
+  >90 days old or undated); these are bespoke analyst baskets, not index
+  constituents, so an index-membership API is the wrong control. A basket that
+  silently lost a distressed constituent flatters the average.
 - **Industry-wide guidance trend** — are peers also guiding capex up? Cutting?
 - **Sector reaction** — did peers sell off the same day, and by how much? This
   is the Phase 2 same-day cross-section; it separates idiosyncratic repricing
@@ -156,6 +162,14 @@ guidance update, product milestone, regulatory docket — "sentiment improves" i
 not a trigger); weight by impact on the structural debate, not by novelty; and
 include at least one near-term (1–2 quarters) and one medium-term (4–8 quarters)
 catalyst.
+
+**Expected Fundamental Value matrix (round 4, reports 8/9 H-6 — optional annex to
+this matrix)**: assign subjective probabilities to the fundamental outcomes the
+rows resolve (e.g. FY+1 FCF path bull/base/bear at 25/50/25) and compute the
+EV-adjusted fundamental range in code — `Reasoned (judged)` probabilities, method
+disclosed, strictly a fundamental-expectation construct, never a price target or
+fair-value claim. Unweighted narratives cannot feed sizing; this is the minimum
+quantitative asymmetry profile the family ships.
 
 ## 8. Metric emphasis by company type
 

@@ -1,9 +1,9 @@
 ---
 name: analyzing-us-bigtech-stocks
-version: 1.4.0
-description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render + accessibility audits with consensus/epistemic/waterfall schema gates, opt-in strict modes, and SHA-256 provenance sealing. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery."
+version: 1.5.0
+description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck. This is the full-pipeline skill of the big-tech research family: nine-lens hypothesis tree (incl. market microstructure), GAAP bridge, machine-checked fact base, numeric + render + accessibility audits with consensus/epistemic/waterfall/mandate/temporal schema gates, and SHA-256 provenance sealing. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels, and audit gates before delivery."
 license: Apache-2.0
-compatibility: Requires web search and page-fetch tools for primary-source verification; render and accessibility audits need Node.js with Playwright.
+compatibility: Requires web search and page-fetch tools for primary-source verification; Python >= 3.9 for the audit/quant scripts; render and accessibility audits need Node.js >= 18 with Playwright >= 1.40.
 ---
 
 # Analyzing US Big-Tech Stocks — Event RCA & Trend Reports
@@ -34,7 +34,7 @@ Golden rules, in priority order (they override speed and word-count pressure):
 3. **Never fabricate.** If a number cannot be sourced, it is either found, computed (with formula shown), or marked `Assumed` — never invented, never recalled from memory.
 4. **Competing hypotheses.** A single explanatory story is a red flag. Enumerate, test, and explicitly exclude at least one.
 5. **Audit before delivery.** A report that has not passed the numeric and render audits is not finished.
-6. **Compute, don't recall.** Never do arithmetic in-context (mentally, in the running text). Every delta, percentage, ratio, and multiple is executed in code — the fact base's formula fields, a scratch script, or the sibling skill's `quant_helpers.py` — and the code's output is what goes on the slide. In-context arithmetic is where transcription and magnitude errors enter.
+6. **Compute, don't recall.** Never do arithmetic in-context (mentally, in the running text). Every delta, percentage, ratio, and multiple is executed in code — the fact base's formula fields, the bundled `scripts/quant_helpers.py` (byte-identical family copy), or a scratch script — and the code's output is what goes on the slide. In-context arithmetic is where transcription and magnitude errors enter.
 
 ## When to use / not use
 
@@ -92,7 +92,7 @@ Phase 9 until every hypothesis has a verdict.
 
 1. Pin the trigger event and its exact timestamp (e.g. "Q3 FY26 earnings + call, Oct 28 16:30 ET").
 2. Pin the ticker **and share class** (GOOG vs GOOGL; pre/post-split basis) and the comparison indexes.
-3. Define the reaction window: primary reaction = **first full-session close after the event (T+1 close)**; after-hours and T+0 intraday are secondary color.
+3. Define the reaction window by the **event-window rule (round 4, reports 8/9 H-3)**: an event after the close → primary reaction = **T+1 full-session close**; an event pre-market or intraday (guidance shock, regulatory ruling, product launch) → primary reaction = **T+0 close** — using T+1 for an intraday event contaminates the event return, the benchmark excess return, and the attribution with an extra session. State the rule and the chosen window in the event charter (`meta.reaction_definition`). After-hours and intraday prints are secondary color, always labeled as such.
 4. Stamp the data cutoff ("prices as of close YYYY-MM-DD; analysis reflects information through YYYY-MM-DD HH:MM TZ") — it goes on the cover.
 5. Agree the deliverable spec with the user (default: 12–16 page HTML deck, Midnight IC, no speaker notes, inline citations) and the audience (default: institutional PM/IC).
 6. Write the one-page event charter before collecting data.
@@ -103,25 +103,27 @@ Phase 9 until every hypothesis has a verdict.
 
 1. Collect from **Tier 1** sources first: SEC filings (10-Q/10-K/8-K), company IR press release / shareholder letter, the earnings-call transcript, official company blogs. Tier 2 (Reuters, CNBC, Bloomberg, FT, WSJ, AP) supports consensus figures and market color. Tier 3 (Yahoo Finance, Macrotrends, TIKR, Stooq) supports price/market data only — never fundamental claims.
 2. Log every fact as a structured record (metric, value, period, source, URL, retrieval time, confidence, cross-checks) in `fact_base.json` — schema in `assets/fact_base.template.json`, rules in `references/fact-base-schema.md`.
-3. Cross-check every decision-critical number across ≥2 independent sources; if sources conflict, record both and flag the conflict — never silently pick one.
-4. Derived numbers (percent moves, ex-item figures, market-cap deltas) are computed in code with the formula shown; they are labeled `Reasoned (derived)`; judgment allocations are `Reasoned (judged)` — the audit enforces the split (`epistemic_kind`).
-5. Consensus figures carry a named provider, a vintage, and a T1/T2 source: record `consensus_provider`, `consensus_vintage` (as-of date of the estimate set, within ~10 days of the event) and `contributor_count` when disclosed; cross-verify a single T2 chain against a second distinct origination chain. The audit's CONSENSUS gate fails a consensus fact without them — the consensus is the denominator of every beat/miss delta (see `references/methodology.md` §2.3).
-5. Quote the exact source sentence for any judgment you plan to paraphrase (analyst quotes, guidance language) — paraphrase must not strengthen the claim.
+3. **Temporal embargo discipline (round 4, reports 8/9 M-6)**: pin the verified T1 filing/publication time as `meta.t1_filing_timestamp`, and classify every fact `data_type: pre_event_input` (consensus, positioning, prior guidance, options OI — legitimately pre-event) or `post_event_fact` (anything the event itself made knowable). A post-event fact retrieved before the filing time is pre-filing contamination — never launder unconfirmed pre-filing chatter into a confirmed fact: flag it `Unverifiable` and strip it. The audit's TEMPORAL gate enforces this mechanically. This is a data-integrity control, not a Reg FD control.
+4. Cross-check every decision-critical number across ≥2 independent sources; if sources conflict, record both and flag the conflict — never silently pick one.
+5. Derived numbers (percent moves, ex-item figures, market-cap deltas) are computed in code with the formula shown; they are labeled `Reasoned (derived)`; judgment allocations are `Reasoned (judged)` — the audit enforces the split (`epistemic_kind`).
+6. Consensus figures carry a named provider, a fresh vintage, a recorded statistic, and a T1/T2 source: record `consensus_provider`, `consensus_vintage` (as-of date of the estimate set, within **1–3 trading days** of the event — the CONSENSUS gate's default is 5 calendar days ≈ 3 trading days, tightened from 10 in round 4, reports 8/9 M-1), `consensus_statistic` (`mean` / `median` / `undisclosed` — mean-vs-median is a recorded disclosure, not a courtesy), and `contributor_count` when disclosed; cross-verify a single T2 chain against a second distinct origination chain. The audit's CONSENSUS gate fails a consensus fact without them — the consensus is the denominator of every beat/miss delta (see `references/methodology.md` §2.3).
+7. Quote the exact source sentence for any judgment you plan to paraphrase (analyst quotes, guidance language) — paraphrase must not strengthen the claim.
 
 *Source-tier table, price-data hygiene (share class, splits, adjusted closes), transcript protocol: `references/methodology.md` §2; schema: `references/fact-base-schema.md`.*
 
 ### Phase 2 — Quantify the market reaction
 
-1. Compute the move: % change to T+1 close, after-hours print, absolute market-cap delta (shares outstanding × Δprice), distance from the 52-week/all-time high, YTD and 1-year context.
-2. Build the same-day cross-section: S&P 500, Nasdaq-100, peer basket (for big tech: MSFT, META, AMZN, AAPL, NVDA at minimum) — this is what separates idiosyncratic repricing from systematic risk-off.
+1. Compute the move: % change to the primary-reaction close (per the Phase 0 event-window rule), after-hours print, absolute market-cap delta, distance from the 52-week/all-time high, YTD and 1-year context. **Market-cap delta for multi-class names (round 4, reports 8/9 H-4)**: compute each share class separately and sum — `quant_helpers.market_cap_delta` — never one class's shares with another class's price (GOOG/GOOGL, META A/B are the classics); disclose the method on the slide. For single-class names the per-class sum reduces to shares × Δprice.
+2. Build the same-day cross-section: S&P 500, Nasdaq-100, peer basket (for big tech: MSFT, META, AMZN, AAPL, NVDA at minimum) — this is what separates idiosyncratic repricing from systematic risk-off. **Peer-basket hygiene (round 4, reports 8/9 M-8)**: before computing any cross-section or peer metric, run a corporate-action check on each named constituent (M&A, spin-off, delisting, bankruptcy — a T2 news check per name) and a cache-age gate (re-verify when the basket's facts are >90 days old or undated); a basket that silently lost a distressed constituent flatters the peer average and misprices the target's relative position.
 3. Verify any "worst day since IPO", "record wipeout", "biggest since" claim against a named source; if unverifiable, drop the ranking and state the plain numbers.
-4. Note volume, options-implied volatility and flows **only if** you have a source for them — and compute the options-implied move from the T-1 closing chain (ATM call + put closes for the nearest post-event expiry, over the T-1 close), never a news article's quoted percentage (a wire figure may only cross-check, tagged `Assumed`); carry the volatility-risk-premium caveat when interpreting realized vs implied (sibling skill's `reference/formulas.md#options-implied-move-vs-realized`).
+4. Note volume, options-implied volatility and flows **only if** you have a source for them — and compute the options-implied move from the T-1 closing chain (ATM call + put closes for the nearest post-event expiry, over the T-1 close), never a news article's quoted percentage (a wire figure may only cross-check, tagged `Assumed`); carry the volatility-risk-premium caveat when interpreting realized vs implied (sibling skill's `reference/formulas.md#options-implied-move-vs-realized`). **Options open-interest skew (round 4, reports 8/9 L-4)**: when a source for pre-event OI/put-call skew is available (vendor-grade, often T3), record it as an amplifier input — if unavailable, log the pull in the Data-Gap ledger instead of guessing.
+5. **Beta regime diagnostics when beta-adjusting (round 4, reports 8/9 M-7)**: run `quant_helpers.beta_diagnostics` (R² + correlation-breakdown flag) and `volatility_regime_flag` (trailing-vol z-score) on the estimation window. If R² < 0.30 or |z| > 2, the canonical 2-year monthly beta is fitting a broken regime — either explicitly justify the window or re-estimate over a shorter (e.g. 6-month daily) window and disclose it. Detection is quantitative, not a vibe.
 
 *Formulas and the historical-ranking protocol: `references/methodology.md` §3.*
 
 ### Phase 3 — Construct the hypothesis tree
 
-1. Generate 5–8 competing hypotheses using the eight lenses: (a) revenue miss, (b) margin/EPS miss, (c) segment-level deterioration, (d) guidance cut — explicit or hidden in call language, (e) capital-allocation regime break (capex/FCF), (f) structural narrative threat (e.g. AI cannibalizing the core product), (g) positioning/crowding unwind + macro tape, (h) one-off noise masquerading as a miss (impairments, fines, tax items).
+1. Generate 5–8 competing hypotheses using the nine lenses: (a) revenue miss, (b) margin/EPS miss, (c) segment-level deterioration, (d) guidance cut — explicit or hidden in call language, (e) capital-allocation regime break (capex/FCF), (f) structural narrative threat (e.g. AI cannibalizing the core product), (g) positioning/crowding unwind + macro tape, (h) one-off noise masquerading as a miss (impairments, fines, tax items), (i) **market microstructure & flow (round 4, reports 8/9 L-4)** — dealer gamma hedging, systematic CTA/trend-follower unwinds, index rebalancing flows: post-earnings moves are frequently amplified by forced flows, and attributing a flow-driven depth to a guidance cut misreads the event.
 2. Write each hypothesis as a card: **statement → causal mechanism (event → belief change → flow → price) → 3+ predicted observables** that would confirm or falsify it.
 3. Predictions must be falsifiable and checkable against the fact base ("if H2 is true, FCF should print below −$3.5B consensus").
 4. The tree is the centerpiece of the report — build it before testing, and resist narrating a single story.
@@ -150,9 +152,10 @@ Phase 9 until every hypothesis has a verdict.
 ### Phase 6 — Separate noise from signal
 
 1. Reconcile GAAP vs adjusted results line by line; inventory every one-off: unrealized gains/losses on equity stakes, fines (paid **and** accrued), restructuring, tax items, legal reserves.
-2. Recompute "organic" figures with the one-offs removed and show the arithmetic on the slide (e.g. "FCF −$9.1B, of which a $5.2B one-off fine payment → ex-fine ≈ −$3.9B, in line with Street").
-3. State which basis the market actually trades on (usually the consensus basis) — explaining the *wrong* miss is the most common RCA failure.
-4. Label every recomputed figure `Reasoned (derived)` with the formula.
+2. **Reg G / Item 10(e) discipline (round 4, reports 8/9 M-2)**: every non-GAAP metric presented (Adj. EPS, FCF, ex-SBC FCF) is reconciled to the most directly comparable GAAP measure — show the reconciliation on the slide, or cite the issuer's own Reg G reconciliation table from the press release/10-Q — and state which basis (GAAP vs non-GAAP) each beat/miss is computed on. Non-GAAP commentary without a reconciliation trail does not meet institutional disclosure standards.
+3. Recompute "organic" figures with the one-offs removed and show the arithmetic on the slide (e.g. "FCF −$9.1B, of which a $5.2B one-off fine payment → ex-fine ≈ −$3.9B, in line with Street").
+4. State which basis the market actually trades on (usually the consensus basis) — explaining the *wrong* miss is the most common RCA failure.
+5. Label every recomputed figure `Reasoned (derived)` with the formula.
 
 *One-off inventory and reconciliation procedure: `references/methodology.md` §7.*
 
@@ -168,9 +171,11 @@ Phase 9 until every hypothesis has a verdict.
 
 1. Compress the RCA into one sentence of the form: *"the market repriced [mechanism] when [evidence] arrived in the same print as [second evidence]"* — if you cannot, the analysis is not done.
 2. Present a ranked driver table (ordinal ranks only; publish percentage attribution only if it is computable from sourced data — otherwise say attribution is qualitative).
-3. State the **valuation boundary**: this is a causal-attribution product — it explains why the price moved and does **not** opine on whether the name is now mispriced. Say so in one line on the synthesis page and name the model gap as an open item ("no DCF / SOTP / scenario-weighted fair value is produced; a valuation pass would require forward estimates, a discount-rate framework, and scenario weights — logged as the open valuation item").
+3. State the **valuation boundary**: this is a causal-attribution product — it explains why the price moved and does **not** opine on whether the name is now mispriced. Say so in one line on the synthesis page and name the model gap as an open item ("no DCF / SOTP / scenario-weighted fair value is produced; a valuation pass would require forward estimates, a discount-rate framework, and scenario weights — logged as the open valuation item"). Until a valuation module exists, the deck is firewalled as an IC **pre-read attribution note** — an input to the IC memo, never the memo itself (round 4, reports 8/9 C-2).
 4. Forward frame: 3 scenarios (bull/base/bear) each with "what would have to be true", explicit falsifiers, and a dated watchlist mapped to the hypotheses they would confirm or refute. Scenarios are analytic frames, not price targets — say so on the slide.
-5. Do not publish price targets; do not use unsourced forecasts; mark all forward-looking statements `Reasoned`.
+5. **Expected Fundamental Value matrix (round 4, reports 8/9 H-6 — optional, recommended for IC-facing builds)**: weight the *fundamental* outcomes across the scenarios with subjective probabilities (e.g. FY+1 FCF path in bull/base/bear at 25/50/25) and compute the EV-adjusted fundamental range in code — `Reasoned (judged)` probabilities, method disclosed, strictly a fundamental-expectation construct, **never a price target or a fair-value claim**. An unweighted scenario triptych cannot feed sizing; the EV matrix is the minimum quantitative asymmetry profile the family ships while the valuation module stays out of scope.
+6. **Variant-view annex (round 4, reports 8/9 H-1 — optional)**: when the engagement asks for a forward view, build the analyst's own estimates (revenue/EPS/capex/FCF) with an explicit assumption table and a consensus bridge (own − consensus per line — where and why you differ from the Street); every input `Assumed`/`Reasoned (judged)` and labeled, never presented as verified. When not commissioned, name the gap in the open-items list alongside the valuation boundary.
+7. Do not publish price targets; do not use unsourced forecasts; mark all forward-looking statements `Reasoned`.
 
 *Synthesis formulas and scenario rules: `references/methodology.md` §9.*
 
@@ -193,7 +198,7 @@ Phase 9 until every hypothesis has a verdict.
    `python3 scripts/fact_base_audit.py --slides <slides_dir> --fact-base <fact_base.json>`
    (designate the assumptions page via `meta.method_page` in the fact base or `--method-page`; `--checks checks.json` for the simple per-slide needle format; `--selftest` proves the script works).
 3. Opt-in strict compliance modes for institutional builds — `--strict-verified` (every `Verified` fact must carry ≥2 `cross_checked_with` entries), `--fail-on-unverified` (reverse-check "unverified candidates" become failures instead of a review list), `--decision-critical F-001,F-014` (named facts must be double-sourced; same effect as `meta.decision_critical` in the fact base), and `--strict-pages slide_02.html,slide_07.html` (unverified candidates on the decision-critical pages — executive summary, root-cause decomposition — become failures while page furniture elsewhere stays advisory). They are opt-in because the reverse-check is heuristic — default-strict would flag benign page furniture and invite disabling the gate. `STRICT=1 bash scripts/audit_all.sh …` turns the strict flags on.
-3a. Always-on schema gates (round 3, reports 6/7): CONSENSUS (consensus-side facts need provider + vintage + T1/T2 tier, vintage within `--consensus-max-age-days` of the event), EPISTEMIC (`Reasoned` facts declare `epistemic_kind: derived|judged`; derived requires a formula), WATERFALL (facts with a signed `weights` dict must sum to their `realized_move`), and MANDATE (an IC-named `meta.audience` requires `meta.mandate_context` with `fund_position` + `position_as_of`).
+3a. Always-on schema gates (round 3, reports 6/7): CONSENSUS (consensus-side facts need provider + vintage + T1/T2 tier, vintage within `--consensus-max-age-days` of the event — round 4 tightened the default to 5 calendar days ≈ 3 trading days and added the required `consensus_statistic` mean/median/undisclosed field, reports 8/9 M-1), EPISTEMIC (`Reasoned` facts declare `epistemic_kind: derived|judged`; derived requires a formula), WATERFALL (facts with a signed `weights` dict must sum to their `realized_move`), MANDATE (an IC-named `meta.audience` requires `meta.mandate_context` with `fund_position` + `position_as_of`), and TEMPORAL (round 4, reports 8/9 M-6: when `meta.t1_filing_timestamp` is set, every fact declares `data_type` pre_event_input/post_event_fact and post-event facts must be retrieved at/after the verified filing time — pre-filing contamination fails the build).
 4. Run the render audit — no overflow or clipping at 1280×720 measured against the slide element itself, fonts render, decorative bleeds marked `data-bleed`:
    `node scripts/overflow_audit.mjs --dir <slides_dir>` (`--selftest` proves the script works)
 5. Fix the **generator/brief**, not the rendered page, when an audit fails; re-run until clean. Document any remaining false positives explicitly.
@@ -213,7 +218,8 @@ Phase 9 until every hypothesis has a verdict.
 | `references/report-design.md` | Phase 9 — Midnight IC tokens, 15-page archetype map, overflow budget |
 | `assets/fact_base.template.json` | Phase 1 — starting skeleton with worked examples |
 | `assets/slides_brief.template.json` | Phase 9 — deck-plan skeleton |
-| `scripts/fact_base_audit.py` | Phase 10 — numeric + placeholder audit; always-on CONSENSUS / EPISTEMIC / WATERFALL / MANDATE schema gates; opt-in `--strict-verified` / `--fail-on-unverified` / `--decision-critical` / `--strict-pages` (`--selftest` to verify) |
+| `scripts/fact_base_audit.py` | Phase 10 — numeric + placeholder audit; always-on CONSENSUS / EPISTEMIC / WATERFALL / MANDATE / TEMPORAL schema gates; opt-in `--strict-verified` / `--fail-on-unverified` / `--decision-critical` / `--strict-pages` (`--selftest` to verify) |
+| `scripts/quant_helpers.py` | Phases 2/5/6 — deterministic quant math (beat/miss deltas, beta-adjusted excess returns with the canonical window, beta regime diagnostics R²/vol-z, multi-class market-cap delta, FCF/ex-SBC, segment variance, waterfall checks); byte-identical family copy (`--selftest` via `python3 scripts/quant_helpers.py`) |
 | `scripts/overflow_audit.mjs` | Phase 10 — Playwright render/overflow audit |
 | `scripts/a11y_audit.mjs` | Phase 10 — accessibility audit (lang / heading order / image alt / WCAG-AA contrast) |
 | `scripts/provenance_seal.py` | Phase 10 — SHA-256 sealing of the fact base + rendered pages, `provenance.json` sidecar, `--verify` tamper check |
@@ -221,18 +227,20 @@ Phase 9 until every hypothesis has a verdict.
 
 ## Definition of done
 
-- [ ] Event charter with data cutoff stamped on the cover
+- [ ] Event charter with data cutoff stamped on the cover; event-window rule applied (after-close → T+1 close; pre-market/intraday → T+0 close) and stated in the charter
 - [ ] `fact_base.json` complete; decision-critical numbers double-sourced (listed in `meta.decision_critical` and/or audited under `--strict-verified`)
+- [ ] Facts classified `data_type` and temporally clean when `meta.t1_filing_timestamp` is set (TEMPORAL gate clean)
 - [ ] ≥5 hypotheses tested; ≥1 explicitly excluded with evidence
 - [ ] Every quantitative claim carries a confidence label; assumptions listed; `Unverifiable` gaps logged with the exact pull needed
-- [ ] GAAP↔adjusted reconciliation shown; headline miss restated on comparable basis
-- [ ] Benchmark/peer cross-section included; amplifier layer separated from trigger
+- [ ] GAAP↔adjusted reconciliation shown (Reg G / Item 10(e) discipline); headline miss restated on comparable basis
+- [ ] Benchmark/peer cross-section included; amplifier layer separated from trigger; peer-basket corporate-action check run
+- [ ] Market-cap delta computed per-class and summed for multi-class names (method disclosed)
 - [ ] Counter-case ("what the market ignored") present and sourced
-- [ ] One-sentence root cause + scenarios + falsifiers + dated watchlist; no price targets
-- [ ] Valuation boundary stated (pre-valuation causal-attribution product; valuation model gap named as an open item)
+- [ ] One-sentence root cause + scenarios + falsifiers + dated watchlist; no price targets; EV fundamental matrix (if included) labeled `Reasoned (judged)` — never a price target
+- [ ] Valuation boundary stated (pre-valuation causal-attribution product; valuation model gap named as an open item; IC pre-read firewall)
 - [ ] Sources & confidence ledger page with named sources and dates
-- [ ] Verification-status line on the cover reflecting the final gate results
-- [ ] Consensus facts carry provider + vintage + T1/T2 tier (CONSENSUS gate clean)
+- [ ] Verification-status line on the cover reflecting the final gate results; "not a research report" + "Public-source-only" legends on the cover
+- [ ] Consensus facts carry provider + vintage + statistic + T1/T2 tier (CONSENSUS gate clean)
 - [ ] IC-facing builds disclose fund position via `meta.mandate_context` (MANDATE gate clean)
 - [ ] Provenance sealed: seal line on the cover, `provenance.json` shipped with the deck
 - [ ] `bash scripts/audit_all.sh …` exits clean (false positives documented if any)
@@ -243,19 +251,36 @@ Phase 9 until every hypothesis has a verdict.
 - **Information barrier hygiene**: these reports are built exclusively from public
   sources (filings, transcripts, press). Never incorporate material non-public
   information (MNPI); if any input is suspected to be MNPI, stop and escalate —
-  see SEC Regulation FD.
-- **Internal analytical artifact**: the output is an internal research pre-read for
-  discussion, not sell-side research. It carries no rating, no price target, and no
-  analyst certification (Reg AC) or FINRA 2241 disclosure package — do not
-  distribute it as if it did.
+  see SEC Regulation FD. The temporal embargo (Phase 1) is the data-integrity
+  control that keeps pre-filing chatter out of the fact base.
+- **Internal analytical artifact — operational scope control (round 4, reports 8/9 C-1)**:
+  the output is an internal research pre-read for discussion, **not a research report** —
+  every deliverable carries that legend on the cover — and it is for internal use only:
+  do not distribute to clients or outside the firm; any wider distribution requires
+  compliance sign-off first. It carries no rating, no price target, and no analyst
+  certification (Reg AC) or FINRA 2241 disclosure package — do not distribute it as
+  if it did. Until a valuation module exists, firewalled as an IC pre-read attribution
+  note (an input to the IC memo, not the memo).
+- **Public-source-only limitation (round 4, reports 8/9 M-3)**: every deliverable
+  states "Public-source-only" — no channel checks, expert calls, surveys, or
+  management access inform the analysis. That is a stated limitation, not an
+  aspiration.
+- **Data licensing & redistribution (round 4, reports 8/9 M-4)**: figures quoted from
+  vendors (Yahoo Finance, Stooq, Macrotrends, TIKR, consensus providers) are cited
+  with attribution for internal analytical use; do not reproduce vendor tables or
+  charts at scale in the deliverable, and do not redistribute the deliverable
+  externally — redistribution rights belong to the licensed feeds, not to this
+  artifact. Prefer licensed API access when the engagement has it.
 - **Position & mandate disclosure (buy-side)**: when the deliverable is for an
   investment-committee audience, the fact base carries `meta.mandate_context`
   (`fund_position`, `position_as_of`, plus mandate constraints and author
-  conflicts that could bear on independence) and the cover discloses the fund's
-  position — CFA Institute Standard I(B) / Advisers Act fiduciary duty, the
-  buy-side counterpart of sell-side conflict disclosure. The audit's MANDATE
-  gate enforces its presence; the sell-side certification package stays
-  inapplicable by the family's standing scoping position.
+  conflicts that could bear on independence — personal holdings in the covered
+  name, compensation ties, outside interests, or an explicit "none declared") and
+  the cover discloses the fund's position — CFA Institute Standard I(B) /
+  CFA Standard VI(A) disclosure of conflicts, the buy-side counterpart of
+  sell-side conflict disclosure. The audit's MANDATE gate enforces its presence;
+  the sell-side certification package stays inapplicable by the family's standing
+  scoping position.
 - Every deliverable carries: "Informational only — not investment advice, not a
   solicitation. No price targets published."
 
@@ -264,14 +289,15 @@ Phase 9 until every hypothesis has a verdict.
 1. Explaining the wrong miss — GAAP vs adjusted basis confusion.
 2. Attributing one-off noise (impairments, fines, tax) to narrative.
 3. Quoting consensus estimates from memory instead of sourcing them.
-4. Mixing the after-hours print with the close — the reaction is the T+1 close.
-5. Wrong share class or split-basis prices (GOOG vs GOOGL is the classic).
+4. Mixing the after-hours print with the close — the reaction is the primary-reaction close per the event-window rule (T+1 for after-close events, T+0 for intraday).
+5. Wrong share class or split-basis prices (GOOG vs GOOGL is the classic) — and one class's shares multiplied by another class's price in the market-cap delta.
 6. Blaming macro when peers moved idiosyncratically the same day.
 7. Fake-precision driver attribution percentages that no data supports.
 8. Skipping call-transcript Q&A, where the real guidance signal lives.
 9. "Worst since / record" claims recalled from memory instead of verified.
 10. Shipping without the numeric and render audits.
 11. In-context arithmetic — computing a delta or ratio mentally instead of in code (transcription and magnitude errors enter exactly here).
+12. Applying a stale beta across a regime break (2022 rate shock, 2023 AI re-rating) without the R²/vol-z diagnostics — market moves get attributed to company failure.
 
 ## Adaptations
 

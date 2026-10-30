@@ -179,6 +179,126 @@ class TestRound3Helpers:
             qh.segment_variance(110.0, 100.0, 100.0, 0.0)
 
 
+class TestRound4Helpers:
+    """Round-4 additions (reports 8/9): beta regime diagnostics (M-7) and the
+    multi-class market-cap delta (H-4). Fixtures are synthetic."""
+
+    # --- beta_diagnostics -------------------------------------------------
+
+    def test_beta_diagnostics_regresses_stock_on_bench(self, qh):
+        # stock = 0.8 + 1.2 x bench -> slope 1.2, R^2 = 1 (the slope must be
+        # cov/var(bench), NOT the reverse regression cov/var(stock)).
+        bench = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+        stock = [2.0 + 1.2 * (b - 1.0) for b in bench]
+        dg = qh.beta_diagnostics(stock, bench)
+        assert dg["beta"] == pytest.approx(1.2, abs=0.001)
+        assert dg["r_squared"] == pytest.approx(1.0, abs=0.001)
+        assert dg["correlation_breakdown"] is False
+
+    def test_beta_diagnostics_flags_correlation_breakdown(self, qh):
+        bench = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+        noise = [2.0, -3.0, 1.0, 2.0, -3.0, 1.0]     # ~orthogonal to the bench
+        dn = qh.beta_diagnostics(noise, bench)
+        assert dn["r_squared"] < qh.R_SQUARED_FLOOR
+        assert dn["correlation_breakdown"] is True, (
+            "R^2 below the floor must flag the regime diagnostic (M-7)")
+
+    def test_beta_diagnostics_floor_constant(self, qh):
+        assert qh.R_SQUARED_FLOOR == 0.30
+        assert qh.VOL_REGIME_Z_THRESHOLD == 2.0
+
+    def test_beta_diagnostics_rejects_malformed_series(self, qh):
+        with pytest.raises(ValueError):
+            qh.beta_diagnostics([1.0, 2.0], [1.0, 2.0, 3.0])
+        with pytest.raises(ValueError):
+            qh.beta_diagnostics([1.0], [1.0])
+        with pytest.raises(ValueError):
+            qh.beta_diagnostics([1.0, 1.0, 1.0], [2.0, 2.0, 2.0])  # zero bench var
+
+    # --- volatility_regime_flag -------------------------------------------
+
+    def test_vol_regime_flags_spike(self, qh):
+        calm = [2.0, -2.0, 1.9, -1.9, 2.1, -2.1, 2.0, -2.0, 1.8, -1.8,
+                2.2, -2.2, 2.0, -2.0, 1.9, -1.9, 2.0, -2.0, 2.1, -2.1, 2.0]
+        spiking = calm + [6.0, -6.0, 7.0]           # trailing quarter triples vol
+        vz = qh.volatility_regime_flag(spiking)
+        assert vz["regime_shift"] is True
+        assert abs(vz["z_score"]) > qh.VOL_REGIME_Z_THRESHOLD
+
+    def test_vol_regime_calm_history_stays_in_regime(self, qh):
+        calm = [2.0, -2.0, 1.9, -1.9, 2.1, -2.1, 2.0, -2.0, 1.8, -1.8,
+                2.2, -2.2, 2.0, -2.0, 1.9, -1.9, 2.0, -2.0, 2.1, -2.1, 2.0]
+        vz = qh.volatility_regime_flag(calm + [2.0, -2.0, 2.0])
+        assert vz["regime_shift"] is False
+
+    def test_vol_regime_rejects_short_series(self, qh):
+        with pytest.raises(ValueError):
+            qh.volatility_regime_flag([1.0, 2.0, 3.0])
+
+    # --- market_cap_delta ---------------------------------------------------
+
+    def test_multi_class_cap_delta_sums_per_class(self, qh):
+        mc = qh.market_cap_delta([
+            {"label": "A", "shares": 5.8, "price_before": 324.89,
+             "price_after": 283.10},
+            {"label": "C", "shares": 5.4, "price_before": 321.89,
+             "price_after": 282.32},
+        ])
+        # 5.8 x -41.79 = -242.38; 5.4 x -39.57 = -213.68; total -456.06.
+        assert mc["delta"] == pytest.approx(-456.06, abs=0.01)
+        assert [c["delta"] for c in mc["per_class"]] == [
+            pytest.approx(-242.38, abs=0.01), pytest.approx(-213.68, abs=0.01)]
+        assert "per-class" in mc["method"] or "sum" in mc["method"]
+
+    def test_single_class_cap_delta_matches_shares_times_delta(self, qh):
+        single = qh.market_cap_delta([
+            {"label": "SINGLE", "shares": 12.1, "price_before": 321.89,
+             "price_after": 282.32}])
+        assert single["delta"] == pytest.approx(12.1 * (282.32 - 321.89),
+                                                abs=0.01)
+
+    def test_market_cap_delta_rejects_bad_specs(self, qh):
+        with pytest.raises(ValueError):
+            qh.market_cap_delta([])
+        with pytest.raises(ValueError):
+            qh.market_cap_delta([{"label": "X", "shares": 0,
+                                  "price_before": 1, "price_after": 2}])
+        with pytest.raises(ValueError):
+            qh.market_cap_delta([{"label": "X", "price_before": 1,
+                                  "price_after": 2}])   # shares missing
+
+
+class TestVendoringParity:
+    """Round 4 (reports 8/9 M-5): quant_helpers.py is vendored byte-identical
+    into all three family skills — the postmortem is standalone again."""
+
+    SCRIPTS = [
+        REPO_ROOT / "skills" / "analyzing-us-bigtech-stocks" / "scripts" /
+        "quant_helpers.py",
+        REPO_ROOT / "skills" / "big-tech-earnings-postmortem" / "scripts" /
+        "quant_helpers.py",
+        REPO_ROOT / "skills" / "bigtech-equity-research" / "scripts" /
+        "quant_helpers.py",
+    ]
+
+    def test_quant_helpers_vendored_byte_identical_x3(self):
+        bodies = [p.read_bytes() for p in self.SCRIPTS]
+        assert all(bodies), "a quant_helpers.py copy is missing"
+        assert len(set(bodies)) == 1, (
+            "quant_helpers.py drifted across the family — vendoring is "
+            "byte-identical by design (reports 8/9 M-5)")
+
+    def test_vendored_copies_selftest_exit_zero(self):
+        import subprocess
+        for p in self.SCRIPTS:
+            proc = subprocess.run([sys.executable, str(p)],
+                                  capture_output=True, text=True,
+                                  cwd=str(REPO_ROOT))
+            assert proc.returncode == 0, (
+                f"{p.name} in {p.parent.parent.name}: selftest failed — "
+                f"{proc.stdout}{proc.stderr}")
+
+
 class TestFormulasDocAgreement:
     """M-4's documentation half: formulas.md must state the numbers the code
     computes — inputs extracted from the doc, outputs recomputed by the module
