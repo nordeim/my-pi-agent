@@ -215,14 +215,30 @@ context → sell-side reaction → risk/catalyst matrix → verification ledger 
 method note. Visual language: restrained, data-dense, institutional palette
 with one accent, monospace numbers, tables over prose, no placeholder values.
 
-**Audit gates do not relax for the lightweight deliverable.** Build the fact
-base (`assets/fact_base.template.json`) for every figure in the note, name the
-file `slide_01.html` in its own directory, and run both Phase 10 gates:
+**Audit gates do not relax for the lightweight deliverable.** Two enforcement
+layers, in order of availability:
+
+1. **Bundled lite gates** (ship with `big-tech-earnings-postmortem` itself, so
+   standalone deployments still fail closed):
+   `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
+   (placeholder + disclosure needles: compliance disclaimer, verification-status
+   line, the Reasoned-allocation label when a quantified waterfall is present,
+   the beta estimation-window disclosure) and
+   `node scripts/note_overflow_audit.mjs --note <note.html>` (single-file
+   render/overflow audit). The note's header carries a verification-status
+   line stating which gates passed.
+2. **Full Phase 10 gates** (when this flagship folder is available): build the
+   fact base (`assets/fact_base.template.json`) for every figure in the note,
+   name the file `slide_01.html` in its own directory, and run both gates:
 
 ```bash
-python3 scripts/fact_base_audit.py --slides <note_dir> --fact-base <fact_base.json>
-node scripts/overflow_audit.mjs --dir <note_dir>
+bash scripts/audit_all.sh <note_dir> <fact_base.json>
 ```
+
+The lite gates check placeholders, disclosures, and rendering; only the full
+fact-base mode machine-checks that every number traces to a sourced fact. For
+an IC-facing deliverable, upgrade to layer 2 and set the verification-status
+line to "full fact-base + render audits passed".
 
 The note carries the same confidence legend, method note, and disclaimer as the
 full deck: "Informational only — not investment advice, not a solicitation. No

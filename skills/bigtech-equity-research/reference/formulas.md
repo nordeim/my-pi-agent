@@ -25,6 +25,12 @@ window (e.g. 250 sessions vs QQQ); disclose the window and the beta. Either way,
 never call the benchmark return "beta" — beta is a unitless sensitivity, not a
 percentage move.
 
+**Code contract** (`scripts/quant_helpers.py::abnormal_return`): the helper
+returns `{excess, convention, beta, beta_window}` and **refuses to run** when a
+beta is supplied without `beta_window` — the estimation-window disclosure this
+section mandates is enforced in code, not just prose. Print the echoed
+`beta_window` next to the figure in the note.
+
 If benchmark closes are unavailable, bound the benchmark return (e.g. −1.0% to
 −2.0% during a sector de-rating) and report the excess return as a range, tagged
 `Assumed`.

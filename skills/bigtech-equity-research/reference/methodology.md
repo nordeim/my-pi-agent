@@ -34,7 +34,10 @@ sources to the reported precision.
    high-beta name prefer the **beta-adjusted** form — stock return − `beta` × benchmark
    return — with a beta estimated over a stated pre-event window (e.g. 250 sessions
    vs QQQ) and the window disclosed. Do not call the benchmark return "beta": beta is
-   a unitless sensitivity, not a percentage. Formula:
+   a unitless sensitivity, not a percentage. `scripts/quant_helpers.py::abnormal_return`
+   enforces the disclosure in code: it raises when a beta is supplied without
+   `beta_window` and echoes the window in its result — print it next to the figure.
+   Formula:
    `reference/formulas.md#market-adjusted-excess-return-not-alpha`.
 2. **Options implied move** — the pre-print ATM straddle price vs the realized move.
    - Realized ≈ implied → market was already positioned; likely de-grossing, not surprise.
@@ -49,6 +52,13 @@ with a stated bound, and routed to the Data-Gap Ledger.
 
 Build a variance table across all reportable segments (map: `reference/segment-maps.md`):
 columns = actual, consensus, Δ, YoY, QoQ trend, result.
+
+**Staleness check (before the table is built):** compare `segment-maps.md`'s
+`last_verified_against_filing` with the filing you are using. If the filing is
+newer, re-verify the segment structure against its own segment note and update
+the map (bump `segment_map_version`) first — the variance table must mirror the
+filing's segment note or it will not tie out, and nothing downstream catches a
+stale map. Cite the filing (form type + fiscal period) on the table.
 
 Critical distinction:
 - **Miss** = below consensus.

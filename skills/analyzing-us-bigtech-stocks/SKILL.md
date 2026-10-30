@@ -1,7 +1,9 @@
 ---
 name: analyzing-us-bigtech-stocks
-version: 1.2.0
-description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck with audit gates. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render audits. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery."
+version: 1.3.0
+description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck with audit gates. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render audits with opt-in strict compliance modes (cross-check enforcement, fail-on-unverified). For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery."
+license: Apache-2.0
+compatibility: Requires web search and page-fetch tools for primary-source verification; render audit needs Node.js with Playwright.
 ---
 
 # Analyzing US Big-Tech Stocks — Event RCA & Trend Reports
@@ -32,6 +34,7 @@ Golden rules, in priority order (they override speed and word-count pressure):
 3. **Never fabricate.** If a number cannot be sourced, it is either found, computed (with formula shown), or marked `Assumed` — never invented, never recalled from memory.
 4. **Competing hypotheses.** A single explanatory story is a red flag. Enumerate, test, and explicitly exclude at least one.
 5. **Audit before delivery.** A report that has not passed the numeric and render audits is not finished.
+6. **Compute, don't recall.** Never do arithmetic in-context (mentally, in the running text). Every delta, percentage, ratio, and multiple is executed in code — the fact base's formula fields, a scratch script, or the sibling skill's `quant_helpers.py` — and the code's output is what goes on the slide. In-context arithmetic is where transcription and magnitude errors enter.
 
 ## When to use / not use
 
@@ -164,8 +167,9 @@ Phase 9 until every hypothesis has a verdict.
 
 1. Compress the RCA into one sentence of the form: *"the market repriced [mechanism] when [evidence] arrived in the same print as [second evidence]"* — if you cannot, the analysis is not done.
 2. Present a ranked driver table (ordinal ranks only; publish percentage attribution only if it is computable from sourced data — otherwise say attribution is qualitative).
-3. Forward frame: 3 scenarios (bull/base/bear) each with "what would have to be true", explicit falsifiers, and a dated watchlist mapped to the hypotheses they would confirm or refute. Scenarios are analytic frames, not price targets — say so on the slide.
-4. Do not publish price targets; do not use unsourced forecasts; mark all forward-looking statements `Reasoned`.
+3. State the **valuation boundary**: this is a causal-attribution product — it explains why the price moved and does **not** opine on whether the name is now mispriced. Say so in one line on the synthesis page and name the model gap as an open item ("no DCF / SOTP / scenario-weighted fair value is produced; a valuation pass would require forward estimates, a discount-rate framework, and scenario weights — logged as the open valuation item").
+4. Forward frame: 3 scenarios (bull/base/bear) each with "what would have to be true", explicit falsifiers, and a dated watchlist mapped to the hypotheses they would confirm or refute. Scenarios are analytic frames, not price targets — say so on the slide.
+5. Do not publish price targets; do not use unsourced forecasts; mark all forward-looking statements `Reasoned`.
 
 *Synthesis formulas and scenario rules: `references/methodology.md` §9.*
 
@@ -174,20 +178,24 @@ Phase 9 until every hypothesis has a verdict.
 1. Write `slides_brief.json` **first** (per-page title, layout archetype, task brief with the exact figures and sources) — never build pages while inventing content. Skeleton: `assets/slides_brief.template.json`.
 2. Follow the 15-page archetype map (cover → verdict → event timeline → scorecard → price action → hypothesis tree section → evidence pages → evidence matrix → overlooked case → Street reaction → scenarios → sources ledger). Spec and CSS tokens: `references/report-design.md`.
 3. Every page carries: kicker, headline, source line, confidence chips. One idea per page; budget content to fit 1280×720 without overflow.
-4. Build the page set plus a single keyboard-navigable viewer (`←`/`→`) linking all pages.
-5. Use pure CSS for bars/ladders where possible; any chart library must render offline.
+4. The cover carries a **verification-status line** stating which gates the deliverable passed — e.g. "Verification status: full fact-base + render audits passed" (or "Draft — human verification required" with the reason if a gate could not run). Never leave it implicit.
+5. Build the page set plus a single keyboard-navigable viewer (`←`/`→`) linking all pages.
+6. Use pure CSS for bars/ladders where possible; any chart library must render offline.
 
 *Design system, archetypes, overflow-prevention budget: `references/report-design.md`.*
 
 ### Phase 10 — Audit & deliver
 
-1. Run the numeric audit — every critical figure in the deck must match the fact base / checks file, derived-fact formulas must compute, `Assumed` facts must be listed on the method page, and placeholder tokens must be absent:
+1. Run both gates with one command (the wrapper fails the build if either gate fails):
+   `bash scripts/audit_all.sh <slides_dir> <fact_base.json> [<checks.json>]`
+2. The numeric audit — every critical figure in the deck must match the fact base / checks file, derived-fact formulas must compute, `Assumed` facts must be listed on the method page, and placeholder tokens must be absent:
    `python3 scripts/fact_base_audit.py --slides <slides_dir> --fact-base <fact_base.json>`
    (designate the assumptions page via `meta.method_page` in the fact base or `--method-page`; `--checks checks.json` for the simple per-slide needle format; `--selftest` proves the script works).
-2. Run the render audit — no overflow or clipping at 1280×720 measured against the slide element itself, fonts render, decorative bleeds marked `data-bleed`:
+3. Opt-in strict compliance modes for institutional builds — `--strict-verified` (every `Verified` fact must carry ≥2 `cross_checked_with` entries), `--fail-on-unverified` (reverse-check "unverified candidates" become failures instead of a review list), `--decision-critical F-001,F-014` (named facts must be double-sourced; same effect as `meta.decision_critical` in the fact base). They are opt-in because the reverse-check is heuristic — default-strict would flag benign page furniture and invite disabling the gate. `STRICT=1 bash scripts/audit_all.sh …` turns both flags on.
+4. Run the render audit — no overflow or clipping at 1280×720 measured against the slide element itself, fonts render, decorative bleeds marked `data-bleed`:
    `node scripts/overflow_audit.mjs --dir <slides_dir>` (`--selftest` proves the script works)
-3. Fix the **generator/brief**, not the rendered page, when an audit fails; re-run until clean. Document any remaining false positives explicitly.
-4. Deliver: pages + viewer + fact base + audit reports. Refresh data if the market has moved since the cutoff, or restate the cutoff.
+5. Fix the **generator/brief**, not the rendered page, when an audit fails; re-run until clean. Document any remaining false positives explicitly.
+6. Deliver: pages + viewer + fact base + audit reports. Refresh data if the market has moved since the cutoff, or restate the cutoff. The cover's verification-status line must reflect the final gate results.
 
 *Audit protocol and refresh rules: `references/methodology.md` §10–11.*
 
@@ -201,22 +209,24 @@ Phase 9 until every hypothesis has a verdict.
 | `references/report-design.md` | Phase 9 — Midnight IC tokens, 15-page archetype map, overflow budget |
 | `assets/fact_base.template.json` | Phase 1 — starting skeleton with worked examples |
 | `assets/slides_brief.template.json` | Phase 9 — deck-plan skeleton |
-| `scripts/fact_base_audit.py` | Phase 10 — numeric + placeholder audit (`--selftest` to verify) |
+| `scripts/fact_base_audit.py` | Phase 10 — numeric + placeholder audit; opt-in `--strict-verified` / `--fail-on-unverified` / `--decision-critical` (`--selftest` to verify) |
 | `scripts/overflow_audit.mjs` | Phase 10 — Playwright render/overflow audit |
+| `scripts/audit_all.sh` | Phase 10 — one-command wrapper running both gates with a combined exit code (`STRICT=1` adds the strict flags) |
 
 ## Definition of done
 
 - [ ] Event charter with data cutoff stamped on the cover
-- [ ] `fact_base.json` complete; decision-critical numbers double-sourced
+- [ ] `fact_base.json` complete; decision-critical numbers double-sourced (listed in `meta.decision_critical` and/or audited under `--strict-verified`)
 - [ ] ≥5 hypotheses tested; ≥1 explicitly excluded with evidence
 - [ ] Every quantitative claim carries a confidence label; assumptions listed; `Unverifiable` gaps logged with the exact pull needed
 - [ ] GAAP↔adjusted reconciliation shown; headline miss restated on comparable basis
 - [ ] Benchmark/peer cross-section included; amplifier layer separated from trigger
 - [ ] Counter-case ("what the market ignored") present and sourced
 - [ ] One-sentence root cause + scenarios + falsifiers + dated watchlist; no price targets
+- [ ] Valuation boundary stated (pre-valuation causal-attribution product; valuation model gap named as an open item)
 - [ ] Sources & confidence ledger page with named sources and dates
-- [ ] `fact_base_audit.py` exits clean (false positives documented if any)
-- [ ] `overflow_audit.mjs` exits clean
+- [ ] Verification-status line on the cover reflecting the final gate results
+- [ ] `bash scripts/audit_all.sh …` exits clean (false positives documented if any)
 - [ ] Disclaimer present: informational only, not investment advice
 
 ## Distribution & compliance
@@ -244,6 +254,7 @@ Phase 9 until every hypothesis has a verdict.
 8. Skipping call-transcript Q&A, where the real guidance signal lives.
 9. "Worst since / record" claims recalled from memory instead of verified.
 10. Shipping without the numeric and render audits.
+11. In-context arithmetic — computing a delta or ratio mentally instead of in code (transcription and magnitude errors enter exactly here).
 
 ## Adaptations
 

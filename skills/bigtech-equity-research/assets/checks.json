@@ -1,0 +1,18 @@
+{
+  "_comment": "Disclosure needles enforced by scripts/note_audit.py on every delivered note (Definition of Done in SKILL.md; sections per templates/report-structure.md). 'required' strings must appear in visible text; 'required_if' strings become mandatory only when a trigger substring appears. Matching is dash/case/whitespace-tolerant. Keep in sync with the skill's own rules; extend per engagement (engagement-specific headline figures belong in a per-run checks file passed via --checks, not here).",
+  "required": [
+    "not investment advice",
+    "Verification status:",
+    "Data-Gap Ledger"
+  ],
+  "required_if": [
+    {
+      "if_any": ["waterfall", "decomposition", "allocation", "signed"],
+      "then": "Reasoned allocation — not a measured decomposition"
+    },
+    {
+      "if_any": ["beta"],
+      "then": "estimation window"
+    }
+  ]
+}

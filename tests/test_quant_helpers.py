@@ -62,6 +62,37 @@ class TestZeroDivisionAndEmptyInputs:
             qh.avg_pt_cut([])
 
 
+class TestBetaWindowContract:
+    """Report-3 M1 (confirmed by report-4): the estimation-window disclosure
+    formulas.md mandates is enforced in code — abnormal_return refuses to run a
+    beta-adjusted computation without a disclosed window."""
+
+    def test_beta_without_window_raises(self, qh):
+        with pytest.raises(ValueError, match="beta_window"):
+            qh.abnormal_return(-12.29, -1.5, beta=1.2)
+
+    def test_blank_window_raises(self, qh):
+        with pytest.raises(ValueError):
+            qh.abnormal_return(-12.29, -1.5, beta=1.2, beta_window="   ")
+
+    def test_non_string_window_raises(self, qh):
+        with pytest.raises(ValueError):
+            qh.abnormal_return(-12.29, -1.5, beta=1.2, beta_window=250)
+
+    def test_market_adjusted_needs_no_window(self, qh):
+        # The beta=1 convention has nothing to disclose — must keep working.
+        r = qh.abnormal_return(-12.29, -1.5)
+        assert r["excess"] == pytest.approx(-10.79, abs=0.005)
+
+    def test_percent_multiplier_constant_used(self, qh):
+        # Report-3 L2: no magic 100.0 — conversions go through the named constant.
+        assert qh.PERCENT_MULTIPLIER == 100.0
+        src = SCRIPT.read_text(encoding="utf-8")
+        assert src.count("PERCENT_MULTIPLIER") >= 4, (
+            "percent conversions must use the PERCENT_MULTIPLIER constant, not "
+            "repeated magic 100.0 literals")
+
+
 class TestSignConventions:
     def test_ocf_shortfall_sign_convention(self, qh):
         # Positive = actual OCF below the consensus-implied level (the M-4 fix:
@@ -74,8 +105,18 @@ class TestSignConventions:
         assert p == pytest.approx(-0.50, abs=0.005)
 
     def test_abnormal_return_both_conventions(self, qh):
-        assert qh.abnormal_return(-12.29, -1.5) == pytest.approx(-10.79, abs=0.005)
-        assert qh.abnormal_return(-12.29, -1.5, beta=1.2) == pytest.approx(-10.49, abs=0.005)
+        # v1.2 contract: abnormal_return returns a dict echoing the convention
+        # (and the estimation window for the beta-adjusted form).
+        r = qh.abnormal_return(-12.29, -1.5)
+        assert r["excess"] == pytest.approx(-10.79, abs=0.005)
+        assert r["convention"] == "market-adjusted"
+        assert r["beta"] is None
+        r = qh.abnormal_return(-12.29, -1.5, beta=1.2,
+                               beta_window="250 sessions vs QQQ, through 2026-10-27")
+        assert r["excess"] == pytest.approx(-10.49, abs=0.005)
+        assert r["convention"] == "beta-adjusted"
+        assert r["beta"] == 1.2
+        assert "250 sessions" in r["beta_window"]
 
     def test_waterfall_sign_flip_regression(self, qh):
         """A sign-flipped decomposition must NOT match a negative realized move

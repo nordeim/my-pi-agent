@@ -116,7 +116,7 @@ Compress or extend to 12–16 pages; keep the order — it is the argument itsel
 
 | # | Page | Archetype | Must contain |
 |---|---|---|---|
-| 01 | Cover | `cover` | Kicker, display title, serif-italic subtitle, 4-card stat strip (move / mkt-cap delta / headline miss / ignored beat), data-cutoff + disclaimer footer |
+| 01 | Cover | `cover` | Kicker, display title, serif-italic subtitle, 4-card stat strip (move / mkt-cap delta / headline miss / ignored beat), verification-status line ("Verification status: full fact-base + render audits passed", or "Draft — human verification required" + reason), data-cutoff + disclaimer footer |
 | 02 | The Verdict | `three verdict cards` | PRIMARY-structural, PRIMARY-mechanical, AMPLIFIER cards + gold "what the panic missed" band |
 | 03 | Event Timeline | `vertical event rows` | Date-chip rows: priming events → print → AH → T+1 close → peer prints → follow-through; source chip per row |
 | 04 | The Scorecard | `data table` | METRIC / ACTUAL / CONSENSUS / VS EST / Y/Y with red-green cells; optical-miss + real-damage footnote cards |
@@ -155,5 +155,5 @@ Budgets validated on real decks:
 ## 7. Viewer & delivery packaging
 
 - Build one `viewer.html` next to the pages: an index that iframes each slide full-window with keyboard navigation (←/→, Home/End), a page counter, and direct links. Keep it dependency-free (vanilla JS).
-- Delivery set: `slide_NN.html` pages + `global.css` + `viewer.html` + `fact_base.json` + audit reports (numeric + render console output saved as text).
+- Delivery set: `slide_NN.html` pages + `global.css` + `viewer.html` + `fact_base.json` + audit reports (numeric + render console output saved as text). The cover's verification-status line must state what the saved reports prove — "Verification status: full fact-base + render audits passed" — or say "Draft — human verification required" with the reason; never leave the audit state implicit.
 - If the user requests PPTX/PDF: keep the HTML originals, state that confidence chips and hover interactivity may degrade, and re-run the render audit on the exported artifact.

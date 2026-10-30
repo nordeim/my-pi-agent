@@ -28,7 +28,8 @@ it does not go in the report.
     "data_cutoff": "2026-10-30T13:00:00+08:00",
     "prepared": "2026-10-30",
     "method_page": "slide_15.html",
-    "benchmarks": ["S&P 500", "Nasdaq-100", "MSFT", "META", "AMZN", "AAPL", "NVDA"]
+    "benchmarks": ["S&P 500", "Nasdaq-100", "MSFT", "META", "AMZN", "AAPL", "NVDA"],
+    "decision_critical": ["F-001", "F-014"]
   },
   "hypotheses": [
     { "id": "H1", "statement": "AI is visibly denting Search monetization",
@@ -43,6 +44,11 @@ it does not go in the report.
 the audit checks for `Assumed` facts (the final Sources & Confidence Ledger page by
 convention; CLI override: `fact_base_audit.py --method-page <file>`).
 
+`meta.decision_critical` lists the fact IDs the engagement's verdict turns on (the
+5–15 headline figures). The audit enforces the ≥2-cross-check rule for exactly these
+facts by default, and for **every** `Verified` fact under the opt-in `--strict-verified`
+mode (see §7).
+
 The `hypotheses` array mirrors the Phase 3 tree; facts link to hypotheses via `supports`,
 which makes the Phase 4 evidence assembly mechanical.
 
@@ -56,12 +62,12 @@ which makes the Phase 4 evidence assembly mechanical.
 | `value` | number \| string | yes | The number as reported (keep exact decimals: `127.57`, not `127.6`) |
 | `unit` | string | yes | `$B`, `%`, `count`, `ratio`, `date`, `text` |
 | `as_of` | string | yes | Period the value pertains to ("Q3 2026", "2026-10-29 close") |
-| `source_tier` | enum | yes | `T1` \| `T2` \| `T3` |
+| `source_tier` | enum | yes | `T1` \| `T2` \| `T3` — see the tier definitions table below |
 | `source_name` | string | yes | "Motley Fool — Alphabet Q3 2026 earnings call transcript" |
 | `source_url` | string | yes | Resolvable URL; archived link if paywalled at retrieval |
 | `retrieved_at` | string | yes | ISO timestamp of retrieval |
 | `confidence` | enum | yes | `Verified` \| `Reasoned` \| `Assumed` \| `Unverifiable` |
-| `cross_checked_with` | array | decision-critical | Other fact IDs or source names confirming the value |
+| `cross_checked_with` | array | decision-critical | Other fact IDs or source names confirming the value — ≥2 entries required for decision-critical facts (enforced by audit; §7) |
 | `supports` | array | yes | Hypothesis IDs this fact can evidence, e.g. `["H2"]`; `["deck"]` for general context |
 | `slide_pages` | array | recommended | Page filenames where the number must appear — used by the audit |
 | `derived_from` | array | derived only | Parent fact IDs |
@@ -69,6 +75,21 @@ which makes the Phase 4 evidence assembly mechanical.
 | `quote` | string | quotes/paraphrases | Exact source sentence captured at retrieval |
 | `notes` | string | optional | Basis notes, hedged language, caveats |
 | `conflict` | object | conflicts only | `{"with": "F-034", "resolution": "used transcript (T1) over press figure"}` |
+
+### 2.1 Source-tier boundaries
+
+The tier enum is operational, not decorative — "T2" must not drift between a company
+press release and a named-reporter summary. Boundaries (full detail with examples:
+`methodology.md` §2.1):
+
+| Tier | May support | Definition / boundary |
+|---|---|---|
+| `T1` | All fundamentals: revenue, segments, margins, EPS, capex, FCF, guidance language, one-offs | Primary origination: SEC EDGAR filings, company IR press release / shareholder letter, the earnings-call transcript **as hosted by the company's own IR site** (or audio), official company blogs |
+| `T2` | Consensus estimates and surprise framing; market-reaction color; analyst actions; macro prints; transcript quotes **once cross-checked against IR** | Named press and verified third-party transcripts: Reuters, Bloomberg, CNBC, FT, WSJ, AP; FactSet/LSEG consensus **as reported** by these outlets; full third-party transcripts (Motley Fool / Seeking Alpha) that are still pending IR cross-check |
+| `T3` | Prices, closes, market cap, 52-week ranges, YTD/1y performance, after-hours prints — **never** fundamentals or consensus | Data aggregators: Yahoo Finance, Stooq, Macrotrends, TIKR, CNN Markets |
+
+"Two independent sources" for a cross-check means two **different tiers or origination
+chains** — two aggregators scraping the same wire story corroborate nothing.
 
 ## 3. Confidence assignment rules
 
@@ -155,7 +176,7 @@ at retrieval time on 2026-10-28/30):
 2. Reverse mode: pulls every `$…B/%…/$…` pattern out of the visible slide text and
    reports tokens not covered by any fact as **unverified candidates** — a to-do list
    for the fact base, not automatically an error (words like "Fiscal 2026" can produce
-   benign hits).
+   benign hits). With the opt-in `--fail-on-unverified` they are promoted to failures.
 3. Always runs the placeholder scan (on visible text only — script/style blocks are
    not reader-visible) and checks that `Assumed` facts are listed on the method/
    assumptions page designated by `meta.method_page` (or `--method-page`). Assumed
@@ -163,6 +184,15 @@ at retrieval time on 2026-10-28/30):
 4. Evaluates every derived fact's `formula` of the form `LHS = RHS` (numbers and
    `+ - * / ( )` only, percent-aware): both sides must compute and agree. Formulas
    containing words are skipped, not failed.
+5. Cross-check enforcement: facts listed in `meta.decision_critical` (or the
+   `--decision-critical F-001,F-014` CLI list) must carry ≥2 `cross_checked_with`
+   entries. The opt-in `--strict-verified` mode extends the ≥2 rule to **every**
+   `Verified` fact — institutional zero-tolerance builds use `STRICT=1
+   bash scripts/audit_all.sh …`, which adds both `--strict-verified` and
+   `--fail-on-unverified`. The strict modes are opt-in (not defaults) because the
+   reverse-check is heuristic and default-strict would flag benign page furniture,
+   inviting operators to disable the gate — a warnings-as-failures gate that gets
+   switched off protects nothing.
 
 Exit code 0 = clean; 1 = failures (fix before delivery); false positives are documented in
 the delivery note, never ignored silently. `--selftest` proves all of the above works.

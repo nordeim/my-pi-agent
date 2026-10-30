@@ -1,22 +1,10 @@
 ---
 name: big-tech-earnings-postmortem
-version: 1.2.0
+version: 1.3.0
 description: >
-  Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed
-  big-tech stock's price move around earnings, and produce an institutional-grade
-  single-file HTML research note. The lightweight, fastest-ship member of the
-  big-tech research family: layered driver attribution with durability and
-  evidence axes, but no multi-page deck and no executable audit tooling — use
-  analyzing-us-bigtech-stocks when the deliverable is a full audited IC deck,
-  and bigtech-equity-research for a quantified single-note with segment
-  deep-dive and options math. Trigger when the user asks why a big-tech stock
-  (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla, etc.) moved sharply
-  after earnings, or requests a post-earnings deep dive / market research
-  report with root-cause attribution and trend assessment — phrases like
-  "post-earnings analysis", "why did X drop after earnings", "earnings
-  post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
+  Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML research note passing bundled lite delivery gates (placeholder, disclosure, render audits). The lightweight, fastest-ship member of the big-tech research family: layered driver attribution with durability and evidence axes, no multi-page deck, lite bundled audits instead of the flagship's machine-checked fact base — use analyzing-us-bigtech-stocks for a full audited IC deck and bigtech-equity-research for a quantified single-note with segment deep-dive and options math. Trigger when the user asks why a big-tech stock (Alphabet, Microsoft, Amazon, Meta, Apple, Nvidia, Tesla) moved sharply after earnings, or requests a post-earnings deep dive / market research report with root-cause attribution — phrases like "post-earnings analysis", "why did X drop after earnings", "earnings post-mortem", "stock price drop root cause", or "big tech earnings deep dive".
 license: Apache-2.0
-compatibility: Requires web search and page-fetch tools for primary-source verification.
+compatibility: Requires web search and page-fetch tools for primary-source verification; render gate needs Node.js with Playwright.
 ---
 
 # Big-Tech Earnings Post-Mortem & Trend Analysis
@@ -35,6 +23,23 @@ is the standalone operative summary for deployments without that folder
 installed. On any divergence between the two, the canonical copy wins: fix it
 there and mirror the change here in the same commit (the repository's
 consistency tests, `tests/test_repo_consistency.py`, guard this wiring).
+
+## Skill folder structure
+
+```
+big-tech-earnings-postmortem/
+├── SKILL.md                       # This file: triggers, workflow, gates
+├── assets/checks.json             # Disclosure needles the lite audit enforces
+└── scripts/
+    ├── note_audit.py              # Placeholder + disclosure-needle gate
+    └── note_overflow_audit.mjs     # Render/overflow gate (Node + Playwright)
+```
+
+The two scripts are the skill's own delivery gates — trimmed ports of the
+flagship's `fact_base_audit.py` placeholder/needle checks and
+`overflow_audit.mjs`, adapted for a single-file scrolling note. They require
+no fact base and no sibling skill: compliance is bundled, not
+"if the flagship happens to be installed".
 
 ## When this skill applies
 
@@ -57,6 +62,15 @@ company. Your job is to answer three questions in order:
 
 Never skip from "stock fell X%" to "investors are worried about AI." That is
 narrative without attribution.
+
+**Arithmetic discipline — compute, don't recall.** Never do arithmetic
+in-context (mentally, in the running text). Every delta, percentage, ratio,
+and market-cap figure is executed in code — a scratch script, the sibling
+skill's `quant_helpers.py`, or any executed tool — and the code's output is
+what goes in the note. In-context arithmetic is where transcription and
+magnitude errors enter, and it is the one failure mode no audit gate can
+catch downstream (a wrong number that was never computed cannot be
+re-derived by a checker).
 
 ## Workflow
 
@@ -238,6 +252,11 @@ Write the final verdict as a **falsifiable thesis**, not a prediction. State:
 - What the move was **actually pricing** (your central claim).
 - What would **prove the claim wrong** (falsification condition).
 - The **time horizon** over which the debate resolves.
+- The **valuation boundary**: the note explains the repricing; it does **not**
+  opine on whether the name is now cheap or expensive. Say so in one line
+  ("no DCF / SOTP / scenario-weighted fair value is produced; the valuation
+  model gap is logged as an open item") so an IC reader never mistakes a
+  post-mortem for a complete investment memo.
 
 Tag every non-trivial claim:
 
@@ -286,6 +305,13 @@ Design constraints:
 - Severity/confidence tags color-coded consistently.
 - Tables over prose wherever the content is comparative.
 - No placeholder values, no "TODO", no fabricated citations.
+- A **verification-status line** in the note header stating which gates the
+  finished note passed — "Verification status: lite audit gates passed —
+  disclosure needles + render audit", or "Draft — human verification required"
+  with the reason when a gate could not run. Keep the wording free of the
+  audit scan tokens (`todo`, `tbd`, `xxx`, `nan`, `undefined`, `placeholder`,
+  `lorem`, `insert data/numbers`, `foo bar`, `【`) so the gate does not flag
+  the status line itself.
 - Mobile: collapse multi-column KPI rows to 2×2; stack two-column grids.
 
 ## Metric emphasis by company type
@@ -309,13 +335,21 @@ Design constraints:
 - [ ] Analyst actions are attributed to named firms with before/after targets.
 - [ ] Risk/catalyst rows each have an observable, dated trigger.
 - [ ] Every non-trivial claim carries a confidence tag.
+- [ ] All deltas, ratios, and market-cap figures were computed in code, never
+      in-context (arithmetic discipline).
 - [ ] A verification ledger exists with 10+ load-bearing claims.
 - [ ] No fabricated numbers, citations, IDs, or analyst targets.
 - [ ] Forward-looking statements are explicitly labeled `Reasoned` or `Assumed`.
 - [ ] At least one plausible-but-wrong driver explicitly rejected with its falsifying fact.
+- [ ] Valuation boundary stated: the note explains the repricing and does not
+      opine on mispricing; the model gap is named as an open item.
 - [ ] `Unverifiable` gaps are listed in a Data-Gap Ledger with the exact pull needed.
-- [ ] The verification ledger was actually checked row-by-row (or machine-audited
-      via the sibling skill's `fact_base_audit.py`) before delivery.
+- [ ] `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
+      exits 0 (placeholder + disclosure gates).
+- [ ] `node scripts/note_overflow_audit.mjs --note <note.html>` exits 0 (render
+      gate), or the verification-status line says "Draft — human verification
+      required" with the reason.
+- [ ] The verification-status line is present and matches the actual gate results.
 - [ ] Disclaimer present on the deliverable: informational only, not investment
       advice; no price targets published.
 
@@ -332,12 +366,36 @@ are unavailable or fail mid-task:
 
 ## Verification and delivery gates
 
-- This skill ships no executable tooling of its own. If the sibling skill
-  `analyzing-us-bigtech-stocks` is installed, build its `fact_base.json` ledger
-  for your figures and run its audit:
-  `python3 <path-to>/analyzing-us-bigtech-stocks/scripts/fact_base_audit.py --slides <dir> --fact-base <file>`
-  Otherwise, verify the Step 8 ledger line-by-line against sources before
-  delivery — the ledger is only a control if every row was actually checked.
+These gates are **mandatory and bundled** — they ship with this skill, so
+compliance does not depend on the flagship being installed:
+
+1. **Placeholder + disclosure gate** (always):
+   `python3 scripts/note_audit.py --note <note.html> --checks assets/checks.json`
+   Fails the delivery on placeholder tokens in visible text, on a missing
+   compliance disclaimer or verification-status line, and — when the note
+   quantifies a driver allocation or mentions a beta — on a missing
+   "Reasoned allocation — not a measured decomposition" label or beta
+   estimation-window disclosure. `--selftest` proves the script works.
+2. **Render gate** (always):
+   `node scripts/note_overflow_audit.mjs --note <note.html>`
+   Flags horizontal overflow, elements spilling past the viewport width, and
+   overflow:hidden boxes clipping their content (headless Chromium; install
+   with `npm install playwright && npx playwright install chromium` if
+   missing — the script prints the exact commands on failure).
+3. If an environment genuinely cannot run the render gate, do not ship
+   silently: set the verification-status line to "Draft — human verification
+   required (render gate not run: <reason>)" and say so in the reply.
+4. For a **full fact-base numeric audit** (every figure machine-checked
+   against a sourced fact base, formula arithmetic, cross-check enforcement),
+   build the sibling flagship's `fact_base.json` and run its
+   `fact_base_audit.py` — that is the family's upgrade path to a fully
+   audited IC deliverable, and the verification-status line should then say
+   "full fact-base + render audits passed".
+
+The Step 8 verification ledger is still the human-layer control: the gates
+above check placeholders, disclosures, and rendering; the ledger is what makes
+every load-bearing claim traceable. Both layers are required.
+
 - Every deliverable carries the disclaimer: "Informational only — not investment
   advice, not a solicitation. No price targets published."
 - These outputs are internal analytical notes, not sell-side research: no rating,

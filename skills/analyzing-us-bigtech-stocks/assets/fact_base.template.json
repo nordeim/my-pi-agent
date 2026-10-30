@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy this file as fact_base.json. Delete the two _example facts and the _comment keys; replace meta. Schema reference: references/fact-base-schema.md. Every report number must exist here with a source.",
+  "_comment": "Copy this file as fact_base.json. Delete the two _example facts and the _comment keys; replace meta. Schema reference: references/fact-base-schema.md. Every report number must exist here with a source. meta.decision_critical lists the headline facts the audit requires to carry >=2 cross_checked_with entries (opt-in --strict-verified extends the rule to every Verified fact).",
   "meta": {
     "subject": "COMPANY Inc. (NASDAQ: TICK)",
     "event": "EVENT NAME (e.g. Q3 FY2026 earnings release + conference call)",
@@ -8,14 +8,27 @@
     "data_cutoff": "YYYY-MM-DDTHH:MM:SS+08:00",
     "prepared": "YYYY-MM-DD",
     "method_page": "slide_15.html",
-    "benchmarks": ["S&P 500", "Nasdaq-100", "PEER1", "PEER2"]
+    "decision_critical": [
+      "F-001",
+      "F-002"
+    ],
+    "benchmarks": [
+      "S&P 500",
+      "Nasdaq-100",
+      "PEER1",
+      "PEER2"
+    ]
   },
   "hypotheses": [
     {
       "id": "H1",
       "statement": "One-sentence hypothesis",
       "lens": "(a) revenue miss | (b) margin/EPS | (c) segment | (d) guidance | (e) capital allocation | (f) structural narrative | (g) positioning+macro | (h) one-off noise",
-      "predictions": ["P1 falsifiable check", "P2 falsifiable check", "P3 falsifiable check"],
+      "predictions": [
+        "P1 falsifiable check",
+        "P2 falsifiable check",
+        "P3 falsifiable check"
+      ],
       "verdict": "PRIMARY — narrative | PRIMARY — mechanical | CONTRIBUTOR | AMPLIFIER | NOISE | EXCLUDED (fill in Phase 4)",
       "confidence": "High | Medium | Low"
     }
@@ -34,9 +47,16 @@
       "source_url": "https://finance.yahoo.com/quote/TICK",
       "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
       "confidence": "Verified",
-      "cross_checked_with": ["CNN Markets"],
-      "supports": ["deck"],
-      "slide_pages": ["slide_01.html", "slide_05.html"]
+      "cross_checked_with": [
+        "CNN Markets"
+      ],
+      "supports": [
+        "deck"
+      ],
+      "slide_pages": [
+        "slide_01.html",
+        "slide_05.html"
+      ]
     },
     {
       "_example_2": "DELETE ME — derived fact pattern",
@@ -51,10 +71,17 @@
       "source_url": "https://...",
       "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
       "confidence": "Reasoned",
-      "derived_from": ["F-001", "F-003"],
+      "derived_from": [
+        "F-001",
+        "F-003"
+      ],
       "formula": "(282.32 - 321.89) / 321.89 = -12.29%",
-      "supports": ["deck"],
-      "slide_pages": ["slide_01.html"]
+      "supports": [
+        "deck"
+      ],
+      "slide_pages": [
+        "slide_01.html"
+      ]
     },
     {
       "id": "F-100",
@@ -69,8 +96,12 @@
       "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
       "confidence": "Verified",
       "quote": "Exact source sentence when the fact will be quoted or paraphrased",
-      "supports": ["H1"],
-      "slide_pages": ["slide_04.html"]
+      "supports": [
+        "H1"
+      ],
+      "slide_pages": [
+        "slide_04.html"
+      ]
     }
   ]
 }

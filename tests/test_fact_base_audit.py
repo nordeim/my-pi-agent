@@ -98,6 +98,97 @@ class TestPlaceholderScanScope:
         assert fails == []
 
 
+class TestStrictComplianceModes:
+    """Report-3 M2 / report-4 #3: opt-in strict modes for institutional builds.
+
+    --strict-verified     every `Verified` fact needs >=2 cross_checked_with
+    --decision-critical   named fact IDs need >=2 cross-checks (CLI form of
+                           meta.decision_critical)
+    --fail-on-unverified  reverse-check candidates become failures
+
+    The modes are opt-in by design (report-4's reconciliation of report-3's
+    strict-by-default proposal): the default run must NOT enforce them.
+    """
+
+    @pytest.fixture(scope="class")
+    def fb(self):
+        return {
+            "meta": {"method_page": "slide_01.html", "decision_critical": ["F-9"]},
+            "facts": [
+                {"id": "F-1", "value": 1.0, "confidence": "Verified",
+                 "cross_checked_with": ["F-2"], "slide_pages": ["slide_01.html"]},
+                {"id": "F-2", "value": 2.0, "confidence": "Verified",
+                 "cross_checked_with": ["F-1", "F-3"],
+                 "slide_pages": ["slide_01.html"]},
+                {"id": "F-9", "value": 9.0, "confidence": "Verified",
+                 "cross_checked_with": [], "slide_pages": ["slide_01.html"]},
+            ],
+        }
+
+    @pytest.fixture(scope="class")
+    def slides(self, tmp_path_factory):
+        d = tmp_path_factory.mktemp("strict")
+        (d / "slide_01.html").write_text(
+            "<html><body><p>1.0 2.0 9.0 — and an unsourced $103% figure.</p></body></html>",
+            encoding="utf-8")
+        return d
+
+    def _run(self, fba, slides, fb, *extra):
+        import json as _json
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            fbp = pathlib.Path(td) / "fb.json"
+            fbp.write_text(_json.dumps(fb), encoding="utf-8")
+            rp = pathlib.Path(td) / "r.json"
+            code = fba.main(["--slides", str(slides), "--fact-base", str(fbp),
+                             "--report", str(rp), *extra])
+            report = _json.loads(rp.read_text())
+        return code, report
+
+    def test_default_run_enforces_nothing_strict(self, fba, slides, fb):
+        code, report = self._run(fba, slides, fb)
+        # F-1 (Verified, 1 cross-check) and F-9 (decision-critical via meta!) ...
+        # meta.decision_critical IS enforced by default:
+        assert any("F-9" in f and "CROSSCHECK" in f for f in report["failures"])
+        # ... but plain Verified facts are not:
+        assert not any("F-1" in f and "CROSSCHECK" in f for f in report["failures"])
+        # ... and unverified candidates stay advisory, not failures:
+        assert not any("UNVERIFIED" in f for f in report["failures"])
+        assert code == 1  # F-9 cross-check failure
+
+    def test_strict_verified_enforces_double_sourcing(self, fba, slides, fb):
+        code, report = self._run(fba, slides, fb, "--strict-verified")
+        assert any("F-1" in f and "CROSSCHECK" in f for f in report["failures"]), (
+            "--strict-verified must fail a Verified fact with <2 cross-checks")
+        assert not any("F-2" in f and "CROSSCHECK" in f for f in report["failures"]), (
+            "a fact with 2 cross-checks must pass strict mode")
+
+    def test_fail_on_unverified_promotes_candidates(self, fba, slides, fb):
+        code, report = self._run(fba, slides, fb, "--fail-on-unverified")
+        assert any("UNVERIFIED" in f and "103" in f for f in report["failures"]), (
+            "--fail-on-unverified must promote the unsourced $103% figure to a failure")
+
+    def test_decision_critical_cli_list(self, fba, slides, fb):
+        import copy
+        fb2 = copy.deepcopy(fb)
+        del fb2["meta"]["decision_critical"]
+        code, report = self._run(fba, slides, fb2, "--decision-critical", "F-1")
+        assert any("F-1" in f and "CROSSCHECK" in f for f in report["failures"]), (
+            "--decision-critical F-1 must enforce the >=2 rule without meta/strict")
+
+    def test_cross_check_unit_function(self, fba):
+        fb = {"meta": {}, "facts": [
+            {"id": "A", "confidence": "Verified", "cross_checked_with": ["x"]},
+            {"id": "B", "confidence": "Verified", "cross_checked_with": ["x", "y"]},
+            {"id": "C", "confidence": "Reasoned", "cross_checked_with": []},
+        ]}
+        fails = fba.check_cross_checks(fb, strict_verified=True, extra_ids="")
+        assert [f.split()[1] for f in fails] == ["A"]
+        fails = fba.check_cross_checks(fb, strict_verified=False, extra_ids="C")
+        assert [f.split()[1] for f in fails] == ["C"]
+        assert fba.check_cross_checks(fb, strict_verified=False, extra_ids="") == []
+
+
 class TestSelftest:
     def test_module_selftest_returns_zero(self, fba):
         assert fba.selftest() == 0

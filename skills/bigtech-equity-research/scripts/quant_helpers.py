@@ -11,6 +11,9 @@ Conventions:
   decomposition whose signed sum disagrees with the realized move's sign is
   wrong, not a formatting difference.
 - ocf_shortfall > 0 means actual OCF ran below consensus-implied OCF.
+- abnormal_return returns a dict {excess, convention, beta, beta_window};
+  the beta-adjusted form requires beta_window (the estimation-window
+  disclosure formulas.md mandates — enforced in code, not just prose).
 
 Worked example: Alphabet Q3 2026, GOOG class (close $282.32 on 2026-10-29,
 −12.29% from $321.89) — the canonical family example.
@@ -19,6 +22,7 @@ import sys
 from statistics import mean
 
 TOL = 0.05
+PERCENT_MULTIPLIER = 100.0  # scale factor for ratio -> percent conversions
 
 
 def beat_miss_delta(actual, consensus):
@@ -26,27 +30,41 @@ def beat_miss_delta(actual, consensus):
     if consensus == 0:
         raise ValueError("consensus must be nonzero to compute a beat/miss delta")
     d = actual - consensus
-    return d, d / consensus * 100.0
+    return d, d / consensus * PERCENT_MULTIPLIER
 
 
-def abnormal_return(stock_ret, bench_ret, beta=None):
+def abnormal_return(stock_ret, bench_ret, beta=None, beta_window=None):
     """Market-adjusted excess return, in percentage points.
 
     beta=None      -> stock_return - benchmark_return   (market-adjusted,
                      implicitly assumes beta = 1; NOT a market-model alpha)
     beta=<number>  -> stock_return - beta * benchmark_return  (market-model
-                     form; disclose the estimation window used for beta)
+                     form)
+
+    When beta is supplied, beta_window MUST be a non-empty string naming the
+    estimation window (e.g. "250 sessions vs QQQ, through 2026-10-27"):
+    a beta-adjusted return without a disclosed window is not reproducible and
+    raises ValueError. The window is echoed in the returned dict so the note
+    can print it next to the figure.
     """
     if beta is None:
-        return stock_ret - bench_ret
-    return stock_ret - beta * bench_ret
+        return {"excess": stock_ret - bench_ret, "convention": "market-adjusted",
+                "beta": None, "beta_window": None}
+    if not isinstance(beta_window, str) or not beta_window.strip():
+        raise ValueError(
+            "beta supplied without beta_window: disclose the estimation "
+            "window (e.g. '250 sessions vs QQQ, through YYYY-MM-DD') — a "
+            "beta-adjusted excess return is not reproducible without it")
+    return {"excess": stock_ret - beta * bench_ret,
+            "convention": "beta-adjusted", "beta": beta,
+            "beta_window": beta_window}
 
 
 def capex_ocf_ratio(capex, ocf):
     """Capex / OCF as a percent. Raises on zero OCF."""
     if ocf == 0:
         raise ValueError("OCF must be nonzero to compute the capex/OCF ratio")
-    return capex / ocf * 100.0
+    return capex / ocf * PERCENT_MULTIPLIER
 
 
 def ocf_shortfall(consensus_fcf, consensus_capex, actual_ocf):
@@ -59,7 +77,7 @@ def ocf_shortfall(consensus_fcf, consensus_capex, actual_ocf):
 
 def avg_pt_cut(pt_pairs):
     """pt_pairs = [(new_pt, old_pt), ...]. Returns mean % cut."""
-    cuts = [(new - old) / old * 100.0 for new, old in pt_pairs]
+    cuts = [(new - old) / old * PERCENT_MULTIPLIER for new, old in pt_pairs]
     return mean(cuts)
 
 
@@ -95,9 +113,25 @@ def _selftest():
     check("EPS delta pct", eps_p, -29.80, 0.01)
 
     # Market-adjusted excess return, GOOG class, beta=1 convention.
-    check("excess return (market-adjusted)", abnormal_return(-12.29, -1.5), -10.79, 0.005)
-    # Beta-adjusted variant.
-    check("excess return (beta-adjusted)", abnormal_return(-12.29, -1.5, beta=1.2), -10.49, 0.005)
+    check("excess return (market-adjusted)",
+          abnormal_return(-12.29, -1.5)["excess"], -10.79, 0.005)
+    # Beta-adjusted variant requires the estimation window to be disclosed.
+    rab = abnormal_return(-12.29, -1.5, beta=1.2,
+                          beta_window="250 sessions vs QQQ, through 2026-10-27")
+    check("excess return (beta-adjusted)", rab["excess"], -10.49, 0.005)
+    if rab["convention"] != "beta-adjusted" or rab["beta"] != 1.2:
+        failures.append("beta-adjusted result must echo the convention and beta")
+    # Regression (M1, report-3/4): beta without a disclosed window must raise.
+    try:
+        abnormal_return(-12.29, -1.5, beta=1.2)
+        failures.append("beta supplied without beta_window must raise ValueError")
+    except ValueError:
+        pass
+    try:
+        abnormal_return(-12.29, -1.5, beta=1.2, beta_window="   ")
+        failures.append("blank beta_window must raise ValueError")
+    except ValueError:
+        pass
 
     check("capex/OCF ratio", capex_ocf_ratio(51.36, 42.29), 121.4, 0.05)
     check("OCF shortfall", ocf_shortfall(-2.70, 55.09, 42.29), +10.10, 0.005)
@@ -126,7 +160,9 @@ def _selftest():
     print(f"Revenue delta: {rev_d:+.2f}B ({rev_p:+.2f}%)")        # −0.64B (−0.50%)
     print(f"EPS delta:     {eps_d:+.2f} ({eps_p:+.2f}%)")          # −0.90 (−29.80%)
     print(f"Excess return vs −1.5% benchmark: "
-          f"{abnormal_return(-12.29, -1.5):+.2f}pp")               # −10.79
+          f"{abnormal_return(-12.29, -1.5)['excess']:+.2f}pp")      # −10.79
+    print(f"Beta-adjusted ({rab['beta']}, {rab['beta_window']}): "
+          f"{rab['excess']:+.2f}pp")                                 # −10.49
     print(f"Capex/OCF: {capex_ocf_ratio(51.36, 42.29):.1f}%")      # 121.4%
     print(f"OCF shortfall: {ocf_shortfall(-2.70, 55.09, 42.29):+.2f}B")  # +10.10B
     print(f"Avg PT cut: {avg_pt_cut(pts):+.1f}%")                  # −13.7%

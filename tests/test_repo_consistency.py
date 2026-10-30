@@ -12,6 +12,16 @@ Guards the cross-skill regressions recorded in docs/skills-audit/:
   L-1  frontmatter sanity (name matches folder; description within the
        1024-character skill-spec limit; semver version)
 
+Plus the round-2 remediation guards (validated against
+docs/comparative_analysis_report-3/4/5.md):
+
+  R3-C1/R4-2/R5-H1  lite audit gates vendored into skills 2 and 3
+  R4-5              verification-status line + valuation boundary everywhere
+  R3-synth-1        compute-don't-recall rule in every skill
+  R4-4              segment-map versioning / staleness control
+  R5-M1             root LICENSE + standardized license frontmatter
+  (ci)              CI regression suite actually triggers on push/PR to main
+
 Doctrine changes are legitimate; silent divergence is not. If one of these
 tests fails after an intentional change, land the change in the canonical
 source first (skill 1's references for family doctrine), mirror it into the
@@ -277,10 +287,14 @@ class TestPostmortemFrameworkFoldIn:
 
     def test_framework_keeps_audit_gates_mandatory(self):
         t = read(self.FRAMEWORK)
-        assert "fact_base_audit.py" in t
-        assert "overflow_audit.mjs" in t, (
-            "postmortem-framework.md: the lightweight mode must still "
-            "require both Phase 10 audit gates")
+        # Round-2 doctrine: the lightweight mode enforces the bundled lite gates
+        # (note_audit.py + note_overflow_audit.mjs) standalone, and upgrades to
+        # the full Phase 10 gates (audit_all.sh) when the flagship is available.
+        assert "note_audit.py" in t
+        assert "note_overflow_audit.mjs" in t
+        assert "audit_all.sh" in t, (
+            "postmortem-framework.md: the lightweight mode must still require "
+            "delivery gates — lite bundled, full via the Phase 10 wrapper")
 
 
 # --------------------------------------------------------------------------
@@ -307,6 +321,160 @@ class TestFrontmatterSanity:
         fm = frontmatter(REPO_ROOT / "skills" / slug / "SKILL.md")
         assert re.fullmatch(r"\d+\.\d+\.\d+", str(fm.get("version", ""))), (
             f"{slug}: version {fm.get('version')!r} is not semver")
+
+
+# --------------------------------------------------------------------------
+# Round 2 — lite audit gates, licensing, CI wiring, doctrine guards
+# (validated against docs/comparative_analysis_report-3/4/5.md)
+# --------------------------------------------------------------------------
+
+class TestLiteAuditGates:
+    """R3-C1 / R4 #2 / R5 H-1: skills 2 and 3 must ship their own executable
+    delivery gates and mandate them — compliance may not depend on the
+    flagship being installed."""
+
+    @pytest.mark.parametrize("skill_dir", [SKILL2, SKILL3], ids=["skill2", "skill3"])
+    def test_note_audit_vendored(self, skill_dir):
+        assert (skill_dir / "scripts" / "note_audit.py").exists(), (
+            f"{skill_dir.name}: lite numeric/disclosure gate not bundled")
+        assert (skill_dir / "assets" / "checks.json").exists(), (
+            f"{skill_dir.name}: disclosure-needle spec not bundled")
+
+    @pytest.mark.parametrize("skill_dir", [SKILL2, SKILL3], ids=["skill2", "skill3"])
+    def test_render_gate_vendored(self, skill_dir):
+        assert (skill_dir / "scripts" / "note_overflow_audit.mjs").exists(), (
+            f"{skill_dir.name}: single-file render gate not bundled (R3-H2)")
+
+    def test_skill2_claims_bundled_gates(self):
+        t = read(SKILL2 / "SKILL.md")
+        assert "mandatory and bundled" in t, (
+            "skill 2 must present the lite gates as mandatory and bundled, not "
+            "as an 'if the sibling is installed' dependency")
+
+
+class TestLicenseStandardization:
+    """R5 M-1: one license posture for the family — root LICENSE present and
+    every family skill declares it in frontmatter."""
+
+    def test_root_license_exists(self):
+        assert (REPO_ROOT / "LICENSE").exists(), (
+            "no root LICENSE despite a skill declaring Apache-2.0 (report-5 M-1)")
+        assert "Apache License" in read(REPO_ROOT / "LICENSE")
+        assert "Version 2.0" in read(REPO_ROOT / "LICENSE")
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_every_skill_declares_license(self, slug):
+        fm = frontmatter(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert fm.get("license") == "Apache-2.0", (
+            f"{slug}: license frontmatter key missing or non-Apache-2.0 — the "
+            "family is standardized on Apache-2.0")
+
+
+class TestCIWiring:
+    """The regression suite must actually trigger on push/PR to main — a
+    malformed or narrowed branch filter would silently disable the whole
+    suite while the workflow file still parses."""
+
+    def test_ci_triggers_on_main(self):
+        ci = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+        assert ci.exists(), "CI workflow missing"
+        t = read(ci)
+        assert t.count("branches: [main]") == 2, (
+            "ci.yml must gate both push and pull_request on branches: [main] "
+            "— a malformed trigger silently disables the whole suite")
+
+    def test_ci_runs_the_regression_suite(self):
+        t = read(REPO_ROOT / ".github" / "workflows" / "ci.yml")
+        assert "pytest tests/" in t, "CI must run the tests/ regression suite"
+
+
+class TestDoctrineGuardsRound2:
+    """Cross-family doctrine added in round 2: verification-status line,
+    valuation boundary, compute-don't-recall, segment-map versioning."""
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_verification_status_required(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert re.search(r"verification[\s-]+status", t, re.I), (
+            f"{slug}: the deliverable's verification-status line is not required "
+            "(report-4 finding #5)")
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_valuation_boundary_stated(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "valuation boundary" in t.lower(), (
+            f"{slug}: valuation boundary (pre-valuation causal-attribution "
+            "product) not stated (report-4 finding #1)")
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_compute_dont_recall_rule(self, slug):
+        t = read(REPO_ROOT / "skills" / slug / "SKILL.md")
+        assert "in-context" in t.lower() and "arithmetic" in t.lower(), (
+            f"{slug}: the no-in-context-arithmetic rule is missing (report-3 "
+            "synthesized gap: the hallucinated-math vector)")
+
+    def test_segment_map_is_versioned(self):
+        t = read(SKILL3 / "reference" / "segment-maps.md")
+        assert "segment_map_version" in t, (
+            "segment-maps.md: segment_map_version field missing (report-4 #4)")
+        assert "last_verified_against_filing" in t, (
+            "segment-maps.md: last_verified_against_filing field missing")
+        assert "Staleness rule" in t, (
+            "segment-maps.md: the hard staleness rule is missing")
+
+    def test_report_structure_is_14_sections(self):
+        t = read(SKILL3 / "templates" / "report-structure.md")
+        assert "14-Section" in t, (
+            "report-structure.md: dedicated Risk Factors & Falsification "
+            "section added — the title must say 14 sections")
+        assert "Risk Factors & Falsification Conditions" in t, (
+            "report-structure.md: the dedicated falsifiers section (report-4 "
+            "medium) is missing")
+
+    def test_strict_modes_documented(self):
+        for doc in [SKILL1 / "SKILL.md", SKILL1 / "references" / "fact-base-schema.md",
+                    SKILL1 / "references" / "methodology.md"]:
+            t = read(doc)
+            assert "--strict-verified" in t, (
+                f"{doc.name}: strict compliance modes not documented")
+            assert "--fail-on-unverified" in t
+
+    def test_audit_all_wrapper_wired(self):
+        assert (SKILL1 / "scripts" / "audit_all.sh").exists(), (
+            "audit_all.sh wrapper missing (report-5 L-2)")
+        t = read(SKILL1 / "SKILL.md")
+        assert "audit_all.sh" in t, "SKILL.md does not reference the one-command wrapper"
+
+    def test_beta_window_contract_documented(self):
+        t = read(SKILL3 / "reference" / "formulas.md")
+        assert "beta_window" in t, (
+            "formulas.md: the abnormal_return beta-window code contract is "
+            "undocumented (report-3 M1)")
+
+
+class TestCatalogParity:
+    """The two inventory copies stay identical, and their three family entries
+    mirror the live SKILL.md frontmatter (versions and descriptions drift
+    otherwise — L-1 class hygiene)."""
+
+    INV = [REPO_ROOT / "skills-inventory.md", REPO_ROOT / "docs" / "skills-inventory.md"]
+
+    def test_inventory_copies_identical(self):
+        a = read(self.INV[0])
+        b = read(self.INV[1])
+        assert a == b, "skills-inventory.md and docs/skills-inventory.md diverged"
+
+    @pytest.mark.parametrize("slug", SKILL_SLUGS)
+    def test_inventory_mirrors_skill_versions(self, slug):
+        fm = frontmatter(REPO_ROOT / "skills" / slug / "SKILL.md")
+        for inv in self.INV:
+            t = read(inv)
+            m = re.search(rf"^### `{re.escape(slug)}`\n\n(.*?)(?=^### )", t, re.S | re.M)
+            assert m, f"{inv.name}: entry for {slug} missing"
+            vm = re.search(r"^- \*\*Version\*\*: (.+)$", m.group(1), re.M)
+            assert vm and vm.group(1).strip() == fm["version"], (
+                f"{inv.name}: {slug} entry version {vm.group(1) if vm else None!r} "
+                f"!= SKILL.md version {fm['version']!r}")
 
 
 def frontmatter(path: pathlib.Path) -> dict:

@@ -14,13 +14,26 @@ for placeholder tokens, evaluates derived-fact formulas, and checks that
      number on the slide, never a digit substring of a longer number
      ("82.3" does NOT match "$282.32").
      Numbers found on slides but absent from the fact base are reported as
-     "unverified candidates" — a to-review list, not automatic failures.
+     "unverified candidates" — a to-review list, not automatic failures
+     (promote them to failures with the opt-in --fail-on-unverified).
      Facts carrying a `formula` of the form "LHS = RHS" (numbers and
      + - * / ( ) only) are arithmetically checked: both sides are evaluated
      and must agree (percent-aware: "…= -12.29%" compares against LHS*100).
      Facts with confidence "Assumed" must be listed on the method/
      assumptions page, designated via --method-page FILE or the fact base's
      meta.method_page field.
+     Opt-in strict compliance modes (institutional builds):
+       --strict-verified     every fact tagged `Verified` must carry >=2
+                             entries in cross_checked_with (the family's
+                             double-sourcing rule; report-3/4 finding M2)
+       --decision-critical A,B  fact IDs that must carry >=2 cross-checks
+                             regardless of --strict-verified (same effect as
+                             meta.decision_critical in the fact base)
+       --fail-on-unverified  reverse-check "unverified candidates" become
+                             failures (exit 1) instead of a NOTE review list
+                             — opt-in only: the reverse-check is heuristic,
+                             and page furniture (years, section numbers)
+                             legitimately appears without fact-base entries
   2. Checks mode    : --slides DIR --checks FILE
      FILE = {"slide_01.html": ["-12.29%", "$482B", ...]} — per-slide needles.
   3. Scan-only      : --slides DIR — placeholder scan only.
@@ -199,7 +212,37 @@ def _isfloat(s: str) -> bool:
         return False
 
 
-def run_fact_base_mode(slides: dict, fb: dict, method_page: str) -> tuple:
+def check_cross_checks(fb: dict, strict_verified: bool, extra_ids: str) -> list:
+    """Cross-check enforcement (opt-in strict compliance modes).
+
+    A fact needs >=2 entries in cross_checked_with when either
+      (a) --strict-verified is on and the fact is tagged `Verified`, or
+      (b) the fact's id is decision-critical (meta.decision_critical in the
+          fact base, or the --decision-critical CLI list).
+    Default mode stays silent: the schema marks cross_checked_with
+    "decision-critical" — enforcing it for every fact would flag routine
+    Verified observations that were never required to be double-sourced."""
+    fails = []
+    meta = fb.get("meta", {}) or {}
+    dc = {str(x) for x in meta.get("decision_critical", [])}
+    dc |= {x.strip() for x in (extra_ids or "").split(",") if x.strip()}
+    for fact in fb.get("facts", []):
+        fid = fact.get("id", "?")
+        n = len(fact.get("cross_checked_with") or [])
+        if n >= 2:
+            continue
+        if strict_verified and fact.get("confidence") == "Verified":
+            fails.append(f"CROSSCHECK   {fid}  `Verified` with {n} cross-check(s) "
+                         "— strict mode requires >=2 independent sources")
+        elif fid in dc:
+            fails.append(f"CROSSCHECK   {fid}  decision-critical with {n} "
+                         "cross-check(s) — requires >=2 independent sources")
+    return fails
+
+
+def run_fact_base_mode(slides: dict, fb: dict, method_page: str,
+                       strict_verified: bool = False,
+                       decision_critical: str = "") -> tuple:
     """Per-fact presence checks. Returns (failures, skipped_ids, covered_tokens)."""
     fails, skipped, covered = [], [], set()
     deck_text = norm(" ".join(visible_text(v) for v in slides.values()))
@@ -229,6 +272,7 @@ def run_fact_base_mode(slides: dict, fb: dict, method_page: str) -> tuple:
                          f"{[p for p in listed if p not in slides]}")
     fails += check_formulas(fb)
     fails += check_assumed_on_method_page(fb, slides, method_page)
+    fails += check_cross_checks(fb, strict_verified, decision_critical)
     return fails, skipped, covered
 
 
@@ -302,7 +346,16 @@ def selftest() -> int:
             {"id": "F-12", "value": 1.5, "confidence": "Assumed",
              "metric": "Event-day beta (index closes unavailable)",
              "slide_pages": ["slide_14.html"]},
+            # Strict-mode fixtures: F-1 is Verified with only 1 cross-check
+            # (must fail --strict-verified); F-2 has 2 (must pass); F-13 is
+            # named decision-critical with 0 (must fail even without
+            # --strict-verified when listed via meta.decision_critical).
+            {"id": "F-13", "value": 42.29, "confidence": "Verified",
+             "cross_checked_with": [], "slide_pages": ["slide_01.html"]},
         ]}
+        fb["facts"][0]["cross_checked_with"] = ["F-002"]
+        fb["facts"][1]["cross_checked_with"] = ["F-001", "F-003"]
+        fb["meta"]["decision_critical"] = ["F-13"]
         (d / "fb.json").write_text(json.dumps(fb), encoding="utf-8")
         code = main(["--slides", str(d), "--fact-base", str(d / "fb.json"),
                      "--report", str(d / "r.json")])
@@ -322,8 +375,37 @@ def selftest() -> int:
               and not any("F-12" in f for f in report["failures"])
               and any("F-4" in s for s in report["passes_skipped"])       # text-only skipped
               and any("103%" in c for c in report["unverified_candidates"]))
+        # Default run must NOT enforce cross-checks (opt-in discipline) but
+        # MUST enforce meta.decision_critical, and unverified candidates stay
+        # advisory notes, not failures.
+        ok = ok and not any("F-1 " in f and "CROSSCHECK" in f
+                            for f in report["failures"])
+        ok = ok and any("F-13" in f and "CROSSCHECK" in f
+                        for f in report["failures"])
+        ok = ok and not any("UNVERIFIED" in f for f in report["failures"])
+        # Strict run: F-1 (Verified, 1 cross-check) now fails and the
+        # unverified candidate "103%" is promoted to a failure.
+        code_s = main(["--slides", str(d), "--fact-base", str(d / "fb.json"),
+                       "--strict-verified", "--fail-on-unverified",
+                       "--report", str(d / "r_strict.json")])
+        r_strict = json.loads((d / "r_strict.json").read_text())
+        ok = ok and code_s == 1
+        ok = ok and any("F-1" in f and "CROSSCHECK" in f
+                        for f in r_strict["failures"])
+        ok = ok and not any("F-2" in f and "CROSSCHECK" in f
+                            for f in r_strict["failures"])
+        ok = ok and any("UNVERIFIED" in f and "103%" in f
+                        for f in r_strict["failures"])
+        # CLI --decision-critical works without meta.decision_critical and
+        # without --strict-verified: F-5 (Verified, no cross-checks) fails.
+        fb2 = json.loads(json.dumps(fb))
+        del fb2["meta"]["decision_critical"]
+        (d / "fb2.json").write_text(json.dumps(fb2), encoding="utf-8")
+        code_c = main(["--slides", str(d), "--fact-base", str(d / "fb2.json"),
+                       "--decision-critical", "F-5"])
         print("=" * 60)
-        print("SELFTEST:", "PASS" if ok else "FAIL", "(exit was", str(code) + ")")
+        print("SELFTEST:", "PASS" if ok else "FAIL",
+              f"(default exit {code}, strict exit {code_s}, cli-dc exit {code_c})")
         return 0 if ok else 1
 
 
@@ -336,6 +418,17 @@ def main(argv=None) -> int:
                     help="slide carrying the assumptions/method list (default: "
                          "fact-base meta.method_page; required when Assumed "
                          "facts exist)")
+    ap.add_argument("--strict-verified", action="store_true",
+                    help="opt-in: every fact tagged `Verified` must carry >=2 "
+                         "entries in cross_checked_with")
+    ap.add_argument("--decision-critical", default="",
+                    help="comma-separated fact IDs that require >=2 "
+                         "cross_checked_with entries (same effect as "
+                         "meta.decision_critical in the fact base)")
+    ap.add_argument("--fail-on-unverified", action="store_true",
+                    help="opt-in: promote reverse-check 'unverified candidates' "
+                         "to failures (exit 1). Default keeps them as a NOTE "
+                         "review list because the reverse-check is heuristic")
     ap.add_argument("--report", help="optional path for a JSON audit report")
     ap.add_argument("--selftest", action="store_true", help="run built-in self-test and exit")
     args = ap.parse_args(argv)
@@ -355,7 +448,10 @@ def main(argv=None) -> int:
     if args.fact_base:
         fb = json.loads(pathlib.Path(args.fact_base).read_text(encoding="utf-8"))
         method_page = args.method_page or (fb.get("meta", {}) or {}).get("method_page")
-        failures, skipped, covered = run_fact_base_mode(slides, fb, method_page)
+        failures, skipped, covered = run_fact_base_mode(
+            slides, fb, method_page,
+            strict_verified=args.strict_verified,
+            decision_critical=args.decision_critical)
     if args.checks:
         checks = json.loads(pathlib.Path(args.checks).read_text(encoding="utf-8"))
         failures += run_checks_mode(slides, checks)
@@ -370,10 +466,19 @@ def main(argv=None) -> int:
     cands = unverified_candidates(slides, covered) if args.fact_base else []
     if cands:
         print("-" * 60)
-        print(f"NOTE   {len(cands)} unverified candidate(s) on slides — add to the fact "
-              "base or confirm benign (years, page furniture):")
-        for c in cands:
-            print(f"       ? {c}")
+        if args.fail_on_unverified:
+            print(f"NOTE   {len(cands)} unverified candidate(s) promoted to "
+                  "failures by --fail-on-unverified:")
+            for c in cands:
+                failures.append(f"UNVERIFIED   slide number '{c}' has no "
+                                 "fact-base entry (add it or confirm benign)")
+                print(f"       ! {c}")
+        else:
+            print(f"NOTE   {len(cands)} unverified candidate(s) on slides — add to the fact "
+                  "base or confirm benign (years, page furniture); promoted to "
+                  "failures only with --fail-on-unverified:")
+            for c in cands:
+                print(f"       ? {c}")
 
     if args.report:
         pathlib.Path(args.report).write_text(json.dumps(

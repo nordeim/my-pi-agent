@@ -254,6 +254,7 @@ an IC trust the rest of the analysis.
 ## 9. Phase 8 — Synthesis & forward frame
 
 - **One-sentence root cause**, template: *"The market repriced [mechanism] when [evidence 1] arrived in the same print as [evidence 2]."* Worked example: *"the market repriced the AI investment equation — evidence that AI is denting the highest-margin revenue pool arrived in the same print as confirmation that defending it keeps getting more expensive."* If you cannot write this sentence, return to Phase 4.
+- **Valuation boundary** (mandatory): the deck is a causal-attribution product — it explains why the price moved and does **not** opine on mispricing. State this in one line on the synthesis page and name the model gap as an open item: "no DCF / SOTP / scenario-weighted fair value is produced; a valuation pass would require forward estimates, a discount-rate framework, and scenario weights — logged as the open valuation item." An IC reader must never mistake an excellent post-mortem for a complete investment memo.
 - **Ranked driver table**: ordinal ranks only. Publish a percentage attribution **only if** it is computable from sourced data; otherwise write "attribution is qualitative". Fake precision is worse than admitted ambiguity.
 - **Scenario table** (bull/base/bear): each scenario = narrative + 2–3 quantifiable conditions + the signposts that would confirm/refute it. Explicitly label scenarios as analytic frames, **not price targets**. Example watch conditions: "Q4 Search growth ≥ +12% y/y", "2027 capex guided ≥$230B", "sequential Search deceleration below +8%".
 - **Falsifiers for your own RCA**: state what evidence would flip each verdict — an RCA without falsifiers is an opinion.
@@ -266,13 +267,14 @@ an IC trust the rest of the analysis.
 ## 10. Phase 9 — Report production workflow
 
 1. **Brief first**: write `assets/slides_brief.template.json`-style `slides_brief.json` with per-page title, layout archetype, and a task brief that already contains the exact figures, quotes and sources. Building pages while improvising content is how numbers drift from the fact base.
-2. **Page architecture** (15-page default; compress to 12–16 as needed):
-   01 Cover (title, 4-stat strip, cutoff + disclaimer) · 02 Verdict (3 tagged cards + "what the panic missed" band) · 03 Event timeline · 04 Results scorecard table · 05 Price action + drawdown ladder · 06 Section divider: The Hypothesis Tree · 07 H-page (primary narrative) · 08 H-page (primary mechanical) · 09 Contributor pages (H3+H4 combined) · 10 Amplifier page · 11 Evidence matrix (all hypotheses, verdicts, confidence) · 12 Overlooked case · 13 Street reaction & valuation damage · 14 Scenarios & falsifiers · 15 Sources & confidence ledger.
-3. **Design system**: Midnight IC tokens, components and the 1280×720 overflow budget are specified in `references/report-design.md`. Follow the budget — it is derived from real overflow failures.
-4. **Every page**: kicker, headline, source line (named sources), confidence chips, no emoji, no lorem.
-5. **Charts**: prefer pure CSS bars/ladders (`.bar-track/.bar-fill`) for deterministic rendering; if using a chart library it must render fully offline from local data.
-6. **Viewer**: one extra HTML file linking all pages with keyboard navigation (←/→), so the reviewer can flip through the deck as one artifact.
-7. Build pages → run Phase 10 audits → fix the brief/generator, not the rendered page.
+2. **Cover verification-status line**: the cover states which gates the finished deck passed — "Verification status: full fact-base + render audits passed", or "Draft — human verification required" with the reason when a gate could not run. Update it after the final Phase 10 run; a deliverable whose audit state is implicit is a draft.
+3. **Page architecture** (15-page default; compress to 12–16 as needed):
+   01 Cover (title, 4-stat strip, verification-status line, cutoff + disclaimer) · 02 Verdict (3 tagged cards + "what the panic missed" band) · 03 Event timeline · 04 Results scorecard table · 05 Price action + drawdown ladder · 06 Section divider: The Hypothesis Tree · 07 H-page (primary narrative) · 08 H-page (primary mechanical) · 09 Contributor pages (H3+H4 combined) · 10 Amplifier page · 11 Evidence matrix (all hypotheses, verdicts, confidence) · 12 Overlooked case · 13 Street reaction & valuation damage · 14 Scenarios & falsifiers · 15 Sources & confidence ledger.
+4. **Design system**: Midnight IC tokens, components and the 1280×720 overflow budget are specified in `references/report-design.md`. Follow the budget — it is derived from real overflow failures.
+5. **Every page**: kicker, headline, source line (named sources), confidence chips, no emoji, no lorem.
+6. **Charts**: prefer pure CSS bars/ladders (`.bar-track/.bar-fill`) for deterministic rendering; if using a chart library it must render fully offline from local data.
+7. **Viewer**: one extra HTML file linking all pages with keyboard navigation (←/→), so the reviewer can flip through the deck as one artifact.
+8. Build pages → run Phase 10 audits (`bash scripts/audit_all.sh …`) → fix the brief/generator, not the rendered page.
 
 **Gate:** brief complete before first page; all pages match brief; audits clean.
 
@@ -283,13 +285,17 @@ an IC trust the rest of the analysis.
 ### 11.1 Numeric audit
 
 ```
+bash scripts/audit_all.sh <slides_dir> <fact_base.json> [<checks.json>]     # both gates, one command
+STRICT=1 bash scripts/audit_all.sh <slides_dir> <fact_base.json>            # + strict compliance modes
 python3 scripts/fact_base_audit.py --slides <slides_dir> --fact-base <fact_base.json>
 python3 scripts/fact_base_audit.py --slides <slides_dir> --checks <checks.json>   # simple needle format
 python3 scripts/fact_base_audit.py --slides <slides_dir>                          # placeholder scan only
 python3 scripts/fact_base_audit.py --selftest
 ```
 
+- `audit_all.sh` runs the numeric and render gates with a single combined exit code — use it as the default Phase 10 entry point so the second gate cannot be forgotten.
 - The fact-base mode verifies every fact's numeric tokens appear in the assigned pages (anchored, sign/symbol-tolerant matching — a digit substring of a longer slide number never satisfies a fact), arithmetically checks derived-fact formulas, enforces the Assumed-on-method-page rule (`meta.method_page` or `--method-page`), and reverse-checks numbers found in slides against the fact base to surface **unverified candidates**.
+- **Cross-check enforcement**: facts listed in `meta.decision_critical` (or `--decision-critical F-001,F-014`) must carry ≥2 `cross_checked_with` entries. Opt-in strict modes for institutional builds: `--strict-verified` extends the ≥2 rule to every `Verified` fact; `--fail-on-unverified` promotes reverse-check candidates to failures. These are deliberately opt-in — the reverse-check is heuristic, and a default-strict gate that flags benign page furniture (years, section numbers) gets switched off, protecting nothing. `STRICT=1` on the wrapper turns both on.
 - The checks-file format is `{"slide_01.html": ["-12.29%", "$482B", ...]}` — one needle list per page, same as used successfully in the Alphabet engagement (212 checks).
 - Placeholder scan always runs, on visible text only: `lorem`, `todo`, `placeholder`, `xxx`, `【`, `tbd`, `nan`, `undefined`, `insert …`.
 - Investigate every failure. The Alphabet engagement's two documented false positives are the model: needles `$205` and `$500` failed only because the slides print those figures inside ranges (`$195–205B`, `$300–500`) — the numbers were present and correct. Prefer fact-base mode (anchored token matching) over needle mode for exactly this reason, and when a needle fails, check for range/abbreviated formatting before touching the slide.
@@ -344,6 +350,7 @@ Working rules that experience says matter most:
 | 13 | Decorative bleed elements flagged as overflow | mark them non-content: `data-bleed="intentional"`, `data-decor`, or `aria-hidden="true"` |
 | 14 | Publishing scenarios that read as price targets | §9 explicit "analytic frames, not price targets" |
 | 15 | Stale data shipped after market moved | §11.3 cutoff stamp + refresh duty |
+| 16 | In-context arithmetic (mental deltas/ratios in the running text) | golden rule 6 — compute in code, transcribe the output |
 
 ---
 

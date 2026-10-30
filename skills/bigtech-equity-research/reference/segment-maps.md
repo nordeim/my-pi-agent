@@ -1,5 +1,8 @@
 # Reportable Segments — US Big Tech
 
+> **Map version:** `segment_map_version: 2026-10` · `last_verified_against_filing:
+> FY2025/FY2026 10-Ks` (verified 2026-10-30 against the filed 10-K segment notes).
+
 Use the EDGAR 10-Q/10-K segment table as the source of truth. This map distinguishes
 **reportable segments** (ASC 280 — what the filing's segment note actually presents)
 from **disclosed revenue lines** (product categories the company discloses in the
@@ -7,9 +10,15 @@ revenue note or MD&A but that are not reportable segments). Do not present a dis
 revenue line as a "segment" — the variance table must mirror the filing's own segment
 note or the auditor cannot tie it out.
 
-Structures below reflect the FY2025/FY2026 10-Ks. Segment structures change
-(divestitures, reorganizations, new GAAP segment rules) — re-verify against the latest
-filing before use.
+**Staleness rule (hard):** before building any variance table, compare this map's
+`last_verified_against_filing` above with the filing you are actually using. If your
+filing is newer (a more recent 10-K/10-Q, or a filing whose segment note restructures
+the map below), re-verify the segment structure against that filing's own segment note
+first and update this map (bump `segment_map_version`, set the new
+`last_verified_against_filing`) — a variance table tied to a stale map will not tie
+out to the current filing, and nothing downstream will catch it. Segment structures
+change (divestitures, reorganizations, new GAAP segment rules) — treat the map as a
+cached verification, never as the filing itself.
 
 | Company | Reportable segments (ASC 280) | Disclosed revenue lines (not segments) | Primary price movers |
 |---|---|---|---|
@@ -27,6 +36,8 @@ filing before use.
 - For trend mode, pull 4–8 quarters of each segment to spot inflections.
 - "Subscriptions/Devices" and "Other Bets"-style residual lines often require the 10-Q to split;
   if only the aggregate is available, report the residual and tag it `Unverifiable`.
+- The variance table cites the filing it ties to (form type + fiscal period) so a reader
+  can check it against the map version above.
 - **Apple unit volumes**: Apple ceased reporting unit sales in FY2019 (last disclosed Q4
   FY2018). Never quote or infer iPhone/Mac/iPad unit counts or ASPs from units — use
   reported **product revenue** and disclosed **installed-base** figures. Third-party unit

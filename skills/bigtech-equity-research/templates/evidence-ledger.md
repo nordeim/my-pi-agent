@@ -1,4 +1,4 @@
-# Evidence & Verification Ledger (Section 13)
+# Evidence & Verification Ledger (Section 14)
 
 Two tables in the deliverable appendix.
 
@@ -15,8 +15,13 @@ Two tables in the deliverable appendix.
 | Pre-print ATM straddle | 2 (positioning) | Options chain for nearest expiry; implied vs realized |
 | EDGAR segment split | 1 & 3 | EDGAR CIK → 8-K/10-Q → segment tables |
 | Forward P/E vs band | 11 (Valuation Impact) | Valuation feed + forward consensus EPS |
+| Intrinsic valuation (DCF/SOTP) | 11 (Valuation boundary) | The named open item: forward estimates + discount-rate framework + scenario weights |
 
 ## Method note (always include)
 State the source hierarchy used, that no "executed verification" is claimed for price targets or
 forward guidance, and that root-cause weights are `Reasoned` judgment, not reported fact —
 the sum-to-move identity is an arithmetic consistency check, not evidence of causation.
+Also state the valuation boundary: no intrinsic valuation (DCF/SOTP/scenario-weighted fair
+value) is produced — the forward-multiple band is context only, and the model gap is the
+open item a valuation pass would close (forward estimates, discount-rate framework,
+scenario weights). Close with the verification-status line matching the note's cover.
