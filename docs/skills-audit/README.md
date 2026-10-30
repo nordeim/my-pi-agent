@@ -91,6 +91,52 @@ WORM-archiving/MCP-vendor integration (operational infrastructure beyond skill
 scope); a valuation model (the boundary statement per report 4 instead of a
 new DCF skill).
 
+## Round-3 remediation — validated against comparative analysis reports 6/7
+
+A third remediation round was planned and executed after validating the two
+later comparative reports (`docs/comparative_analysis_report-6.md`, `-7.md`).
+Report 7's Part-D merged finding set (union of its own audit and report 6's
+synthesized roadmap, re-ranked) was the acceptance list; report 6's regulatory
+correction (Reg AC / FINRA 2241 apply to distributed sell-side research, not
+internal buy-side IC memos — conflict disclosure *is* still required under
+CFA Institute Standard I(B) / Advisers Act fiduciary duty) was adopted as the
+compliance framing.
+
+| Round-3 item (source finding) | Status | Where |
+| --- | --- | --- |
+| SHA-256 provenance sealing + tamper-evident verification (R6/R7 C-2) | Landed | `scripts/provenance_seal.py` vendored byte-identical ×3; seal line embedded next to the verification-status line; `provenance.json` sidecar; `--verify` re-check |
+| Buy-side position & mandate disclosure (R6 synth-2 / R7 C-1+M-4, regime-corrected) | Landed | `meta.mandate_context` (`fund_position`, `position_as_of`) enforced by the MANDATE schema gate when `meta.audience` names an IC; "Fund position:" conditional needles in both lite skills; doctrine in all three SKILL.md compliance sections |
+| Consensus sourcing & vintage enforcement (R6 synth-3 / R7 H-1) | Landed | `consensus_provider` / `consensus_vintage` / `contributor_count` schema fields + always-on CONSENSUS gate (T1/T2 tier, `--consensus-max-age-days`, default 10); doctrine in methodology §2.3, skill-3 Phase 1, skill-2 Step 2 |
+| Epistemic taxonomy split — `Reasoned (derived)` vs `Reasoned (judged)` (R6 synth-4 / R7 H-2) | Landed | `epistemic_kind` schema field + always-on EPISTEMIC gate (derived requires formula); taxonomy rewritten in sourcing-and-confidence.md, fact-base-schema.md §3, postmortem-framework §2, all three SKILL.md |
+| Waterfall sum-to-move identity mechanically enforced (R7 H-2b) | Landed | always-on WATERFALL gate on facts carrying `weights` + `realized_move`; `quant_helpers.waterfall_check` remains the helper-side check |
+| Segment-map staleness gate — advisory → fail-safe (R6 synth-5 / R7 H-3) | Landed | machine-readable `reference/segment-maps.json` + `scripts/segment_map_check.py` (fails the build when the filing postdates `verified_through`; unknown ticker → filing-note extraction path); SKILL.md hard rule 9; doctrine: the filing's own ASC 280 segment note is the source of truth, the map is the cached baseline |
+| Lite number registry for skill 2 (R6 synth-10 / R7 H-4/H-5) | Landed | `assets/fact_base_lite.template.json` + `scripts/fact_base_lite_audit.py` (forward presence, reverse UNREGISTERED failures, schema/source-field checks, furniture whitelist) — the lite note's numbers are now machine-checked |
+| Canonical default beta window (R6 synth-6 / R7 H-2β) | Landed | `DEFAULT_BETA_WINDOW` = 2-year monthly returns vs QQQ; `abnormal_return` applies it when beta is supplied without a window and echoes the source (`canonical default` / `explicit`); override requires documented justification |
+| Scoped disclosure needles (R7 M-2) | Landed | `note_audit.py` `required_if` entries accept `near`/`within` — the qualifying label must sit adjacent to the content it qualifies (SCOPED failure otherwise); both lite checks.json rewritten with scoped waterfall/beta/VRP/position needles |
+| `--strict-pages` (R7 M-1) | Landed | unverified candidates on named decision-critical pages become failures; furniture elsewhere stays advisory |
+| Options implied-move sourcing + VRP caveat (R6 synth-7 / R7 M-3) | Landed | ATM straddle computed from the T-1 closing chain (never a news-quoted percentage); volatility-risk-premium caveat scoped needle; `implied_move` doctrine in formulas.md + methodology Phase 2/pre-event mode |
+| FCF ex-SBC mandatory pairing (R6 synth-8 / R7 L-1) | Landed | `quant_helpers.fcf` / `fcf_ex_sbc`; paired reconciliation row doctrine in skill-2 Step 2, skill-3 Phase 4, postmortem-framework §8, formulas.md |
+| Canonical peer baskets (R6 synth-9 / R7 M-4) | Landed | `reference/peers.md` (selection criteria + default baskets, TSLA axis note); wired into skill-2 Step 4, skill-3 Phase 5 |
+| Accessibility gate (R7 M-5/M-6) | Landed | `scripts/a11y_audit.mjs` vendored ×3 — lang, heading order, image alt, WCAG 2.2 AA contrast (4.5:1 / 3:1 large); the templates' WCAG-AA claim is now enforced, not asserted |
+| `quant_helpers` coverage: segment variance (R7 L-4) | Landed | `segment_variance(actual, consensus, prior_q, year_ago_q)` → delta/QoQ/YoY row |
+| Family version parity 1.4.0 (R7 L-1) | Landed | all three SKILL.md + both inventory copies |
+
+Rejected again (with reasoning): sell-side Reg AC / FINRA 2241 certification
+module and supervisory-approval stamps (regime misapplication — the family's
+standing internal-buy-side scoping; conflict disclosure implemented instead,
+per report 6's own correction of report 7's C-1); WORM archival / retention
+scheduling / firm-key signing (operational infrastructure beyond skill scope —
+SHA-256 sealing is the in-scope core); a DCF/SOTP valuation skill (the
+valuation-boundary doctrine stands).
+
+The regression suite grew from 6 to 10 files (247 tests): the round-3 gates
+carry dedicated test modules (`test_provenance_seal.py`,
+`test_segment_map_check.py`, `test_fact_base_lite_audit.py`,
+`test_a11y_audit.py`), and `test_repo_consistency.py` gained
+`TestDoctrineGuardsRound3` (vendoring parity ×3, wiring, doctrine presence,
+family version parity). The vendored `provenance_seal.py` and `a11y_audit.mjs`
+copies are byte-identical across the three skills, guarded by tests.
+
 ## Contents
 
 - `BigTech_Research_Skills_Audit_Report.docx` — the audit report (36 pp. rendered;
