@@ -1,6 +1,6 @@
 ---
 name: analyzing-us-bigtech-stocks
-version: 1.1.0
+version: 1.2.0
 description: "Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck with audit gates. This is the full-pipeline skill of the big-tech research family: hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render audits. For a lighter single-file post-earnings note use big-tech-earnings-postmortem; for a quantified single-note with segment deep-dive use bigtech-equity-research. Enforces primary-source verification, confidence labels (Verified / Reasoned / Assumed / Unverifiable), and audit gates before delivery."
 ---
 
@@ -132,7 +132,7 @@ Phase 9 until every hypothesis has a verdict.
 4. Elimination is a finding, not a failure: at least one hypothesis must be explicitly excluded with evidence (e.g. "Cloud demand failure — excluded: Cloud beat at +103% with $561B backlog").
 5. Separate what the market *said* (call language, analyst notes) from what the numbers *did*; both matter, but they are different evidence classes.
 
-*Verdict definitions and elimination criteria: `references/methodology.md` §5.*
+*Verdict definitions and elimination criteria: `references/methodology.md` §5. The two-axis durability × evidentiary-basis classification and the big-tech ranking heuristic: `references/postmortem-framework.md`.*
 
 ### Phase 5 — Quantify surviving mechanisms
 
@@ -196,6 +196,7 @@ Phase 9 until every hypothesis has a verdict.
 | File | Read when |
 |---|---|
 | `references/methodology.md` | Starting any engagement — full phase-by-phase playbook, source tiers, formulas, pitfall catalog |
+| `references/postmortem-framework.md` | Canonical driver-attribution doctrine — two-axis classification (durability × evidentiary basis), ranking heuristic, risk/catalyst matrix, failure modes; read for lightweight post-mortem mode or when a family skill needs the shared framework |
 | `references/fact-base-schema.md` | Phase 1 — fact record fields, confidence rules, worked examples |
 | `references/report-design.md` | Phase 9 — Midnight IC tokens, 15-page archetype map, overflow budget |
 | `assets/fact_base.template.json` | Phase 1 — starting skeleton with worked examples |
@@ -246,6 +247,7 @@ Phase 9 until every hypothesis has a verdict.
 
 ## Adaptations
 
+- **Lightweight post-mortem mode** (single-file note instead of the full deck): run Phases 0–8 at compressed depth following `references/postmortem-framework.md` §11 — the seven-section note sequence — and still pass both Phase 10 audit gates on the file. This is the mode the sibling skill `big-tech-earnings-postmortem` executes standalone.
 - **Non-earnings events** (antitrust rulings, product launches, pre-announcements, executive changes): identical pipeline; swap the Phase 3 lenses for event-specific ones and keep the ≥1-exclusion rule.
 - **Other US-listed large caps** (non-tech): the pipeline is identical; swap segment templates and peer baskets.
 - **Language**: produce the report in the user's language; keep tickers, metric names and source titles in English.

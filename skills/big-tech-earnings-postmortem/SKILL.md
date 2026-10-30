@@ -1,6 +1,6 @@
 ---
 name: big-tech-earnings-postmortem
-version: 1.1.0
+version: 1.2.0
 description: >
   Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed
   big-tech stock's price move around earnings, and produce an institutional-grade
@@ -24,6 +24,17 @@ compatibility: Requires web search and page-fetch tools for primary-source verif
 Produce a research artifact that a portfolio manager could defend in an
 investment committee: every number traceable, every causal claim layered and
 falsifiable, every judgment labeled with its confidence basis.
+
+## Canonical methodology
+
+The full statement of this framework — the two-axis driver classification
+(durability × evidentiary basis), the ranking heuristic, the risk/catalyst
+matrix, and the failure-mode catalog — lives canonically in the sibling skill
+at `analyzing-us-bigtech-stocks/references/postmortem-framework.md`. This file
+is the standalone operative summary for deployments without that folder
+installed. On any divergence between the two, the canonical copy wins: fix it
+there and mirror the change here in the same commit (the repository's
+consistency tests, `tests/test_repo_consistency.py`, guard this wiring).
 
 ## When this skill applies
 

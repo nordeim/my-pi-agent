@@ -226,6 +226,64 @@ class TestCatalogRegistration:
 
 
 # --------------------------------------------------------------------------
+# P2 — post-mortem framework fold-in wiring
+# --------------------------------------------------------------------------
+
+class TestPostmortemFrameworkFoldIn:
+    """Skill 1 owns the canonical copy of skill 2's framework; skill 2 defers
+    to it. Guards the fold-in (audit roadmap P1 item 4, deferred P2 half)
+    from regressing into a fourth divergent restatement."""
+
+    FRAMEWORK = SKILL1 / "references" / "postmortem-framework.md"
+
+    def test_framework_reference_exists(self):
+        assert self.FRAMEWORK.exists(), (
+            "skills/analyzing-us-bigtech-stocks/references/postmortem-framework.md "
+            "is missing — the canonical post-mortem framework must live in "
+            "skill 1's references")
+
+    def test_skill1_skill_md_points_to_framework(self):
+        t = read(SKILL1 / "SKILL.md")
+        assert "postmortem-framework.md" in t, (
+            "skill 1 SKILL.md no longer references the post-mortem framework "
+            "(Bundled resources / Adaptations wiring)")
+
+    def test_skill2_defers_to_canonical_copy(self):
+        t = read(SKILL2 / "SKILL.md")
+        assert "postmortem-framework.md" in t, (
+            "skill 2 SKILL.md no longer points at the canonical framework "
+            "copy in skill 1")
+        assert re.search(r"canonical", t, re.I), (
+            "skill 2 SKILL.md no longer states the canonical-copy rule")
+
+    def test_framework_declares_family_confidence_labels(self):
+        t = read(self.FRAMEWORK)
+        for label in ("Verified", "Reasoned", "Assumed", "Unverifiable"):
+            assert label in t, (
+                f"postmortem-framework.md: confidence label {label!r} missing")
+
+    def test_framework_declares_two_axes(self):
+        t = read(self.FRAMEWORK)
+        assert "durability" in t.lower()
+        assert "evidentiary" in t.lower(), (
+            "postmortem-framework.md: the two-axis classification "
+            "(durability x evidentiary basis) is not stated")
+
+    def test_framework_cross_references_sibling_skill(self):
+        t = read(self.FRAMEWORK)
+        assert "big-tech-earnings-postmortem" in t, (
+            "postmortem-framework.md: provenance cross-reference to the "
+            "standalone lightweight skill is missing")
+
+    def test_framework_keeps_audit_gates_mandatory(self):
+        t = read(self.FRAMEWORK)
+        assert "fact_base_audit.py" in t
+        assert "overflow_audit.mjs" in t, (
+            "postmortem-framework.md: the lightweight mode must still "
+            "require both Phase 10 audit gates")
+
+
+# --------------------------------------------------------------------------
 # L-1 — frontmatter sanity
 # --------------------------------------------------------------------------
 
