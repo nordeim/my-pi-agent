@@ -32,6 +32,30 @@ High-severity findings:
 
 Full details, evidence, impact and recommended fixes: the report itself.
 
+## Remediation status
+
+The audit itself was Mode C (report, don't modify). Remediation landed on
+`main` afterwards, in dependency order — every item verifiable with the checks
+recorded in the report's Section 6:
+
+| Roadmap item | Status | Where |
+| --- | --- | --- |
+| P0 — segment-map restructure (H-3) | Landed | `c0326fde` |
+| P0 — skill 2 disclaimer + source tiers (H-2, I-1) | Landed | `5c3b251e` |
+| P0 — boundary-anchored matcher + selftest (H-4) | Landed | `ff4b9809` |
+| P0 — worked-example reconciliation (H-1) | Landed | `c0326fde`, `f3ee290f` |
+| P1/P2 — taxonomy, attribution, WCAG, compliance framing (M-2, M-3) | Landed | `f3ee290f`, `5c3b251e`, `c0326fde` |
+| P1 — catalog registration (M-6) | Landed | `3f11c28b` |
+| **P1 — regression tests wired into CI** (deferred) | **Landed** | `tests/` + `.github/workflows/ci.yml` (`c9e25004`) |
+| **P2 — skill 2's framework folded into skill 1 as a methodology reference** (deferred) | **Landed** | `skills/analyzing-us-bigtech-stocks/references/postmortem-framework.md` (`92f9c7bc`) |
+
+The regression suite runs on every push and pull request to `main`: unit
+regressions for the H-4 matcher, the M-4 quant helpers (including doc/code
+agreement), and the M-1/M-7 render audit, plus the repository-level consistency
+test (H-1/H-2/M-2/M-3/M-6/L-1 recurrence and the fold-in wiring). Remaining
+roadmap hygiene (root LICENSE, frontmatter/license-field standardization) is
+still open as convenience items.
+
 ## Contents
 
 - `BigTech_Research_Skills_Audit_Report.docx` — the audit report (36 pp. rendered;
@@ -39,11 +63,14 @@ Full details, evidence, impact and recommended fixes: the report itself.
 - `BigTech_Research_Skills_Audit_Report.pdf` — rendered copy.
 - `report-generator/` — toolchain that builds the report from content modules
   (`report_content_1.js`, `report_content_2.js`). Audited repo state: HEAD `48cd3f97`.
-- `evidence/` — executable evidence for finding H-4: negative tests demonstrating the
-  false-PASS hole in `fact_base_audit.py`.
+- `evidence/` — executable evidence for finding H-4: the negative tests that
+  demonstrated the false-PASS hole in `fact_base_audit.py`. Post-fix the same
+  harness asserts the hole stays closed (evasion cases must exit 1) and is
+  wired into the regression suite.
 
-The audited skills themselves are untouched (audit discipline: findings are reported,
-not silently fixed).
+The report documents the audited state at HEAD `48cd3f97`; the skills have
+since been remediated on `main` as recorded above (audit discipline: findings
+were reported first, fixes landed as separately verifiable commits).
 
 ## Regenerating the report
 
@@ -62,10 +89,12 @@ python3 verify_audit_docx.py                       # 8 postcheck assertions
 `report-generator/package.json` declares `"type": "commonjs"` because the repo root
 manifest sets `"type": "module"`.
 
-Reproduce finding H-4 from the repo root:
+Reproduce / regression-guard finding H-4 from the repo root (exits 0 only if
+the substring-evasion cases stay closed):
 
 ```bash
 python3 docs/skills-audit/evidence/test_fact_base_audit_falsepass.py
+python3 -m pytest tests/ -v          # the full regression + consistency suite
 ```
 
 ## Audit evidence basis
