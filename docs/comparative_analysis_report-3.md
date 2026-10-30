@@ -83,3 +83,64 @@ To elevate the entire skill family to a unified "Tier-1 Investment Bank" standar
 3.  **Strict Mode by Default:** Change the default behavior of `fact_base_audit.py` to fail the build if "unverified candidates" are found. Institutional QA should not tolerate warnings.
 
 **Verdict:** The repository is exceptionally well-engineered. The primary gap is the inconsistent application of automated verification gates across the skill variants. Addressing C1 and H2 will make this a production-grade standard for AI-assisted equity research.
+
+---
+
+### Evaluation of the Alternative Comparative Report
+
+The alternative report is an exceptionally strong piece of domain-specific analysis. While my initial audit evaluated the skills primarily through the lens of **software engineering, automated QA, and system architecture**, the alternative report evaluated them through the lens of **institutional finance, epistemic rigor, and portfolio management utility**. 
+
+The alternative report successfully identified critical domain-level gaps that my engineering-focused review underweighted, most notably the **absence of intrinsic valuation models** and the brilliant epistemic caveat regarding **"Reasoned allocation" vs. measured decomposition**. However, it missed several operational and software-delivery risks that would cause these tools to fail in a continuous integration (CI) pipeline.
+
+Below is a critical comparison of the two reports, followed by a unified remediation roadmap.
+
+---
+
+### Head-to-Head Comparison
+
+| Dimension | My Initial Report (Engineering/QA Lens) | Alternative Report (Finance/Domain Lens) | Winner / Synthesis |
+| :--- | :--- | :--- | :--- |
+| **Core Value Proposition** | Evaluated the skills as automated data-pipelines and HTML generators. Focused on audit trails, UI rendering, and code hygiene. | Evaluated the skills as financial research products. Focused on epistemic honesty, causal attribution, and PM utility. | **Alternative.** A Wall Street audience cares more about the financial logic than the Python code style. |
+| **Epistemic Rigor** | Noted the confidence taxonomy (Verified/Assumed) and ASC 280 segment discipline. | Caught the **"Reasoned allocation, not measured decomposition"** label in Skill 3. Recognized this as a best-in-class defense against implied precision. | **Alternative.** This is a profound quantitative finance insight that prevents the LLM from hallucinating causal R-squared values. |
+| **Business Logic Gaps** | Focused on the lack of automated audits in the lightweight variants. | Identified the **Valuation Gap** (no DCF, SOTP, or reverse-DCF). Correctly noted that RCA without valuation is "half a research product." | **Alternative.** An Investment Committee cannot act on a post-mortem without a forward-looking valuation context. |
+| **Software & QA Mechanics** | Caught the `Playwright` dependency UX flaw in `overflow_audit.mjs`, magic numbers in Python, and the need for a `--strict` CLI flag. | Noted the lack of render audits for Skill 3, but did not evaluate the execution mechanics or CI/CD integration of the existing scripts. | **My Report.** The alternative report assumes the scripts work flawlessly; my report identified how they will break in a real deployment. |
+| **Audit Enforcement** | Recommended promoting "unverified candidates" to hard failures via a `--strict` flag. | Noted that the $\ge 2$ cross-check requirement for `Verified` facts is soft and not enforced by the script. | **Tie.** Both identified the same gap; I provided the CLI implementation, they provided the compliance rationale. |
+
+---
+
+### Synthesized Gap Analysis: What Both Reports Should Address
+
+While both reports are highly rigorous, combining them reveals a few blind spots that a true "Tier-1 Investment Bank" deployment would require:
+
+1.  **The "Hallucinated Math" Vector in LLMs:** 
+    Both reports praise the math in `quant_helpers.py`. However, neither report addressed *how* the LLM integrates this library. If the LLM is prompted to calculate a beat/miss delta, does it strictly call the Python helper, or does it attempt to do the math in-context (which LLMs notoriously fail at)? A Wall Street-grade skill must explicitly forbid in-context arithmetic and enforce tool-use for all calculations.
+2.  **Market Data Latency & API Rate Limits:**
+    Neither report evaluated how the skills fetch the T+1 close or consensus estimates. If the skill relies on scraping Yahoo Finance or unauthenticated APIs, it will fail in a production environment due to rate limits or IP bans. Institutional tools must integrate with authenticated, licensed data vendors (e.g., FactSet, Bloomberg B-PIPE, or Refinitiv) via secure MCP (Model Context Protocol) servers.
+3.  **Regulatory Archiving (WORM Storage):**
+    The alternative report correctly notes the compliance boundary (no ratings, no price targets). However, if these notes are distributed internally to PMs, FINRA/SEC rules (like Rule 17a-4) often require that all electronic communications and research notes be archived in Write-Once-Read-Many (WORM) storage. The skills currently output to local HTML/JSON without an archiving hook.
+
+---
+
+### Unified Remediation Roadmap (The "Wall Street Standard" Patch)
+
+To elevate this repository from "excellent open-source project" to "production-grade institutional infrastructure," the maintainer should execute the following merged roadmap:
+
+#### Phase 1: Epistemic & Domain Hardening (Finance)
+*   **Mandate Valuation Context:** Add a mandatory "Valuation & Scenario Weighting" section to all three skills. Even if a full DCF is out of scope, the skill must output a "Reverse-DCF Implied Growth" metric (e.g., "The current price implies X% CAGR over 5 years, vs historical Y%").
+*   **Enforce Tool-Use for Math:** Update all `SKILL.md` files with a hard rule: *"Never perform arithmetic in-context. All calculations (deltas, percentages, multiples) must be executed via the bundled Python/JS helpers."*
+*   **Version-Control Segment Maps:** Implement a `segment_map_version` and `last_verified_filing_date` in the schema. Add a pre-flight check that warns the user if the current date is >90 days past the last verified 10-K/10-Q.
+
+#### Phase 2: Automated QA & CI/CD Hardening (Engineering)
+*   **Unify the Audit Harness:** Extract `fact_base_audit.py` and `overflow_audit.mjs` into a shared `_core/audit` directory. Force Skills 2 and 3 to run a "Lite" version of these audits against their single-file HTML outputs before delivery.
+*   **Implement Strict Compliance Modes:** Add `--strict-verified` (enforces $\ge 2$ cross-checks) and `--fail-on-unverified` (promotes warnings to exit code 1) to the audit script. This allows the CI pipeline to block unverified notes from being merged or published.
+*   **Fix Playwright UX:** Wrap the `playwright` import in `overflow_audit.mjs` in a `try/catch` block that outputs a clean, copy-pasteable installation command (`npm i -D playwright && npx playwright install chromium`) if the module is missing.
+
+#### Phase 3: Institutional Integration (Operations)
+*   **Add Archiving Hooks:** Include a post-generation hook in the pipeline that pushes the final HTML/JSON artifact to an internal S3 bucket or compliance archive with a cryptographic hash of the fact base.
+*   **Standardize Data Ingestion:** Replace any web-scraping logic with explicit MCP tool definitions for institutional data providers, ensuring the LLM only interacts with licensed, audited data streams.
+
+### Final Verdict
+
+The alternative report is the superior **financial critique**, correctly identifying that causal attribution without valuation is an incomplete product for a portfolio manager. My report is the superior **engineering critique**, identifying the exact CI/CD and rendering failures that will occur when these scripts are run at scale. 
+
+Together, they prove that the repository's architecture is fundamentally sound and highly sophisticated. The path to production is not a rewrite, but the rigorous enforcement of the rules the author has already written.
