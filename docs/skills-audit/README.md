@@ -52,9 +52,44 @@ recorded in the report's Section 6:
 The regression suite runs on every push and pull request to `main`: unit
 regressions for the H-4 matcher, the M-4 quant helpers (including doc/code
 agreement), and the M-1/M-7 render audit, plus the repository-level consistency
-test (H-1/H-2/M-2/M-3/M-6/L-1 recurrence and the fold-in wiring). Remaining
-roadmap hygiene (root LICENSE, frontmatter/license-field standardization) is
-still open as convenience items.
+test (H-1/H-2/M-2/M-3/M-6/L-1 recurrence and the fold-in wiring).
+
+## Round-2 remediation — validated against comparative analysis reports 3/4/5
+
+A second remediation round was planned and executed after validating the three
+later comparative reports (`docs/comparative_analysis_report-3.md`, `-4.md`,
+`-5.md`). Findings were accepted or rejected explicitly (report 4's
+claim-by-claim validation was used as the tiebreaker). During the round, the
+CI workflow's `branches: [main]` triggers were base64-verified against HEAD
+and the remote (a terminal-rendering artifact had initially made them look
+corrupted) — the wiring is sound, and a regression test now pins it.
+
+| Round-2 item (source finding) | Status | Where |
+| --- | --- | --- |
+| Lite audit gates vendored into skills 2 & 3 (R3-C1, R4 #2, R5 H-1) | Landed | `skills/{big-tech-earnings-postmortem,bigtech-equity-research}/scripts/note_audit.py` + `assets/checks.json` |
+| Single-file render/overflow gate for the HTML notes (R3-H2, R4) | Landed | `scripts/note_overflow_audit.mjs` in both lite skills (byte-identical vendoring, consistency-tested) |
+| Opt-in strict compliance modes for the numeric audit (R3-M2, R4 #3) | Landed | `fact_base_audit.py`: `--strict-verified`, `--fail-on-unverified`, `--decision-critical` / `meta.decision_critical` |
+| One-command gate wrapper (R5 L-2) | Landed | `skills/analyzing-us-bigtech-stocks/scripts/audit_all.sh` (`STRICT=1` adds both strict flags) |
+| Beta estimation-window disclosure enforced in code (R3-M1, R4 confirmed) | Landed | `quant_helpers.py::abnormal_return` (raises without `beta_window`; returns `{excess, convention, beta, beta_window}`) |
+| `PERCENT_MULTIPLIER` constant replaces magic `100.0` (R3-L2) | Landed | `quant_helpers.py` |
+| Segment-map versioning + staleness rule (R3 Phase-1, R4 #4) | Landed | `reference/segment-maps.md` (`segment_map_version`, `last_verified_against_filing`), methodology Phase 3, SKILL.md hard rule |
+| Valuation-boundary statement in every deliverable (R3 Phase-1, R4 #1) | Landed | all three SKILL.md files, methodology §9, report-structure §11, evidence-ledger method note |
+| Verification-status line on every cover (R4 #5) | Landed | report-design §4, slides_brief template, both lite SKILL.md files, note_audit needle |
+| Descriptions aligned with actual verification backing (R4 #5) | Landed | all three SKILL.md frontmatter (skill 2 no longer overstates; no "no executable audit tooling") |
+| Compute-don't-recall rule (R3 synthesized: in-context arithmetic vector) | Landed | golden rule 6 / hard rule 8 in all three SKILL.md files, pitfall 16 |
+| Dedicated Risk Factors & Falsification section (R4 medium) | Landed | `templates/report-structure.md` — 13 → 14 sections |
+| T1/T2/T3 tier boundaries explicit in the schema (R4 medium) | Landed | `references/fact-base-schema.md` §2.1 |
+| Root LICENSE + license frontmatter standardization (R5 M-1) | Landed | `LICENSE` (Apache-2.0) + `license:`/`compatibility:` keys in all three SKILL.md |
+| Waterfall-label enforcement (R5 M-3) | Landed | conditional needle in both `assets/checks.json` |
+| CI trigger wiring pinned (`branches: [main]` on push/PR) | Verified — no fix needed | `.github/workflows/ci.yml` + `tests/test_repo_consistency.py::TestCIWiring` |
+
+Rejected (with reasoning, per report 4's reconciliation): FINRA
+forward-looking-statement disclaimer automation (regime misapplication — the
+skills explicitly disclaim sell-side status); strict-by-default for the
+unverified-candidate reverse check (heuristic — opt-in flags instead);
+WORM-archiving/MCP-vendor integration (operational infrastructure beyond skill
+scope); a valuation model (the boundary statement per report 4 instead of a
+new DCF skill).
 
 ## Contents
 
