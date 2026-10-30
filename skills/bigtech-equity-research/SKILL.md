@@ -22,7 +22,7 @@ bigtech-equity-research/
 └── scripts/
     └── quant_helpers.py              # Deterministic delta/alpha/waterfall math
 ```
-    
+
 Turn "why did GOOGL drop after earnings?" or "what's driving the MSFT trend?" into a
 fund-manager-quality, fact-based research note.
 

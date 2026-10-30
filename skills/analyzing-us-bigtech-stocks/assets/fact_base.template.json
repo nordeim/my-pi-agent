@@ -1,0 +1,75 @@
+{
+  "_comment": "Copy this file as fact_base.json. Delete the two _example facts and the _comment keys; replace meta. Schema reference: references/fact-base-schema.md. Every report number must exist here with a source.",
+  "meta": {
+    "subject": "COMPANY Inc. (NASDAQ: TICK)",
+    "event": "EVENT NAME (e.g. Q3 FY2026 earnings release + conference call)",
+    "event_timestamp": "YYYY-MM-DDTHH:MM:SS-04:00",
+    "reaction_definition": "T+1 full-session close (YYYY-MM-DD)",
+    "data_cutoff": "YYYY-MM-DDTHH:MM:SS+08:00",
+    "prepared": "YYYY-MM-DD",
+    "benchmarks": ["S&P 500", "Nasdaq-100", "PEER1", "PEER2"]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "One-sentence hypothesis",
+      "lens": "(a) revenue miss | (b) margin/EPS | (c) segment | (d) guidance | (e) capital allocation | (f) structural narrative | (g) positioning+macro | (h) one-off noise",
+      "predictions": ["P1 falsifiable check", "P2 falsifiable check", "P3 falsifiable check"],
+      "verdict": "PRIMARY — narrative | PRIMARY — mechanical | CONTRIBUTOR | AMPLIFIER | NOISE | EXCLUDED (fill in Phase 4)",
+      "confidence": "High | Medium | Low"
+    }
+  ],
+  "facts": [
+    {
+      "_example_1": "DELETE ME — verified fact pattern",
+      "id": "F-001",
+      "category": "market_reaction",
+      "metric": "TICK close on reaction day",
+      "value": 282.32,
+      "unit": "$",
+      "as_of": "2026-10-29 close",
+      "source_tier": "T3",
+      "source_name": "Yahoo Finance",
+      "source_url": "https://finance.yahoo.com/quote/TICK",
+      "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
+      "confidence": "Verified",
+      "cross_checked_with": ["CNN Markets"],
+      "supports": ["deck"],
+      "slide_pages": ["slide_01.html", "slide_05.html"]
+    },
+    {
+      "_example_2": "DELETE ME — derived fact pattern",
+      "id": "F-002",
+      "category": "market_reaction",
+      "metric": "One-day move",
+      "value": -12.29,
+      "unit": "%",
+      "as_of": "2026-10-29 close",
+      "source_tier": "T2",
+      "source_name": "Yahoo Finance — named reporter (date)",
+      "source_url": "https://...",
+      "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
+      "confidence": "Reasoned",
+      "derived_from": ["F-001", "F-003"],
+      "formula": "(282.32 - 321.89) / 321.89 = -12.29%",
+      "supports": ["deck"],
+      "slide_pages": ["slide_01.html"]
+    },
+    {
+      "id": "F-100",
+      "category": "fundamentals",
+      "metric": "METRIC NAME",
+      "value": 0,
+      "unit": "$B",
+      "as_of": "Q3 2026",
+      "source_tier": "T1",
+      "source_name": "Company earnings call transcript (Motley Fool) / SEC 10-Q",
+      "source_url": "https://...",
+      "retrieved_at": "YYYY-MM-DDTHH:MM:SS+08:00",
+      "confidence": "Verified",
+      "quote": "Exact source sentence when the fact will be quoted or paraphrased",
+      "supports": ["H1"],
+      "slide_pages": ["slide_04.html"]
+    }
+  ]
+}
