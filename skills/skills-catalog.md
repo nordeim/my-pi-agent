@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **343 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
+> **345 skills** organized into 10 categories. Each entry shows the skill name and a concise description of what it does and when to use it.
 
 ---
 
@@ -75,7 +75,9 @@
 | **ui-ux-pro-max** | UI/UX design intelligence and implementation guidance for building polished interfaces. Use when the user asks for UI design, UX flows, information architecture, visual style direction, design systems/tokens, component specs, copy/microcopy, accessibility, or to generate/critique/refine frontend UI (HTML/CSS/JS, React, Next.js, Vue, Svelte, Tailwind). Includes workflows for (1) generating new UI layouts and styling, (2) improving existing UI/UX, (3) producing design-system tokens and component guidelines, and (4) turning UX recommendations into concrete code changes. |
 | **version-management** | 独立通用 Skill：管理前端项目全生命周期。只要任务**可能**写出 .html/.jsx/.tsx/.vue 入口文件，就必须在写出第一个文件**之前**读取并遵循本 Skill（用于确定落盘路径与项目目录），而不是产出之后才补救；即使用户没有提到"项目"或"版本"也要使用。同时响应用户的版本相关操作（查看历史、恢复版本、切换项目等）。 |
 | **vue-3-nuxt** | Vue 3.5+ (Composition API) + Nuxt 4 full-stack TypeScript workflow skill. Covers the reactivity system (ref vs reactive, computed, watch vs watchEffect, automatic dependency tracking — fundamentally different from React hooks' manual dependency arrays), Single File Components (.vue with <script setup>), Nuxt 4 project structure (app/ directory, server/api/, nuxt.config.ts), file-based routing with definePageMeta, layout system, data fetching (useFetch, useAsyncData, $fetch), server routes via Nitro engine, Pinia for state management (the modern Vuex successor), nuxt-auth (Auth.js wrapper) o... |
-| **web-app-foundation** | Master engineering skill for scaffolding, extending, or remediating ANY production web application with authentication, a dashboard, and charting on Next.js 16 App Router + React 19 + TypeScript strict + Tailwind CSS v4 (CSS-first) + Prisma + SQLite/PostgreSQL + Zustand + recharts. Distilled and generalized from four sibling production codebases (digma, neo-crm, project-management, zero-balance — 1,177 commits of build/remediation history). Covers the full stack: env contract, db-path seam, scrypt+HMAC auth with verification/reset/revocation, zod-validated API envelope, per-user tenancy, KP... |
+| **web-app-foundation** | Master engineering skill for scaffolding, extending, or remediating ANY production web application with authentication, a dashboard, and charting on Next.js 16 App Router + React 19 + TypeScript strict + Tailwind CSS v4 (CSS-first) + Prisma + SQLite/PostgreSQL + Zustand + recharts. Distilled and generalized from four sibling production codebases (digma, neo-crm, project-management, zero-balance — 1,508 commits of build/remediation history, re-validated 2026-10-25). Covers the full stack: env contract, db-path seam, scrypt+HMAC auth with verification/reset/revocation, zod-validated API envel... |
+| **web-application** | Complete, generalized engineering skill for building any web application codebase: Next.js 16 App Router + React 19 + TypeScript (strict) + Tailwind CSS 4 (CSS-first) + shadcn/Radix + one Zustand store + Prisma/SQLite-dev (PostgreSQL-prod) + Zod-validated API + scrypt/HMAC cookie auth + recharts dashboards + a three-tier test suite and a single-command quality gate. Distilled from four production-remediated sibling codebases (digma, neo-crm, project-management, zero-balance); every rule traces to a failure that actually happened. |
+| **web-application-engineering** | condensed engineering reference for scaffolding, extending, and maintaining production-grade web applications. It synthesizes the hardest lessons from building high-parity, test-heavy Next.js 16 applications. Next.js 16 (App Router, Standalone Output) + React 19 + TypeScript (Strict) + Tailwind CSS v4 (CSS-First) + Shadcn/UI (Radix Primitives) + ONE Zustand store + Zod-validated API + Prisma/SQLite (or Postgres). Validated against the four source repos (digma, neo-crm, project-management, zero-balance); the fuller distillation is web-application_SKILL.md. |
 | **web-frameworks** | Build modern full-stack web applications with Next.js 16 + React 19 (App Router, Server Components, RSC, PPR, cacheComponents, async params, SSR, SSG, ISR, standalone output), Turborepo (monorepo, task pipelines, remote caching, parallel execution), and RemixIcon (3100+ SVG icons). Use when creating React applications, implementing server-side rendering, setting up monorepos, optimizing build performance and caching, or working with TypeScript full-stack projects. |
 | **webapp-testing-journey** | Systematic web application testing methodology using OpenClaw browser tools, agent-browser CLI, and chrome-devtools-mcp. Use when testing web application user journeys, validating bug fixes, performing QA verification, or debugging frontend issues. Covers URL journey testing, accessibility tree analysis, DOM inspection, network request debugging, performance tracing, visual regression, and comprehensive issue verification. Triggers on phrases like "test this application", "verify the fix", "check if it works", "test the user journey", "debug this issue". |
 | **write-swift** | How to write modern Swift well — modeling with value types, Swift 6 data-race safety and approachable concurrency (@concurrent, main-actor-by-default, actors, task groups), protocols and generics (some vs any), API design, performance and ARC, Swift Testing, macros, and the modern language features agents don't know about yet. Use when writing, reviewing, or migrating Swift, or when a concurrency error, a hang, a data race, a retain cycle, or a performance problem needs fixing. |
@@ -355,9 +357,9 @@
 | Skill | Description |
 |-------|-------------|
 | **agents-md** | Creates or updates a compact, high-signal AGENTS.md instruction file for a repository, helping future AI coding agents avoid mistakes and onboard faster. |
-| **analyzing-us-bigtech-stocks** | Full-pipeline RCA for US big-tech price events: turns "why did GOOG drop 12%?" into a 12–16 page institutional IC deck via a 10-phase pipeline — machine-checked fact base, competing hypothesis tree with mandatory exclusion, GAAP↔adjusted bridge, and numeric + render audit scripts with self-tests, a one-command audit_all.sh wrapper, and opt-in strict compliance modes (cross-check enforcement, fail-on-unverified). Use when the deliverable is a complete audited research deck or report on a stock move or trend; for a lighter single-file note use big-tech-earnings-postmortem, and for quantified segment work use bigtech-equity-research. |
-| **big-tech-earnings-postmortem** | Lightweight, evidence-disciplined post-earnings root-cause analysis producing a single-file HTML research note: pinned event mechanics, financial scorecard vs consensus, two-axis driver attribution (durability × evidentiary basis) with explicit elimination of a plausible-but-wrong driver, sell-side reaction and risk/catalyst matrix. Delivery is gated by bundled lite audits (placeholder + disclosure needles + single-file render audit) — no sibling skill required; the flagship's fact-base audit is the upgrade path. Use for a fast post-earnings deep dive; for a full audited IC deck use analyzing-us-bigtech-stocks, and for quantified segment work use bigtech-equity-research. |
-| **bigtech-equity-research** | Quantified single-note equity research on US big tech: beat/miss deltas, market-adjusted (or beta-adjusted, window-disclosed) excess return, ASC 280 segment variance tables separating miss from deceleration with a versioned, staleness-checked segment map, capex/OCF diagnostics, options-implied vs realized move, and a ranked driver decomposition with honestly-labeled Reasoned allocations. Ships deterministic math helpers with an asserting self-test, evidence/data-gap ledger templates, and bundled lite delivery audits (placeholder, disclosure, render gates). Use for a quantified research note on an event, trend, or pre-event setup; for a full audited deck use analyzing-us-bigtech-stocks. |
+| **analyzing-us-bigtech-stocks** | Produces institutional-grade, fact-based market research reports explaining US-listed big-tech stock price performance and trends — earnings reactions, guidance shocks, AI-narrative repricing, drawdowns and rallies — for companies such as GOOGL, MSFT, META, AMZN, AAPL, NVDA, TSLA. Use when asked why a stock moved, to run a root-cause analysis (RCA) on a price event, or to build a source-cited, evidence-based stock research report or multi-page deck. The full-pipeline skill of the big-tech research family: nine-lens hypothesis tree, GAAP bridge, machine-checked fact base, numeric + render + ... |
+| **big-tech-earnings-postmortem** | Conduct fact-based, evidence-disciplined root-cause analysis of a US-listed big-tech stock's price move around earnings, and produce a single-file HTML note passing bundled lite delivery gates (number registry with consensus + temporal-order + snapshot-linkage checks, placeholder, scoped disclosure, render, accessibility audits) with provenance sealing and source snapshots. The lightweight, fastest-ship member of the big-tech research family: layered driver attribution (durability × evidence axes), a machine-checked lite number registry instead of the flagship's full fact base — use analyzi... |
+| **bigtech-equity-research** | Produce institutional-grade, evidence-based equity research notes on US big-tech stocks (GOOGL, MSFT, AMZN, AAPL, META, NVDA, TSLA, and peers). Use when asked to explain a stock-price event (post-earnings move, guidance shock, regulatory action), analyze a multi-quarter price trend, attribute a drawdown to its drivers, or build a ranked driver decomposition of a price move. The quantified single-note member of the big-tech research family — segment deep-dive with a machine-checked ASC 280 segment-map staleness gate, options math, canonical peer baskets, machine-checked lite number registry ... |
 | **cheat-sheet** | 将 PDF/Word/Markdown 学习资料转化为精炼的知识浓缩卡文档。支持三种风格（知识点速查卡/思维导图式/Q&A式），输出双栏小字 PDF。当用户说"生成知识浓缩卡"、"生成 Cheatsheet"、"帮我做个速查表"、"把这个资料整理成一页纸"、"做个知识卡片"时触发。**不处理**：基于材料出题（→ quiz-mastery）、长期学习项目（→ study-buddy）。 |
 | **claude-md** | Generate proper CLAUDE.md files for any codebase. Analyzes codebase structure, detects frameworks and languages, and produces a comprehensive CLAUDE.md following the Meticulous Approach framework. |
 | **codex-ppt** | Generate visually unified image-based PPT/PPTX decks from articles, reports, papers, notes, or outlines. |
@@ -441,7 +443,7 @@
 
 | # | Category | Count |
 |---|----------|-------|
-| 1 | Frontend Development & UI Engineering | 69 |
+| 1 | Frontend Development & UI Engineering | 71 |
 | 2 | Design Artifacts & Visual Creation | 22 |
 | 3 | Full-Stack & Backend Development | 24 |
 | 4 | AI / ML / Multimodal SDK Skills | 17 |
@@ -451,7 +453,43 @@
 | 8 | Documentation & Content Creation | 39 |
 | 9 | Career, Learning & Personal Development | 12 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **343** |
+| | **Total** | **345** |
+
+---
+
+## Duplicates & Obsolete Skills
+
+Every spec-compliant skill is indexed above, including several that overlap heavily or have been superseded. They are flagged here so you pick deliberately rather than by accident.
+
+### Obsolete — superseded, kept only as archive
+
+| Skill | Note |
+|-------|------|
+| `pdf-old-20260806` | Legacy snapshot of the `pdf` toolkit (the same four production lines), archived under a dated name. Use `pdf`. |
+
+### Direct near-duplicates — overlapping scope
+
+| Cluster | Overlap |
+|---------|---------|
+| `web-app-foundation` ↔ `web-application` ↔ `web-application-engineering` | Three distillations of the same four source codebases (digma, neo-crm, project-management, zero-balance). `web-application` v1.2.0 is the newer, fuller line; `web-application-engineering` is its self-described condensed companion ("the fuller distillation is web-application_SKILL.md"); `web-app-foundation` is the earlier foundation variant (v1.1.0). |
+| `skill-creator` ↔ `skill-creator-zai` | Near-identical scope — create/improve skills, run evals, benchmark with variance analysis, optimize descriptions. |
+| `memory-architect` ↔ `memory-architecture` | Both cover the OpenClaw 3-layer memory system — bootstrap/audit/recover vs setup guide/troubleshooting. |
+| `tdd` ↔ `tdd-workflow` ↔ `test-driven-development` | Three overlapping test-first skills with overlapping trigger conditions. |
+| `spec` ↔ `spec-driven-development` | Both turn vague intent into a spec before coding (adjacent stages: `to-spec`, `implement-spec`). |
+| `ship` ↔ `land-and-deploy` ↔ `shipping-and-launch` | Three overlapping ship/deploy workflow skills. |
+| `webapp-testing-journey` ↔ `frontend-ui-testing-journey` | Both walk the same browser-testing toolset (OpenClaw browser, agent-browser CLI, chrome-devtools-mcp, @playwright/mcp). |
+| `thermo-nuclear-review` ↔ `thermo-nuclear-code-quality-review` | Same "thermonuclear review" trigger phrase; security/correctness vs maintainability focus. |
+| `docx-generation` ↔ `docx` | `docx-generation` is a one-line scoped subset of the canonical `docx` skill. |
+
+### Overlapping families — deliberate variants, check descriptions before choosing
+
+- **Document formats** — `docx` / `kimi-docx` / `minimax-docx` / `pandoc-docx-template`; `pdf` / `kimi-pdf` / `minimax-pdf` / `make-pdf`; `xlsx` / `kimi-xlsx` / `minimax-xlsx`; `pptx` / `pptx-generator` / `pptx-unified` (combines the canonical `pptx` pipeline with `cyber-ppt` and `pptx-generator` strengths) / `codex-ppt` / `cyber-ppt`.
+- **Next.js 16 stack references** — `web-application`, `web-app-foundation`, `fullstack-dev`, `web-frameworks`, `nextjs16-tailwind4`, and the eight `nextjs16-react19-*` variants share the same core stack (Next.js 16 + React 19 + TypeScript strict + Tailwind v4 + Prisma/Drizzle); each variant adds app-specific lessons.
+- **Code review** — `code-review` / `code-review-and-audit` / `code-review-checklist` / `code-quality-standards` form a differentiated family; the checklist explicitly defers to the others.
+- **Grilling** — `grilling` (primitive) / `grill-me` (stateless) / `grill-with-docs` (stateful, captures ADRs) — one family, three modes.
+- **De-slopping** — `deslop` (code slop) vs `unslop` / `humanizer` (prose) — split by target, with the prose pair overlapping.
+
+**Repo hygiene note** — `skills/brutalist-portfolio-nextjs/rutalist-portfolio-nextjs/` is a stray, typo-named nested copy containing only a `SKILL.md`; it is tracked in git and is safe to delete.
 
 ---
 
