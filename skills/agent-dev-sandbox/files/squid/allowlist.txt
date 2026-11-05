@@ -1,0 +1,53 @@
+# ============================================================================
+# agent-sandbox EGRESS ALLOWLIST
+# ============================================================================
+# This single file defines every destination workspaces may reach.
+# To add a domain: append it here, then run:
+#     scripts/30-gateway.sh restart
+# (that command also syncs the Tier-2 host proxy if it is installed).
+#
+# Matching is suffix-based per line: ".githubusercontent.com" matches all
+# subdomains; a bare "github.com" matches github.com and *.github.com.
+# Squid (dstdomain) resolves DNS itself — workspaces never need external DNS.
+
+# --- OS package mirrors (apt on host images and inside Tier-2 VMs) ----------
+deb.debian.org
+security.debian.org
+
+# --- Language runtimes and tool installers ----------------------------------
+deb.nodesource.com
+nodejs.org
+astral.sh
+bun.sh
+
+# --- Package registries ------------------------------------------------------
+registry.npmjs.org
+registry.yarnpkg.com
+pypi.org
+files.pythonhosted.org
+
+# --- Git hosting -------------------------------------------------------------
+github.com
+api.github.com
+codeload.github.com
+*.githubusercontent.com
+gitlab.com
+
+# --- Playwright browser CDN --------------------------------------------------
+cdn.playwright.dev
+playwright.download.prss.microsoft.com
+
+# --- AI agent APIs (fill in the providers you actually use) -----------------
+api.anthropic.com
+claude.ai
+console.anthropic.com
+statsig.anthropic.com
+api.openai.com
+chatgpt.com
+auth.openai.com
+openai.com
+opencode.ai
+
+# --- Verification targets (used by scripts/50-verify.sh; keep these) --------
+example.com
+example.org

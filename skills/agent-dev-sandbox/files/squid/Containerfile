@@ -1,0 +1,20 @@
+# agent-gateway — allowlist egress proxy (Tier 1)
+# Built by scripts/30-gateway.sh; runs rootless, dual-homed:
+#   * agent-egress   — normal network WITH internet access (NAT)
+#   * agent-internal — --internal network WITHOUT default route/DNS
+# Workspace containers attach ONLY to agent-internal and reach the internet
+# exclusively through this proxy.
+#
+# Build: podman build -t agent-gateway:1 files/squid
+FROM docker.io/library/debian:trixie-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends squid ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY squid.conf /etc/squid/squid.conf
+COPY allowlist.txt /etc/squid/allowlist.txt
+
+EXPOSE 3128
+# -N: stay in foreground (container-friendly)
+CMD ["squid", "-N", "-d", "1"]

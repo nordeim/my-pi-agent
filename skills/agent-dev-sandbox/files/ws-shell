@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# ws-shell — entry point for `scripts/40-workspace.sh shell`.
+# Seeds the shared browser links, then drops into a login shell in /workspace.
+set -euo pipefail
+seed-playwright-browsers
+cd /workspace
+exec bash --login
