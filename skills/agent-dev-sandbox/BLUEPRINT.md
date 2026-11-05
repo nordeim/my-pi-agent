@@ -34,6 +34,11 @@ The environment is a two-tier "container-first, VM-when-paranoid" design:
   enforced by nftables *inside* the VM (default-deny; only the host proxy
   and DNS). Inside the VM runs the **same** container image via rootless
   Podman — one source of truth, two boundaries.
+- **CI mode — same image, throwaway.** A third consumption mode (§12):
+  single-shot ephemeral containers for PR checks and batch jobs, with a
+  per-run isolation self-audit, artifact export, walltime caps, shared
+  package caches, and a reaper for orphans. One image, three modes —
+  interactive workspace, ephemeral CI run, container-in-VM.
 
 Secrets never enter images: per-workspace env files (mode 0600) are injected
 at container start. The verification suite (`scripts/50-verify.sh`) proves
@@ -255,6 +260,11 @@ provider APIs; two verification domains. Suffix matching; Squid resolves
 DNS (workspaces never need it). Adding a domain: one command, both tiers,
 restart included.
 
+**Ephemeral CI profile** (`scripts/45-ci-run.sh` + `files/ci-setup.sh`):
+single-shot containers from the same image — CI env, shared package caches,
+per-run isolation self-audit, artifact export, walltime timeout, orphan
+reaper. Full design in §12.
+
 **Resource budget** (16-32 GB host): gateway ~50 MB; each Tier-1 workspace
 default 6 GB/4 CPU cap (per-container) inside a user-slice budget; one
 Tier-2 VM 6 GB/4 vCPU by default. Comfortable: 2-4 active workspaces +
@@ -321,7 +331,9 @@ normal package review, to the rest is stated scope.
 **Timing profile** (mid-range host): image build 5-15 min (first) / seconds
 (cached); workspace create ~3 s + first `seed-playwright-browsers` (< 1 s);
 workspace `restart` ~2 s; gateway start ~1 s; Tier-2 golden build 15-30 min
-(one-time); Tier-2 overlay create ~40 s to SSH.
+(one-time); Tier-2 overlay create ~40 s to SSH. A CI run adds ~5-8 s of
+overhead around the command itself (container create + browser seeding +
+isolation self-audit); artifact copying is size-dependent.
 
 **What happens on reboot:** linger + the gateway Quadlet bring the proxy
 back automatically; stopped workspaces stay stopped (start them
@@ -386,19 +398,91 @@ refresh (bump ARG → rebuild → re-verify → `restart` workspaces); snapshots
 before risky agent sessions; `podman system df` housekeeping; allowlist
 review; rebuild Tier-2 golden between trust boundaries.
 
-## 12. Verification as specification
+## 12. Ephemeral CI profile
+
+The roadmap's "ephemeral CI profiles" item, delivered. The insight that
+keeps it cheap: CI here is not a new environment but a new *consumption mode*
+of the one that already exists.
+
+| Mode | Tool | Lifecycle | Home | Code |
+|---|---|---|---|---|
+| Interactive workspace | `40-workspace.sh` | persistent (stop/start/restart) | named volume `agent-home-<n>` | host bind `~/agent-workspaces/<n>` |
+| Ephemeral CI run | `45-ci-run.sh` | one command, then destroyed | container layer (or run-local bind with `--read-only-rootfs`) | run dir, or `--src` checkout |
+| Container-in-VM | `60-tier2-microvm.sh` | per engagement | inside the VM | VM disk |
+
+**Runner.** `45-ci-run.sh run [--repo URL | --src DIR] [--timeout S] --
+<command...>` creates a single-shot container that is hardened *exactly*
+like a workspace — keep-id, cap-drop=ALL, no-new-privileges,
+`agent-internal` only, env-file secrets, pids/memory/cpu caps — plus a
+walltime `timeout` (default 3600 s). The command streams live *and* is
+captured to `artifacts/console.log`. Teardown always follows the run
+(`--keep-on-failure` opts out for debugging); `reap` removes orphans and
+stale run dirs past a TTL; `list` prints past runs from their summaries;
+`cache` wipes the shared package caches.
+
+**In-container preamble.** `files/ci-setup.sh` is bind-mounted in (image
+unchanged — D6 holds): it sets `CI=true` (pnpm then defaults to a frozen
+lockfile in CI), points npm/pip/uv/bun/pnpm caches at the shared tree,
+seeds browsers, optionally shallow-clones `CI_REPO_URL`, then — before any
+workload code runs — **audits isolation**: uid 1000, zero caps,
+NoNewPrivs, direct egress must fail, external DNS must fail, the proxy
+must 403 a known-denied domain and 200 an allowlisted one. Results land in
+`artifacts/isolation-audit.json`; any failure exits **66** without running
+the command. Every CI run therefore carries its own evidence that the
+sandbox guarantees held *for that run*.
+
+**Artifacts.** `~/agent-workspaces/__ci/artifacts/<run-id>/` keeps
+`console.log`, `isolation-audit.json`, a schema'd `run-summary.json`
+(exit code, duration, audit status, cache mode, copied files), and the
+report dirs the copier knows by default (`playwright-report`,
+`test-results`, `coverage`, `dist`, `build`, `junit.xml`; extend with
+`--artifact-path`, globs allowed).
+
+**Caches and trust.** Shared caches are a host bind mount
+(`~/agent-workspaces/__ci/cache` → `/cache`) — deliberately *not* a named
+volume, because same-uid bind mounts are this design's proven primitive
+(D5); no orphan volumes can ever exist. The tree is shared writable state
+across runs: pnpm's own documentation makes exactly this point about its
+store, and the same reasoning applies to npm/pip/uv/bun caches. Same host,
+same user, same trust domain — fine for your own projects; `--no-cache-vol`
+gives a run cold, isolated caches when the source is less trusted, and
+hostile PR builds belong in Tier 2 (the same script runs inside the VM).
+CI mode changes consumption, never the trust tier.
+
+**Naming.** Containers are `agent-__ci-<run-id>`, state lives under the
+`__ci/` subtree of the workspaces root. `40-workspace.sh`'s `validate_name`
+reserves the `__` prefix, so CI containers cannot collide with
+interactive workspaces and `reap` cannot touch them — the same structural
+reservation the verify canary (`__verify`) uses.
+
+**Representative run (budget-wiser gate):**
+
+```bash
+scripts/45-ci-run.sh run --repo https://github.com/nordeim/budget-wiser.git \
+    -- bash -lc 'bun install && bun run db:push && bun run db:seed && bun run gate'
+scripts/45-ci-run.sh list
+```
+
+Exit codes are a contract: `0` ok · `66` audit failure · `124` walltime
+timeout · `125/126/127` podman-level error · anything else is the command's
+own exit code. See `references/troubleshooting.md` §9 for the failure
+playbook (including why `--skip-audit` is never a fix).
+
+## 13. Verification as specification
 
 `50-verify.sh` maps each guarantee to a check, and — crucially — encodes
 the *negative* tests as first-class requirements: direct egress must fail,
 external DNS must fail, non-allowlisted domains must 403. A green run is a
 reproducible evidence ledger (per-check PASS/FAIL with captured output),
 designed so an AI operator cannot honestly report "done" without it — and
-the escalation rule forbids weakening checks to force green.
+the escalation rule forbids weakening checks to force green. The CI profile
+extends the same idea to every single run: its self-audit is 50-verify's
+isolation section, in miniature, attached to each job's artifacts.
 
-## 13. Roadmap
+## 14. Roadmap
 
 Registry mode (local `podman push` target for team-shared images);
-ephemeral CI profiles (same image, throwaway workspaces, artifact export);
-gVisor/Kata runtime option for Tier 1.5; DNS-level allowlisting in Tier 2
+ephemeral CI profiles — **delivered** (§12); gVisor/Kata runtime option for
+Tier 1.5; DNS-level allowlisting in Tier 2
 (dnsmasq allow-resolver); automated monthly golden rebuilds with drift
 reports. Each extension is a delta on this blueprint, not a redesign.

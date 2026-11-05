@@ -38,7 +38,7 @@ die()  { echo -e "  ${RED}✗ $1${NC}" >&2; exit 1; }
 
 validate_name() {
     [[ "${NAME}" =~ ^[a-z][a-z0-9-]{0,38}$ ]] || die "workspace name must be lowercase letters/digits/hyphens, start with a letter, max 39 chars (got: '${NAME}')"
-    [[ "${NAME}" != __* ]] || die "names starting with '__' are reserved (used by 50-verify.sh)"
+    [[ "${NAME}" != __* ]] || die "names starting with '__' are reserved (50-verify.sh canary '__verify', 45-ci-run.sh ephemeral runs '__ci-*')"
 }
 
 ctname()       { echo "agent-${NAME}"; }

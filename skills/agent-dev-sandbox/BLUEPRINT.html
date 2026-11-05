@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Dev Sandbox — Comprehensive Blueprint — interactive</title>
+<meta name="description" content="Secure, egress-restricted development environment blueprint for AI coding agents on Debian 13 — interactive single-file edition.">
+<style>
+/* BLUEPRINT.html — interactive single-file stylesheet (cascade palette, seed 42) */
+:root {
+  --page-bg: #f7f8f8; --panel: #ffffff; --section-bg: #f0f1f2;
+  --card: #e8eaeb; --stripe: #ebeded; --border: #d3dbdf;
+  --header-fill: #32454e; --accent: #1f6c92; --accent-2: #c23a50;
+  --icon: #4b86a4; --text: #131515; --muted: #5f6a70;
+  --code-bg: #eef1f2; --mark: #ffe9a8; --sidebar-w: 304px;
+  --ok: #529067; --shadow: 0 1px 3px rgba(19, 21, 21, 0.08);
+}
+[data-theme="dark"] {
+  --page-bg: #0f1417; --panel: #151c21; --section-bg: #1a2228;
+  --card: #1d262d; --stripe: #19212a; --border: #2b3640;
+  --header-fill: #9fb6c2; --accent: #5db3dd; --accent-2: #e0798a;
+  --icon: #6a9cc0; --text: #dce5ea; --muted: #8fa2ad;
+  --code-bg: #10171c; --mark: #6b5416; --ok: #7fc294;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+body {
+  margin: 0; background: var(--page-bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", sans-serif;
+  font-size: 16px; line-height: 1.7;
+  transition: background-color .25s ease, color .25s ease;
+}
+/* ---------- topbar ---------- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 50;
+  display: flex; align-items: center; gap: 12px; padding: 0 16px;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+}
+.topbar .brand { font-weight: 700; color: var(--accent); white-space: nowrap; font-size: 15px; }
+.topbar .brand small { color: var(--muted); font-weight: 400; }
+.searchwrap { flex: 1; position: relative; max-width: 560px; }
+#search {
+  width: 100%; padding: 8px 34px 8px 34px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--page-bg); color: var(--text);
+  font-size: 14px; outline: none; transition: border-color .15s;
+}
+#search:focus { border-color: var(--accent); }
+.searchwrap .kbd-hint {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 11px; color: var(--muted); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0 5px; pointer-events: none;
+}
+.searchwrap .clear-btn {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  border: none; background: none; color: var(--muted); cursor: pointer;
+  font-size: 15px; padding: 4px 6px; border-radius: 4px; display: none;
+}
+.searchwrap .clear-btn:hover { color: var(--text); }
+#search-meta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.icon-btn {
+  border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  border-radius: 8px; padding: 7px 12px; font-size: 14px; cursor: pointer;
+  white-space: nowrap; transition: border-color .15s;
+}
+.icon-btn:hover { border-color: var(--accent); }
+#progress { position: fixed; top: 56px; left: 0; height: 3px; background: var(--accent); width: 0; z-index: 51; transition: width .1s linear; }
+/* ---------- layout ---------- */
+.layout { display: flex; padding-top: 56px; }
+.sidebar {
+  position: sticky; top: 56px; height: calc(100vh - 56px); width: var(--sidebar-w);
+  overflow-y: auto; padding: 20px 14px 40px; border-right: 1px solid var(--border);
+  background: var(--panel); flex-shrink: 0;
+}
+.sidebar h3 {
+  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); margin: 14px 10px 6px;
+}
+.toc a {
+  display: block; padding: 5px 10px; border-radius: 6px; color: var(--text);
+  text-decoration: none; font-size: 13.5px; line-height: 1.45;
+  border-left: 2.5px solid transparent;
+}
+.toc a:hover { background: var(--section-bg); }
+.toc a.active { border-left-color: var(--accent); color: var(--accent); font-weight: 600; background: var(--section-bg); }
+.toc a.sub { padding-left: 22px; font-size: 12.5px; color: var(--muted); }
+main { flex: 1; min-width: 0; padding: 36px 44px 80px; max-width: 980px; margin: 0 auto; }
+/* ---------- hero ---------- */
+.doc-hero { padding: 26px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+.doc-hero h1 { font-size: 34px; line-height: 1.2; margin: 0 0 12px; letter-spacing: -0.5px; }
+.doc-hero h1 .tint { color: var(--accent); }
+.doc-hero .lede { font-size: 16.5px; color: var(--muted); max-width: 760px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.chip {
+  font-size: 12.5px; padding: 3px 12px; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--muted); background: var(--panel);
+}
+.chip b { color: var(--accent); }
+/* ---------- sections ---------- */
+section.doc-sec { margin-bottom: 46px; }
+section.doc-sec.hidden-sec { display: none; }
+h2 {
+  font-size: 24px; line-height: 1.3; margin: 0 0 6px; color: var(--text);
+  padding-bottom: 8px; border-bottom: 2px solid var(--accent); letter-spacing: -0.3px;
+}
+h2 .secnum { color: var(--accent); margin-right: 8px; }
+h3 { font-size: 17px; margin: 24px 0 8px; color: var(--text); }
+p { margin: 10px 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 26px; margin: 10px 0; }
+li { margin: 4px 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 26px 0; }
+strong { color: var(--text); }
+code {
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas,
+    "Liberation Mono", "Noto Sans Mono CJK SC", monospace;
+  font-size: 0.86em; background: var(--code-bg); color: var(--accent);
+  padding: 1.5px 6px; border-radius: 5px; word-break: break-word;
+}
+pre {
+  position: relative; background: var(--code-bg); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 16px;
+  overflow-x: auto; margin: 14px 0; box-shadow: var(--shadow);
+}
+pre code { background: none; padding: 0; color: var(--text); font-size: 13px; line-height: 1.6; }
+.copy-btn {
+  position: absolute; top: 8px; right: 8px; border: 1px solid var(--border);
+  background: var(--panel); color: var(--muted); font-size: 11.5px;
+  border-radius: 6px; padding: 3px 10px; cursor: pointer; opacity: 0;
+  transition: opacity .15s, color .15s;
+}
+pre:hover .copy-btn, .copy-btn:focus { opacity: 1; }
+.copy-btn.copied { color: var(--ok); border-color: var(--ok); }
+table {
+  border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px;
+  display: block; overflow-x: auto; box-shadow: var(--shadow);
+}
+th {
+  background: var(--header-fill); color: #fff; text-align: left;
+  padding: 9px 12px; font-weight: 600; white-space: nowrap;
+}
+[data-theme="dark"] th { color: #0f1417; }
+td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+tbody tr:nth-child(odd) { background: var(--stripe); }
+tbody tr:nth-child(even) { background: var(--panel); }
+blockquote {
+  margin: 14px 0; padding: 10px 18px; border-left: 4px solid var(--accent);
+  background: var(--section-bg); border-radius: 0 8px 8px 0; color: var(--text);
+}
+mark.hl { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
+/* ---------- figure ---------- */
+figure.arch { margin: 20px 0; }
+figure.arch svg { width: 100%; height: auto; display: block; }
+figure.arch figcaption, .figcap {
+  text-align: center; font-size: 13px; color: var(--muted); margin-top: 8px;
+}
+details.ascii { margin: 12px 0; border: 1px dashed var(--border); border-radius: 8px; }
+details.ascii summary {
+  cursor: pointer; padding: 8px 14px; font-size: 13px; color: var(--muted);
+  user-select: none;
+}
+details.ascii pre { margin: 0 10px 12px; border-left-width: 3px; }
+/* ---------- checklist ---------- */
+.checklist {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 18px 20px; margin: 18px 0; box-shadow: var(--shadow);
+}
+.checklist h4 { margin: 0 0 4px; font-size: 15px; }
+.checklist .cl-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+.checklist label {
+  display: flex; align-items: flex-start; gap: 10px; padding: 7px 8px;
+  border-radius: 6px; cursor: pointer; font-size: 14px;
+}
+.checklist label:hover { background: var(--section-bg); }
+.checklist input { margin-top: 4px; accent-color: var(--accent); width: 15px; height: 15px; }
+.checklist input:checked + span { text-decoration: line-through; color: var(--muted); }
+.cl-bar { height: 7px; background: var(--section-bg); border-radius: 4px; overflow: hidden; margin: 4px 0 12px; }
+.cl-bar > div { height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.cl-actions { display: flex; gap: 8px; align-items: center; }
+.cl-actions .icon-btn { font-size: 12px; padding: 4px 10px; }
+#cl-status { font-size: 12.5px; color: var(--muted); }
+/* ---------- no-results ---------- */
+#no-results { display: none; padding: 60px 20px; text-align: center; color: var(--muted); }
+footer.doc-foot {
+  border-top: 1px solid var(--border); color: var(--muted); font-size: 12.5px;
+  padding-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between;
+}
+/* ---------- responsive ---------- */
+@media (max-width: 980px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar {
+    position: fixed; left: -320px; width: 300px; transition: left .25s ease; z-index: 60;
+    box-shadow: 4px 0 24px rgba(0,0,0,.2);
+  }
+  body.nav-open .sidebar { left: 0; }
+  main { padding: 24px 18px 60px; }
+  .topbar .brand small { display: none; }
+  #search-meta { display: none; }
+}
+/* ---------- print ---------- */
+@media print {
+  .topbar, .sidebar, #progress, .copy-btn, .cl-actions, #no-results { display: none !important; }
+  body { background: #fff; color: #000; font-size: 12px; }
+  main { padding: 0; max-width: none; }
+  .layout { padding-top: 0; }
+  section.doc-sec { break-inside: auto; }
+  h2 { break-after: avoid; }
+  pre, table, figure.arch { break-inside: avoid; }
+  details.ascii { display: none; }
+  a { color: #1f6c92; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar">
+  <button class="icon-btn" id="nav-btn" aria-label="Toggle navigation">&#9776;</button>
+  <div class="brand">Agent Dev <small>&middot; Sandbox Blueprint</small></div>
+  <div class="searchwrap">
+    <span class="kbd-hint">/</span>
+    <input id="search" type="text" placeholder="Search the blueprint… (min 2 chars)" autocomplete="off" spellcheck="false">
+    <button class="clear-btn" id="clear-btn" type="button" aria-label="Clear search">&times;</button>
+  </div>
+  <span id="search-meta"></span>
+  <button class="icon-btn" id="theme-btn" type="button">☽ Dark</button>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Table of contents">
+    <h3>Contents</h3>
+    <div class="toc">
+<a href="#1-executive-summary" data-target="1-executive-summary"><span class="secnum">1.</span> Executive summary</a>
+<a href="#2-goals-non-goals-threat-model" data-target="2-goals-non-goals-threat-model"><span class="secnum">2.</span> Goals, non-goals, threat model</a>
+<a href="#3-reference-implementation-survey" data-target="3-reference-implementation-survey"><span class="secnum">3.</span> Reference implementation survey</a>
+<a href="#4-architecture-decisions-adr-summary" data-target="4-architecture-decisions-adr-summary"><span class="secnum">4.</span> Architecture decisions (ADR summary)</a>
+<a href="#5-system-design" data-target="5-system-design"><span class="secnum">5.</span> System design</a>
+<a href="#6-component-specifications" data-target="6-component-specifications"><span class="secnum">6.</span> Component specifications</a>
+<a href="#7-representative-workload-fit-budget-wiser" data-target="7-representative-workload-fit-budget-wiser"><span class="secnum">7.</span> Representative workload fit — budget-wiser</a>
+<a href="#8-security-analysis" data-target="8-security-analysis"><span class="secnum">8.</span> Security analysis</a>
+<a href="#9-operational-characteristics-logging-audit" data-target="9-operational-characteristics-logging-audit"><span class="secnum">9.</span> Operational characteristics, logging &amp; audit</a>
+<a href="#10-design-questions-you-will-ask" data-target="10-design-questions-you-will-ask"><span class="secnum">10.</span> Design questions you will ask</a>
+<a href="#11-runbooks" data-target="11-runbooks"><span class="secnum">11.</span> Runbooks</a>
+<a href="#12-ephemeral-ci-profile" data-target="12-ephemeral-ci-profile"><span class="secnum">12.</span> Ephemeral CI profile</a>
+<a href="#13-verification-as-specification" data-target="13-verification-as-specification"><span class="secnum">13.</span> Verification as specification</a>
+<a href="#14-roadmap" data-target="14-roadmap"><span class="secnum">14.</span> Roadmap</a>
+    </div>
+    <h3>Shortcuts</h3>
+    <div class="toc">
+      <a href="#" onclick="return false" style="cursor:default">/ &nbsp;focus search</a>
+      <a href="#" onclick="return false" style="cursor:default">Esc &nbsp;clear search</a>
+      <a href="#" onclick="return false" style="cursor:default">Ctrl/Cmd+P &nbsp;print (light theme)</a>
+    </div>
+  </nav>
+  <main>
+    <div class="doc-hero">
+      <h1>Agent Dev <span class="tint">Sandbox</span></h1>
+      <p class="lede"><b>Target:</b> a secure, isolated, self-contained development environment on a
+Debian 13 (trixie) host, in which AI coding agents — Claude Code, OpenAI
+Codex, OpenCode — can develop and test arbitrary codebases (Python 3.13,
+Node.js 16+, Bun, browser-driven E2E) under strict egress control.
+
+<b>Companion files:</b> <code>SKILL.md</code> (executable procedure for an AI agent),
+<code>files/</code> (image + configs), <code>scripts/</code> (lifecycle), <code>references/</code>
+(troubleshooting, hardening).
+
+All external facts in this document were verified against live sources on
+<b>2026-11-05</b> (npm registry, Docker Hub, cloud.debian.org, podman
+documentation, the budget-wiser repository). Version pins appear as
+<code>ARG</code>s in <code>files/Containerfile</code>; bump them deliberately.</p>
+      <div class="chips">
+        <span class="chip"><b>14</b> sections</span>
+        <span class="chip"><b>3,641</b> words</span>
+        <span class="chip"><b>17</b> min read</span>
+        <span class="chip">facts verified <b>2026-11-05</b></span>
+        <span class="chip">rendered <b>2026-11-05</b></span>
+      </div>
+    </div>
+    <div id="no-results"><b>No matches.</b><br>Try a shorter query — search covers section titles and body text.</div>
+<section class="doc-sec" id="1-executive-summary">
+<h2 id="1-executive-summary">1. Executive summary</h2>
+<p>The environment is a two-tier "container-first, VM-when-paranoid" design:</p>
+<ul>
+<li><strong>Tier 1 — daily driver.</strong> One persistent, hardened, <em>rootless</em> Podman
+  container per project. The container runs with zero Linux capabilities,
+  <code>no-new-privileges</code>, user-namespace mapping (<code>keep-id</code>), and cgroup caps.
+  It sits on an <em>internal</em> Podman network that has <strong>no default route and no
+  external DNS</strong>. Egress exists through exactly one path: a rootless Squid
+  gateway enforcing a single-file domain allowlist. Everything an agent
+  needs — Python 3.13, Node 24, Bun, pnpm, uv, git, ripgrep, SQLite,
+  Chromium, Playwright (Node + Python), agent-browser, and the three agent
+  CLIs — is baked into one reproducible image.</li>
+<li><strong>Tier 2 — hostile workloads.</strong> A KVM micro-VM per engagement, booted from
+  an official Debian 13 cloud image, provisioned by cloud-init, with egress
+  enforced by nftables <em>inside</em> the VM (default-deny; only the host proxy
+  and DNS). Inside the VM runs the <strong>same</strong> container image via rootless
+  Podman — one source of truth, two boundaries.</li>
+<li><strong>CI mode — same image, throwaway.</strong> A third consumption mode (§12):
+  single-shot ephemeral containers for PR checks and batch jobs, with a
+  per-run isolation self-audit, artifact export, walltime caps, shared
+  package caches, and a reaper for orphans. One image, three modes —
+  interactive workspace, ephemeral CI run, container-in-VM.</li>
+</ul>
+<p>Secrets never enter images: per-workspace env files (mode 0600) are injected
+at container start. The verification suite (<code>scripts/50-verify.sh</code>) proves
+both function and isolation — including <em>negative</em> tests that must fail
+(direct egress, external DNS) — and its output is the evidence standard for
+"done".</p>
+</section>
+<section class="doc-sec" id="2-goals-non-goals-threat-model">
+<h2 id="2-goals-non-goals-threat-model">2. Goals, non-goals, threat model</h2>
+<p><strong>Goals</strong>
+1. Develop/test any codebase (representative workload:
+   <a href="https://github.com/nordeim/budget-wiser">nordeim/budget-wiser</a> — Next.js
+   16, React 19, TypeScript strict, Prisma 6 + SQLite, Vitest, Playwright
+   E2E, Bun ≥ 1.3 / Node ≥ 24).
+2. Contain the blast radius of agent-executed code: no host filesystem
+   access beyond the project dir, no capabilities, capped resources, no
+   arbitrary network egress.
+3. Self-contained: no dependency on host-installed dev tooling; workspaces
+   are disposable and reproducible.
+4. Agent-usable: CLIs, browsers, and shell ergonomics work out of the box;
+   a single scripted lifecycle for everything.
+5. Auditable: one file is the egress policy; every guarantee has a check.</p>
+<p><strong>Non-goals</strong> (see <code>references/hardening.md</code> §6)
+Multi-tenant fleets; TLS interception of proxied traffic; defending against
+kernel zero-days from Tier-1 workloads (that is Tier 2's job); hiding
+allowed-channel data flows (e.g., <code>git push</code> to an allowed host).</p>
+<p><strong>Threat model — two tiers</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Tier 1 (container)</th>
+<th>Tier 2 (micro-VM)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Use when</td>
+<td>Building/fixing known codebases (your own, curated OSS)</td>
+<td>Auditing/running unknown repos, untrusted builds, anything that executes arbitrary scripts</td>
+</tr>
+<tr>
+<td>Boundary</td>
+<td>Kernel namespaces + seccomp + cap-drop (shared kernel)</td>
+<td>Full hardware-virtualized kernel boundary</td>
+</tr>
+<tr>
+<td>Egress</td>
+<td>Internal network → allowlist proxy (structural: no route exists otherwise)</td>
+<td>VM nftables default-deny → host allowlist proxy</td>
+</tr>
+<tr>
+<td>Residual risk</td>
+<td>Kernel exploit escapes to host user (mitigated: rootless, non-root, no caps)</td>
+<td>VM escape (hypervisor-class, rare); supply chain of allowlisted domains</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>~2 GB RAM/workspace, seconds to start</td>
+<td>~6 GB RAM/VM, one-time 15-30 min golden build, ~30 s per overlay boot</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="doc-sec" id="3-reference-implementation-survey">
+<h2 id="3-reference-implementation-survey">3. Reference implementation survey</h2>
+<p>The producing environment for this blueprint is itself a Debian 13 sandbox
+running an AI coding agent (this document was generated inside it), which
+doubles as a working reference of a <em>functional</em> agent toolchain:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Reference version</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OS</td>
+<td>Debian 13.4 "trixie"</td>
+<td>Same distro as the target host</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.13.5 (<code>python3.13</code>)</td>
+<td>trixie ships 3.13 as <code>python3</code></td>
+</tr>
+<tr>
+<td><code>python3.13-venv</code></td>
+<td>required, separate package</td>
+<td><strong>Gotcha verified here:</strong> <code>python3 -m venv</code> fails without it</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>24.22.2 (NodeSource <code>node_24.x</code>)</td>
+<td>Same repo used by the Containerfile</td>
+</tr>
+<tr>
+<td>npm / pnpm</td>
+<td>11.19.1 / 12.16.1</td>
+<td>pnpm via corepack</td>
+</tr>
+<tr>
+<td>Bun</td>
+<td>1.3.14</td>
+<td>budget-wiser's primary runtime</td>
+</tr>
+<tr>
+<td>uv</td>
+<td>0.13.7</td>
+<td>standalone installer, pinned in image</td>
+</tr>
+<tr>
+<td>git</td>
+<td>2.47.3</td>
+<td></td>
+</tr>
+<tr>
+<td>Playwright (Node)</td>
+<td>1.57.0 → image pins 1.64.1</td>
+<td>1.64.x matches budget-wiser</td>
+</tr>
+<tr>
+<td>Playwright browsers</td>
+<td>chromium-1200 + headless shell + ffmpeg (613 MB in <code>~/.cache/ms-playwright</code>)</td>
+<td>Motivates the shared <code>/opt</code> bake + per-home seeding</td>
+</tr>
+<tr>
+<td>agent-browser</td>
+<td>0.41.1 (npm latest 0.41.2)</td>
+<td><strong>Verified:</strong> downloads its <em>own</em> Chrome 157 to <code>~/.agent-browser/browsers/</code> — independent of Playwright's Chromium</td>
+</tr>
+<tr>
+<td>trixie packages (verified via <code>apt-cache policy</code>)</td>
+<td>podman 5.4.2, passt, slirp4netns 1.2.1, crun 1.21, squid 6.13, qemu 10.0.13, virtinst 5.0, cloud-image-utils 0.33, chromium 156, uidmap</td>
+<td>All in main trixie repos</td>
+</tr>
+<tr>
+<td>Debian cloud image</td>
+<td><code>debian-13-genericcloud-amd64.qcow2</code> at <code>cloud.debian.org/images/cloud/trixie/latest/</code> (+ <code>SHA512SUMS</code>)</td>
+<td>Tier-2 base, checksum-verified by script</td>
+</tr>
+<tr>
+<td>Agent CLIs (npm, live)</td>
+<td>claude-code 2.1.318 · @openai/codex 0.166.0 · opencode-ai 1.19.5</td>
+<td>All installable via <code>npm -g</code>; native installers also exist</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="doc-sec" id="4-architecture-decisions-adr-summary">
+<h2 id="4-architecture-decisions-adr-summary">4. Architecture decisions (ADR summary)</h2>
+<p><strong>D1 — Podman (rootless) over Docker CE.</strong> Rootless Podman maps the
+container's root to an <em>unprivileged host user</em> — a container-root escape
+lands on a permissionless uid, not host root. No setuid daemon; lifecycle
+via systemd user units (Quadlet). Docker's daemon requires root or
+rootlesskit wrappers and adds a <code>docker.sock</code> foot-gun this design refuses
+to have. Podman 5.4 in trixie supports everything needed (defined networks,
+<code>--internal</code>, <code>keep-id:uid=</code>, Quadlet, multi-<code>Network=</code>).</p>
+<p><strong>D2 — Egress enforcement by <em>network topology</em>, not by env-var etiquette.</strong>
+<code>podman network create --internal</code> (verified against
+<code>podman-network-create(1)</code>) gives attached containers <strong>no default route</strong>,
+disables IP forwarding on the bridge, and makes aardvark-dns answer <strong>only
+container names</strong> (everything else NXDOMAIN). Workspaces cannot bypass the
+proxy even if they ignore proxy env vars — there is no route to bypass with.
+The gateway is dual-homed: <code>agent-egress</code> (normal NAT network) +
+<code>agent-internal</code> (the isolated side). An env-var-only proxy would be
+trivially bypassable; host-firewall approaches cannot distinguish rootless
+container traffic from the user's own processes. Topology wins.</p>
+<p><strong>D3 — Squid allowlist over deny-all+mirrors.</strong> Considered
+Verdaccio/devpi/apt-cacher mirrors (offline-first). Rejected as default:
+three caches to run and keep healthy, and agents legitimately need <em>docs
+and APIs</em>, not just packages. The allowlist proxy gives one policy file,
+full logging, and a 10-second change procedure (<code>30-gateway.sh allow</code>).
+Trade-off stated openly: an allowlisted domain is a standing grant — treat
+the file as production config.</p>
+<p><strong>D4 — Browsers baked once, seeded per-workspace.</strong> Two browser ecosystems
+must coexist (§3): Playwright's Chromium (per-version revisions) and
+agent-browser's own Chrome. Both are baked into <code>/opt</code> (image layers, ~2 GB
+unpacked, shared by every workspace) and <em>symlinked</em> into each workspace's
+writable home by an idempotent seeder. Projects pinning other Playwright
+versions download their revision through the proxy into their home volume —
+self-healing, no copy overhead for the common case.</p>
+<p><strong>D5 — <code>--userns=keep-id:uid=1000,gid=1000</code>.</strong> Rootless containers
+otherwise remap the host user to container-root, making bind-mounted
+project dirs unowned by the workspace user. <code>keep-id:uid=1000</code> pins host
+user ↔ container <code>dev</code> (uid 1000) regardless of the host uid, so
+<code>~/agent-workspaces/&lt;name&gt;</code> is transparently shared (IDE-editable on the
+host) and writable in-container. This also eliminates git's
+"dubious ownership" class of failures.</p>
+<p><strong>D6 — One image, two tiers (container-in-VM).</strong> The Tier-2 VM runs
+rootless Podman <em>inside</em> it and loads the <em>same</em> <code>agent-dev-sandbox:1</code>
+image (transferred during the one-time golden build). Toolchain drift
+between tiers becomes impossible; only the enforcement point differs
+(VM nftables instead of network topology).</p>
+<p><strong>D7 — No sudo inside workspaces.</strong> A missing system package is an image
+bug: rebuild (minutes, cached). Granting sudo would re-open privilege
+escalation that cap-drop and no-new-privileges just closed. Language-level
+installs (npm/pip/uv) are unaffected.</p>
+<p><strong>D8 — Version-pinned ARGs, major-pinned repos.</strong> Every tool in the image
+is pinned to a version verified on 2026-11-05; Node comes from the
+NodeSource major repo; the base image can be digest-pinned for strict
+reproducibility (<code>references/hardening.md</code> §1). Refresh = bump ARG +
+rebuild + re-verify; never <code>@latest</code> in the image.</p>
+<p><strong>Alternatives considered and rejected:</strong> gVisor/Kata (not in Debian
+repos; adds a kernel-interposition layer with its own trust base —
+reasonable future option, documented in hardening §4); Firecracker/Cloud
+Hypervisor (excellent for fleets; QEMU+KVM is packaged, scriptable and
+sufficient for single-user hosts — <code>boot_vm()</code> is the only function that
+would change); full Docker-in-Docker (defeats isolation); remote dev
+containers (network dependency, opposite of self-contained).</p>
+</section>
+<section class="doc-sec" id="5-system-design">
+<h2 id="5-system-design">5. System design</h2>
+<figure class="arch" aria-label="System design diagram">
+<svg viewBox="0 0 900 710" role="img" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Segoe UI',Roboto,'Noto Sans SC',sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" stroke="var(--icon)" stroke-width="1.4" fill="none"/>
+    </marker>
+  </defs>
+  <style>
+    .b-title{font-size:20px;font-weight:700;fill:var(--text)}
+    .b-desc{font-size:16px;fill:var(--muted)}
+    .chip{font-size:15px;fill:var(--accent)}
+    .bus-t{font-size:15px;fill:#fff}
+    .w-label{font-size:14px;fill:var(--muted)}
+  </style>
+  <!-- wires -->
+  <path d="M 560 150 L 560 122 L 755 122 L 755 76" stroke="var(--icon)" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+  <path d="M 450 254 L 450 306" stroke="var(--icon)" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+  <path d="M 176 334 L 176 366" stroke="var(--icon)" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+  <path d="M 420 334 L 420 366" stroke="var(--icon)" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+  <text x="575" y="112" class="w-label">NAT egress</text>
+  <text x="465" y="286" class="w-label">only NIC: agent-internal</text>
+  <!-- internet -->
+  <rect x="640" y="18" width="230" height="54" rx="6" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="755" y="50" text-anchor="middle" font-size="17" font-weight="600" fill="var(--muted)">Internet</text>
+  <!-- host frame -->
+  <rect x="16" y="100" width="868" height="590" rx="8" fill="var(--section-bg)" stroke="var(--header-fill)" stroke-width="1.5"/>
+  <text x="36" y="128" font-size="16" font-weight="700" fill="var(--header-fill)" letter-spacing="1">DEBIAN 13 HOST &#183; 16-32 GB &#183; KVM</text>
+  <text x="864" y="128" text-anchor="end" font-size="14" fill="var(--muted)">systemd --user (linger) &#183; Quadlet agent-gateway.service</text>
+  <!-- gateway -->
+  <rect x="250" y="150" width="400" height="104" rx="6" fill="var(--card)" stroke="var(--header-fill)"/>
+  <text x="266" y="176" class="b-title">agent-gateway &#8212; rootless Squid</text>
+  <text x="266" y="197" class="b-desc">single-file domain allowlist &#183; denied: HTTP 403 + log</text>
+  <rect x="266" y="208" width="158" height="26" rx="13" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.2"/>
+  <text x="345" y="226" text-anchor="middle" class="chip">nic1 agent-egress</text>
+  <rect x="436" y="208" width="172" height="26" rx="13" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.2"/>
+  <text x="522" y="226" text-anchor="middle" class="chip">nic2 agent-internal</text>
+  <!-- bus -->
+  <rect x="70" y="308" width="760" height="26" rx="4" fill="var(--header-fill)"/>
+  <text x="450" y="326" text-anchor="middle" class="bus-t">agent-internal &#8212; internal network: no default route &#183; external DNS &#8594; NXDOMAIN</text>
+  <!-- workspaces -->
+  <rect x="70" y="368" width="212" height="132" rx="6" fill="var(--section-bg)" stroke="var(--border)" stroke-left="3"/>
+  <rect x="70" y="368" width="3.5" height="132" fill="var(--accent)"/>
+  <text x="86" y="392" font-size="18" font-weight="700" fill="var(--text)">agent-&lt;workspace&gt;</text>
+  <text x="86" y="413" class="b-desc" font-size="14.5">keep-id:uid=1000 &#183; cap-drop=ALL</text>
+  <text x="86" y="434" class="b-desc" font-size="14.5">no-new-privileges &#183; pids/mem/cpu caps</text>
+  <text x="86" y="455" class="b-desc" font-size="14.5">env-file secrets &#183; seeded browsers</text>
+  <rect x="314" y="368" width="212" height="132" rx="6" fill="var(--section-bg)" stroke="var(--border)"/>
+  <rect x="314" y="368" width="3.5" height="132" fill="var(--accent)"/>
+  <text x="330" y="392" font-size="18" font-weight="700" fill="var(--text)">agent-__ci-&lt;run&gt;</text>
+  <text x="330" y="413" class="b-desc" font-size="14.5">single-shot CI run (&#167;12)</text>
+  <text x="330" y="434" class="b-desc" font-size="14.5">per-run isolation self-audit</text>
+  <text x="330" y="455" class="b-desc" font-size="14.5">artifacts &#8594; __ci/artifacts/</text>
+  <text x="560" y="440" font-size="20" font-weight="600" fill="var(--muted)">&#215; N workspaces</text>
+  <!-- VM -->
+  <rect x="70" y="540" width="760" height="132" rx="6" fill="var(--section-bg)" stroke="var(--muted)"/>
+  <text x="86" y="566" font-size="19" font-weight="700" fill="var(--text)">Tier 2 &#8212; KVM micro-VM per engagement (QEMU + official Debian 13 cloud image)</text>
+  <rect x="86" y="580" width="180" height="28" rx="14" fill="var(--panel)" stroke="var(--border)"/>
+  <text x="176" y="599" text-anchor="middle" font-size="14.5" fill="var(--muted)">cloud-init provisioning</text>
+  <rect x="278" y="580" width="360" height="28" rx="14" fill="var(--panel)" stroke="var(--border)"/>
+  <text x="458" y="599" text-anchor="middle" font-size="14.5" fill="var(--muted)">nftables: output DROP &#183; allow 10.0.2.2:3128 + DNS</text>
+  <rect x="650" y="580" width="164" height="28" rx="14" fill="var(--panel)" stroke="var(--border)"/>
+  <text x="732" y="599" text-anchor="middle" font-size="13" fill="var(--muted)">same image inside the VM</text>
+</svg>
+<figcaption>Figure 1 &#8212; System design: one host, two enforcement tiers, three consumption modes of one image.</figcaption>
+</figure>
+
+<details class="ascii"><summary>ASCII version of this diagram (as in BLUEPRINT.md)</summary><pre><code> Debian 13 host (16-32 GB, KVM)
+ ├─ systemd --user (linger)                    ← 10-host-bootstrap.sh
+ │   └─ agent-gateway.service (Quadlet)        ← 30-gateway.sh
+ │       └─ podman: agent-gateway (Squid, cap-dropped)
+ │           ├─ nic1: agent-egress   (NAT → internet)
+ │           └─ nic2: agent-internal (INTERNAL: no route, no ext-DNS)
+ │                 ↑
+ │   podman: agent-&lt;workspace&gt; × N             ← 40-workspace.sh
+ │     · keep-id:uid=1000 · cap-drop=ALL · no-new-priv
+ │     · --network agent-internal (ONLY)
+ │     · -v ~/agent-workspaces/&lt;n&gt;:/workspace  (host-shared code)
+ │     · -v agent-home-&lt;n&gt;:/home/dev           (creds, caches — persistent)
+ │     · --env-file ~/.config/agent-sandbox/workspaces/&lt;n&gt;.env (0600)
+ │     └─ dev tools + claude/codex/opencode + browsers + agent-browser
+ │
+ ├─ host squid @127.0.0.1:3128 (Tier-2 path)   ← 10-host-bootstrap.sh --tier2
+ └─ qemu-system-x86_64 (KVM)                    ← 60-tier2-microvm.sh
+     └─ VM (debian-13-genericcloud + cloud-init)
+         · nftables: output DROP; allow 10.0.2.2:3128 (proxy) + 10.0.2.3:53
+         └─ rootless podman → agent-dev-sandbox:1 (same image)
+             (workspace on VM disk — never host bind mounts)
+</code></pre></details>
+<p><strong>Life of an egress request (the guarantee, step by step).</strong> A workspace
+process runs <code>bun install</code>. Bun reads <code>https_proxy</code> (injected as container
+env) and sends <code>CONNECT registry.npmjs.org:443</code> to <code>agent-gateway:3128</code> —
+the name resolves via aardvark-dns to the gateway's <code>agent-internal</code>
+interface, because that is the only resolver reachable. Squid matches the
+CONNECT target against the allowlist file (bind-mounted read-only from the
+skill bundle): allowed → Squid itself resolves DNS and proxies the TLS
+tunnel (payload never decrypted); denied → HTTP 403 plus one access-log
+line. If the process ignores proxy variables entirely and attempts a
+ direct socket connection, the packet is dropped at the network layer:
+<code>agent-internal</code> has no default route and forwarding is disabled on the
+bridge. If it tries to smuggle a hostname past policy, there is no external
+DNS to resolve it with — aardvark answers container names only, everything
+else NXDOMAIN. Four independent mechanisms, one policy file.</p>
+<p><strong>Workspace model (per-project, persistent).</strong> A workspace = container +
+bind-mounted code dir + named home volume + env file. Stopping preserves
+everything; <code>restart</code> re-creates the container (re-reading the env file —
+key rotation without volume surgery); <code>snapshot</code> commits the container fs
+and tars the home volume; <code>destroy</code> removes the container, keeps code and
+home unless explicitly purged. Credentials for the agent CLIs live in the
+home volume, so logins survive container re-creation.</p>
+<p><strong>Tier-2 lifecycle.</strong> <code>base</code> (once): download + SHA512-verify the official
+cloud image → golden overlay → cloud-init (packages via the host proxy, the
+nftables ruleset, subuid ranges, linger) → transfer + <code>podman load</code> the
+agent image → freeze. <code>create &lt;name&gt;</code> (seconds): copy-on-write overlay of
+golden + boot + container start inside. Backing-file sharing makes overlays
+instant; the flip side — a poisoned golden poisons all overlays — is why
+hardening §4 recommends rebuilding golden per trust boundary.</p>
+</section>
+<section class="doc-sec" id="6-component-specifications">
+<h2 id="6-component-specifications">6. Component specifications</h2>
+<p><strong>Image contents</strong> (<code>files/Containerfile</code>, all pins verified 2026-11-05):
+Debian trixie-slim base; Python 3.13 + venv + dev headers; Node 24
+(NodeSource); Bun 1.3.x; pnpm 12; uv 0.13.7; git/git-lfs; ripgrep, fd, jq,
+tmux, socat, openssh-client; build-essential + libssl/zlib/sqlite headers;
+SQLite; system Chromium 156 + fonts; Playwright 1.64.1 (Node <em>and</em> Python,
+shared browser revisions) baked to <code>/opt/ms-playwright</code>; agent-browser 0.41.2
+with its Chrome baked to <code>/opt/agent-browser-data</code>; claude-code 2.1.318,
+codex 0.166.0, opencode 1.19.5; non-root <code>dev</code> (uid 1000);
+<code>sleep infinity</code> as PID 1. Result: ~3.5-4 GB image, ~2 GB RAM per active
+workspace at idle-to-moderate load.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Pinned version</th>
+<th>Why it is there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>python3.13 + venv + dev</td>
+<td>trixie 3.13.5</td>
+<td>system Python for the distro; venv package is the documented trixie gotcha</td>
+</tr>
+<tr>
+<td>nodejs</td>
+<td>24.x (NodeSource <code>node_24.x</code>)</td>
+<td>budget-wiser floor is Node ≥ 24; matches reference environment</td>
+</tr>
+<tr>
+<td>bun</td>
+<td>latest via bun.sh installer</td>
+<td>budget-wiser's primary runtime (≥ 1.3)</td>
+</tr>
+<tr>
+<td>pnpm</td>
+<td>12.16.1</td>
+<td>package manager of choice for agent workflows</td>
+</tr>
+<tr>
+<td>uv</td>
+<td>0.13.7</td>
+<td>fast per-project Python envs; standalone binary</td>
+</tr>
+<tr>
+<td>playwright (node+py)</td>
+<td>1.64.1</td>
+<td>matches budget-wiser's pin → shared browser revision, no re-download</td>
+</tr>
+<tr>
+<td>agent-browser</td>
+<td>0.41.2</td>
+<td>accessibility-snapshot browser driving for agents (own Chrome 157)</td>
+</tr>
+<tr>
+<td>claude-code / codex / opencode</td>
+<td>2.1.318 / 0.166.0 / 1.19.5</td>
+<td>the three agent CLIs, all <code>npm -g</code> installable, no Node runtime needed at their own runtime</td>
+</tr>
+<tr>
+<td>chromium</td>
+<td>trixie 156</td>
+<td>system browser + shared library base for both browser ecosystems</td>
+</tr>
+<tr>
+<td>ripgrep/fd/jq/socat/tmux</td>
+<td>trixie packaged</td>
+<td>agent ergonomics (search, JSON, port/probe, sessions)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Egress policy</strong> (<code>files/squid/allowlist.txt</code>): Debian mirrors; runtime
+installers (NodeSource, nodejs.org, astral.sh, bun.sh); registries
+(npm, yarn, PyPI); git hosts (GitHub, GitLab); Playwright CDN; the AI
+provider APIs; two verification domains. Suffix matching; Squid resolves
+DNS (workspaces never need it). Adding a domain: one command, both tiers,
+restart included.</p>
+<p><strong>Ephemeral CI profile</strong> (<code>scripts/45-ci-run.sh</code> + <code>files/ci-setup.sh</code>):
+single-shot containers from the same image — CI env, shared package caches,
+per-run isolation self-audit, artifact export, walltime timeout, orphan
+reaper. Full design in §12.</p>
+<p><strong>Resource budget</strong> (16-32 GB host): gateway ~50 MB; each Tier-1 workspace
+default 6 GB/4 CPU cap (per-container) inside a user-slice budget; one
+Tier-2 VM 6 GB/4 vCPU by default. Comfortable: 2-4 active workspaces +
+1 VM on 32 GB; 1-2 workspaces on 16 GB.</p>
+<p><strong>Secrets plumbing.</strong> Host file <code>~/.config/agent-sandbox/workspaces/&lt;n&gt;.env</code>
+(0600, never committed, never in an image or snapshot) → <code>--env-file</code> at
+<code>podman run</code>. Agent CLI auth tokens live inside the home volume only.
+Tier-2 env files live inside the VM (<code>~/.config/agent-sandbox/</code>), so host
+compromise of the env dir does not automatically include VM workspaces'
+keys.</p>
+</section>
+<section class="doc-sec" id="7-representative-workload-fit-budget-wiser">
+<h2 id="7-representative-workload-fit-budget-wiser">7. Representative workload fit — budget-wiser</h2>
+<p>The chosen reference repo stresses every axis of the design: Next.js 16 +
+React 19 need Node ≥ 24 (or Bun ≥ 1.3) — both provided; Prisma 6 + SQLite
+needs libssl/sqlite — provided; <code>bun install</code> needs registry.npmjs.org —
+allowlisted; <code>db:push/db:seed</code> are local file operations; Vitest runs
+offline; Playwright E2E launches Chromium against <code>localhost</code> — covered by
+<code>no_proxy</code> and the baked browser; <code>agent-browser</code> verifies UI state via
+accessibility snapshots. Onboarding inside a workspace:</p>
+<pre><code class="language-bash">scripts/40-workspace.sh create wiser --repo https://github.com/nordeim/budget-wiser.git
+scripts/40-workspace.sh shell wiser
+# in-workspace:
+bun install &amp;&amp; bun run db:push &amp;&amp; bun run db:seed &amp;&amp; bun run gate   # lint+type+unit
+bun run dev &amp;       # localhost:3000
+agent-browser open http://localhost:3000 &amp;&amp; agent-browser snapshot -i
+bun run test:e2e    # Playwright, local server — no external egress needed
+</code></pre>
+<p><code>50-verify.sh</code> performs the first step (clone via proxy) as a standing
+check; the rest is the documented user acceptance path.</p>
+</section>
+<section class="doc-sec" id="8-security-analysis">
+<h2 id="8-security-analysis">8. Security analysis</h2>
+<p><strong>Guarantees enforced by construction:</strong> workspace processes run as
+non-root with zero capabilities, no privilege escalation, and cgroup caps;
+the only route off the host user's network namespace is Squid with a domain
+allowlist (403 + logged for everything else); external DNS is unavailable;
+no host path is writable inside a workspace except the project dir (same
+host uid — worst case is "your own files in that dir", the same trust level
+as running the code by hand); Tier-2 adds a full VM boundary and keeps all
+host paths out entirely.</p>
+<p><strong>Verified, with caveats stated:</strong> rootless defined-network NAT egress is a
+standard podman 5 capability and the <code>--internal</code> semantics are documented;
+an exotic-host fallback (rootful system-quadlet gateway) is specified in
+<code>references/troubleshooting.md</code> §4. Chromium-family browsers do not
+reliably honor proxy env vars in every launch mode — external-page browsing
+via agent-browser is therefore a SOFT check with the explicit per-project
+Playwright proxy option documented; local dev-server testing (the dominant
+agent flow) is unaffected and hard-verified.</p>
+<p><strong>Known residual risks (by tier, see §2 table and hardening §6):</strong> shared
+kernel for Tier 1; supply chain of allowlisted domains; allowed-channel
+exfiltration; side channels on shared hardware. The design's answer to the
+first is the tier switch, to the second is allowlist governance + your
+normal package review, to the rest is stated scope.</p>
+</section>
+<section class="doc-sec" id="9-operational-characteristics-logging-audit">
+<h2 id="9-operational-characteristics-logging-audit">9. Operational characteristics, logging &amp; audit</h2>
+<p><strong>Timing profile</strong> (mid-range host): image build 5-15 min (first) / seconds
+(cached); workspace create ~3 s + first <code>seed-playwright-browsers</code> (&lt; 1 s);
+workspace <code>restart</code> ~2 s; gateway start ~1 s; Tier-2 golden build 15-30 min
+(one-time); Tier-2 overlay create ~40 s to SSH. A CI run adds ~5-8 s of
+overhead around the command itself (container create + browser seeding +
+isolation self-audit); artifact copying is size-dependent.</p>
+<p><strong>What happens on reboot:</strong> linger + the gateway Quadlet bring the proxy
+back automatically; stopped workspaces stay stopped (start them
+explicitly); running workspaces restart with their containers (Quadlet-less
+workspaces rely on <code>podman start</code>, a deliberate choice — agents should not
+auto-resume unfinished work unattended). VMs do not auto-start (their qemu
+processes are user-managed, not systemd units — keep it that way unless you
+add units yourself).</p>
+<p><strong>Audit trail:</strong> Squid access logs are the egress audit record — one line
+per proxied request and per denial. Container path:
+<code>journalctl --user -u agent-gateway.service</code> (or <code>podman logs
+agent-gateway</code>); Tier-2 host path: <code>/var/log/squid/access.log</code>. Answering
+"did workspace X contact domain Y?" is a one-line grep. Retention is your
+host's journald/logrotate policy — size the logs to your compliance needs.</p>
+<p><strong>Host maintenance:</strong> Debian security updates apply normally (host packages
+are outside all sandboxes). After a host kernel update + reboot, re-run
+<code>50-verify.sh</code> before resuming untrusted work — the suite is cheap and the
+kernel is the Tier-1 boundary.</p>
+</section>
+<section class="doc-sec" id="10-design-questions-you-will-ask">
+<h2 id="10-design-questions-you-will-ask">10. Design questions you will ask</h2>
+<p><strong>Why not Claude Code's own sandbox / Codex's built-in sandboxing?</strong> Both
+CLIs ship process-level sandboxes (seccomp/Landlock/namespace wrappers).
+They harden <em>the CLI's own tool calls</em> — but the user may run other agents,
+ad-hoc commands, or a different CLI version; and process sandboxes do not
+provide resource caps, egress allowlists, or a reproducible environment.
+This blueprint treats agent-internal sandboxing as an optional extra layer
+<em>inside</em> the workspace, never as the boundary.</p>
+<p><strong>Why is the gateway a container instead of host squid for Tier 1?</strong>
+Rootless containers on an internal network cannot reach host loopback; the
+dual-homed gateway container keeps the entire Tier-1 plane inside the
+unprivileged user realm (no root-owned moving parts) and makes the whole
+thing portable via Quadlet. Tier 2 does use host squid — VMs reach it via
+QEMU's 10.0.2.2 mapping, which lands on loopback.</p>
+<p><strong>Why allow example.com but not a general docs allowlist?</strong> Every line is a
+standing grant to untrusted code. Two inert verification domains are
+shipped; anything else is a deliberate, reviewable policy decision via
+<code>30-gateway.sh allow</code>. Agents that need docs access get it the same way —
+explicitly, observably, revocably.</p>
+<p><strong>Can a workspace use Docker/Compose inside?</strong> No — deliberately. Nested
+container runtimes need privileges this design refuses to grant. Projects
+needing multi-service topologies should use podman-in-VM (Tier 2, where
+rootless podman IS available inside the VM) or the host-side scripts.</p>
+</section>
+<section class="doc-sec" id="11-runbooks">
+<h2 id="11-runbooks">11. Runbooks</h2>
+<div class="checklist" id="day0">
+  <h4>Day-0 build checklist <span style="color:var(--accent)">&#183; progress saved locally</span></h4>
+  <div class="cl-sub">Phase 0&#8211;5 from the runbook above &#8212; tick each gate only when its expected outcome printed.</div>
+  <div class="cl-bar"><div id="cl-bar-fill"></div></div>
+  <label><input type="checkbox"><span><b>Phase 0</b> &#8212; <code>00-preflight.sh</code> &rarr; <code>0 blocker(s)</code></span></label>
+  <label><input type="checkbox"><span><b>Phase 1</b> &#8212; <code>10-host-bootstrap.sh [--tier2]</code> &rarr; all checkmarks (re-login if kvm group added)</span></label>
+  <label><input type="checkbox"><span><b>Phase 1b</b> &#8212; <code>00-preflight.sh --post</code> &rarr; <code>0 blocker(s)</code></span></label>
+  <label><input type="checkbox"><span><b>Phase 2</b> &#8212; <code>20-build-image.sh</code> &rarr; image <code>agent-dev-sandbox:1</code> built</span></label>
+  <label><input type="checkbox"><span><b>Phase 3</b> &#8212; <code>30-gateway.sh up</code> &rarr; gateway running, probe <code>status=200</code></span></label>
+  <label><input type="checkbox"><span><b>Phase 4 (GATE)</b> &#8212; <code>50-verify.sh</code> &rarr; <b>0 failed</b> (warnings allowed, each explained)</span></label>
+  <label><input type="checkbox"><span><b>Phase 5 (optional)</b> &#8212; <code>60-tier2-microvm.sh base</code> &rarr; golden VM frozen</span></label>
+  <label><input type="checkbox"><span><b>CI smoke</b> &#8212; <code>45-ci-run.sh run --repo .../budget-wiser.git -- bash -lc 'bun install &amp;&amp; bun run gate'</code> &rarr; exit 0</span></label>
+  <div class="cl-actions">
+    <button class="icon-btn" type="button" id="cl-reset">Reset</button>
+    <span id="cl-status"></span>
+  </div>
+</div>
+
+<p><strong>Day-0 (install, ~25-40 min including image build):</strong>
+<code>00-preflight.sh</code> → <code>10-host-bootstrap.sh [--tier2]</code> → re-login if kvm
+group added → <code>00-preflight.sh --post</code> → <code>20-build-image.sh</code> →
+<code>30-gateway.sh up</code> → <code>50-verify.sh</code> → (optional) <code>60-tier2-microvm.sh base</code>.</p>
+<p><strong>Day-1 (new project):</strong> <code>40-workspace.sh create &lt;name&gt; [--repo URL]</code> →
+edit env file → <code>restart &lt;name&gt;</code> → <code>shell &lt;name&gt;</code> → run the agent CLI.</p>
+<p><strong>Day-2 (ongoing):</strong> allowlist changes (<code>30-gateway.sh allow</code>); tool
+refresh (bump ARG → rebuild → re-verify → <code>restart</code> workspaces); snapshots
+before risky agent sessions; <code>podman system df</code> housekeeping; allowlist
+review; rebuild Tier-2 golden between trust boundaries.</p>
+</section>
+<section class="doc-sec" id="12-ephemeral-ci-profile">
+<h2 id="12-ephemeral-ci-profile">12. Ephemeral CI profile</h2>
+<p>The roadmap's "ephemeral CI profiles" item, delivered. The insight that
+keeps it cheap: CI here is not a new environment but a new <em>consumption mode</em>
+of the one that already exists.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Tool</th>
+<th>Lifecycle</th>
+<th>Home</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interactive workspace</td>
+<td><code>40-workspace.sh</code></td>
+<td>persistent (stop/start/restart)</td>
+<td>named volume <code>agent-home-&lt;n&gt;</code></td>
+<td>host bind <code>~/agent-workspaces/&lt;n&gt;</code></td>
+</tr>
+<tr>
+<td>Ephemeral CI run</td>
+<td><code>45-ci-run.sh</code></td>
+<td>one command, then destroyed</td>
+<td>container layer (or run-local bind with <code>--read-only-rootfs</code>)</td>
+<td>run dir, or <code>--src</code> checkout</td>
+</tr>
+<tr>
+<td>Container-in-VM</td>
+<td><code>60-tier2-microvm.sh</code></td>
+<td>per engagement</td>
+<td>inside the VM</td>
+<td>VM disk</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Runner.</strong> <code>45-ci-run.sh run [--repo URL | --src DIR] [--timeout S] --
+&lt;command...&gt;</code> creates a single-shot container that is hardened <em>exactly</em>
+like a workspace — keep-id, cap-drop=ALL, no-new-privileges,
+<code>agent-internal</code> only, env-file secrets, pids/memory/cpu caps — plus a
+walltime <code>timeout</code> (default 3600 s). The command streams live <em>and</em> is
+captured to <code>artifacts/console.log</code>. Teardown always follows the run
+(<code>--keep-on-failure</code> opts out for debugging); <code>reap</code> removes orphans and
+stale run dirs past a TTL; <code>list</code> prints past runs from their summaries;
+<code>cache</code> wipes the shared package caches.</p>
+<p><strong>In-container preamble.</strong> <code>files/ci-setup.sh</code> is bind-mounted in (image
+unchanged — D6 holds): it sets <code>CI=true</code> (pnpm then defaults to a frozen
+lockfile in CI), points npm/pip/uv/bun/pnpm caches at the shared tree,
+seeds browsers, optionally shallow-clones <code>CI_REPO_URL</code>, then — before any
+workload code runs — <strong>audits isolation</strong>: uid 1000, zero caps,
+NoNewPrivs, direct egress must fail, external DNS must fail, the proxy
+must 403 a known-denied domain and 200 an allowlisted one. Results land in
+<code>artifacts/isolation-audit.json</code>; any failure exits <strong>66</strong> without running
+the command. Every CI run therefore carries its own evidence that the
+sandbox guarantees held <em>for that run</em>.</p>
+<p><strong>Artifacts.</strong> <code>~/agent-workspaces/__ci/artifacts/&lt;run-id&gt;/</code> keeps
+<code>console.log</code>, <code>isolation-audit.json</code>, a schema'd <code>run-summary.json</code>
+(exit code, duration, audit status, cache mode, copied files), and the
+report dirs the copier knows by default (<code>playwright-report</code>,
+<code>test-results</code>, <code>coverage</code>, <code>dist</code>, <code>build</code>, <code>junit.xml</code>; extend with
+<code>--artifact-path</code>, globs allowed).</p>
+<p><strong>Caches and trust.</strong> Shared caches are a host bind mount
+(<code>~/agent-workspaces/__ci/cache</code> → <code>/cache</code>) — deliberately <em>not</em> a named
+volume, because same-uid bind mounts are this design's proven primitive
+(D5); no orphan volumes can ever exist. The tree is shared writable state
+across runs: pnpm's own documentation makes exactly this point about its
+store, and the same reasoning applies to npm/pip/uv/bun caches. Same host,
+same user, same trust domain — fine for your own projects; <code>--no-cache-vol</code>
+gives a run cold, isolated caches when the source is less trusted, and
+hostile PR builds belong in Tier 2 (the same script runs inside the VM).
+CI mode changes consumption, never the trust tier.</p>
+<p><strong>Naming.</strong> Containers are <code>agent-__ci-&lt;run-id&gt;</code>, state lives under the
+<code>__ci/</code> subtree of the workspaces root. <code>40-workspace.sh</code>'s <code>validate_name</code>
+reserves the <code>__</code> prefix, so CI containers cannot collide with
+interactive workspaces and <code>reap</code> cannot touch them — the same structural
+reservation the verify canary (<code>__verify</code>) uses.</p>
+<p><strong>Representative run (budget-wiser gate):</strong></p>
+<pre><code class="language-bash">scripts/45-ci-run.sh run --repo https://github.com/nordeim/budget-wiser.git \
+    -- bash -lc 'bun install &amp;&amp; bun run db:push &amp;&amp; bun run db:seed &amp;&amp; bun run gate'
+scripts/45-ci-run.sh list
+</code></pre>
+<p>Exit codes are a contract: <code>0</code> ok · <code>66</code> audit failure · <code>124</code> walltime
+timeout · <code>125/126/127</code> podman-level error · anything else is the command's
+own exit code. See <code>references/troubleshooting.md</code> §9 for the failure
+playbook (including why <code>--skip-audit</code> is never a fix).</p>
+</section>
+<section class="doc-sec" id="13-verification-as-specification">
+<h2 id="13-verification-as-specification">13. Verification as specification</h2>
+<p><code>50-verify.sh</code> maps each guarantee to a check, and — crucially — encodes
+the <em>negative</em> tests as first-class requirements: direct egress must fail,
+external DNS must fail, non-allowlisted domains must 403. A green run is a
+reproducible evidence ledger (per-check PASS/FAIL with captured output),
+designed so an AI operator cannot honestly report "done" without it — and
+the escalation rule forbids weakening checks to force green. The CI profile
+extends the same idea to every single run: its self-audit is 50-verify's
+isolation section, in miniature, attached to each job's artifacts.</p>
+</section>
+<section class="doc-sec" id="14-roadmap">
+<h2 id="14-roadmap">14. Roadmap</h2>
+<p>Registry mode (local <code>podman push</code> target for team-shared images);
+ephemeral CI profiles — <strong>delivered</strong> (§12); gVisor/Kata runtime option for
+Tier 1.5; DNS-level allowlisting in Tier 2
+(dnsmasq allow-resolver); automated monthly golden rebuilds with drift
+reports. Each extension is a delta on this blueprint, not a redesign.</p>
+</section>
+    <footer class="doc-foot">
+      <span>Agent Dev Sandbox — Comprehensive Blueprint · interactive single-file edition</span>
+      <span>Mirrors <code>BLUEPRINT.md</code> · works fully offline</span>
+    </footer>
+  </main>
+</div>
+<script>
+/* BLUEPRINT.html — interactions: theme, scroll-spy, search, copy, checklist */
+(function () {
+  'use strict';
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+
+  /* ---------------- pristine section snapshots ---------------- */
+  // Taken BEFORE any binding injects interactive elements (copy buttons),
+  // so a search-restore cycle replays authored content only — never
+  // serialized, listener-less copies of attached widgets.
+  var secEls = $$('section.doc-sec');
+  var originals = new Map();
+  secEls.forEach(function (s) { originals.set(s, s.innerHTML); });
+
+  /* ---------------- theme ---------------- */
+  var THEME_KEY = 'ads-blueprint-theme';
+  var saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    $('#theme-btn').textContent = t === 'dark' ? '\u2600\ufe0f Light' : '\u263D Dark';
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  }
+  applyTheme(saved || (preferDark ? 'dark' : 'light'));
+  $('#theme-btn').addEventListener('click', function () {
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---------------- mobile nav ---------------- */
+  $('#nav-btn').addEventListener('click', function () {
+    document.body.classList.toggle('nav-open');
+  });
+  $$('.toc a').forEach(function (a) {
+    a.addEventListener('click', function () { document.body.classList.remove('nav-open'); });
+  });
+
+  /* ---------------- progress bar ---------------- */
+  var bar = $('#progress');
+  function onScroll() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = max > 0 ? (100 * h.scrollTop / max) + '%' : '0%';
+  }
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------------- scroll-spy ---------------- */
+  var links = $$('.toc a[data-target]');
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('data-target')); });
+  function spy() {
+    var pos = window.scrollY + 90, idx = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop <= pos) idx = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === idx); });
+  }
+  document.addEventListener('scroll', spy, { passive: true });
+  spy();
+
+  /* ---------------- copy buttons ---------------- */
+  // codeText: the payload of a <pre> WITHOUT the copy button's own label
+  // (the button lives inside the <pre>, so pre.innerText would append "Copy").
+  function codeText(pre) {
+    var code = pre.querySelector('code');
+    if (code) return code.textContent;
+    var clone = pre.cloneNode(true);
+    $$('.copy-btn', clone).forEach(function (b) { b.parentNode.removeChild(b); });
+    return clone.textContent;
+  }
+  // copyText: async Clipboard API first; hidden-textarea + execCommand
+  // fallback for engines or locked-down contexts where the API is missing
+  // or rejects (e.g. file:// in hardened browsers). onOk fires only on
+  // confirmed success.
+  function copyText(text, onOk) {
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      if (ok) onOk();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(onOk, fallback);
+    } else {
+      fallback();
+    }
+  }
+  // bindCopy: single, idempotent binder for the initial attach AND the
+  // re-attach after search restore (clearMarks replaces section innerHTML
+  // from the pristine snapshot). Strips any existing buttons first so a
+  // double call can never leave inert duplicates behind.
+  function bindCopy() {
+    $$('.copy-btn').forEach(function (b) { b.parentNode.removeChild(b); });
+    $$('pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.type = 'button';
+      btn.textContent = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      btn.addEventListener('click', function () {
+        copyText(codeText(pre), function () {
+          btn.textContent = 'Copied \u2713';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1600);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  }
+  bindCopy();
+
+  /* ---------------- day-0 checklist ---------------- */
+  var CL_KEY = 'ads-blueprint-checklist';
+  var boxes = $$('.checklist input[type="checkbox"]');
+  function loadCl() {
+    var state = [];
+    try { state = JSON.parse(localStorage.getItem(CL_KEY) || '[]'); } catch (e) {}
+    boxes.forEach(function (b, i) { b.checked = !!state[i]; });
+    renderCl();
+  }
+  function saveCl() {
+    var state = boxes.map(function (b) { return b.checked; });
+    try { localStorage.setItem(CL_KEY, JSON.stringify(state)); } catch (e) {}
+    renderCl();
+  }
+  function renderCl() {
+    var bar = $('#cl-bar-fill'), status = $('#cl-status');
+    if (!bar || !status) return;
+    var done = boxes.filter(function (b) { return b.checked; }).length;
+    bar.style.width = (boxes.length ? 100 * done / boxes.length : 0) + '%';
+    status.textContent = done + ' / ' + boxes.length + ' steps done' +
+      (done === boxes.length && boxes.length ? ' \u2014 environment verified \u2713' : '');
+  }
+  function bindChecklist() {
+    // (Re)attach listeners: search restore replaces the section DOM, which
+    // clones the checklist elements and orphans any previous listeners.
+    boxes = $$('.checklist input[type="checkbox"]');
+    boxes.forEach(function (b) { b.addEventListener('change', saveCl); });
+    var rst = $('#cl-reset');
+    if (rst) {
+      rst.onclick = function () {
+        boxes.forEach(function (b) { b.checked = false; });
+        saveCl();
+      };
+    }
+  }
+  bindChecklist();
+  loadCl();
+
+  /* ---------------- search ---------------- */
+  var input = $('#search'), meta = $('#search-meta'), clearBtn = $('#clear-btn');
+
+  // Responsive placeholder: the full hint does not fit below ~480 px and the
+  // browser would truncate it mid-word; show a short one on narrow viewports.
+  function setPlaceholder() {
+    input.placeholder = window.innerWidth < 480
+      ? 'Search\u2026'
+      : 'Search the blueprint\u2026 (min 2 chars)';
+  }
+  setPlaceholder();
+  window.addEventListener('resize', setPlaceholder);
+
+  function clearMarks() {
+    secEls.forEach(function (s) {
+      s.classList.remove('hidden-sec');
+      if (originals.has(s)) s.innerHTML = originals.get(s);
+    });
+    $('#no-results').style.display = 'none';
+    // section innerHTML was just restored from the originals snapshot: re-bind
+    // everything that lives INSIDE sections (copy buttons, checklist) and
+    // replay persisted checklist state onto the fresh DOM.
+    bindCopy();
+    bindChecklist();
+    loadCl();
+  }
+
+  function highlightIn(el, needle) {
+    var count = 0;
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        var p = n.parentNode;
+        if (p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE' || p.nodeName === 'MARK') return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var nodes = [], n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(function (node) {
+      var text = node.nodeValue, lower = text.toLowerCase(), idx = lower.indexOf(needle);
+      if (idx === -1) return;
+      var frag = document.createDocumentFragment(), pos = 0;
+      while (idx !== -1) {
+        if (idx > pos) frag.appendChild(document.createTextNode(text.slice(pos, idx)));
+        var m = document.createElement('mark');
+        m.className = 'hl';
+        m.textContent = text.slice(idx, idx + needle.length);
+        frag.appendChild(m);
+        count++;
+        pos = idx + needle.length;
+        idx = lower.indexOf(needle, pos);
+      }
+      if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
+      node.parentNode.replaceChild(frag, node);
+    });
+    return count;
+  }
+
+  var searchTimer = null;
+  function runSearch() {
+    var q = input.value.trim().toLowerCase();
+    clearBtn.style.display = q ? 'block' : 'none';
+    if (q.length < 2) {
+      clearMarks();
+      meta.textContent = '';
+      return;
+    }
+    clearMarks();
+    var total = 0, withHit = 0;
+    secEls.forEach(function (s) {
+      var hits = highlightIn(s, q);
+      if (hits > 0) { withHit++; total += hits; }
+      else s.classList.add('hidden-sec');
+    });
+    // keep hero visible only when everything matches
+    var anyVisible = secEls.some(function (s) { return !s.classList.contains('hidden-sec'); });
+    $('#no-results').style.display = anyVisible ? 'none' : 'block';
+    meta.textContent = total ? total + ' match' + (total > 1 ? 'es' : '') + ' in ' + withHit + ' section' + (withHit > 1 ? 's' : '') : 'no matches';
+    var first = secEls.find(function (s) { return !s.classList.contains('hidden-sec'); });
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  input.addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 180);
+  });
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    runSearch();
+    input.focus();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== input &&
+        document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      input.focus();
+      input.select();
+    } else if (e.key === 'Escape') {
+      if (input.value) { input.value = ''; runSearch(); }
+      input.blur();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

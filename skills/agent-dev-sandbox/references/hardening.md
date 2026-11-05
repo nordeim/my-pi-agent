@@ -38,6 +38,15 @@ done
 # anything showing a network other than agent-internal / agent-gateway is a finding
 ```
 
+**CI variant.** `45-ci-run.sh --read-only-rootfs` composes the read-only
+rootfs automatically (tmpfs `/tmp`, `/var/tmp`, `/run` plus a writable
+bind-mounted home), and `--no-cache-vol` removes the shared cache tree for
+runs whose source you do not trust — package caches are shared writable
+state across runs (pnpm's documentation says the same about its store), so
+isolate them per trust domain. For genuinely hostile PR builds, the answer
+is not more container flags — it is Tier 2 (run the same `45-ci-run.sh`
+inside a micro-VM).
+
 ## 2. Gateway
 
 **Rootful gateway variant.** If rootless defined-network NAT misbehaves on

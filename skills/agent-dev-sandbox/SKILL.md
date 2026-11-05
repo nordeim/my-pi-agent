@@ -52,7 +52,11 @@ Design rationale, comparison matrix, and every version pin are documented in
 | Path | Role |
 |---|---|
 | `BLUEPRINT.md` | Full design document: threat model, architecture decisions, specs, runbooks |
+| `BLUEPRINT.pdf` | Print edition of the blueprint (cover, TOC, 14 sections, system-design figure, 5 tables) |
+| `BLUEPRINT.html` | Interactive single-file edition: search, dark/light theme, Day-0 checklist with saved progress, copy buttons — fully offline |
+| `pdf-sources/` | Editable build sources for the PDF edition (cover.html, diagram.html + PNG) |
 | `files/Containerfile` | Tier-1 image: Debian 13 + Python 3.13 + Node 24 + Bun + browsers + agent CLIs (version-pinned ARGs) |
+| `files/ci-setup.sh` | In-container CI preamble (bind-mounted per run, NOT baked): CI env, caches, browsers, isolation self-audit |
 | `files/profile-agent-env.sh` | `/etc/profile.d` setup inside the image (login shells) |
 | `files/seed-playwright-browsers.sh` | Links image-baked browsers into each workspace home (idempotent) |
 | `files/ws-shell` | Shell entry wrapper used by `40-workspace.sh shell` |
@@ -65,9 +69,10 @@ Design rationale, comparison matrix, and every version pin are documented in
 | `scripts/20-build-image.sh` | Build `agent-dev-sandbox:1` |
 | `scripts/30-gateway.sh` | Gateway lifecycle: `up/status/logs/restart/allow/down` |
 | `scripts/40-workspace.sh` | Workspace lifecycle: `create/shell/exec/start/stop/restart/list/snapshot/destroy` |
+| `scripts/45-ci-run.sh` | Ephemeral CI runs: `run/list/reap/cache` (same image, throwaway) |
 | `scripts/50-verify.sh` | End-to-end verification suite (positive AND negative checks) |
 | `scripts/60-tier2-microvm.sh` | Micro-VM tier: `base/create/ssh/start/stop/list/destroy` |
-| `references/troubleshooting.md` | Symptom→cause→fix, keyed §1-§8 |
+| `references/troubleshooting.md` | Symptom→cause→fix, keyed §1-§9 |
 | `references/hardening.md` | Beyond-baseline options with costs; explicit non-goals |
 
 ## Build procedure (execute in order)
@@ -150,6 +155,29 @@ bun install && bun run db:push && bun run db:seed && bun run gate
 # Playwright e2e runs against localhost:3000 — no external egress needed.
 ```
 
+## Ephemeral CI runs (optional)
+
+One-shot jobs — PR checks, scheduled tests, agent batch runs — use the same
+image and the same allowlist through `scripts/45-ci-run.sh`:
+
+```bash
+scripts/45-ci-run.sh run --repo https://github.com/nordeim/budget-wiser.git \
+    -- bash -lc 'bun install && bun run db:push && bun run db:seed && bun run gate'
+scripts/45-ci-run.sh list          # past runs (from run-summary.json)
+scripts/45-ci-run.sh reap          # remove orphaned containers + stale run dirs
+scripts/45-ci-run.sh cache         # wipe shared package caches
+```
+
+Every run: hardened exactly like a workspace plus a walltime timeout
+(`--timeout`, default 3600 s); a per-run isolation self-audit (direct egress,
+external DNS, proxy 403/200) writes `artifacts/<id>/isolation-audit.json`
+and FAILS the run (exit 66) if the guarantees do not hold — never bypass it
+with `--skip-audit`; artifacts (`console.log`, `run-summary.json`, report
+dirs) land in `~/agent-workspaces/__ci/artifacts/<id>/`. CI mode changes
+consumption, not trust: hostile PR builds still belong in a Tier-2 VM (the
+same script runs inside it). Full options and exit codes: script header;
+design: `BLUEPRINT.md` §12; failures: `references/troubleshooting.md` §9.
+
 ## Security invariants (NEVER violate — audit these on any deviation)
 
 1. **No secrets in images.** Keys only via `--env-file` at `podman run`
@@ -167,7 +195,13 @@ bun install && bun run db:push && bun run db:seed && bun run gate
 7. **Tier-2 workspaces never bind-mount host paths**; artifacts leave via
    `scp` only, by explicit action.
 8. **Never weaken a failing check** to complete a phase — report it
-   (troubleshooting escalation rule).
+   (troubleshooting escalation rule). This includes the CI self-audit:
+   `--skip-audit` exists for speed on TRUSTED, already-verified pipelines,
+   never to make a failing run pass.
+
+> CI runs (`45-ci-run.sh`) are workspaces under these same rules — their
+> `agent-__ci-*` containers use the reserved `__` prefix, so they can never
+> collide with interactive workspaces.
 
 ## Verification gates & Definition of Done
 
@@ -198,6 +232,6 @@ line (`N passed / 0 failed / M warnings`), deviations, next-step suggestions.
 
 ## Troubleshooting
 
-`references/troubleshooting.md` (§1-§8, symptom → cause → fix). Escalation
+`references/troubleshooting.md` (§1-§9, symptom → cause → fix). Escalation
 rule: after two unsuccessful fix attempts with no new evidence, stop and
 report state instead of guessing; never silence a check to proceed.

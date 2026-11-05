@@ -48,6 +48,15 @@ auth.openai.com
 openai.com
 opencode.ai
 
-# --- Verification targets (used by scripts/50-verify.sh; keep these) --------
+# --- Verification targets (used by scripts/50-verify.sh and the per-run
+# self-audit in files/ci-setup.sh; keep these) -------------------------------
 example.com
 example.org
+
+# --- Optional CI extras (see BLUEPRINT.md §12) --------------------------------
+# Uncomment per pipeline, only if that pipeline needs them — every line is a
+# standing grant to untrusted code. example.net stays DELIBERATELY absent:
+# the CI isolation audit uses it as the known-denied probe domain.
+#codecov.io
+#coveralls.io
+#sonarcloud.io

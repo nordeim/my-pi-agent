@@ -191,3 +191,51 @@ and `${VM_DIR}` on the host; both need space. `df -h` both sides.
 **Cannot reach a NEW domain from inside a VM**
 Same allowlist as Tier 1: `30-gateway.sh allow <domain>` syncs the host squid
 (Tier 2) and the container gateway (Tier 1) in one step.
+
+---
+
+## §9 — Ephemeral CI runs (45-ci-run.sh)
+
+**Run exits 66 — "[ci-audit] FAILED"**
+The per-run isolation self-audit proved a guarantee does NOT hold; the command
+was never executed. Read `~/agent-workspaces/__ci/artifacts/<id>/isolation-audit.json`:
+- `direct_egress: open` → the container is not on `agent-internal` (recreate
+  via 45-ci-run.sh; never re-run with another network).
+- `external_dns: resolves` → same root cause as above, §4.
+- `proxy_allow_status != 200` → gateway down or `example.com` pruned from the
+  allowlist (it is a verification target — restore it, do not pick another).
+- `proxy_deny_status != 403` → `example.net` somehow became allowlisted; that
+  domain is the audit's known-denied probe — remove it again.
+- uid/caps/nnp wrong → the image or flags drifted from the Containerfile /
+  runner defaults; do not proceed until restored.
+NEVER use `--skip-audit` to force a run green — that is the escalation-rule
+violation this bundle forbids (report the failure instead).
+
+**Run exits 124**
+Walltime timeout: `timeout` TERM'd the container after `--timeout` seconds
+(default 3600). Raise the value only if the job legitimately needs longer;
+otherwise debug the hang with `--keep-on-failure` (container + code dir kept).
+
+**Artifacts directory has no report files**
+The command wrote reports somewhere the copier does not look. Defaults copied
+from the code dir: `playwright-report test-results coverage dist build
+junit.xml`. Add your own: `--artifact-path <relative-path-or-glob>` (globs
+allowed; avoid spaces in paths). Output written to `/artifacts` (=
+`$CI_ARTIFACTS_DIR`) lands there directly.
+
+**"shared cache not mounted/writable" notice inside a run**
+The run was started with `--no-cache-vol` (isolated caches — slower but no
+state shared across runs), or the cache bind mount failed. Intentional for
+untrusted sources: pnpm's own documentation describes package stores as
+shared writable state for a single trust domain.
+
+**`reap` deleted a container I was debugging**
+`reap` only removes `agent-__ci-*` containers that are NOT running and run
+dirs older than the TTL (default 24 h — tune `--ttl-hours`). Interactive
+workspaces are structurally unreachable (their names cannot start with
+`__`). Start the container you are debugging, or re-run with a longer TTL.
+
+**`list` shows a run with `isolation_audit: not-run`**
+The container died before ci-setup reached the audit (e.g. exit 125/126/127:
+podman-level failure — image missing, name clash, OCI runtime error). Fix the
+podman-level cause first; the command itself never started.

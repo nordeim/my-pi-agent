@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root{
+    --xl:#f0f1f2; --l:#e8eaeb; --mid:#32454e; --border:#acbdc5;
+    --accent:#1f6c92; --icon:#4b86a4; --text:#131515; --muted:#5c6468;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:#ffffff; font-family:-apple-system,'Segoe UI',Roboto,'Noto Sans SC',sans-serif;}
+  .canvas{position:relative; width:900px; height:710px; background:#ffffff;}
+  svg.wires{position:absolute; inset:0; z-index:1;}
+  .node{position:absolute; z-index:2; border-radius:6px;}
+
+  /* Internet */
+  .internet{left:640px; top:18px; width:230px; height:54px; background:#ffffff;
+    border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center;
+    font-size:17px; font-weight:600; color:#373d40;}
+
+  /* Host frame */
+  .host{left:16px; top:100px; width:868px; height:590px; border:1.5px solid var(--mid);
+    border-radius:8px; background:#fbfcfc;}
+  .host-tag{position:absolute; top:14px; left:20px; font-size:16px; font-weight:700;
+    color:var(--mid); letter-spacing:1px;}
+  .host-sub{position:absolute; top:16px; right:20px; font-size:14px; color:var(--muted);}
+
+  /* Gateway */
+  .gw{left:250px; top:150px; width:400px; height:104px; background:var(--l);
+    border:1px solid var(--mid); padding:12px 16px 10px;}
+  .gw .t{font-size:20px; font-weight:700; color:var(--text);}
+  .gw .d{font-size:16px; color:var(--muted); margin-top:3px;}
+  .chips{display:flex; gap:10px; margin-top:9px;}
+  .chip{font-size:15px; padding:2px 10px; border:1.2px solid var(--accent); border-radius:11px;
+    color:var(--accent); background:#ffffff;}
+
+  /* Internal bus */
+  .bus{left:70px; top:308px; width:760px; height:26px; background:var(--mid); border-radius:4px;
+    display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:15px; letter-spacing:.2px;}
+
+  /* Workspaces */
+  .ws{top:368px; width:212px; height:132px; background:var(--xl); border:1px solid var(--border);
+    border-left:3px solid var(--accent); padding:10px 12px;}
+  .ws .t{font-size:18px; font-weight:700; color:var(--text);}
+  .ws .d{font-size:14.5px; line-height:1.45; color:var(--muted); margin-top:5px;}
+  .ws1{left:70px;} .ws2{left:314px;}
+  .wsn{left:560px; top:420px; font-size:20px; font-weight:600; color:var(--muted);}
+
+  /* VM */
+  .vm{left:70px; top:540px; width:760px; height:132px; background:var(--xl);
+    border:1px solid var(--muted); padding:11px 16px;}
+  .vm .t{font-size:19px; font-weight:700; color:var(--text);}
+  .vm .chips{margin-top:8px; flex-wrap:wrap;}
+  .vm .chip{border-color:var(--border); color:#373d40; font-size:14.5px;}
+</style>
+</head>
+<body>
+<div class="canvas">
+  <svg class="wires" width="900" height="710" viewBox="0 0 900 710" fill="none">
+    <defs>
+      <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7" stroke="#4b86a4" stroke-width="1.4" fill="none"/>
+      </marker>
+    </defs>
+    <!-- gateway egress NIC -> Internet (elbow, outside host top edge) -->
+    <path d="M 560 150 L 560 122 L 755 122 L 755 76" stroke="#4b86a4" stroke-width="1.5" marker-end="url(#ah)"/>
+    <!-- gateway internal NIC -> bus -->
+    <path d="M 450 254 L 450 306" stroke="#4b86a4" stroke-width="1.5" marker-end="url(#ah)"/>
+    <!-- bus -> each workspace -->
+    <path d="M 176 334 L 176 366" stroke="#4b86a4" stroke-width="1.5" marker-end="url(#ah)"/>
+    <path d="M 420 334 L 420 366" stroke="#4b86a4" stroke-width="1.5" marker-end="url(#ah)"/>
+    <!-- wire labels -->
+    <text x="575" y="112" font-size="14" fill="#5c6468">NAT egress</text>
+    <text x="465" y="286" font-size="14" fill="#5c6468">only NIC: agent-internal</text>
+  </svg>
+
+  <div class="node internet">Internet</div>
+
+  <div class="node host">
+    <span class="host-tag">DEBIAN 13 HOST · 16-32 GB · KVM</span>
+    <span class="host-sub">systemd --user (linger) · Quadlet agent-gateway.service</span>
+  </div>
+
+  <div class="node gw">
+    <div class="t">agent-gateway — rootless Squid</div>
+    <div class="d">single-file domain allowlist · allowed: proxy · denied: HTTP 403 + log</div>
+    <div class="chips"><span class="chip">nic1 agent-egress</span><span class="chip">nic2 agent-internal</span></div>
+  </div>
+
+  <div class="node bus">agent-internal — internal network: no default route · external DNS → NXDOMAIN</div>
+
+  <div class="node ws ws1">
+    <div class="t">agent-&lt;workspace&gt;</div>
+    <div class="d">keep-id:uid=1000 · cap-drop=ALL<br>no-new-privileges · pids/mem/cpu caps<br>env-file secrets · seeded browsers</div>
+  </div>
+  <div class="node ws ws2">
+    <div class="t">agent-__ci-&lt;run&gt;</div>
+    <div class="d">single-shot CI run (§12)<br>per-run isolation self-audit<br>artifacts → __ci/artifacts/</div>
+  </div>
+  <div class="node wsn">× N workspaces</div>
+
+  <div class="node vm">
+    <div class="t">Tier 2 — KVM micro-VM per engagement (QEMU + official Debian 13 cloud image)</div>
+    <div class="chips">
+      <span class="chip">cloud-init provisioning</span>
+      <span class="chip">nftables: output DROP · allow 10.0.2.2:3128 + DNS</span>
+      <span class="chip">rootless podman → agent-dev-sandbox:1 — same image</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
