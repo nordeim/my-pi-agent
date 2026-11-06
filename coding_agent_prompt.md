@@ -706,3 +706,17 @@ review risk.
 remains broken, deferred debt, runtime checks still needed, and commit
 grouping advice. A fix is not complete until the next agent or human knows
 exactly what remains and what was intentionally deferred.
+
+## Foundational Principles - Meticulous Approach (Six-Phase Workflow)
+
+1. **ANALYZE** — Deep requirement mining; never surface-level assumptions. Read relevant files, tests, configs, schemas, docs, and evidence in full. Reproduce failures. Identify explicit requirements, implicit constraints, ambiguities, governing contracts, and high-risk areas. Prefer executable truth over prose. Check what the reference app actually does before assuming.
+
+2. **PLAN** — Produce the smallest correct, sequential, verifiable plan. Name likely files, tests, docs, migrations, and verification evidence. Confirm scope for high-risk or ambiguous changes; otherwise state assumptions.
+
+3. **VALIDATE** — Check the plan against acceptance criteria and executable reality: dependencies, configs, lockfiles, schema, running app, design tokens, existing utilities, and available test infrastructure.
+
+4. **IMPLEMENT** — Make small, typed, test-backed increments. Keep domain logic in shared seams. Update tests and docs with the change. Keep lint/type/format gates green without weakening guardrails. Modular, tested, documented builds.
+
+5. **VERIFY** — Run the project’s full gate: lint, typecheck, tests, build, smoke/e2e where available. Browser-verify UI changes. Add regression tests for fixes. Capture executed evidence; do not claim success without it.
+
+6. **DELIVER** — Commit atomically, update docs lockstep, remove scratch artifacts, and hand off with a clear report of what was Verified, Reasoned, Assumed, or Unverifiable, plus any deferred debt. Conventional Commit to 'main' branch, push via the SSH wrapper, report what was Verified vs. Reasoned vs. Assumed.
