@@ -1,20 +1,157 @@
-# agent-gateway — allowlist egress proxy (Tier 1)
-# Built by scripts/30-gateway.sh; runs rootless, dual-homed:
-#   * agent-egress   — normal network WITH internet access (NAT)
-#   * agent-internal — --internal network WITHOUT default route/DNS
-# Workspace containers attach ONLY to agent-internal and reach the internet
-# exclusively through this proxy.
+# agent-dev-sandbox — Tier-1 workspace image
+# ============================================================
+# Self-contained development sandbox for AI coding agents
+# (Claude Code, OpenAI Codex, OpenCode) on a Debian 13 host.
 #
-# Build: podman build -t agent-gateway:1 files/squid
-FROM docker.io/library/debian:trixie-slim
+# Design notes (full rationale in ../BLUEPRINT.md):
+#   * Base = debian:trixie-slim: same distribution as the host,
+#     so apt behavior and package versions match what the
+#     bootstrap script installs.
+#   * Base image is DIGEST-pinned for reproducibility (digest verified
+#     live on 2026-11-06; refresh deliberately:
+#     `curl -sI -H 'Accept: application/vnd.oci.image.index.v1+json' \
+#       https://registry-1.docker.io/v2/library/debian/manifests/trixie-slim`
+#     after an auth token fetch, then bump ARG BASE_DIGEST).
+#   * The NodeSource repo key is fingerprint-verified after download
+#     (fingerprint verified live on 2026-11-06 against a good signature on
+#     the node_24.x Release file — re-verify when NodeSource rotates keys).
+#   * Version pins are ARGs. Bump the ARG to refresh a tool; defaults were
+#     verified against live registries on 2026-11-05. Do NOT replace pins
+#     with @latest in CI-like builds: reproducibility beats freshness for a
+#     base image. Honest scope (audit M-10): top-level tool versions, the
+#     base digest, bun and the NodeSource key are pinned; uv/bun INSTALLERS
+#     and transitive npm dependencies are fetched over TLS at build time and
+#     are trusted endpoints, not checksum-verified artifacts.
+#   * Browsers are baked into /opt (shared, read-only) and
+#     exposed per-workspace via symlinks by
+#     seed-playwright-browsers at first shell. PLAYWRIGHT_BROWSERS_PATH
+#     is deliberately NOT a persistent ENV here — that would
+#     point user-space Playwright at a read-only dir and break
+#     downloads of newer revisions.
+#   * No secrets ever enter this image. Keys are injected at
+#     `podman run` time via --env-file (see scripts/40-workspace.sh).
+#
+# Build (rootless podman, from the skill root):
+#   podman build -t agent-dev-sandbox:1 -f files/Containerfile files/
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends squid ca-certificates \
+ARG BASE_IMAGE=docker.io/library/debian:trixie-slim
+ARG BASE_DIGEST=sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
+FROM ${BASE_IMAGE}@${BASE_DIGEST}
+
+ARG NODE_MAJOR=24
+ARG PLAYWRIGHT_VERSION=1.64.1
+ARG PNPM_VERSION=12.16.1
+ARG UV_VERSION=0.13.7
+ARG BUN_VERSION=1.3.14
+ARG AGENT_BROWSER_VERSION=0.41.2
+ARG CLAUDE_CODE_VERSION=2.1.318
+ARG CODEX_VERSION=0.166.0
+ARG OPENCODE_VERSION=1.19.5
+
+LABEL org.opencontainers.image.title="agent-dev-sandbox" \
+      org.opencontainers.image.description="Egress-restricted dev sandbox for AI coding agents (Debian 13, Python 3.13, Node 24, Bun, Playwright, Chromium, agent-browser)" \
+      org.opencontainers.image.base.name="docker.io/library/debian:trixie-slim" \
+      io.agent-sandbox.playwright="${PLAYWRIGHT_VERSION}" \
+      io.agent-sandbox.node-major="${NODE_MAJOR}"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    NODE_USE_ENV_PROXY=1
+
+# ---- 1. OS packages --------------------------------------------------------
+# python3.13-venv is REQUIRED: on Debian 13 ensurepip ships in a separate
+# package and `python3.13 -m venv` fails without it (verified on trixie 13.4).
+# chromium doubles as the system browser and pulls in most shared libs the
+# Playwright/agent-browser builds need.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates curl wget gnupg git git-lfs \
+        unzip xz-utils zip \
+        build-essential pkg-config \
+        python3.13 python3.13-venv python3.13-dev python3-pip pipx \
+        libssl-dev zlib1g-dev libffi-dev libbz2-dev libreadline-dev \
+        libsqlite3-dev libncurses-dev \
+        sqlite3 openssl \
+        ripgrep fd-find jq tmux less nano procps iproute2 socat openssh-client \
+        chromium fontconfig fonts-liberation fonts-noto-color-emoji \
+    && ln -s /usr/bin/fdfind /usr/local/bin/fd \
     && rm -rf /var/lib/apt/lists/*
 
-COPY squid.conf /etc/squid/squid.conf
-COPY allowlist.txt /etc/squid/allowlist.txt
+# ---- 2. Node.js via NodeSource (major-pinned; same repo the reference
+# environment uses). "nodistro" suites work on any Debian release.
+# The key is fingerprint-verified (audit M-10: a key swap at the CDN would
+# otherwise be silent).
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+        | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg \
+    && gpg --show-keys --with-colons /usr/share/keyrings/nodesource.gpg \
+        | grep -q 'fpr:::::::::6F71F525282841EEDAF851B42F59B5F99B1BE0B4' \
+    && echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" \
+        > /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 3128
-# -N: stay in foreground (container-friendly)
-CMD ["squid", "-N", "-d", "1"]
+# ---- 3. Runtime & package managers -----------------------------------------
+# uv (pinned, standalone install into /usr/local/bin — no shell rc changes)
+RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" \
+        | UV_UNMANAGED_INSTALL=/usr/local/bin sh
+
+# Bun (runtime required by the representative workload, budget-wiser).
+# Audit H-2: `BUN_INSTALL=x curl … | bash` binds the variable to curl, not
+# to bash — the installer then lands in $HOME/.bun (= /root/.bun) and the
+# symlinks below dangle. The assignment must prefix bash, and the version
+# is pinned (D8). `bun --version` is asserted in the same layer so a broken
+# install fails the build instead of passing silently.
+RUN curl -fsSL https://bun.sh/install \
+        | BUN_INSTALL=/usr/local/bun bash -s "bun-v${BUN_VERSION}" \
+    && ln -s /usr/local/bun/bin/bun /usr/local/bin/bun \
+    && ln -s /usr/local/bun/bin/bunx /usr/local/bin/bunx \
+    && /usr/local/bin/bun --version | grep -qx "${BUN_VERSION}"
+
+# pnpm + AI agent CLIs + browser tooling (all version-pinned)
+RUN npm install -g --no-fund --no-audit \
+        pnpm@${PNPM_VERSION} \
+        playwright@${PLAYWRIGHT_VERSION} \
+        @playwright/test@${PLAYWRIGHT_VERSION} \
+        agent-browser@${AGENT_BROWSER_VERSION} \
+        @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
+        @openai/codex@${CODEX_VERSION} \
+        opencode-ai@${OPENCODE_VERSION}
+
+# ---- 4. Browsers (shared, image-baked) --------------------------------------
+# Playwright Chromium (used by Playwright-based tests) into /opt/ms-playwright.
+# --with-deps installs the remaining OS libraries (apt lists are re-fetched in
+# this layer because step 1 removed them).
+# agent-browser downloads its OWN Chrome build (not Playwright's Chromium) into
+# $HOME/.agent-browser — HOME is redirected at build time to bake it into /opt.
+RUN apt-get update \
+    && PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright playwright install chromium --with-deps \
+    && mkdir -p /opt/agent-browser-data \
+    && HOME=/opt/agent-browser-data agent-browser install \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python-side Playwright pinned to the same version → shares browser revisions
+# with the Node side, so no second Chromium download.
+RUN python3.13 -m venv /opt/py-tools \
+    && /opt/py-tools/bin/pip install --no-cache-dir "playwright==${PLAYWRIGHT_VERSION}" \
+    && PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright /opt/py-tools/bin/playwright install chromium
+
+# ---- 5. Sandbox user --------------------------------------------------------
+# uid/gid 1000 matches `--userns=keep-id:uid=1000,gid=1000` at run time, so the
+# host-side bind-mounted workspace directory is owned by `dev` inside the
+# container regardless of the invoking host user's actual uid.
+RUN useradd --create-home --uid 1000 --user-group --shell /bin/bash dev \
+    && mkdir -p /workspace \
+    && chown dev:dev /workspace
+
+# ---- 6. Shell environment & helpers -----------------------------------------
+COPY profile-agent-env.sh /etc/profile.d/agent-env.sh
+COPY seed-playwright-browsers.sh /usr/local/bin/seed-playwright-browsers
+COPY ws-shell /usr/local/bin/ws-shell
+RUN chmod 0755 /usr/local/bin/seed-playwright-browsers /usr/local/bin/ws-shell \
+    && chmod 0644 /etc/profile.d/agent-env.sh
+
+USER dev
+WORKDIR /workspace
+# Long-lived idle process; all real work happens via `podman exec`.
+CMD ["sleep", "infinity"]
