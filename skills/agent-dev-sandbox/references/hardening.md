@@ -13,7 +13,7 @@ malware drops and filesystem persistence inside the container become
 impossible. Try it per-workspace before making it default.
 
 **Custom seccomp profile.** The default podman profile is already strict.
-Adenylist profile (Docker's default + `clone3`, `perf_event_open` etc.
+A deny-list profile (Docker's default + `clone3`, `perf_event_open` etc.
 already blocked) adds little; a custom ALLOWLIST profile adds a lot of
 maintenance. Only pursue with a compliance requirement.
 
@@ -24,10 +24,14 @@ store) with a user drop-in:
 in `~/.config/systemd/user/user@1000.service.d/limits.conf`. Cost: the
 whole fleet shares the cap; one runaway multi-workspace job can starve others.
 
-**Image provenance.** Pin the base image by digest
-(`docker.io/library/debian@sha256:…` instead of `:trixie-slim`) and verify
-with `skopeo inspect docker://…`. Cost: you must bump digests deliberately
-(no automatic base updates). Recommended once the environment stabilizes.
+**Image provenance.** The base image is digest-pinned by default in the
+Containerfile (`BASE_DIGEST` ARG; verified live 2026-11-06). Refresh
+deliberately when you want new security updates: fetch the current digest
+(see the Containerfile header comment), bump the ARG, rebuild, re-verify.
+Verify what you pulled with `skopeo inspect docker://…`. Remaining
+build-time trust (stated honestly, audit M-10): the uv/bun installer
+scripts and transitive npm dependencies arrive over TLS without checksum
+verification; browser revisions are resolved at build time.
 
 **Egress netns audit.** Periodically assert that no workspace container is
 attached to a non-internal network:
@@ -35,7 +39,7 @@ attached to a non-internal network:
 for c in $(podman ps -q); do
   podman inspect -f '{{.Name}}: {{.NetworkSettings.Networks}}' "$c"
 done
-# anything showing a network other than agent-internal / agent-gateway is a finding
+# anything showing a network other than agent-internal / agent-egress is a finding
 ```
 
 **CI variant.** `45-ci-run.sh --read-only-rootfs` composes the read-only
@@ -49,18 +53,26 @@ inside a micro-VM).
 
 ## 2. Gateway
 
-**Rootful gateway variant.** If rootless defined-network NAT misbehaves on
-your host (rare), run the SAME gateway image as a SYSTEM quadlet
-(`/etc/containers/systemd/agent-gateway.container`) attached to rootful
-`agent-egress`/`agent-internal` networks. Rootless workspaces can reach it
-via published port + `host.containers.internal`. Cost: the proxy runs as
-root-owned service (still a container, still cap-dropped); benefit: NAT
-behavior is the well-trodden rootful path.
+**If rootless defined-network NAT misbehaves.** The old versions of this
+document suggested a rootful system-quadlet gateway reachable via a
+published port — that variant CANNOT work in this topology: workspaces on
+the `--internal` network have no route to the host loopback (that is the
+enforcement, not a bug), and moving workspaces to a routed network would
+violate invariant 3. Debug the actual layer instead: `podman network
+inspect agent-egress`, check `podman info --format '{{.Host.NetworkBackend}}'`
+(expect netavark), and consult troubleshooting §4. There is deliberately
+no supported rootful fallback for Tier 1; Tier 2's host squid is a different
+path (VMs reach it through QEMU's guestfwd, not through a container
+network).
 
 **Allowlist governance.** Treat `files/squid/allowlist.txt` like production
-config: review diffs, avoid `*.` wildcards beyond the shipped ones, and
-revoke domains when a task ends. Every line is a standing grant to untrusted
-code.
+config: review diffs and revoke domains when a task ends. Matching is
+Squid `dstdomain`: a LEADING DOT (`.example.com`) matches all subdomains,
+a bare domain is an exact match, and `*.` is not a wildcard —
+`30-gateway.sh allow` rejects it. Do not list a subdomain before its
+leading-dot entry (Squid treats that as a fatal parse error; every change
+is `squid -k parse`-validated before the gateway restarts). Every line is
+a standing grant to untrusted code.
 
 **Squid TLS interception (DO NOT by default).** `ssl_bump` would let you
 audit payloads, but requires a CA trusted by every tool in every workspace —
@@ -86,6 +98,9 @@ unless you forward it.
 - `~/agent-workspaces/` (code — but use git remotes as primary)
 - `~/.config/agent-sandbox/` (env templates — SECRETS: encrypt at rest,
   e.g. age/gpg, or never back this dir up and rely on your vault)
+- `~/agent-workspaces/snapshots/` via `40-workspace.sh snapshot` — created
+  0600 inside a 0700 directory (agent CLI auth tokens live in those
+  tarballs; the same encryption advice applies)
 - home volumes via `40-workspace.sh snapshot`
 
 ## 4. Micro-VM tier (Tier 2)
@@ -98,7 +113,11 @@ temporarily when needed).
 
 **Fresh golden per engagement.** Overlays share the golden backing file —
 a compromise of the golden disk image poisons every overlay. Rebuild golden
-(`60-tier2-microvm.sh base`) when moving between trust boundaries.
+(`60-tier2-microvm.sh base`) when moving between trust boundaries: the
+command now refuses to run while overlay VMs still reference the golden
+(and keeps the previous golden beside the new one until you delete it),
+runs `package_upgrade` during provisioning, and confirms shutdown before
+freezing. Verify each new VM with `60-tier2-microvm.sh verify <name>`.
 
 **vCPU/RAM per VM** are set in the script (`VM_MEM_MB`, `VM_CPUS`); on a
 16-32 GB host, one 6 GB VM + container workspaces is the comfortable budget.
@@ -113,10 +132,14 @@ only the `boot_vm()` function changes.
 ## 5. Secrets lifecycle
 
 - Keys live ONLY in `~/.config/agent-sandbox/workspaces/<name>.env` (0600)
-  and are injected at container start. Never in images, never in
-  `podman commit` snapshots (snapshot commits the CONTAINER fs, which
-  contains env only in PID 1's /proc, not on disk — but still: rotate keys
-  after any snapshot of a workspace that had secrets if unsure).
+  and are injected at container start. Never in images. CAVEAT (audit H-3,
+  verified against podman 5.4 source): `podman commit` copies the
+  container's full environment — including `--env-file` values — into the
+  committed image config, where `podman image inspect` (and any
+  save/push) can read it. The remediated `snapshot` blanks every env-file
+  key from the committed image (`--change 'ENV KEY='`), but the honest rule
+  stands: rotate keys after any snapshot of a workspace that had live
+  secrets, and NEVER push a `ws-snap-*` image anywhere.
 - Rotate API keys when a workspace is destroyed (`--purge-home`).
 - Different keys per provider per workspace where the provider allows it;
   budget-capped keys for untrusted-workload VMs.
@@ -127,9 +150,13 @@ Honest scope statement:
 1. Supply-chain compromise of an ALLOWLISTED domain (registry.npmjs.org
    serving a malicious package you install) — mitigated by nothing here
    beyond least-egress; add lockfile review / `npm audit` in your workflow.
-2. Kernel exploits from inside a Tier-1 container (shared kernel). Tier 2
+2. Supply-chain compromise of BUILD-TIME endpoints (the uv/bun installer
+   scripts, npm transitives, NodeSource beyond its pinned key fingerprint,
+   the digest-pinned base aside) — TLS-trusted, not checksum-verified; see
+   D8 for the full honest statement.
+3. Kernel exploits from inside a Tier-1 container (shared kernel). Tier 2
    exists precisely for this residual risk.
-3. A malicious HOST admin — out of scope entirely.
-4. Data you explicitly exfiltrate yourself through allowed channels
+4. A malicious HOST admin — out of scope entirely.
+5. Data you explicitly exfiltrate yourself through allowed channels
    (git push to an allowed host).
-5. Side channels / timing attacks across containers on the same host.
+6. Side channels / timing attacks across containers on the same host.

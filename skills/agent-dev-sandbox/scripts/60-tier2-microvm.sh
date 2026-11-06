@@ -8,8 +8,16 @@
 # instant copy-on-write overlay that runs THE SAME agent-dev-sandbox container
 # image inside the VM — one source of truth, two isolation tiers.
 #
-# VM egress is enforced by nftables INSIDE the VM: only the host allowlist
-# proxy (10.0.2.2:3128 via QEMU user-net) and slirp DNS (10.0.2.3) may leave.
+# VM egress is enforced at BOTH layers (audit H-5: guest nftables alone was
+# flushable by guest root, which had NOPASSWD sudo):
+#   * HOST side: QEMU user-net restrict=on — the guest cannot contact the
+#     host or the internet at all except through the explicit forwarding
+#     rules: hostfwd (ssh) and guestfwd (10.0.2.2:3128 -> the host's
+#     allowlist squid on 127.0.0.1:3128). Verified against QEMU docs:
+#     "restrict=on ... does not affect any explicitly set forwarding rules".
+#   * GUEST side: nftables default-deny (proxy only; the old 10.0.2.3:53
+#     DNS rules are GONE — DNS is no longer needed or allowed: the proxy
+#     resolves every hostname, and slirp DNS was an open exfil channel).
 # Workspaces live on the VM disk (never bind-mounted from the host) — export
 # artifacts out via scp BEFORE destroy.
 #
@@ -17,6 +25,7 @@
 #   scripts/60-tier2-microvm.sh base                # one-time golden build
 #   scripts/60-tier2-microvm.sh create <name>       # instant overlay VM
 #   scripts/60-tier2-microvm.sh ssh <name>          # shell into the VM
+#   scripts/60-tier2-microvm.sh verify <name>        # Tier-2 isolation checks
 #   scripts/60-tier2-microvm.sh start|stop <name>
 #   scripts/60-tier2-microvm.sh list
 #   scripts/60-tier2-microvm.sh destroy <name>      # DELETES VM DISK (code too!)
@@ -73,6 +82,10 @@ boot_vm() { # boot_vm <name> <disk> <port> [seed.iso]
     mkdir -p "${VM_DIR}/logs" "${VM_DIR}/pids"
     local seed_args=()
     [ -n "${seed}" ] && seed_args=(-drive "file=${seed},if=virtio,media=cdrom,readonly=on")
+    # restrict=on + guestfwd (audit H-5): host-side egress enforcement.
+    # The guest's ONLY outbound path is the allowlist proxy (host squid on
+    # 127.0.0.1:3128, reachable inside the guest as 10.0.2.2:3128); ssh
+    # keeps working through hostfwd. Requires bootstrap --tier2 (host squid).
     # shellcheck disable=SC2086
     "${QEMU_BIN}" \
         -name "agent-sandbox-${name}" \
@@ -80,7 +93,7 @@ boot_vm() { # boot_vm <name> <disk> <port> [seed.iso]
         -smp "${VM_CPUS}" -m "${VM_MEM_MB}" \
         -drive "file=${disk},if=virtio,format=qcow2" \
         "${seed_args[@]}" \
-        -nic "user,model=virtio-net,hostfwd=tcp:127.0.0.1:${port}-:22" \
+        -nic "user,model=virtio-net,restrict=on,hostfwd=tcp:127.0.0.1:${port}-:22,guestfwd=tcp:10.0.2.2:3128-tcp:127.0.0.1:3128" \
         -display none -daemonize \
         -serial "file:${VM_DIR}/logs/${name}.console.log" \
         -pidfile "${VM_DIR}/pids/${name}.pid"
@@ -143,6 +156,7 @@ users:
     ssh_authorized_keys:
       - $(cat "${KEY}.pub")
 package_update: true
+package_upgrade: true
 packages: [podman, crun, uidmap, passt, slirp4netns, nftables, curl, ca-certificates]
 write_files:
   - path: /etc/apt/apt.conf.d/95-agent-sandbox-proxy
@@ -160,7 +174,10 @@ write_files:
   - path: /etc/nftables.conf
     content: |
       #!/usr/sbin/nft -f
-      # VM egress enforcement: only the host allowlist proxy and slirp DNS leave.
+      # VM egress enforcement (SECOND layer; the first is QEMU restrict=on —
+      # see boot_vm). Only the allowlist proxy may leave; DNS is deliberately
+      # absent: the proxy resolves every hostname, and a DNS channel was an
+      # open exfiltration path (audit H-5).
       flush ruleset
       table inet filter {
         chain input {
@@ -178,15 +195,16 @@ write_files:
           oif "lo" accept
           ct state established,related accept
           ip daddr 10.0.2.2 tcp dport 3128 accept
-          ip daddr 10.0.2.3 udp dport 53 accept
-          ip daddr 10.0.2.3 tcp dport 53 accept
           ip protocol icmp accept
         }
       }
+  - path: /etc/sysctl.d/99-agent-sandbox.conf
+    content: |
+      net.ipv4.ping_group_range = 0 2000000
 runcmd:
   - usermod --add-subuid 100000-165535 dev
   - usermod --add-subgid 100000-165535 dev
-  - sysctl -w net.ipv4.ping_group_range=0 2000000
+  - sysctl -w "net.ipv4.ping_group_range=0 2000000"
   - loginctl enable-linger dev || true
   - systemctl enable nftables
   - systemctl restart nftables
@@ -218,6 +236,23 @@ EOF
     # 5. Shut down, freeze as golden
     vm_ssh "${GOLDEN_PORT}" "sudo poweroff" || true
     for _ in $(seq 1 30); do kill -0 "$(cat "${VM_DIR}/pids/golden.pid" 2>/dev/null)" 2>/dev/null || break; sleep 2; done
+    # Audit M-8: never move a disk under a running VM — confirm shutdown.
+    if [ -f "${VM_DIR}/pids/golden.pid" ] && kill -0 "$(cat "${VM_DIR}/pids/golden.pid")" 2>/dev/null; then
+        die "golden VM still running after 60 s — refusing to replace ${GOLDEN}. Stop it (or kill $(cat "${VM_DIR}/pids/golden.pid")) and re-run."
+    fi
+    # Audit M-8: existing overlays depend on the golden backing file; a qcow2
+    # backing file must stay immutable. Refuse to clobber while overlays exist.
+    local overlays
+    overlays="$(ls "${VM_DIR}"/vm-*.qcow2 2>/dev/null || true)"
+    if [ -n "${overlays}" ]; then
+        die "refusing to replace the golden image while overlay VMs exist (their backing file must stay immutable):
+${overlays}
+  destroy them first, or move ${GOLDEN} aside deliberately if you accept breaking them."
+    fi
+    if [ -f "${GOLDEN}" ]; then
+        mv -f "${GOLDEN}" "${GOLDEN}.old-$(date +%Y%m%d-%H%M%S)"
+        info "previous golden kept beside the new one (delete old copies when the new one is verified)"
+    fi
     mv "${work}/golden.qcow2" "${GOLDEN}"
     rm -rf "${work}" "${VM_DIR}/pids/golden.pid"
     ok "golden image frozen at ${GOLDEN}"
@@ -283,6 +318,56 @@ chmod 600 ~/.config/agent-sandbox/${name}.env"
 }
 
 # ----------------------------------------------------------------------------
+cmd_verify() {
+    local n="${1:?usage: verify <name>}"
+    local p; p="$(cat "$(port_file "${n}")")"
+    vm_running "${n}" || die "VM '${n}' is not running (start it first)"
+    echo "  Tier-2 isolation verification inside VM '${n}' (audit H-5):"
+    local fails=0
+    # All checks run INSIDE the VM; the container inside is skipped on
+    # purpose — the VM boundary is what Tier 2 promises.
+    local out
+    # 1. Direct egress must fail at the network layer (IP literal; slirp
+    #    restrict=on should make this unreachable even with nftables off).
+    out="$(vm_ssh "${p}" 'curl -sS --connect-timeout 4 --max-time 5 -o /dev/null http://1.1.1.1/ >/dev/null 2>&1; echo $?' 2>/dev/null)"
+    case "${out}" in
+        7|28) ok "direct egress blocked (curl exit ${out}; QEMU restrict + nftables)" ;;
+        *)    echo -e "  ${RED}✗ direct egress NOT blocked (curl exit ${out})${NC}"; fails=$((fails+1)) ;;
+    esac
+    # 2. External DNS must be blocked (no port-53 path exists).
+    if vm_ssh "${p}" 'getent hosts example.com >/dev/null 2>&1'; then
+        echo -e "  ${RED}✗ external DNS resolves — the DNS channel is open${NC}"; fails=$((fails+1))
+    else
+        ok "external DNS blocked"
+    fi
+    # 3. Non-allowlisted domain must be denied by the proxy at CONNECT.
+    out="$(vm_ssh "${p}" "curl -sS --max-time 10 -o /dev/null -w '%{http_connect}' https://example.net 2>/dev/null" 2>/dev/null)"
+    if [ "${out}" = "403" ]; then
+        ok "non-allowlisted domain denied by proxy (CONNECT 403)"
+    else
+        echo -e "  ${RED}✗ proxy deny check: got '${out:-<empty>}' (expected 403)${NC}"; fails=$((fails+1))
+    fi
+    # 4. Allowlisted domain must work through the proxy.
+    out="$(vm_ssh "${p}" "curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.com 2>/dev/null" 2>/dev/null)"
+    if [ "${out}" = "200" ]; then
+        ok "allowlisted domain reachable via proxy"
+    else
+        echo -e "  ${RED}✗ proxy allow check: got '${out:-<empty>}' (expected 200 — host squid up? bootstrap --tier2)${NC}"; fails=$((fails+1))
+    fi
+    # 5. Guest nftables must not allow port 53 (defense in depth).
+    if vm_ssh "${p}" 'sudo nft list ruleset' 2>/dev/null | grep -q 'dport 53'; then
+        echo -e "  ${RED}✗ guest nftables still contains a port-53 rule${NC}"; fails=$((fails+1))
+    else
+        ok "guest nftables: no DNS rule present"
+    fi
+    if [ "${fails}" -gt 0 ]; then
+        echo -e "  ${RED}${fails} Tier-2 check(s) FAILED${NC} — do not run untrusted workloads in this VM"
+        exit 1
+    fi
+    ok "Tier-2 isolation verified for '${n}'"
+}
+
+# ----------------------------------------------------------------------------
 cmd_ssh()   { local n="${1:?usage: ssh <name>}"; local p; p="$(cat "$(port_file "${n}")")"; vm_ssh "${p}"; }
 
 cmd_stop() {
@@ -336,6 +421,7 @@ main() {
         base)    cmd_base ;;
         create)  cmd_create "${1:?usage: create <name>}" ;;
         ssh)     cmd_ssh "$@" ;;
+        verify)  cmd_verify "${1:?usage: verify <name>}" ;;
         start)   cmd_start "${1:?usage: start <name>}" ;;
         stop)    cmd_stop "${1:?usage: stop <name>}" ;;
         list)    cmd_list ;;

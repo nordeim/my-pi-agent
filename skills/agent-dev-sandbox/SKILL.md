@@ -8,7 +8,7 @@ read_when:
   - Creating KVM micro-VMs for untrusted code
   - Troubleshooting an existing agent-dev-sandbox deployment
 metadata: {"clawdbot":{"emoji":"🛡️","requires":{"bins":["bash","sudo"]}}}
-allowed-tools: Bash(podman:*), Bash(qemu-img:*), Bash(qemu-system-*:*), Bash(ssh:*), Bash(scp:*), Bash(systemctl:*), Bash(sudo:*)
+allowed-tools: Bash(scripts/00-preflight.sh:*), Bash(scripts/10-host-bootstrap.sh:*), Bash(scripts/20-build-image.sh:*), Bash(scripts/30-gateway.sh:*), Bash(scripts/40-workspace.sh:*), Bash(scripts/45-ci-run.sh:*), Bash(scripts/50-verify.sh:*), Bash(scripts/60-tier2-microvm.sh:*), Bash(sudo -E scripts/10-host-bootstrap.sh:*), Bash(podman ps:*), Bash(podman logs:*), Bash(podman inspect:*), Bash(podman image ls:*), Bash(bash scripts/*:*), Bash(./scripts/*:*)
 ---
 
 # Agent Dev Sandbox — build & operate
@@ -17,15 +17,19 @@ allowed-tools: Bash(podman:*), Bash(qemu-img:*), Bash(qemu-system-*:*), Bash(ssh
 
 Deliver a tiered, self-contained development environment in which AI coding
 agents (Claude Code, OpenAI Codex, OpenCode) can clone, build, test, and
-browser-verify ANY codebase — including untrusted ones — without exposing
-the host or the internet:
+browser-verify codebases you would otherwise run yourself — without
+exposing the host or the internet:
 
 - **Tier 1 (daily driver)**: one hardened rootless Podman container per
   project. No capabilities, no-new-privileges, resource-capped, on an
   internal network with **no route to the internet and no external DNS** —
-  egress exists ONLY through an allowlisted Squid proxy.
-- **Tier 2 (hostile workloads)**: a KVM micro-VM per engagement, enforced by
-  nftables inside the VM, running THE SAME container image (container-in-VM).
+  egress exists ONLY through an allowlisted Squid proxy. Honest scope
+  (audit M-2): the bind mount shares your uid, so Tier 1 is for code you
+  would run yourself — unknown/untrusted repos belong in Tier 2.
+- **Tier 2 (hostile workloads)**: a KVM micro-VM per engagement, egress
+  enforced on BOTH sides (host-side QEMU `restrict=on` with a proxy-only
+  guestfwd, plus nftables inside the VM), running THE SAME container image
+  (container-in-VM).
 
 Design rationale, comparison matrix, and every version pin are documented in
 `BLUEPRINT.md` (same directory). Read it before deviating from this file.
@@ -52,9 +56,10 @@ Design rationale, comparison matrix, and every version pin are documented in
 | Path | Role |
 |---|---|
 | `BLUEPRINT.md` | Full design document: threat model, architecture decisions, specs, runbooks |
-| `BLUEPRINT.pdf` | Print edition of the blueprint (cover, TOC, 14 sections, system-design figure, 5 tables) |
+| `BLUEPRINT.pdf` | Print edition of the blueprint (cover, TOC, 14 sections, system-design figure, 5 tables — the MD/HTML editions render the fifth, the CI exit-code contract, as prose) |
 | `BLUEPRINT.html` | Interactive single-file edition: search, dark/light theme, Day-0 checklist with saved progress, copy buttons — fully offline |
-| `pdf-sources/` | Editable build sources for the PDF edition (cover.html, diagram.html + PNG) |
+| `pdf-sources/` | Editable build sources + the HTML generator (regenerate the HTML from the MD; see pdf-sources/README.md) |
+| `references/audit-remediation.md` | 2026-11-06 external audit: validation of all 22 findings + the remediation applied |
 | `files/Containerfile` | Tier-1 image: Debian 13 + Python 3.13 + Node 24 + Bun + browsers + agent CLIs (version-pinned ARGs) |
 | `files/ci-setup.sh` | In-container CI preamble (bind-mounted per run, NOT baked): CI env, caches, browsers, isolation self-audit |
 | `files/profile-agent-env.sh` | `/etc/profile.d` setup inside the image (login shells) |
@@ -71,7 +76,9 @@ Design rationale, comparison matrix, and every version pin are documented in
 | `scripts/40-workspace.sh` | Workspace lifecycle: `create/shell/exec/start/stop/restart/list/snapshot/destroy` |
 | `scripts/45-ci-run.sh` | Ephemeral CI runs: `run/list/reap/cache` (same image, throwaway) |
 | `scripts/50-verify.sh` | End-to-end verification suite (positive AND negative checks) |
-| `scripts/60-tier2-microvm.sh` | Micro-VM tier: `base/create/ssh/start/stop/list/destroy` |
+| `scripts/60-tier2-microvm.sh` | Micro-VM tier: `base/create/ssh/verify/start/stop/list/destroy` |
+| `tests/run-tests.sh` | Container-free test suite: pure-function units, C-1/M-9 regressions, doc-lint — run after ANY script edit |
+| `.shellcheckrc` | Lint config documenting the bundle's accepted shell idioms (run with `tests/run-tests.sh`) |
 | `references/troubleshooting.md` | Symptom→cause→fix, keyed §1-§9 |
 | `references/hardening.md` | Beyond-baseline options with costs; explicit non-goals |
 
@@ -126,8 +133,12 @@ the environment is NOT done.**
 ### Phase 5 (optional) — Tier 2 golden micro-VM
 ```bash
 scripts/60-tier2-microvm.sh base      # one-time, 15-30 min
+scripts/60-tier2-microvm.sh create probe
+scripts/60-tier2-microvm.sh verify probe   # Tier-2 isolation gate
 ```
-Expected: `golden-agent.qcow2` frozen with the agent image loaded inside.
+Expected: `golden-agent.qcow2` frozen with the agent image loaded inside;
+`verify` reports every Tier-2 check OK (direct egress blocked, DNS blocked,
+proxy 403/200, no port-53 rule) before any untrusted workload runs there.
 
 ## Daily operations
 
@@ -182,7 +193,10 @@ design: `BLUEPRINT.md` §12; failures: `references/troubleshooting.md` §9.
 
 1. **No secrets in images.** Keys only via `--env-file` at `podman run`
    (file 0600, host-side). Never `ENV` a key in a Containerfile, never
-   commit env files.
+   commit env files. `podman commit` copies container env into the image
+   config — `snapshot` blanks env-file keys from the committed image, but
+   rotate keys after snapshotting a workspace that had live secrets and
+   never push a `ws-snap-*` image anywhere.
 2. **Never mount `docker.sock`/`podman.sock`** into any workspace, and never
    run a workspace `--privileged`.
 3. **Workspaces attach ONLY to `agent-internal`.** No other `--network`.
@@ -220,15 +234,23 @@ line (`N passed / 0 failed / M warnings`), deviations, next-step suggestions.
 
 ## Maintenance
 
+- **After ANY edit to scripts/**: `tests/run-tests.sh` (container-free) and
+  `shellcheck -x scripts/*.sh files/*.sh` must stay clean; then re-run
+  `50-verify.sh` on the host.
 - **Refresh a tool**: bump its `ARG` in `files/Containerfile` →
   `20-build-image.sh` → `30-gateway.sh restart` → `50-verify.sh` →
   recreate workspaces (`40-workspace.sh restart <name>` picks up the new
   image; home volumes keep credentials).
 - **Allowlist governance**: `files/squid/allowlist.txt` is production
-  policy — review diffs, revoke domains when tasks end.
-- **Disk**: `podman system df`; prune stale layers and old snapshots.
-- **Backups**: `40-workspace.sh snapshot` before risky operations;
-  workspace code belongs in git remotes, not just volumes.
+  policy — review diffs, revoke domains when tasks end. Leading dot =
+  subdomains; bare domain = exact match; `*.` is invalid and rejected.
+- **Disk**: `podman system df`; prune stale layers and old snapshots
+  (including `~/agent-workspaces/snapshots/` and old
+  `golden-agent.qcow2.old-*` files).
+- **Backups**: `40-workspace.sh snapshot` before risky operations
+  (snapshots land 0600 in the 0700 snapshots dir — they contain auth
+  tokens; encrypt at rest); workspace code belongs in git remotes, not
+  just volumes.
 
 ## Troubleshooting
 

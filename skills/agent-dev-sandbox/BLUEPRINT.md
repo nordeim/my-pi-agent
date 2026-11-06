@@ -2,8 +2,8 @@
 
 **Target:** a secure, isolated, self-contained development environment on a
 Debian 13 (trixie) host, in which AI coding agents — Claude Code, OpenAI
-Codex, OpenCode — can develop and test arbitrary codebases (Python 3.13,
-Node.js 16+, Bun, browser-driven E2E) under strict egress control.
+Codex, OpenCode — can develop and test codebases (Python 3.13,
+Node.js 24, Bun, browser-driven E2E) under strict egress control.
 
 **Companion files:** `SKILL.md` (executable procedure for an AI agent),
 `files/` (image + configs), `scripts/` (lifecycle), `references/`
@@ -11,8 +11,10 @@ Node.js 16+, Bun, browser-driven E2E) under strict egress control.
 
 All external facts in this document were verified against live sources on
 **2026-11-05** (npm registry, Docker Hub, cloud.debian.org, podman
-documentation, the budget-wiser repository). Version pins appear as
-`ARG`s in `files/Containerfile`; bump them deliberately.
+documentation, the budget-wiser repository); audit remediations were applied
+and re-verified on **2026-11-06** (see `references/audit-remediation.md` —
+the external audit's 22 findings, their validation, and the fixes). Version
+pins appear as `ARG`s in `files/Containerfile`; bump them deliberately.
 
 ---
 
@@ -71,10 +73,10 @@ allowed-channel data flows (e.g., `git push` to an allowed host).
 
 | | Tier 1 (container) | Tier 2 (micro-VM) |
 |---|---|---|
-| Use when | Building/fixing known codebases (your own, curated OSS) | Auditing/running unknown repos, untrusted builds, anything that executes arbitrary scripts |
+| Use when | Building/fixing known codebases (your own, curated OSS — code you would run yourself) | Auditing/running unknown repos, untrusted builds, anything that executes arbitrary scripts |
 | Boundary | Kernel namespaces + seccomp + cap-drop (shared kernel) | Full hardware-virtualized kernel boundary |
-| Egress | Internal network → allowlist proxy (structural: no route exists otherwise) | VM nftables default-deny → host allowlist proxy |
-| Residual risk | Kernel exploit escapes to host user (mitigated: rootless, non-root, no caps) | VM escape (hypervisor-class, rare); supply chain of allowlisted domains |
+| Egress | Internal network → allowlist proxy (structural: no route exists otherwise) | Host-side QEMU `restrict=on` (proxy-only guestfwd) → VM nftables default-deny → host allowlist proxy — enforced on BOTH sides |
+| Residual risk | Kernel exploit escaping to host user (mitigated: rootless, non-root, no caps); workload-user escape lands on your own account (keep-id) — hence the tier discipline | VM escape (hypervisor-class, rare); supply chain of allowlisted domains |
 | Cost | ~2 GB RAM/workspace, seconds to start | ~6 GB RAM/VM, one-time 15-30 min golden build, ~30 s per overlay boot |
 
 ## 3. Reference implementation survey
@@ -102,13 +104,17 @@ doubles as a working reference of a *functional* agent toolchain:
 
 ## 4. Architecture decisions (ADR summary)
 
-**D1 — Podman (rootless) over Docker CE.** Rootless Podman maps the
-container's root to an *unprivileged host user* — a container-root escape
-lands on a permissionless uid, not host root. No setuid daemon; lifecycle
-via systemd user units (Quadlet). Docker's daemon requires root or
-rootlesskit wrappers and adds a `docker.sock` foot-gun this design refuses
-to have. Podman 5.4 in trixie supports everything needed (defined networks,
-`--internal`, `keep-id:uid=`, Quadlet, multi-`Network=`).
+**D1 — Podman (rootless) over Docker CE.** Rootless Podman never needs a
+root daemon: container *root* maps to an unprivileged subordinate uid, so a
+container-root escape lands with no host permissions. Be precise about the
+other case (audit M-2): with `keep-id:uid=1000` the *workload* user `dev`
+IS the host user — an escape *as the workload* lands on your own account.
+Tier 1 is therefore for code you would run yourself; untrusted code belongs
+in Tier 2. No setuid daemon; lifecycle via systemd user units (Quadlet).
+Docker's daemon requires root or rootlesskit wrappers and adds a
+`docker.sock` foot-gun this design refuses to have. Podman 5.4 in trixie
+supports everything needed (defined networks, `--internal`, `keep-id:uid=`,
+Quadlet, multi-`Network=`).
 
 **D2 — Egress enforcement by *network topology*, not by env-var etiquette.**
 `podman network create --internal` (verified against
@@ -156,11 +162,15 @@ bug: rebuild (minutes, cached). Granting sudo would re-open privilege
 escalation that cap-drop and no-new-privileges just closed. Language-level
 installs (npm/pip/uv) are unaffected.
 
-**D8 — Version-pinned ARGs, major-pinned repos.** Every tool in the image
-is pinned to a version verified on 2026-11-05; Node comes from the
-NodeSource major repo; the base image can be digest-pinned for strict
-reproducibility (`references/hardening.md` §1). Refresh = bump ARG +
-rebuild + re-verify; never `@latest` in the image.
+**D8 — Version-pinned ARGs, digest-pinned base.** Every tool in the image
+is pinned to a version verified on 2026-11-05 (bun via a pinned installer
+tag); the base image is digest-pinned and the NodeSource repo key is
+fingerprint-verified in-build. Node comes from the NodeSource major repo.
+Honest scope (audit M-10): top-level versions, the base digest, bun and the
+NodeSource key are pinned — the uv/bun *installer scripts* and transitive
+npm dependencies are fetched over TLS from trusted endpoints at build time
+and are not checksum-verified; browser revisions are resolved at build.
+Refresh = bump ARG + rebuild + re-verify; never `@latest` in the image.
 
 **Alternatives considered and rejected:** gVisor/Kata (not in Debian
 repos; adds a kernel-interposition layer with its own trust base —
@@ -176,7 +186,7 @@ containers (network dependency, opposite of self-contained).
  Debian 13 host (16-32 GB, KVM)
  ├─ systemd --user (linger)                    ← 10-host-bootstrap.sh
  │   └─ agent-gateway.service (Quadlet)        ← 30-gateway.sh
- │       └─ podman: agent-gateway (Squid, cap-dropped)
+ │       └─ podman: agent-gateway (Squid, cap-drop=ALL +SETUID/SETGID)
  │           ├─ nic1: agent-egress   (NAT → internet)
  │           └─ nic2: agent-internal (INTERNAL: no route, no ext-DNS)
  │                 ↑
@@ -191,7 +201,8 @@ containers (network dependency, opposite of self-contained).
  ├─ host squid @127.0.0.1:3128 (Tier-2 path)   ← 10-host-bootstrap.sh --tier2
  └─ qemu-system-x86_64 (KVM)                    ← 60-tier2-microvm.sh
      └─ VM (debian-13-genericcloud + cloud-init)
-         · nftables: output DROP; allow 10.0.2.2:3128 (proxy) + 10.0.2.3:53
+         · user-net restrict=on (host-side: proxy guestfwd + ssh hostfwd ONLY)
+         · nftables: output DROP; allow 10.0.2.2:3128 (proxy) — no DNS rule
          └─ rootless podman → agent-dev-sandbox:1 (same image)
              (workspace on VM disk — never host bind mounts)
 ```
@@ -215,9 +226,10 @@ else NXDOMAIN. Four independent mechanisms, one policy file.
 bind-mounted code dir + named home volume + env file. Stopping preserves
 everything; `restart` re-creates the container (re-reading the env file —
 key rotation without volume surgery); `snapshot` commits the container fs
-and tars the home volume; `destroy` removes the container, keeps code and
-home unless explicitly purged. Credentials for the agent CLIs live in the
-home volume, so logins survive container re-creation.
+(env-file keys blanked — see §6) and tars the home volume into
+`~/agent-workspaces/snapshots/` (0700); `destroy` removes the container,
+keeps code and home unless explicitly purged. Credentials for the agent
+CLIs live in the home volume, so logins survive container re-creation.
 
 **Tier-2 lifecycle.** `base` (once): download + SHA512-verify the official
 cloud image → golden overlay → cloud-init (packages via the host proxy, the
@@ -230,21 +242,24 @@ hardening §4 recommends rebuilding golden per trust boundary.
 ## 6. Component specifications
 
 **Image contents** (`files/Containerfile`, all pins verified 2026-11-05):
-Debian trixie-slim base; Python 3.13 + venv + dev headers; Node 24
-(NodeSource); Bun 1.3.x; pnpm 12; uv 0.13.7; git/git-lfs; ripgrep, fd, jq,
+Debian trixie-slim base (digest-pinned); Python 3.13 + venv + dev headers;
+Node 24 (NodeSource, key fingerprint verified); Bun 1.3.14 (pinned installer
+tag); pnpm 12; uv 0.13.7; git/git-lfs; ripgrep, fd, jq,
 tmux, socat, openssh-client; build-essential + libssl/zlib/sqlite headers;
 SQLite; system Chromium 156 + fonts; Playwright 1.64.1 (Node *and* Python,
 shared browser revisions) baked to `/opt/ms-playwright`; agent-browser 0.41.2
 with its Chrome baked to `/opt/agent-browser-data`; claude-code 2.1.318,
-codex 0.166.0, opencode 1.19.5; non-root `dev` (uid 1000);
-`sleep infinity` as PID 1. Result: ~3.5-4 GB image, ~2 GB RAM per active
+codex 0.166.0, opencode 1.19.5; `NODE_USE_ENV_PROXY=1`; non-root `dev`
+(uid 1000); `sleep infinity` as PID 1. Result: ~3.5-4 GB image (~2 GB of it
+the unpacked `/opt` browser bake, ~750 MB compressed; the reference
+environment's Playwright-only cache was 613 MB), ~2 GB RAM per active
 workspace at idle-to-moderate load.
 
 | Layer | Pinned version | Why it is there |
 |---|---|---|
 | python3.13 + venv + dev | trixie 3.13.5 | system Python for the distro; venv package is the documented trixie gotcha |
 | nodejs | 24.x (NodeSource `node_24.x`) | budget-wiser floor is Node ≥ 24; matches reference environment |
-| bun | latest via bun.sh installer | budget-wiser's primary runtime (≥ 1.3) |
+| bun | 1.3.14 (`BUN_VERSION` ARG, pinned installer tag) | budget-wiser's primary runtime (≥ 1.3) |
 | pnpm | 12.16.1 | package manager of choice for agent workflows |
 | uv | 0.13.7 | fast per-project Python envs; standalone binary |
 | playwright (node+py) | 1.64.1 | matches budget-wiser's pin → shared browser revision, no re-download |
@@ -255,10 +270,14 @@ workspace at idle-to-moderate load.
 
 **Egress policy** (`files/squid/allowlist.txt`): Debian mirrors; runtime
 installers (NodeSource, nodejs.org, astral.sh, bun.sh); registries
-(npm, yarn, PyPI); git hosts (GitHub, GitLab); Playwright CDN; the AI
-provider APIs; two verification domains. Suffix matching; Squid resolves
-DNS (workspaces never need it). Adding a domain: one command, both tiers,
-restart included.
+(npm, yarn, PyPI); git hosts (GitHub, GitLab — leading-dot entries cover
+subdomain CDNs); Prisma engine binaries (`binaries.prisma.sh`, needed by
+the representative workload); Playwright CDN; the AI provider APIs; two
+verification domains. Squid `dstdomain` semantics: a leading dot matches
+subdomains, a bare domain is an EXACT match, `*.` is not a wildcard and is
+rejected by `allow`. Squid resolves DNS (workspaces never need it). Adding
+a domain: one command, both tiers, restart included — and every change is
+`squid -k parse`-validated before the gateway restarts.
 
 **Ephemeral CI profile** (`scripts/45-ci-run.sh` + `files/ci-setup.sh`):
 single-shot containers from the same image — CI env, shared package caches,
@@ -271,27 +290,36 @@ Tier-2 VM 6 GB/4 vCPU by default. Comfortable: 2-4 active workspaces +
 1 VM on 32 GB; 1-2 workspaces on 16 GB.
 
 **Secrets plumbing.** Host file `~/.config/agent-sandbox/workspaces/<n>.env`
-(0600, never committed, never in an image or snapshot) → `--env-file` at
+(0600, never committed, never in an image) → `--env-file` at
 `podman run`. Agent CLI auth tokens live inside the home volume only.
-Tier-2 env files live inside the VM (`~/.config/agent-sandbox/`), so host
-compromise of the env dir does not automatically include VM workspaces'
-keys.
+Snapshot caveat (audit H-3, verified against podman 5.4 source):
+`podman commit` copies the container's environment into the image config —
+`40-workspace.sh snapshot` therefore blanks every env-file key from the
+committed image; the remaining image env (proxy/browsers vars) carries no
+secrets. Rotate keys after snapshotting a workspace that had live secrets,
+and never distribute `ws-snap-*` images. Tier-2 env files live inside the
+VM (`~/.config/agent-sandbox/`), so host compromise of the env dir does not
+automatically include VM workspaces' keys.
 
 ## 7. Representative workload fit — budget-wiser
 
 The chosen reference repo stresses every axis of the design: Next.js 16 +
 React 19 need Node ≥ 24 (or Bun ≥ 1.3) — both provided; Prisma 6 + SQLite
 needs libssl/sqlite — provided; `bun install` needs registry.npmjs.org —
-allowlisted; `db:push/db:seed` are local file operations; Vitest runs
-offline; Playwright E2E launches Chromium against `localhost` — covered by
-`no_proxy` and the baked browser; `agent-browser` verifies UI state via
-accessibility snapshots. Onboarding inside a workspace:
+allowlisted — and, because budget-wiser enables Prisma's install scripts
+(`allowScripts` for prisma 6.19.3 / @prisma/client 6.19.3), it also fetches
+engine binaries from `binaries.prisma.sh` — allowlisted for exactly that
+reason (audit M-3; run the acceptance path to confirm the full domain set);
+`db:push/db:seed` are local file operations once the engines are present;
+Vitest runs offline; Playwright E2E launches Chromium against `localhost` —
+covered by `no_proxy` and the baked browser; `agent-browser` verifies UI
+state via accessibility snapshots. Onboarding inside a workspace:
 
 ```bash
 scripts/40-workspace.sh create wiser --repo https://github.com/nordeim/budget-wiser.git
 scripts/40-workspace.sh shell wiser
 # in-workspace:
-bun install && bun run db:push && bun run db:seed && bun run gate   # lint+type+unit
+bun install && bun run db:push && bun run db:seed && bun run gate   # lint+type+unit+build+smoke+e2e
 bun run dev &       # localhost:3000
 agent-browser open http://localhost:3000 && agent-browser snapshot -i
 bun run test:e2e    # Playwright, local server — no external egress needed
@@ -306,24 +334,38 @@ check; the rest is the documented user acceptance path.
 non-root with zero capabilities, no privilege escalation, and cgroup caps;
 the only route off the host user's network namespace is Squid with a domain
 allowlist (403 + logged for everything else); external DNS is unavailable;
-no host path is writable inside a workspace except the project dir (same
-host uid — worst case is "your own files in that dir", the same trust level
-as running the code by hand); Tier-2 adds a full VM boundary and keeps all
-host paths out entirely.
+no host path is writable inside a workspace except the project dir. Be
+honest about what that last clause means (audit M-2): the bind mount shares
+YOUR uid, so a workload-user escape reaches your own files everywhere — not
+just the project dir — including `~/.ssh`, every workspace env file, and
+`systemctl --user`. That is the same trust level as running the code by
+hand, which is precisely the Tier-1 contract: code you would run yourself.
+Host-executed persistence is also in scope of "your own files": payloads
+planted in `.git/hooks`, `.vscode/tasks.json`, or package scripts run the
+next time YOU run git or an IDE on the mount — treat the mount as
+workload-owned and review changes before executing host tooling against
+it. Tier-2 adds a full VM boundary and keeps all host paths out entirely.
 
 **Verified, with caveats stated:** rootless defined-network NAT egress is a
-standard podman 5 capability and the `--internal` semantics are documented;
-an exotic-host fallback (rootful system-quadlet gateway) is specified in
-`references/troubleshooting.md` §4. Chromium-family browsers do not
-reliably honor proxy env vars in every launch mode — external-page browsing
-via agent-browser is therefore a SOFT check with the explicit per-project
-Playwright proxy option documented; local dev-server testing (the dominant
-agent flow) is unaffected and hard-verified.
+standard podman 5 capability and the `--internal` semantics are documented
+(netavark backend — preflight `--post` checks it); if rootless NAT
+misbehaves on an exotic host, debug netavark/pasta (`podman network inspect
+agent-egress`) — there is deliberately NO rootful-gateway fallback, because
+workspaces on an `--internal` network cannot reach host loopback by design,
+and moving them to a routed network would break invariant 3 (see hardening
+§2). Chromium-family browsers do not reliably honor proxy env vars in every
+launch mode — external-page browsing via agent-browser is therefore a SOFT
+check with the explicit per-project Playwright proxy option documented;
+local dev-server testing (the dominant agent flow) is unaffected and
+hard-verified.
 
 **Known residual risks (by tier, see §2 table and hardening §6):** shared
-kernel for Tier 1; supply chain of allowlisted domains; allowed-channel
+kernel for Tier 1; workload-user escape = host user (keep-id; the tier
+discipline is the answer); host-side persistence vectors via the shared
+mount (`.git/hooks` etc.); supply chain of allowlisted domains AND of
+build-time endpoints (installers, npm transitives — see D8); allowed-channel
 exfiltration; side channels on shared hardware. The design's answer to the
-first is the tier switch, to the second is allowlist governance + your
+first two is the tier switch, to the third is allowlist governance + your
 normal package review, to the rest is stated scope.
 
 ## 9. Operational characteristics, logging & audit
@@ -336,12 +378,13 @@ overhead around the command itself (container create + browser seeding +
 isolation self-audit); artifact copying is size-dependent.
 
 **What happens on reboot:** linger + the gateway Quadlet bring the proxy
-back automatically; stopped workspaces stay stopped (start them
-explicitly); running workspaces restart with their containers (Quadlet-less
-workspaces rely on `podman start`, a deliberate choice — agents should not
-auto-resume unfinished work unattended). VMs do not auto-start (their qemu
-processes are user-managed, not systemd units — keep it that way unless you
-add units yourself).
+back automatically (the generator applies `[Install]` at daemon-reload —
+`systemctl --user enable` is never used on generated units). Workspaces
+have NO restart policy: after a host reboot every workspace is stopped, and
+`40-workspace.sh start <name>` (or `podman start agent-<name>`) resumes it —
+a deliberate choice: agents should not auto-resume unfinished work
+unattended. VMs do not auto-start (their qemu processes are user-managed,
+not systemd units — keep it that way unless you add units yourself).
 
 **Audit trail:** Squid access logs are the egress audit record — one line
 per proxied request and per denial. Container path:
@@ -362,8 +405,11 @@ CLIs ship process-level sandboxes (seccomp/Landlock/namespace wrappers).
 They harden *the CLI's own tool calls* — but the user may run other agents,
 ad-hoc commands, or a different CLI version; and process sandboxes do not
 provide resource caps, egress allowlists, or a reproducible environment.
-This blueprint treats agent-internal sandboxing as an optional extra layer
-*inside* the workspace, never as the boundary.
+Caveat (audit L-3): those sandbox modes generally need privileges this
+container deliberately drops (userns/cloning), so expect them to run in a
+degraded or disabled mode INSIDE a workspace — the workspace boundary is
+the one that counts here, and agent-internal sandboxing remains an optional
+extra layer, never the boundary.
 
 **Why is the gateway a container instead of host squid for Tier 1?**
 Rootless containers on an internal network cannot reach host loopback; the
@@ -415,10 +461,14 @@ of the one that already exists.
 like a workspace — keep-id, cap-drop=ALL, no-new-privileges,
 `agent-internal` only, env-file secrets, pids/memory/cpu caps — plus a
 walltime `timeout` (default 3600 s). The command streams live *and* is
-captured to `artifacts/console.log`. Teardown always follows the run
-(`--keep-on-failure` opts out for debugging); `reap` removes orphans and
-stale run dirs past a TTL; `list` prints past runs from their summaries;
-`cache` wipes the shared package caches.
+captured to `artifacts/console.log` (repository URLs are redacted to
+`scheme://[REDACTED]@host/…` before they reach any log or summary — audit
+M-9). Teardown always follows the run (`--keep-on-failure` opts out for
+debugging); the post-run artifact copier is symlink-contained (`cp -rP` +
+realpath checks) because the run directory is workload-controlled; `reap`
+removes orphans and stale run dirs past a TTL; `list` prints past runs
+from their summaries; `cache` wipes the shared package caches. `jq` on the
+host is required (bootstrap installs it; the runner checks upfront).
 
 **In-container preamble.** `files/ci-setup.sh` is bind-mounted in (image
 unchanged — D6 holds): it sets `CI=true` (pnpm then defaults to a frozen

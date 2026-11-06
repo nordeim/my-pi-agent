@@ -8,6 +8,12 @@
 # Per-user tool locations (Claude Code native installs, bun, uv fallbacks)
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 
+# Node >= 24 built-in fetch ignores proxy env vars unless this is set
+# (NODE_USE_ENV_PROXY shipped in Node 24.0.0) — also set as image ENV and in
+# ci-setup.sh. Without it, node-based tools that use global fetch try to go
+# direct and fail closed against the no-route network (audit L-3).
+export NODE_USE_ENV_PROXY=1
+
 # Python tools venv baked into the image (playwright, etc.)
 export PATH="/opt/py-tools/bin:$PATH"
 

@@ -6,9 +6,17 @@
 #     scripts/30-gateway.sh restart
 # (that command also syncs the Tier-2 host proxy if it is installed).
 #
-# Matching is suffix-based per line: ".githubusercontent.com" matches all
-# subdomains; a bare "github.com" matches github.com and *.github.com.
+# Matching rules (Squid dstdomain — verified against Squid's own docs;
+# audit H-4: the old comment was wrong):
+#   * ".githubusercontent.com"  (LEADING DOT) matches every subdomain
+#   * "github.com" (bare) matches ONLY github.com, exactly — subdomains
+#     must be listed individually or covered by a leading-dot entry
+#   * "*.example.com" is NOT a wildcard — Squid treats it as a literal
+#     hostname that matches nothing. 30-gateway.sh allow rejects it.
 # Squid (dstdomain) resolves DNS itself — workspaces never need external DNS.
+# NOTE (Squid): do not list a subdomain (a.example.com) before its
+# leading-dot entry (.example.com) in this file — Squid treats that as a
+# fatal configuration error at parse time.
 
 # --- OS package mirrors (apt on host images and inside Tier-2 VMs) ----------
 deb.debian.org
@@ -27,11 +35,20 @@ pypi.org
 files.pythonhosted.org
 
 # --- Git hosting -------------------------------------------------------------
+# Bare entries are EXACT matches; the leading-dot entry covers the
+# raw/objects/release-asset CDNs (audit H-4: "*." matched nothing).
 github.com
 api.github.com
 codeload.github.com
-*.githubusercontent.com
+.githubusercontent.com
 gitlab.com
+
+# --- Prisma engine binaries (representative workload: budget-wiser) ----------
+# budget-wiser pins Prisma 6.19.3 with install scripts enabled; prisma /
+# @prisma/client postinstalls fetch engine binaries from this host. Without
+# it, `bun install` fails for a policy reason the docs used to deny
+# (audit M-3). Run the acceptance path to confirm the full domain set.
+binaries.prisma.sh
 
 # --- Playwright browser CDN --------------------------------------------------
 cdn.playwright.dev

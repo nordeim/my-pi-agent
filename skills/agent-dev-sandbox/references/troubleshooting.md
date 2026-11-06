@@ -72,15 +72,31 @@ layer alone is ~750 MB compressed, ~2 GB unpacked.
 
 ## §4 — Gateway / egress (30-gateway.sh)
 
-**`status` probe fails (no HTTP 200)**
+**`status` probe fails (no status=200)**
 1. `podman ps -a | grep agent-gateway` — Exited? `podman logs agent-gateway`.
-2. Squid config syntax: `podman run --rm -v $PWD/files/squid/squid.conf:/etc/squid/squid.conf:ro agent-gateway:1 squid -N -k parse` … or simpler: `podman logs` shows parse errors immediately.
+2. Squid config syntax: every `allow`/`restart`/`up` runs `squid -k parse`
+   automatically and refuses to restart on a rejected config; to check by
+   hand: `podman run --rm --network none -v $PWD/files/squid/squid.conf:/etc/squid/squid.conf:ro,Z -v $PWD/files/squid/allowlist.txt:/etc/squid/allowlist.txt:ro,Z agent-gateway:1 squid -N -k parse`
 3. Both networks must exist: `podman network ls | grep agent-`.
+
+**Gateway will not start under the hardened capability set**
+The gateway runs with `DropCapability=ALL` + `AddCapability=SETUID SETGID`,
+`NoNewPrivileges=true`, pids/memory limits (audit M-1). If your kernel's
+Squid cannot complete its privilege drop to the `proxy` user under exactly
+these caps, `podman logs agent-gateway` will say so — as a LAST resort
+remove the `AddCapability=SETUID SETGID` line from the quadlet
+(`~/.config/containers/systemd/agent-gateway.container`, written by
+`30-gateway.sh up`) or the matching `--cap-add` flags in the fallback, run
+`systemctl --user daemon-reload && systemctl --user start agent-gateway`,
+and report it — that is a real environment finding, not something to hide.
 
 **403 for a domain you expected to work**
 It is not in `files/squid/allowlist.txt` (or the gateway was not restarted).
-Add it: `scripts/30-gateway.sh allow <domain>` — that edits the file AND
-restarts both proxy tiers.
+Check the MATCHING RULES in that file's header: a bare domain is an EXACT
+match — subdomains need their own entry or a leading-dot entry
+(`.example.com`); `*.` is not a wildcard (audit H-4). Add what you need:
+`scripts/30-gateway.sh allow <domain>` — that edits the file, parse-checks
+it, and restarts both proxy tiers.
 
 **Containers cannot resolve `agent-gateway`**
 On `--internal` networks, aardvark-dns resolves CONTAINER NAMES only. The
@@ -96,9 +112,12 @@ you have disabled the egress guarantee for that workspace (document it).
 **Rootless defined-network egress misbehaving on exotic hosts**
 The gateway needs `agent-egress` (a NORMAL rootless bridge network) to reach
 the internet. If that network has no NAT on your host (rare; custom
-netavark/pasta configs), inspect: `podman network inspect agent-egress`.
-Fallback: run the gateway rootful via a system quadlet (see
-references/hardening.md §2) — same image, same allowlist.
+netavark/pasta configs), inspect: `podman network inspect agent-egress` and
+`podman info --format '{{.Host.NetworkBackend}}'` (expect netavark —
+preflight --post warns otherwise). There is deliberately NO rootful-gateway
+fallback: workspaces on the `--internal` network cannot reach host loopback
+by design, and a routed workspace network would break invariant 3 (see
+references/hardening.md §2 for the full reasoning).
 
 ---
 
@@ -146,6 +165,25 @@ projects that must browse external pages, configure Playwright explicitly:
 `launch({ proxy: { server: 'http://agent-gateway:3128' } })`. Local-first
 flows (dev server + e2e) are unaffected — they use `no_proxy` localhost.
 
+**Node-based tools bypass the proxy when using built-in fetch**
+Node ≥ 24's built-in `fetch()` ignores `http_proxy`/`https_proxy` unless
+`NODE_USE_ENV_PROXY=1` is set (it shipped in Node 24.0.0). The image, the
+login profile and ci-setup all export it; if a tool still goes direct it
+will fail CLOSED against the no-route network — configure that tool's own
+proxy option explicitly (audit L-3).
+
+**Chromium/Playwright runs with `--no-sandbox`**
+Chromium's own process sandbox needs privileges (user namespaces) the
+workspace deliberately drops, so Playwright launches with `--no-sandbox` —
+a documented defence-in-depth loss INSIDE a container that already has no
+capabilities, no-new-privileges and a seccomp profile (audit L-3). The
+workspace boundary, not Chromium's, is the security boundary here.
+
+**Agent CLI built-in sandboxes are degraded inside a workspace**
+Claude Code / Codex sandbox modes generally need userns/cloning privileges
+the container drops — expect them to be disabled or limited. The workspace
+boundary is the one that counts (BLUEPRINT §10).
+
 **`python3.13 -m venv` fails: ensurepip not available**
 Impossible in the image (python3.13-venv is installed). If you see it inside
 a Tier-2 VM: the golden image missed the package — re-run `base`. On the
@@ -156,11 +194,17 @@ HOST: `sudo apt install python3.13-venv`.
 ## §7 — verify.sh failures
 
 Every FAIL line prints its evidence. Mapping:
-- proxy 403-but-expected-200 → §4 (allowlist/gateway)
+- proxy 403-but-expected-200 → §4 (allowlist/gateway). Note: CONNECT
+  denials are asserted on `%{http_connect}` — `%{http_code}` reads 000 when
+  the tunnel itself is denied (that is expected curl behavior, audit C-1).
 - expected-403-but-got-200 → allowlist too broad (did you add the domain?)
-- direct-egress SUCCEEDED → CRITICAL: container is not on `agent-internal`,
-  or someone re-created it with another network. Rebuild via 40-workspace.sh.
+- direct-egress to 1.1.1.1 SUCCEEDED → CRITICAL: container is not on
+  `agent-internal`, or someone re-created it with another network. Rebuild
+  via 40-workspace.sh. (Exit codes other than 7/28 on that check are
+  investigate-don't-pass.)
 - CapEff nonzero → container created without `--cap-drop=ALL`.
+- a tool "not working (exit N)" → the old suite passed these vacuously on
+  error text (audit H-1); now exit status AND a version pattern must match.
 - browser smoke failed → run `50-verify.sh --keep`, then
   `40-workspace.sh shell __verify` and launch manually to see the error.
 
@@ -185,8 +229,16 @@ The image tarball is 1-3 GB compressed. It passes through `/tmp` in the VM
 and `${VM_DIR}` on the host; both need space. `df -h` both sides.
 
 **VM has no internet but proxy domains work — correct!**
-`/etc/nftables.conf` inside the VM permits only 10.0.2.2:3128 (proxy) and
-10.0.2.3:53 (DNS). That is the enforcement, not a bug.
+Egress is enforced on BOTH sides: QEMU `restrict=on` (host side — only the
+ssh hostfwd and the proxy guestfwd exist) and `/etc/nftables.conf` inside
+the VM (only 10.0.2.2:3128). DNS is deliberately absent — the proxy
+resolves every hostname. Run `scripts/60-tier2-microvm.sh verify <name>`
+after every create to assert all of this.
+
+**`base` refuses: "overlay VMs exist"**
+qcow2 backing files must stay immutable — replacing the golden under live
+overlays corrupts them (audit M-8). Destroy the listed VMs first, or move
+the golden aside deliberately.
 
 **Cannot reach a NEW domain from inside a VM**
 Same allowlist as Tier 1: `30-gateway.sh allow <domain>` syncs the host squid
@@ -239,3 +291,9 @@ workspaces are structurally unreachable (their names cannot start with
 The container died before ci-setup reached the audit (e.g. exit 125/126/127:
 podman-level failure — image missing, name clash, OCI runtime error). Fix the
 podman-level cause first; the command itself never started.
+
+**"jq is required on the host"**
+45-ci-run.sh refuses to start without jq (it writes the run summary and
+powers `list`). Bootstrap installs it; manually: `sudo apt install jq`
+(audit M-6). Exit 127 from a completed run with the container still present
+was the old failure signature of the missing-jq teardown bypass — fixed.

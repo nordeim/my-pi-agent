@@ -44,43 +44,60 @@ if podman container exists "${CT}" 2>/dev/null; then
     echo "  canary ${CT} already exists — reusing (stale? run: 40-workspace.sh destroy ${CANARY} --purge-home --purge-workspace)"
 else
     echo "  creating canary workspace via 40-workspace.sh …"
-    "${SCRIPT_DIR}/40-workspace.sh" create "${CANARY}" --memory 2g --cpus 2 >/dev/null \
+    ALLOW_RESERVED_NAME=1 "${SCRIPT_DIR}/40-workspace.sh" create "${CANARY}" --memory 2g --cpus 2 >/dev/null \
         || { echo -e "${RED}canary creation FAILED — the workspace toolpath itself is broken${NC}"; exit 1; }
 fi
 
 # --- 1. Isolation guarantees (negative checks are the point) ------------------
 section "Isolation guarantees"
 
-# Direct egress (proxy vars stripped) must FAIL: agent-internal has no route.
-if OUT="$(ws env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY curl -sS --max-time 8 -o /dev/null https://registry.npmjs.org)"; then
-    fail "direct egress must be BLOCKED" "curl succeeded without proxy: ${OUT}"
-else
-    pass "direct egress blocked (no route from agent-internal)" "${OUT}"
-fi
+# Mechanism 1 — no route. Direct egress (proxy vars stripped) to an IP
+# LITERAL must fail at the network layer. An IP target removes DNS from the
+# equation (audit H-1: the old name-based check could pass purely on a DNS
+# failure without ever exercising the no-route guarantee). curl exit 7 =
+# network unreachable, 28 = timeout — both prove the packet had nowhere to go.
+CODE_DIRECT=0
+ws env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY \
+    curl -sS --connect-timeout 5 --max-time 8 -o /dev/null http://1.1.1.1/ >/dev/null 2>&1 || CODE_DIRECT=$?
+case "${CODE_DIRECT}" in
+    7|28) pass "direct egress blocked (no route from agent-internal)" "curl exit ${CODE_DIRECT} to IP literal 1.1.1.1" ;;
+    0)    fail "direct egress must be BLOCKED" "curl to 1.1.1.1 SUCCEEDED (exit 0)" ;;
+    *)    fail "direct egress must be BLOCKED" "curl exit ${CODE_DIRECT} to 1.1.1.1 (expected 7 or 28 — investigate)" ;;
+esac
 
-# External DNS must FAIL: aardvark-dns on internal networks resolves container
-# names only; everything else is NXDOMAIN.
-if ws getent hosts registry.npmjs.org >/dev/null; then
+# Mechanism 2 — no external DNS: aardvark-dns on internal networks resolves
+# container names only; everything else is NXDOMAIN.
+if ws getent hosts registry.npmjs.org >/dev/null 2>&1; then
     fail "external DNS must be blocked" "getent resolved an external name"
 else
-    pass "external DNS blocked (NXDOMAIN outside the network)"
+    pass "external DNS blocked (NXDOMAIN outside the network)" "getent hosts registry.npmjs.org -> no result"
 fi
 
-# Non-allowlisted domain through the proxy must return Squid's 403.
-CODE="$(ws curl -sS --max-time 15 -o /dev/null -w '%{http_code}' https://en.wikipedia.org)"
-if [ "${CODE}" = "403" ]; then
-    pass "non-allowlisted domain denied by proxy" "HTTP ${CODE} (Squid ACL deny)"
+# Mechanism 3 — the proxy ACL. For CONNECT (HTTPS) the proxy's verdict is in
+# %{http_connect}; %{http_code} stays 000 when the tunnel is denied (audit
+# C-1: asserting on %{http_code} alone could never observe the 403).
+CODES="$(ws curl -sS --max-time 15 -o /dev/null -w '%{http_connect} %{http_code}' https://en.wikipedia.org)"
+DENY="$(echo "${CODES}" | awk '{print $1}')"
+if [ "${DENY}" = "403" ]; then
+    pass "non-allowlisted domain denied by proxy" "Squid CONNECT verdict: 403 (${CODES})"
 else
-    fail "non-allowlisted domain must get 403" "got HTTP ${CODE}"
+    fail "non-allowlisted domain must get 403" "CONNECT verdict: ${CODES} (expected 403)"
 fi
 
-# Allowlisted domain through the proxy must work.
-CODE="$(ws curl -sS --max-time 20 -o /dev/null -w '%{http_code}' https://registry.npmjs.org)"
-if [ "${CODE}" = "200" ]; then
-    pass "allowlisted domain reachable via proxy" "registry.npmjs.org -> HTTP ${CODE}"
+# Allowlisted domain through the proxy must work end-to-end: tunnel AND
+# response both 200.
+CODES="$(ws curl -sS --max-time 20 -o /dev/null -w '%{http_connect} %{http_code}' https://registry.npmjs.org)"
+CONN="$(echo "${CODES}" | awk '{print $1}')"; HTTP="$(echo "${CODES}" | awk '{print $2}')"
+if [ "${CONN}" = "200" ] && [ "${HTTP}" = "200" ]; then
+    pass "allowlisted domain reachable via proxy" "registry.npmjs.org -> CONNECT ${CONN}, HTTP ${HTTP}"
 else
-    fail "allowlisted domain must work through proxy" "got HTTP ${CODE} (gateway up? 30-gateway.sh status)"
+    fail "allowlisted domain must work through the proxy" "CONNECT ${CONN}, HTTP ${HTTP} (gateway up? 30-gateway.sh status)"
 fi
+
+# Mechanism 4 — IP forwarding disabled on the internal bridge — lives in the
+# netavark configuration and is not separately observable from inside a
+# workspace; its failure mode collapses into mechanism 1 (a route would
+# exist). Not asserted independently, by design.
 
 # --- 2. Container hardening ----------------------------------------------------
 section "Container hardening"
@@ -109,30 +126,56 @@ fi
 # --- 3. Toolchain ---------------------------------------------------------------
 section "Toolchain (versions from the image)"
 
-v() { ws "$1" "${2:---version}" | sed -n 1p; }
+# Tool checks assert BOTH the exit status AND a version pattern on the first
+# output line (audit H-1: the old `[ -n "$OUT" ]` passed on any error text —
+# a missing tool's error message counted as a PASS).
+tool_check() { # <tool> <ERE matched against the first --version line>
+    local tool="$1" pat="$2" out rc=0 first
+    out="$(ws "${tool}" --version 2>&1)" || rc=$?
+    first="$(echo "${out}" | sed -n 1p)"
+    if [ "${rc}" -eq 0 ] && echo "${first}" | grep -Eq "${pat}"; then
+        pass "${tool}" "${first}"
+    else
+        fail "${tool} not working (exit ${rc})" "${first:-<no output>}"
+    fi
+}
 
-OUT="$(v python3.13)"
-[[ "${OUT}" == *"3.13"* ]] && pass "Python 3.13" "${OUT}" || fail "Python 3.13 missing" "${OUT}"
+tool_check python3.13 'Python 3\.13'
 
-OUT="$(v node)"
+OUT_RC=0; OUT="$(ws node --version 2>&1)" || OUT_RC=$?
 NODE_MAJ="$(echo "${OUT}" | sed -E 's/^v([0-9]+)\..*/\1/')"
-[ "${NODE_MAJ}" -ge 20 ] 2>/dev/null && pass "Node.js (>=20, expect 24)" "${OUT}" || fail "Node.js >=20 missing" "${OUT}"
+if [ "${OUT_RC}" -eq 0 ] && [ "${NODE_MAJ}" -ge 20 ] 2>/dev/null; then
+    pass "Node.js (>=20, expect 24)" "${OUT}"
+else
+    fail "Node.js >=20 missing" "exit ${OUT_RC}: ${OUT}"
+fi
 
-for tool in bun pnpm uv git chromium jq rg; do
-    OUT="$(v "${tool}")"
-    [ -n "${OUT}" ] && pass "${tool}" "${OUT}" || fail "${tool} not working" "empty version output"
-done
+tool_check bun       '[0-9]+\.[0-9]+\.[0-9]+'
+tool_check pnpm      '[0-9]+\.[0-9]+'
+tool_check uv        'uv [0-9]'
+tool_check git       'git version [0-9]'
+tool_check chromium  '[0-9]+\.[0-9]+'
+tool_check jq        'jq-'
+tool_check rg        'ripgrep'
 
-OUT="$(ws playwright --version)"
-[[ "${OUT}" == *1.* ]] && pass "Playwright (Node)" "${OUT}" || fail "Playwright (Node) missing" "${OUT}"
+OUT_RC=0; OUT="$(ws playwright --version 2>&1)" || OUT_RC=$?
+if [ "${OUT_RC}" -eq 0 ] && [[ "${OUT}" == *1.* ]]; then
+    pass "Playwright (Node)" "${OUT}"
+else
+    fail "Playwright (Node) missing" "exit ${OUT_RC}: ${OUT}"
+fi
 
-OUT="$(ws /opt/py-tools/bin/python -c 'import playwright; print(playwright.__file__)')"
-[ -n "${OUT}" ] && pass "Playwright (Python)" "${OUT}" || fail "Playwright (Python) missing" "${OUT}"
+OUT_RC=0; OUT="$(ws /opt/py-tools/bin/python -c 'import playwright; print(playwright.__file__)' 2>&1)" || OUT_RC=$?
+if [ "${OUT_RC}" -eq 0 ] && [ -n "${OUT}" ]; then
+    pass "Playwright (Python)" "${OUT}"
+else
+    fail "Playwright (Python) missing" "exit ${OUT_RC}: ${OUT}"
+fi
 
-for tool in agent-browser claude codex opencode; do
-    OUT="$(v "${tool}")"
-    [ -n "${OUT}" ] && pass "${tool}" "${OUT}" || fail "${tool} not working" "empty version output"
-done
+tool_check agent-browser '[0-9]+\.[0-9]+'
+tool_check claude        '[0-9]+(\.[0-9]+)+'
+tool_check codex         '[0-9]+(\.[0-9]+)+'
+tool_check opencode      '[0-9]+(\.[0-9]+)+'
 
 # --- 4. Browser paths -------------------------------------------------------------
 section "Browsers"
@@ -207,7 +250,7 @@ fi
 if [ "${KEEP}" -eq 1 ]; then
     echo "  Canary kept for inspection: scripts/40-workspace.sh shell ${CANARY}"
 else
-    "${SCRIPT_DIR}/40-workspace.sh" destroy "${CANARY}" --purge-home --purge-workspace >/dev/null
+    ALLOW_RESERVED_NAME=1 "${SCRIPT_DIR}/40-workspace.sh" destroy "${CANARY}" --purge-home --purge-workspace >/dev/null
     echo "  Canary cleaned up."
 fi
 [ "${WARN}" -gt 0 ] && echo "  Review the warnings above — they are documented limitations, not breakage."

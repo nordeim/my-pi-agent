@@ -58,6 +58,21 @@ ensure_image() {
     fi
 }
 
+# Parse-check the LIVE config (squid.conf + allowlist) in a throwaway
+# container before it reaches the real gateway (audit H-4: a bad allowlist
+# edit used to restart straight into a crash-looping Squid).
+validate_squid_conf() {
+    local out rc=0
+    out="$(podman run --rm --network none \
+            -v "${SKILL_ROOT}/files/squid/squid.conf:/etc/squid/squid.conf:ro,Z" \
+            -v "${ALLOWLIST}:/etc/squid/allowlist.txt:ro,Z" \
+            "${GW_IMAGE}" squid -N -k parse 2>&1)" || rc=$?
+    if [ "${rc}" -ne 0 ]; then
+        die "squid -k parse REJECTED the configuration — gateway NOT restarted:
+${out}"
+    fi
+}
+
 write_quadlet() {
     mkdir -p "${QUADLET_DIR}"
     cat > "${QUADLET_FILE}" <<EOF
@@ -71,6 +86,15 @@ ContainerName=${GW_NAME}
 Network=${NET_EGRESS}
 Network=${NET_INTERNAL}
 Volume=${ALLOWLIST}:/etc/squid/allowlist.txt:ro,Z
+Volume=${SKILL_ROOT}/files/squid/squid.conf:/etc/squid/squid.conf:ro,Z
+# Hardened like the workspaces (audit M-1): the only component on BOTH
+# networks and parsing untrusted requests runs with no capabilities beyond
+# what Squid needs to drop privileges to its cache user. If Squid on your
+# kernel cannot start with these caps, see references/troubleshooting.md §4.
+DropCapability=ALL
+AddCapability=SETUID SETGID
+NoNewPrivileges=true
+PodmanArgs=--pids-limit=256 --memory=512m
 
 [Service]
 Restart=always
@@ -83,23 +107,35 @@ EOF
 start_gateway() {
     ensure_networks
     ensure_image
-    # Prefer the systemd user unit whenever a user session manager exists;
-    # fall back to plain podman otherwise.
-    if systemctl --user is-system-running >/dev/null 2>&1; then
+    validate_squid_conf
+    # Prefer the systemd user unit whenever a user session manager is
+    # REACHABLE. Probing with show-environment (not is-system-running):
+    # the latter exits non-zero for "degraded"/"starting", which pushed
+    # healthy hosts into the non-persistent fallback (audit H-6).
+    if systemctl --user show-environment >/dev/null 2>&1; then
         podman rm -f "${GW_NAME}" >/dev/null 2>&1 || true   # transition from a previous plain-podman run
         write_quadlet
         systemctl --user daemon-reload
-        systemctl --user enable --now "${GW_NAME}.service"
-        ok "gateway started via systemd user unit (survives reboots)"
+        # NOTE: quadlet-generated units CANNOT be `systemctl enable`d
+        # (podman-systemd.unit(5)); the generator applies [Install]
+        # itself on daemon-reload — so: start only (audit H-6).
+        systemctl --user start "${GW_NAME}.service"
+        ok "gateway started via systemd user unit (boot-persistent: [Install] WantedBy=default.target + linger)"
     else
         # Fallback: no working user systemd — plain rootless podman.
+        # --restart=always covers crashes; boot persistence requires the
+        # quadlet path (or manual start) — status prints which mode is active.
         podman rm -f "${GW_NAME}" >/dev/null 2>&1 || true
         podman run -d --name "${GW_NAME}" \
             --network "${NET_EGRESS}" --network "${NET_INTERNAL}" \
             --restart=always \
+            --cap-drop=ALL --cap-add=SETUID --cap-add=SETGID \
+            --security-opt no-new-privileges \
+            --pids-limit=256 --memory=512m \
             -v "${ALLOWLIST}:/etc/squid/allowlist.txt:ro,Z" \
+            -v "${SKILL_ROOT}/files/squid/squid.conf:/etc/squid/squid.conf:ro,Z" \
             "${GW_IMAGE}" >/dev/null
-        ok "gateway started via podman (no systemd user session detected)"
+        ok "gateway started via plain podman (no systemd user session: NOT boot-persistent)"
     fi
     sleep 1
     status
@@ -108,8 +144,11 @@ start_gateway() {
 cmd_up() { start_gateway; }
 
 cmd_down() {
+    # Generated units cannot be disabled either (audit H-6): stop the
+    # service, drop the quadlet, remove the container.
     if [ -f "${QUADLET_FILE}" ]; then
-        systemctl --user disable --now "${GW_NAME}.service" 2>/dev/null || true
+        systemctl --user stop "${GW_NAME}.service" 2>/dev/null || true
+        rm -f "${QUADLET_FILE}"
         systemctl --user daemon-reload 2>/dev/null || true
     fi
     podman rm -f "${GW_NAME}" >/dev/null 2>&1 || true
@@ -117,6 +156,7 @@ cmd_down() {
 }
 
 cmd_restart() {
+    validate_squid_conf
     if [ -f "${QUADLET_FILE}" ]; then
         systemctl --user restart "${GW_NAME}.service"
     else
@@ -138,17 +178,27 @@ cmd_restart() {
 cmd_status() {
     echo "  gateway container:"
     podman ps -a --filter "name=^${GW_NAME}$" --format "    {{.Names}}  {{.Status}}  {{.Networks}}" || true
+    if [ -f "${QUADLET_FILE}" ]; then
+        echo "  mode: systemd user unit (boot-persistent) — ${QUADLET_FILE}"
+    else
+        echo "  mode: plain podman (NOT boot-persistent; run '$0 up' to adopt systemd)"
+    fi
     echo "  networks:"
     podman network ls --format "    {{.Name}}  {{.Driver}}" | grep -E "agent-(egress|internal)" || echo "    (missing — run: $0 up)"
-    echo "  live allowlist probe (expect HTTP 200 through the proxy):"
-    if podman run --rm --network "${NET_INTERNAL}" \
+    echo "  live allowlist probe (expect status=200 through the proxy):"
+    local probe="000"
+    probe="$(podman run --rm --network "${NET_INTERNAL}" \
             agent-dev-sandbox:1 \
             curl -sS --max-time 15 --proxy "http://${GW_NAME}:3128" \
-                 -o /dev/null -w '    status=%{http_code}\n' \
-                 https://registry.npmjs.org 2>/dev/null; then
-        ok "proxy path works end-to-end"
+                 -o /dev/null -w '%{http_code}' \
+                 https://registry.npmjs.org 2>/dev/null || echo 000)"
+    # Audit M-7: curl exits 0 on ANY HTTP status — 403/500 used to print
+    # "proxy path works end-to-end". Only 200 passes now.
+    if [ "${probe}" = "200" ]; then
+        ok "proxy path works end-to-end (status=200)"
+        return 0
     else
-        echo -e "  ${RED}✗ probe failed — see $0 logs and references/troubleshooting.md §4${NC}"
+        echo -e "  ${RED}✗ probe failed (status=${probe}) — see $0 logs and references/troubleshooting.md §4${NC}"
         return 1
     fi
 }
@@ -161,12 +211,23 @@ cmd_logs() {
     fi
 }
 
+validate_domain() { # <domain> — dies unless it is a bare domain or a
+    # leading-dot subdomain entry. Audit H-4: Squid dstdomain has exactly ONE
+    # wildcard form — a LEADING DOT. "*.x.com" is a literal that matches
+    # nothing, so it is rejected with an explanation instead of silently
+    # added as a dead line.
+    local domain="${1:?usage: validate_domain <domain>}"
+    if [[ "${domain}" =~ ^\*\. ]]; then
+        die "'${domain}': Squid dstdomain does not support '*.' — use a LEADING DOT ('.${domain#*.}') to match all subdomains, or a bare domain for an exact match"
+    fi
+    if ! [[ "${domain}" =~ ^(\.)?[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$ ]]; then
+        die "'${domain}' does not look like a bare domain (github.com) or a leading-dot subdomain entry (.githubusercontent.com) — no https://, no path"
+    fi
+}
+
 cmd_allow() {
     local domain="${1:?usage: $0 allow <domain>}"
-    # Basic sanity: looks like a domain name (no scheme, no path, no spaces).
-    if ! [[ "${domain}" =~ ^(\*\.)?[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z]([A-Za-z0-9-]*[A-Za-z0-9])?)+$ ]]; then
-        die "'${domain}' does not look like a bare domain (no https://, no path)"
-    fi
+    validate_domain "${domain}"
     if grep -qxF "${domain}" "${ALLOWLIST}"; then
         ok "'${domain}' already allowlisted"
         return
@@ -176,12 +237,16 @@ cmd_allow() {
     cmd_restart
 }
 
-case "${1:-}" in
-    up)      cmd_up ;;
-    down)    cmd_down ;;
-    status)  cmd_status ;;
-    restart) cmd_restart ;;
-    logs)    cmd_logs ;;
-    allow)   shift; cmd_allow "${1:-}" ;;
-    *)       sed -n '2,15p' "${BASH_SOURCE[0]}"; exit 2 ;;
-esac
+# Source-guard: tests/run-tests.sh sources this file to unit-test the pure
+# functions; the CLI must only run when executed directly.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    case "${1:-}" in
+        up)      cmd_up ;;
+        down)    cmd_down ;;
+        status)  cmd_status ;;
+        restart) cmd_restart ;;
+        logs)    cmd_logs ;;
+        allow)   shift; cmd_allow "${1:-}" ;;
+        *)       sed -n '2,15p' "${BASH_SOURCE[0]}"; exit 2 ;;
+    esac
+fi

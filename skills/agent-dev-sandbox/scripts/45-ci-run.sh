@@ -69,6 +69,12 @@ die()  { echo -e "  ${RED}✗ $1${NC}" >&2; exit 1; }
 
 usage() { sed -n '/^# Usage:/,/^# =\{70,\}$/p' "${BASH_SOURCE[0]}" | sed '1d;$d'; }
 
+# Strip userinfo from URLs before anything reaches a log or an artifact
+# (audit M-9: https://token@host/... used to be echoed and stored verbatim).
+redact_url() {
+    printf '%s' "$1" | sed -E 's#(://)[^/@:?]+:[^/@]+@#\1[REDACTED]@#g; s#(://)[^/@:?]+@#\1[REDACTED]@#g'
+}
+
 # Set by cmd_run, read by write_summary (avoids ambiguous positional plumbing).
 RUN_COMMAND=()
 RUN_COPIED=()
@@ -99,6 +105,13 @@ reason_for() {
 # run
 # ============================================================================
 cmd_run() {
+    # jq is required on the HOST for summaries and `list` (audit M-6: it is
+    # installed by bootstrap, but a missing jq used to surface only AFTER a
+    # run — aborting teardown under set -e and leaving the container behind,
+    # with exit 127 colliding with the podman-error code).
+    command -v jq >/dev/null 2>&1 \
+        || die "jq is required on the host — run scripts/10-host-bootstrap.sh (or: sudo apt install jq)"
+
     local repo="" src="" run_id="" env_file="" memory="6g" cpus="4" timeout_s=3600
     local image="${IMAGE}:${TAG}"
     local keep=0 skip_audit=0 read_only=0 use_cache=1
@@ -236,7 +249,7 @@ cmd_run() {
     echo "============================================"
     echo "  CI run ${run_id}"
     echo "    image:    ${image}"
-    echo "    source:   ${repo:-${src_dir:-empty workspace}}"
+    echo "    source:   $(redact_url "${repo:-${src_dir:-empty workspace}}")"
     echo "    command:  ${run_command[*]}"
     echo "    env file: ${env_note}"
     echo "    cache:    $([ "${use_cache}" -eq 1 ] && echo shared || echo 'isolated (--no-cache-vol)')"
@@ -266,17 +279,25 @@ cmd_run() {
     trap - INT TERM
 
     # --- collect well-known artifacts -------------------------------------------------
+    # Containment (audit M-9): the run directory is workload-controlled, so
+    # (a) cp -rP — symlinks are copied as symlinks, never followed — and
+    # (b) a match whose realpath escapes the run dir is skipped entirely.
     local -a copied=()
     if [ -n "${copy_root}" ]; then
         local -a default_arts=(playwright-report test-results coverage dist build junit.xml)
         shopt -s nullglob
-        local p f
+        local p f real
         for p in "${default_arts[@]}" "${extra_arts[@]}"; do
             # copy_root is quoted (paths with spaces stay whole); ${p} is left
             # unquoted on purpose so --artifact-path may use shell globs.
             for f in "${copy_root}"/${p}; do
-                if [ -e "$f" ]; then
-                    cp -r "$f" "${art_dir}/" && copied+=("$(basename "$f")")
+                if [ -e "$f" ] || [ -L "$f" ]; then
+                    real="$(realpath -e "$f" 2>/dev/null || true)"
+                    if [ -n "${real}" ] && [[ "${real}" == "${copy_root}"/* ]]; then
+                        cp -rP "$f" "${art_dir}/" && copied+=("$(basename "$f")")
+                    else
+                        echo -e "  ${YELLOW}○${NC} skipped '${p}': resolves outside the run directory (symlink containment)"
+                    fi
                 fi
             done
         done
@@ -286,8 +307,11 @@ cmd_run() {
     RUN_COPIED=("${copied[@]}")
     RUN_SECONDS=${SECONDS}
 
+    # Summary failures must not skip teardown (audit M-6): finish_run always
+    # runs; a broken summary is reported, not fatal to cleanup.
     write_summary "${rc}" "${run_id}" "${image}" "${repo}" "${src_dir}" \
-        "${started_at}" "${art_dir}" "${use_cache}" "${read_only}" "${skip_audit}"
+        "${started_at}" "${art_dir}" "${use_cache}" "${read_only}" "${skip_audit}" \
+        || echo -e "  ${YELLOW}○${NC} run-summary.json could not be written (jq error above)"
     finish_run "${rc}" "${ct}" "${run_dir}" "${src_dir}" "${keep}" "${art_dir}"
 }
 
@@ -314,7 +338,7 @@ write_summary() {
     fi
 
     local source_type="empty" source_value=""
-    if [ -n "${repo}" ]; then source_type="repo"; source_value="${repo}"
+    if [ -n "${repo}" ]; then source_type="repo"; source_value="$(redact_url "${repo}")"
     elif [ -n "${src}" ]; then source_type="src"; source_value="${src}"; fi
 
     jq -n \
@@ -448,4 +472,9 @@ main() {
         *)     usage; exit 2 ;;
     esac
 }
-main "$@"
+
+# Source-guard: tests/run-tests.sh sources this file to unit-test the pure
+# functions; the CLI must only run when executed directly.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

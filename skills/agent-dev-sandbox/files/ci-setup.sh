@@ -32,6 +32,16 @@ export DEBIAN_FRONTEND=noninteractive
 export npm_config_fund=false          # npm: no funding noise in CI logs
 export CI_ARTIFACTS_DIR=/artifacts
 export PLAYWRIGHT_BROWSERS_PATH=/home/dev/.cache/ms-playwright
+# Node >= 24 built-in fetch ignores proxy env vars unless this is set
+# (verified: NODE_USE_ENV_PROXY shipped in Node 24.0.0) — audit L-3.
+export NODE_USE_ENV_PROXY=1
+
+# URL display helper: strip userinfo before anything reaches a log or an
+# artifact (audit M-9: https://token@host/... used to be echoed verbatim into
+# console.log). The full URL is still used for the clone itself.
+redact_url() {
+    printf '%s' "$1" | sed -E 's#(://)[^/@:?]+:[^/@]+@#\1[REDACTED]@#g; s#(://)[^/@:?]+@#\1[REDACTED]@#g'
+}
 
 # --- 1. Shared package caches (bind-mounted host dir, not a named volume) ----
 # /cache is the shared cache tree under ~/agent-workspaces/__ci/cache on the
@@ -74,13 +84,19 @@ if [ "${CI_SKIP_AUDIT:-0}" != "1" ]; then
     a_nnp="$(awk '/^NoNewPrivs/ {print $2}' /proc/self/status)"
     [ "${a_nnp}" = "1" ] || audit_fail=1
 
-    # Direct egress (proxy vars stripped) must FAIL — no route exists.
-    if env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY \
-            curl -sS --max-time 5 -o /dev/null https://example.com 2>/dev/null; then
-        a_direct="open"; audit_fail=1
-    else
-        a_direct="blocked"
-    fi
+    # Direct egress (proxy vars stripped) must FAIL at the network layer —
+    # tested with an IP literal so DNS cannot mask the result, and classified
+    # by curl's exit code: only 7 (unreachable) / 28 (timeout) count as
+    # "blocked"; anything else is an inconclusive result and FAILS the audit
+    # (audit C-1/H-1: the old name-based check counted any error as blocked).
+    D_RC=0
+    env -u http_proxy -u https_proxy -u HTTP_PROXY -u HTTPS_PROXY \
+        curl -sS --connect-timeout 4 --max-time 5 -o /dev/null http://1.1.1.1/ 2>/dev/null || D_RC=$?
+    case "${D_RC}" in
+        7|28) a_direct="blocked" ;;
+        0)    a_direct="open"; audit_fail=1 ;;
+        *)    a_direct="error(exit ${D_RC})"; audit_fail=1 ;;
+    esac
 
     # External DNS must FAIL — aardvark answers container names only.
     if getent hosts example.com >/dev/null 2>&1; then
@@ -89,12 +105,18 @@ if [ "${CI_SKIP_AUDIT:-0}" != "1" ]; then
         a_dns="blocked"
     fi
 
-    # Non-allowlisted domain through the proxy must return Squid's 403.
-    a_deny="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.net 2>/dev/null || echo 000)"
+    # Non-allowlisted domain through the proxy must be denied at CONNECT.
+    # The verdict is %{http_connect} (audit C-1: %{http_code} reads 000 on a
+    # denied CONNECT; the old `|| echo 000` fallback made the value "000000"
+    # and the check unpassable). If curl cannot even reach the proxy, the
+    # value stays 000 and the audit correctly fails.
+    a_deny="$(curl -sS --max-time 10 -o /dev/null -w '%{http_connect}' https://example.net 2>/dev/null)"
+    a_deny="${a_deny:-000}"
     [ "${a_deny}" = "403" ] || audit_fail=1
 
     # Allowlisted domain through the proxy must work (also proves gateway up).
-    a_allow="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.com 2>/dev/null || echo 000)"
+    a_allow="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.com 2>/dev/null)"
+    a_allow="${a_allow:-000}"
     [ "${a_allow}" = "200" ] || audit_fail=1
 
     jq -n \
@@ -125,8 +147,8 @@ fi
 # --- 4. Optional repo checkout (through the allowlist proxy) ------------------
 if [ -n "${CI_REPO_URL:-}" ]; then
     repo_dir="/workspace/$(basename "${CI_REPO_URL%.git}")"
-    echo "[ci] shallow-cloning ${CI_REPO_URL} via allowlist proxy…"
-    git clone --depth 1 "${CI_REPO_URL}" "${repo_dir}"
+    echo "[ci] shallow-cloning $(redact_url "${CI_REPO_URL}") via allowlist proxy…"
+    git clone --depth 1 -- "${CI_REPO_URL}" "${repo_dir}"
     cd "${repo_dir}"
 fi
 

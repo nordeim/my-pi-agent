@@ -11,7 +11,11 @@
 # ============================================================================
 set -uo pipefail
 
-MODE="${1:-}"
+case "${1:-}" in
+    "")       MODE="" ;;
+    --post)   MODE="--post" ;;
+    *)        echo "unknown option: $1 (only --post is supported)" >&2; exit 2 ;;
+esac
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 ok()   { echo -e "  ${GREEN}PASS${NC}  $1"; }
@@ -35,7 +39,7 @@ if [ -r /etc/os-release ]; then
     if [ "${ID:-}" = "debian" ] && [ "${VERSION_ID:-}" = "13" ]; then
         ok "Debian 13 (${PRETTY_NAME:-trixie})"
     else
-        fail_b "This blueprint targets Debian 13; found ${PRETTY_NAME:-unknown}. Use --force judgment only if you accept untested behavior."
+        fail_b "This blueprint targets Debian 13; found ${PRETTY_NAME:-unknown} — the scripts rely on trixie package names and versions. Do not proceed on other distributions."
     fi
 else
     fail_b "/etc/os-release unreadable — cannot identify distribution"
@@ -108,6 +112,25 @@ if [ "${MODE}" = "--post" ]; then
         ok "user lingering enabled (gateway survives logout)"
     else
         warn_w "user lingering not enabled — gateway quadlet will stop when you log out"
+    fi
+
+    # jq is required on the HOST by 45-ci-run.sh (installed by bootstrap;
+    # audit M-6: it used to be an undeclared dependency).
+    if command -v jq >/dev/null 2>&1; then
+        ok "jq present (required by 45-ci-run.sh)"
+    else
+        warn_w "jq missing — CI runs (45-ci-run.sh) will refuse to start: sudo apt install jq"
+    fi
+
+    # The --internal network semantics (no default route, aardvark answering
+    # container names only) are guaranteed by netavark (audit M-6).
+    if command -v podman >/dev/null 2>&1; then
+        NETBACKEND="$(podman info --format '{{.Host.NetworkBackend}}' 2>/dev/null || true)"
+        case "${NETBACKEND}" in
+            netavark) ok "podman network backend: netavark (--internal semantics as documented)" ;;
+            "")       : ;;  # podman info failed; already reported above
+            *)        warn_w "podman network backend is '${NETBACKEND}', not netavark — --internal DNS/routing semantics are unverified on this setup" ;;
+        esac
     fi
 else
     command -v podman >/dev/null 2>&1 && info "podman $(podman --version | awk '{print $3}') already installed" \

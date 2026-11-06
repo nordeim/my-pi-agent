@@ -18,7 +18,7 @@
 #   scripts/40-workspace.sh start|stop|status   <name>
 #   scripts/40-workspace.sh restart <name>      # recreate => re-reads env file
 #   scripts/40-workspace.sh list
-#   scripts/40-workspace.sh snapshot <name>     # image commit + home backup
+#   scripts/40-workspace.sh snapshot <name>     # image commit (env stripped) + home backup
 #   scripts/40-workspace.sh destroy <name> [--purge-home] [--purge-workspace]
 # ============================================================================
 set -euo pipefail
@@ -37,8 +37,24 @@ ok()   { echo -e "  ${GREEN}✓${NC} $1"; }
 die()  { echo -e "  ${RED}✗ $1${NC}" >&2; exit 1; }
 
 validate_name() {
-    [[ "${NAME}" =~ ^[a-z][a-z0-9-]{0,38}$ ]] || die "workspace name must be lowercase letters/digits/hyphens, start with a letter, max 39 chars (got: '${NAME}')"
-    [[ "${NAME}" != __* ]] || die "names starting with '__' are reserved (50-verify.sh canary '__verify', 45-ci-run.sh ephemeral runs '__ci-*')"
+    # Reserved '__' namespace first (audit C-1: the old regex rejected
+    # '__verify' BEFORE this check could run, so the 50-verify.sh canary —
+    # and with it the whole Phase-4 gate — could never be created).
+    # ALLOW_RESERVED_NAME=1 is the internal channel used by 50-verify.sh.
+    if [[ "${NAME}" == __* ]]; then
+        if [ "${ALLOW_RESERVED_NAME:-0}" != "1" ]; then
+            die "names starting with '__' are reserved (50-verify.sh canary '__verify', 45-ci-run.sh runs '__ci-*')"
+        fi
+        [[ "${NAME}" =~ ^__[a-z0-9][a-z0-9-]{0,37}$ ]] || die "reserved names must be '__' + lowercase alnum/hyphens (got: '${NAME}')"
+    else
+        [[ "${NAME}" =~ ^[a-z][a-z0-9-]{0,38}$ ]] || die "workspace name must be lowercase letters/digits/hyphens, start with a letter, max 39 chars (got: '${NAME}')"
+    fi
+}
+
+validate_resources() { # <memory> <cpus> — audit M-4: these values used to
+    # reach a sourced meta file unvalidated (host-side command injection).
+    [[ "${1:-}" =~ ^[0-9]+[bkmgt]?$ ]] || die "--memory must look like 512m / 6g / 2 (podman syntax), got: '${1:-}'"
+    [[ "${2:-}" =~ ^[0-9]+(\.[0-9]+)?$ ]] || die "--cpus must be a plain number, got: '${2:-}'"
 }
 
 ctname()       { echo "agent-${NAME}"; }
@@ -59,7 +75,9 @@ write_env_template() {
         return
     fi
     mkdir -p "${CFG_ROOT}"
-    cat > "$f" <<EOF
+    # umask 077: the template is created secret-safe from the first byte
+    # (audit M-4: it used to exist 0644 between creation and chmod).
+    ( umask 077; cat > "$f" <<EOF
 # Secrets for workspace '${NAME}' — injected into the container at start ONLY.
 # Lives on the host, outside every container and image. Never commit it.
 # Fill in the keys you use, uncomment, then: scripts/40-workspace.sh restart ${NAME}
@@ -70,6 +88,7 @@ write_env_template() {
 #GIT_AUTHOR_NAME=
 #GIT_AUTHOR_EMAIL=
 EOF
+    )
     chmod 600 "$f"
     ok "created env template $f — EDIT IT to add API keys (mode 600)"
 }
@@ -104,7 +123,7 @@ clone_repo() {
     local repo="$1"
     local dest; dest="/workspace/$(basename "${repo%.git}")"
     echo "  → cloning ${repo} through the allowlist proxy…"
-    if podman exec --workdir /workspace "$(ctname)" git clone "${repo}" "${dest}"; then
+    if podman exec --workdir /workspace "$(ctname)" git clone -- "${repo}" "${dest}"; then
         ok "cloned to ${WS_ROOT}/${NAME}/$(basename "${repo%.git}")"
     else
         echo -e "  ${YELLOW}○${NC} clone failed — is the git host in files/squid/allowlist.txt? Add it: 30-gateway.sh allow <domain>"
@@ -123,6 +142,7 @@ cmd_create() {
         shift
     done
     validate_name
+    validate_resources "${memory}" "${cpus}"
     podman image exists "${IMAGE}:${TAG}" 2>/dev/null || die "image ${IMAGE}:${TAG} not found — run scripts/20-build-image.sh"
     podman container exists "$(ctname)" 2>/dev/null && die "workspace '${NAME}' already exists"
     ensure_gateway_up
@@ -173,19 +193,57 @@ cmd_list() {
 
 cmd_snapshot() {
     local ts; ts="$(date +%Y%m%d-%H%M%S)"
-    podman commit "$(ctname)" "ws-snap-${NAME}:${ts}" >/dev/null
-    ok "container state committed as ws-snap-${NAME}:${ts}"
-    podman run --rm -v "agent-home-${NAME}:/from:ro" -v "${WS_ROOT}:/to" \
-        "${IMAGE}:${TAG}" tar czf "/to/${NAME}-home-${ts}.tar.gz" -C /from . >/dev/null
-    ok "home volume backed up to ${WS_ROOT}/${NAME}-home-${ts}.tar.gz"
+    # H-3 (audit): podman commit copies the container's environment — every
+    # --env-file secret included — into the image config (verified against
+    # podman 5.4 libpod/container_commit.go). Blank all env-file keys in the
+    # committed image; the remaining env (proxy/browsers vars) holds no
+    # secrets. Rotate keys after snapshotting a workspace that had live
+    # secrets, and never push a ws-snap-* image anywhere.
+    local -a changes=()
+    local envf; envf="$(env_file)"
+    if [ -f "${envf}" ]; then
+        local line key
+        while IFS= read -r line || [ -n "${line}" ]; do
+            line="${line%%#*}"; key="${line%%=*}"
+            [[ "${key}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] && changes+=(--change "ENV ${key}=")
+        done < "${envf}"
+    fi
+    podman commit ${changes[@]+"${changes[@]}"} "$(ctname)" "ws-snap-${NAME}:${ts}" >/dev/null
+    ok "container state committed as ws-snap-${NAME}:${ts} (env-file keys blanked)"
+    # Home-volume backup — hardened helper (audit M-5): no network, no caps,
+    # keep-id so container uid 1000 owns both the read-only source volume and
+    # the target dir; output under umask 077 in a 0700 snapshots dir.
+    local snapdir="${WS_ROOT}/snapshots"
+    mkdir -p "${snapdir}" && chmod 700 "${snapdir}"
+    ( umask 077
+      podman run --rm \
+        --network none --cap-drop=ALL --security-opt no-new-privileges \
+        --userns=keep-id:uid=1000,gid=1000 \
+        -v "agent-home-${NAME}:/from:ro" -v "${snapdir}:/to" \
+        "${IMAGE}:${TAG}" tar czf "/to/${NAME}-home-${ts}.tar.gz" -C /from . >/dev/null )
+    ok "home volume backed up to ${snapdir}/${NAME}-home-${ts}.tar.gz (dir 0700)"
+}
+
+read_meta() { # <meta-file> — sets MEMORY/CPUS; dies on unknown keys.
+    # Parse KEY=VALUE with read — NEVER source the meta file (audit M-4:
+    # a crafted --memory value used to execute as shell code here).
+    local f="$1" key val
+    MEMORY="6g"; CPUS="4"
+    while IFS='=' read -r key val; do
+        case "${key}" in
+            MEMORY) MEMORY="${val}" ;;
+            CPUS)   CPUS="${val}" ;;
+            *) die "unknown meta key '${key}' in ${f} — delete the file and re-create the workspace" ;;
+        esac
+    done < "${f}"
 }
 
 cmd_restart() {
     [ -f "$(meta_file)" ] || die "no meta file for '${NAME}' — recreate it with: create ${NAME}"
-    # shellcheck disable=SC1090
-    source "$(meta_file)"
+    read_meta "$(meta_file)"
+    validate_resources "${MEMORY}" "${CPUS}"
     podman rm -f "$(ctname)" >/dev/null 2>&1 || die "workspace '${NAME}' has no container"
-    run_workspace "${MEMORY:-6g}" "${CPUS:-4}"
+    run_workspace "${MEMORY}" "${CPUS}"
     podman exec "$(ctname)" seed-playwright-browsers
     ok "'${NAME}' recreated — env file re-read, new keys now active"
 }
@@ -220,16 +278,21 @@ main() {
     local cmd="$1"; shift
     case "${cmd}" in
         create)   NAME="${1:?usage: create <name> [options]}"; shift; cmd_create "$@" ;;
-        shell)    NAME="${1:?usage: shell <name>}"; cmd_shell ;;
+        shell)    NAME="${1:?usage: shell <name>}"; validate_name; cmd_shell ;;
         exec)     [ $# -ge 2 ] || die "usage: exec <name> <cmd...>"; cmd_exec "$@" ;;
-        start)    NAME="${1:?usage: start <name>}"; cmd_start ;;
-        stop)     NAME="${1:?usage: stop <name>}"; cmd_stop ;;
-        status)   NAME="${1:?usage: status <name>}"; cmd_status ;;
-        restart)  NAME="${1:?usage: restart <name>}"; cmd_restart ;;
+        start)    NAME="${1:?usage: start <name>}"; validate_name; cmd_start ;;
+        stop)     NAME="${1:?usage: stop <name>}"; validate_name; cmd_stop ;;
+        status)   NAME="${1:?usage: status <name>}"; validate_name; cmd_status ;;
+        restart)  NAME="${1:?usage: restart <name>}"; validate_name; cmd_restart ;;
         list)     cmd_list ;;
-        snapshot) NAME="${1:?usage: snapshot <name>}"; cmd_snapshot ;;
-        destroy)  NAME="${1:?usage: destroy <name> [--purge-home] [--purge-workspace]}"; shift; cmd_destroy "$@" ;;
+        snapshot) NAME="${1:?usage: snapshot <name>}"; validate_name; cmd_snapshot ;;
+        destroy)  NAME="${1:?usage: destroy <name> [--purge-home] [--purge-workspace]}"; validate_name; shift; cmd_destroy "$@" ;;
         *) sed -n '2,21p' "${BASH_SOURCE[0]}"; exit 2 ;;
     esac
 }
-main "$@"
+
+# Source-guard: tests/run-tests.sh sources this file to unit-test the pure
+# functions; the CLI must only run when executed directly.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

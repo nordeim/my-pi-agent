@@ -1,0 +1,10 @@
+# shellcheck configuration for this bundle (audit M-11: a lint config used
+# to be missing entirely).
+#
+# Deliberately enabled idioms:
+#   SC2015  `A && ok || bad` assertion chains — ok/bad never fail, so the
+#           classic if-then-else caveat does not apply (tests + verify suite)
+#   SC2016  single-quoted remote-shell snippets intentionally not expanded
+#           locally (podman exec / ssh payloads)
+#   SC2030/2031  test harness exports inside subshells on purpose
+disable=SC2015,SC2016,SC2030,SC2031
