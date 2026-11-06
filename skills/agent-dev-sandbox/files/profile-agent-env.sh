@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 # /etc/profile.d/agent-env.sh — interactive login-shell setup for the dev user.
 #
 # Runtime environment for NON-interactive processes (proxy vars, browser path)
