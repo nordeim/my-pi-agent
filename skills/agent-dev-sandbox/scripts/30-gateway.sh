@@ -186,12 +186,20 @@ cmd_status() {
     echo "  networks:"
     podman network ls --format "    {{.Name}}  {{.Driver}}" | grep -E "agent-(egress|internal)" || echo "    (missing — run: $0 up)"
     echo "  live allowlist probe (expect status=200 through the proxy):"
-    local probe="000"
+    # Capture curl's output DIRECTLY, with a `|| :` guard. The old
+    # `... || echo 000` had two defects (audit C-1's third defect, cleaned up
+    # in the second pass): (a) when the command exited non-zero AFTER -w had
+    # already printed "000", the fallback APPENDED a second code ("000000");
+    # (b) conversely, without any fallback an unguarded assignment would
+    # abort this script under `set -e` with no diagnostic. The guard keeps
+    # control flow alive; an empty capture is normalized to 000 below.
+    local probe=""
     probe="$(podman run --rm --network "${NET_INTERNAL}" \
             agent-dev-sandbox:1 \
             curl -sS --max-time 15 --proxy "http://${GW_NAME}:3128" \
                  -o /dev/null -w '%{http_code}' \
-                 https://registry.npmjs.org 2>/dev/null || echo 000)"
+                 https://registry.npmjs.org 2>/dev/null)" || :
+    probe="${probe:-000}"
     # Audit M-7: curl exits 0 on ANY HTTP status — 403/500 used to print
     # "proxy path works end-to-end". Only 200 passes now.
     if [ "${probe}" = "200" ]; then

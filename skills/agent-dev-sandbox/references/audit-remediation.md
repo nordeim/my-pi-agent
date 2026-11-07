@@ -168,11 +168,17 @@ endpoints).
 5. redact_url: strips `user:pass@` and `user@` from URLs.
 6. reason_for: exit-code mapping contract.
 7. C-1 regression: mock deny-CONNECT proxy; the fixed expression must
-   observe 403 via `%{http_connect}`.
+   observe 403 via `%{http_connect}` — and, second pass, the same guarded
+   expression must SURVIVE `set -euo pipefail` against an unreachable
+   proxy (no abort before the audit json is written).
 8. M-9 regression: `cp -rP` must not follow a planted symlink.
 9. Doc-lint: MD and HTML contain no stale markers (`Node.js 16`,
-   `*.githubusercontent.com`, `cap-dropped`-without-qualification), and
-   pinned versions agree between BLUEPRINT.md and the Containerfile.
+   `*.githubusercontent.com`, `stdio:stderr`), and pinned versions agree
+   between BLUEPRINT.md and the Containerfile.
+10. L-2 second pass: `next_free_range` parses colon-separated
+    `/etc/subuid` lines (`login:first:count`) — an existing range must
+    yield the NEXT free range, never an overlapping one; garbage lines are
+    skipped; missing/empty files fall back to the default allocation.
 
 ## Deferred to a live host (unchanged ownership)
 
@@ -183,3 +189,44 @@ endpoints).
   Tier-1/Tier-2 evidence gates (this environment has no podman/KVM).
 - QEMU `restrict=on` + `guestfwd` behavior against QEMU 10 (docs-verified
   here; the `verify` subcommand asserts it on the real host).
+
+## Second-pass validation — 2026-11-07
+
+An independent re-validation of the remediated bundle (same method as the
+audit: every file read in full; claims checked against executable truth).
+**All 22 original finding-fixes were re-verified as present and correct**
+(bash -n clean on 13 scripts; ShellCheck 0.11.0 zero warnings; test suite
+green; BLUEPRINT.html regenerated from BLUEPRINT.md byte-identical; PDF
+text spot-checks: remediated claims present, stale markers absent).
+Four residual defects — three of them introduced by or surviving the first
+remediation pass — were found, fixed, and covered by new regression tests:
+
+| # | Severity | Location | Defect (all reproduced before the fix) | Fix + test |
+|---|---|---|---|---|
+| S-1 | HIGH | `10-host-bootstrap.sh` `next_free_range` | `/etc/subuid` is colon-separated (`login:first:count`, man subuid) but the L-2 fix read whitespace fields — `end` was always empty, so the function ALWAYS returned 100000-165535 and the cross-user overlap L-2 claimed to fix could still occur on shared hosts. Reproduced: `alice:100000:65536` input → `max_end=0` | Parse with `IFS=:`, numeric field guards, `end = first + count - 1`; output contract documented against `usermod --add-subuids FIRST-LAST`. Tests: 6 cases incl. failing-before/passing-after overlap regression |
+| S-2 | HIGH | `files/ci-setup.sh` (a_deny/a_allow), `scripts/60-tier2-microvm.sh` (verify probes 1/3/4) | Under `set -euo pipefail`, an UNGUARDED `var="$(curl …)"` ABORTS the script when curl fails (reproduced: `bash -euo pipefail -c 'x=$(false); …'` dies). With the gateway down — exactly the scenario the audit exists to catch — ci-setup died with curl's exit code BEFORE writing isolation-audit.json (mislabeling an audit failure 66 as "command-failed", no evidence), and Tier-2 `verify` died silently instead of printing its diagnostics | `|| :` guards on the probe assignments (value semantics unchanged: empty capture → `000` → check fails honestly). Test: the guarded expression must survive `set -e` against an unreachable proxy and fall back to 000 |
+| S-3 | MEDIUM | `scripts/30-gateway.sh` `status` probe | Leftover `… || echo 000` append — the C-1(3) pattern fixed in ci-setup but missed here: a failed probe displayed `status=000000` (fail-closed, but wrong evidence) | Captured directly with the `|| :` guard + `${probe:-000}` normalization, consistent with the ci-setup fix |
+| S-4 | LOW | `scripts/50-verify.sh`, `scripts/60-tier2-microvm.sh` verify check 5 | (a) If the `podman exec` channel itself was dead, the DNS negative check could pass vacuously (any error looks "blocked"). (b) `sudo nft list ruleset | grep -q 'dport 53'` passed vacuously when sudo/ssh failed (e.g. after hardening §4 revokes guest sudo) | (a) Dead-channel guard: `ws true` must succeed before any check runs — the suite exits with a diagnostic instead of tallying meaningless passes. (b) The ruleset read must succeed; an empty capture fails the check as "unverifiable" |
+
+Documentation reconciliations in the same pass:
+
+- `SKILL.md` manifest now lists `generate_blueprint_pdf.py` (it was shipped
+  but undocumented — an L-4-class gap), with its portability limits stated.
+- `pdf-sources/README.md` no longer claims the PDF pipeline is "not
+  shipped"; it points at the actual generator and explains the producing
+  environment it depends on.
+- The doc-lint description above now matches the actual test patterns
+  (`stdio:stderr`, not "cap-dropped-without-qualification" — the gateway
+  legitimately IS cap-dropped since M-1, so that marker is not stale).
+- `BLUEPRINT.md`/`.html`/`.pdf` are UNCHANGED by this pass: the validated
+  fixes are in scripts, tests and reference docs, so all three editions
+  remain in sync (verified: HTML regeneration byte-identical; PDF text
+  spot-checks).
+- `README.md` (deliverables) updated: new archive name
+  `agent-dev-sandbox-html.tar.gz`, second-pass state entry, refreshed
+  verification numbers (tests now 45, was 38).
+
+Second-pass verification run on this bundle: `bash -n` clean (13 scripts),
+ShellCheck 0.11.0 zero warnings, `tests/run-tests.sh` **45 passed / 0
+failed**, HTML byte-identical regeneration, doc-lint green, PDF spot-checks
+green. Still deferred to a live host: the same four items listed above.

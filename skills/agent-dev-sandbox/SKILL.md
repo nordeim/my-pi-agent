@@ -59,7 +59,8 @@ Design rationale, comparison matrix, and every version pin are documented in
 | `BLUEPRINT.pdf` | Print edition of the blueprint (cover, TOC, 14 sections, system-design figure, 5 tables — the MD/HTML editions render the fifth, the CI exit-code contract, as prose) |
 | `BLUEPRINT.html` | Interactive single-file edition: search, dark/light theme, Day-0 checklist with saved progress, copy buttons — fully offline |
 | `pdf-sources/` | Editable build sources + the HTML generator (regenerate the HTML from the MD; see pdf-sources/README.md) |
-| `references/audit-remediation.md` | 2026-11-06 external audit: validation of all 22 findings + the remediation applied |
+| `generate_blueprint_pdf.py` | ReportLab body generator behind `BLUEPRINT.pdf` — kept for provenance; depends on the producing repo's `./skills/pdf` helper package and a cover-render/merge step, so it is not runnable from inside this bundle alone (see pdf-sources/README.md) |
+| `references/audit-remediation.md` | 2026-11-06 external audit: validation of all 22 findings + the remediation applied — and the 2026-11-07 second-pass validation (4 residual defects found and fixed) |
 | `files/Containerfile` | Tier-1 image: Debian 13 + Python 3.13 + Node 24 + Bun + browsers + agent CLIs (version-pinned ARGs) |
 | `files/ci-setup.sh` | In-container CI preamble (bind-mounted per run, NOT baked): CI env, caches, browsers, isolation self-audit |
 | `files/profile-agent-env.sh` | `/etc/profile.d` setup inside the image (login shells) |
@@ -77,7 +78,7 @@ Design rationale, comparison matrix, and every version pin are documented in
 | `scripts/45-ci-run.sh` | Ephemeral CI runs: `run/list/reap/cache` (same image, throwaway) |
 | `scripts/50-verify.sh` | End-to-end verification suite (positive AND negative checks) |
 | `scripts/60-tier2-microvm.sh` | Micro-VM tier: `base/create/ssh/verify/start/stop/list/destroy` |
-| `tests/run-tests.sh` | Container-free test suite: pure-function units, C-1/M-9 regressions, doc-lint — run after ANY script edit |
+| `tests/run-tests.sh` | Container-free test suite: pure-function units, audit regressions (C-1/H-4/M-9/L-2), doc-lint — run after ANY script edit |
 | `.shellcheckrc` | Lint config documenting the bundle's accepted shell idioms (run with `tests/run-tests.sh`) |
 | `references/troubleshooting.md` | Symptom→cause→fix, keyed §1-§9 |
 | `references/hardening.md` | Beyond-baseline options with costs; explicit non-goals |

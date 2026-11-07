@@ -68,12 +68,20 @@ ok "packages installed"
 # subuid/subgid ranges: required for --userns=keep-id and rootless networking.
 # Audit L-2: the fixed 100000-165535 range could overlap another user's
 # allocation on shared hosts — allocate the NEXT FREE range instead.
+# NOTE: /etc/subuid(5) lines are "login:first:count" — COLON-separated. The
+# first-pass fix read whitespace fields, so `end` was always empty and the
+# function silently degenerated back to the fixed 100000-165535 allocation
+# (second-pass finding, 2026-11-07). Parse with IFS=: and compute the end.
+# Output contract: "FIRST LAST" — usermod -v/-w take FIRST-LAST (usermod --help:
+# "--add-subuids FIRST-LAST"), i.e. a 65536-uid range per allocation.
 next_free_range() { # <subuid|subgid file>
-    local file="$1" max_end=0
+    local file="$1" max_end=0 start count end
     [ -f "${file}" ] || { echo "100000 165535"; return; }
-    local end
-    while read -r _ _ end; do
-        [ "${end:-0}" -gt "${max_end}" ] && max_end="${end}"
+    while IFS=: read -r _ start count; do
+        # Skip malformed/short/garbage lines; only numeric fields count.
+        [[ "${start:-}" =~ ^[0-9]+$ && "${count:-}" =~ ^[0-9]+$ ]] || continue
+        end=$(( start + count - 1 ))
+        [ "${end}" -gt "${max_end}" ] && max_end="${end}"
     done < "${file}"
     if [ "${max_end}" -lt 100000 ]; then
         echo "100000 165535"

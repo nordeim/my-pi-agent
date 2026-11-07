@@ -110,12 +110,18 @@ if [ "${CI_SKIP_AUDIT:-0}" != "1" ]; then
     # denied CONNECT; the old `|| echo 000` fallback made the value "000000"
     # and the check unpassable). If curl cannot even reach the proxy, the
     # value stays 000 and the audit correctly fails.
-    a_deny="$(curl -sS --max-time 10 -o /dev/null -w '%{http_connect}' https://example.net 2>/dev/null)"
+    # `|| :` (second pass, C-1): this script runs under `set -euo pipefail` —
+    # an UNGUARDED assignment of a failing command substitution would abort
+    # ci-setup with curl's exit code (e.g. 7) BEFORE the audit json is
+    # written, turning an audit failure (66, with evidence) into an
+    # unlabeled "command-failed" run with no evidence. The guard keeps
+    # control flow alive; the fallback below records the failure.
+    a_deny="$(curl -sS --max-time 10 -o /dev/null -w '%{http_connect}' https://example.net 2>/dev/null)" || :
     a_deny="${a_deny:-000}"
     [ "${a_deny}" = "403" ] || audit_fail=1
 
     # Allowlisted domain through the proxy must work (also proves gateway up).
-    a_allow="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.com 2>/dev/null)"
+    a_allow="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.com 2>/dev/null)" || :
     a_allow="${a_allow:-000}"
     [ "${a_allow}" = "200" ] || audit_fail=1
 

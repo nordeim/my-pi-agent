@@ -32,12 +32,16 @@ stale markers remain in either edition.
 
 `BLUEPRINT.pdf` is produced by a ReportLab-based pipeline (cover rendered
 from `cover.html`, body typeset from `BLUEPRINT.md`, merged and normalized
-to A4). It is intentionally NOT shipped as a script here because it depends
-on a ReportLab toolchain and system font setup that is heavier than the
-bundle itself; the HTML edition is the regenerable one. To refresh the PDF
-after editing `BLUEPRINT.md`: re-run the PDF pipeline you used to produce it
-(body → cover → merge), then verify with `pdftotext BLUEPRINT.pdf - | grep
-'<a heading or fact you changed>'` that the change landed.
+to A4). The body generator IS part of this bundle — it lives at the bundle
+root as `generate_blueprint_pdf.py` — but it is kept for **provenance**, not
+as a turnkey script: it imports the producing repository's `./skills/pdf`
+helper package (`install_font_fallback`, run from that repo's root) and
+expects a cover-render + merge step (`html2poster.js`) around it, so it
+cannot be re-run from inside this bundle alone. To refresh the PDF after
+editing `BLUEPRINT.md`: re-run the PDF pipeline you used to produce it
+(body → cover → merge) in the producing environment, then verify with
+`pdftotext BLUEPRINT.pdf - | grep '<a heading or fact you changed>'` that
+the change landed.
 
 ## Rule
 

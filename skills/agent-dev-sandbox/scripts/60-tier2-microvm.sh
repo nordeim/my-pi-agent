@@ -325,14 +325,19 @@ cmd_verify() {
     echo "  Tier-2 isolation verification inside VM '${n}' (audit H-5):"
     local fails=0
     # All checks run INSIDE the VM; the container inside is skipped on
-    # purpose — the VM boundary is what Tier 2 promises.
+    # purpose — the VM boundary is what Tier 2 promises. Every probe's
+    # output is captured with a `|| :` guard: this script runs under
+    # `set -euo pipefail`, and an unguarded assignment of a failing
+    # ssh/curl would abort verify SILENTLY (stderr suppressed) exactly
+    # when a check is failing and its diagnostic message matters most
+    # (second-pass finding, 2026-11-07).
     local out
     # 1. Direct egress must fail at the network layer (IP literal; slirp
     #    restrict=on should make this unreachable even with nftables off).
-    out="$(vm_ssh "${p}" 'curl -sS --connect-timeout 4 --max-time 5 -o /dev/null http://1.1.1.1/ >/dev/null 2>&1; echo $?' 2>/dev/null)"
-    case "${out}" in
+    out="$(vm_ssh "${p}" 'curl -sS --connect-timeout 4 --max-time 5 -o /dev/null http://1.1.1.1/ >/dev/null 2>&1; echo $?' 2>/dev/null)" || :
+    case "${out:-}" in
         7|28) ok "direct egress blocked (curl exit ${out}; QEMU restrict + nftables)" ;;
-        *)    echo -e "  ${RED}✗ direct egress NOT blocked (curl exit ${out})${NC}"; fails=$((fails+1)) ;;
+        *)    echo -e "  ${RED}✗ direct egress NOT blocked (curl exit ${out:-<empty>})${NC}"; fails=$((fails+1)) ;;
     esac
     # 2. External DNS must be blocked (no port-53 path exists).
     if vm_ssh "${p}" 'getent hosts example.com >/dev/null 2>&1'; then
@@ -341,21 +346,26 @@ cmd_verify() {
         ok "external DNS blocked"
     fi
     # 3. Non-allowlisted domain must be denied by the proxy at CONNECT.
-    out="$(vm_ssh "${p}" "curl -sS --max-time 10 -o /dev/null -w '%{http_connect}' https://example.net 2>/dev/null" 2>/dev/null)"
-    if [ "${out}" = "403" ]; then
+    out="$(vm_ssh "${p}" "curl -sS --max-time 10 -o /dev/null -w '%{http_connect}' https://example.net 2>/dev/null" 2>/dev/null)" || :
+    if [ "${out:-}" = "403" ]; then
         ok "non-allowlisted domain denied by proxy (CONNECT 403)"
     else
         echo -e "  ${RED}✗ proxy deny check: got '${out:-<empty>}' (expected 403)${NC}"; fails=$((fails+1))
     fi
     # 4. Allowlisted domain must work through the proxy.
-    out="$(vm_ssh "${p}" "curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.com 2>/dev/null" 2>/dev/null)"
-    if [ "${out}" = "200" ]; then
+    out="$(vm_ssh "${p}" "curl -sS --max-time 10 -o /dev/null -w '%{http_code}' https://example.com 2>/dev/null" 2>/dev/null)" || :
+    if [ "${out:-}" = "200" ]; then
         ok "allowlisted domain reachable via proxy"
     else
         echo -e "  ${RED}✗ proxy allow check: got '${out:-<empty>}' (expected 200 — host squid up? bootstrap --tier2)${NC}"; fails=$((fails+1))
     fi
-    # 5. Guest nftables must not allow port 53 (defense in depth).
-    if vm_ssh "${p}" 'sudo nft list ruleset' 2>/dev/null | grep -q 'dport 53'; then
+    # 5. Guest nftables must not allow port 53 (defense in depth). The
+    #    ruleset read must SUCCEED first — a failed sudo/ssh used to count
+    #    as "no rule present" (a vacuous pass; second-pass finding).
+    out="$(vm_ssh "${p}" 'sudo nft list ruleset' 2>/dev/null)" || :
+    if [ -z "${out}" ]; then
+        echo -e "  ${RED}✗ cannot read the guest nftables ruleset (sudo revoked? ssh broken?) — defense-in-depth check unverifiable${NC}"; fails=$((fails+1))
+    elif printf '%s\n' "${out}" | grep -q 'dport 53'; then
         echo -e "  ${RED}✗ guest nftables still contains a port-53 rule${NC}"; fails=$((fails+1))
     else
         ok "guest nftables: no DNS rule present"

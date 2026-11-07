@@ -1,16 +1,16 @@
 # Agent Dev Sandbox — deliverables
 
-The complete bundle lives in `agent-dev-sandbox/`. Two archives carry the
-identical tree — pick whichever your tooling prefers:
+The complete bundle lives in `agent-dev-sandbox/`. This archive carries the
+identical tree:
 
 | Archive | Size | Extract |
 |---|---|---|
-| `agent-dev-sandbox-html-v2.tar.gz` | ~634 KB | `tar xzf agent-dev-sandbox-html-v2.tar.gz` |
-| `agent-dev-sandbox.zip` | ~648 KB | `unzip agent-dev-sandbox.zip` |
+| `agent-dev-sandbox-html.tar.gz` | ~656 KB | `tar xzf agent-dev-sandbox-html.tar.gz` |
 
-`agent-dev-sandbox-html-v2.tar.gz` supersedes the earlier
-`agent-dev-sandbox-html.tar.gz` (it carries the full audit remediation plus
-the lint fix below; the old archive has been removed to avoid ambiguity).
+This archive supersedes every earlier distribution (`agent-dev-sandbox-html.tar.gz`
+v1, `agent-dev-sandbox-html-v2.tar.gz`, `agent-dev-sandbox.zip`): it carries
+the full 2026-11-06 audit remediation, the 2026-11-06(c) lint fix, and the
+2026-11-07 second-pass validation fixes.
 
 ## What is inside
 
@@ -31,9 +31,13 @@ the lint fix below; the old archive has been removed to avoid ambiguity).
   tests, doc-lint). Runs green on this bundle.
 - `references/` — troubleshooting (§1–§9), hardening, and
   `audit-remediation.md` (the 2026-11-06 external audit: all 22 findings
-  validated against this bundle, with the fixes applied and re-verified).
+  validated against this bundle, with the fixes applied and re-verified —
+  plus the 2026-11-07 second-pass validation).
 - `pdf-sources/` — editable build sources + the HTML generator and README
   (regenerate the HTML from the MD; the PDF pipeline is documented there).
+- `generate_blueprint_pdf.py` — the ReportLab body generator behind the PDF
+  edition, kept for provenance (not runnable inside the bundle alone; see
+  `pdf-sources/README.md`).
 
 ## State of this bundle
 
@@ -52,29 +56,46 @@ the lint fix below; the old archive has been removed to avoid ambiguity).
   gained a `# shellcheck shell=sh` directive; as a sourced profile.d snippet
   it previously tripped SC1008/SC1113/SC2096 and escaped linting entirely.
   The bundle's own documented gate (SKILL.md: `shellcheck -x scripts/*.sh
-  files/*.sh` must stay clean) now passes. Re-verified: tests 38/38, HTML
-  parity, archive integrity. Packaged as `agent-dev-sandbox-html-v2.tar.gz`.
+  files/*.sh` must stay clean) now passes.
+- 2026-11-07: **second-pass validation of the remediation** — all 22
+  finding-fixes re-verified against executable truth (tests, shellcheck,
+  byte-identical HTML regeneration from the MD, PDF text spot-checks);
+  four residual defects found, fixed and regression-tested: the
+  `next_free_range` colon-parsing bug that silently restored the L-2
+  subuid overlap on shared hosts, `set -euo pipefail` aborts in the CI
+  and Tier-2 probes exactly when the gateway is down (audit evidence lost
+  instead of recorded), the gateway status-probe `000000` append, and
+  vacuous-pass guards (dead exec channel in `50-verify.sh`, unreadable
+  nftables ruleset in the Tier-2 check). Documentation reconciled:
+  `generate_blueprint_pdf.py` added to the SKILL manifest, pdf-sources
+  README corrected, doc-lint description aligned with the actual tests.
+  Suite grew 38 → 45 (all green). See `references/audit-remediation.md`,
+  "Second-pass validation". Packaged as `agent-dev-sandbox-html.tar.gz`.
 
 ## Verification performed
 
 - `bash -n` clean and **shellcheck zero warnings** over all scripts —
-  remediation-era run on 0.10, re-verified on 0.11.0 after (c)
-  (`.shellcheckrc` documents the accepted idioms).
-- `tests/run-tests.sh` → **38 passed / 0 failed** (validate_name reserved
+  remediation-era run on 0.10, re-verified on 0.11.0 after (c) and again
+  after the 2026-11-07 second pass (`.shellcheckrc` documents the accepted
+  idioms).
+- `tests/run-tests.sh` → **45 passed / 0 failed** (validate_name reserved
   names, resource validation, hostile-meta parsing, allow-domain rules, URL
-  redaction, exit-code contract, mock deny-CONNECT 403 semantics, `cp -rP`
-  containment, doc-lint incl. MD↔HTML heading parity and pin agreement) —
-  re-run green after (c).
+  redaction, exit-code contract, mock deny-CONNECT 403 semantics plus
+  set -e probe survival, `cp -rP` containment, doc-lint incl. MD↔HTML
+  heading parity and pin agreement, and the colon-parsing `next_free_range`
+  regressions) — re-run green after the second pass.
 - HTML: structure, anchor integrity, self-containment, JS syntax, content
   parity with the MD, interaction tests in a headless browser, VLM visual QA
-  (light/dark/mobile PASS).
+  (light/dark/mobile PASS) — from the (b)/(c) rounds; the 2026-11-07 pass
+  re-verified MD→HTML parity by regenerating the edition from the MD and
+  diffing **byte-identical** (BLUEPRINT.md is unchanged by the second pass).
 - PDF: regenerated from the remediated content; text spot-checks (new claims
   present, stale claims absent) and VLM visual QA of cover, figure and
-  tables (PASS).
-- Archives (v2 tar + refreshed zip): gzip integrity, extraction diff against
-  source, executable-bit preservation (34/34), no nested archives, per-file
-  md5 tar↔zip↔disk agreement; the v2 tar differs from the remediation tar by
-  exactly the one directive line in `files/profile-agent-env.sh`.
+  tables (PASS) — from the (b) round; the 2026-11-07 pass re-ran the text
+  spot-checks green (PDF stays in sync: its MD source is unchanged).
+- Archive: gzip integrity, extraction diff against the source tree,
+  executable-bit preservation (34/34), no nested archives, per-file md5
+  tar↔disk agreement — verified for this archive after the second pass.
 - Not verifiable here (no podman/KVM): the live Phase-4 gate
   (`50-verify.sh` → `0 failed`), Squid's privilege drop under the hardened
   capability set, and the QEMU `restrict=on` behavior — these remain the

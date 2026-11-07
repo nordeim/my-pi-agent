@@ -12,6 +12,7 @@
 #   7. deny-CONNECT probe     (C-1 regression: 403 observed via %{http_connect})
 #   8. artifact containment   (M-9 regression: cp -rP never follows symlinks)
 #   9. doc-lint               (L-1/L-4: stale markers, edition drift, pins)
+#  10. next_free_range        (L-2 second pass: colon-separated /etc/subuid)
 # Run after ANY edit to scripts/ or the docs. Exit 0 = all green.
 # ============================================================================
 set -uo pipefail
@@ -133,6 +134,21 @@ PY
         && ok "deny probe observes 403 via %{http_connect} (old code saw 000000)" \
         || bad "deny probe got '${a_deny}'"
     kill "${MPID}" 2>/dev/null
+
+    # Second pass (C-1): the same expression, now under ci-setup's own
+    # `set -euo pipefail`, against an UNREACHABLE proxy. Without the `|| :`
+    # guard the script would abort with curl's exit code before the audit
+    # json is written (mislabeling an audit failure as a command failure);
+    # with it, control flow survives and the value falls back to 000.
+    guard_out="$(bash -euo pipefail -c '
+        a_deny="$(curl -sS --max-time 2 -o /dev/null -w "%{http_connect}" \
+                      --proxy http://127.0.0.1:1 https://example.net 2>/dev/null)" || :
+        a_deny="${a_deny:-000}"
+        echo "survived:${a_deny}"
+    ' 2>/dev/null)" || guard_out="died"
+    [ "${guard_out}" = "survived:000" ] \
+        && ok "guarded probe survives an unreachable proxy under set -e (falls back to 000)" \
+        || bad "guarded probe did not survive set -e" "${guard_out}"
 else
     skip "python3 not available"
 fi
@@ -190,6 +206,36 @@ AL="${ROOT}/files/squid/allowlist.txt"
 dl "${AL}" '^\*\.|/\*\.githubusercontent' 0 "'*.' wildcard entry"
 grep -qx 'binaries.prisma.sh' "${AL}" && ok "binaries.prisma.sh allowlisted" || bad "binaries.prisma.sh missing from allowlist"
 grep -qx '.githubusercontent.com' "${AL}" && ok "leading-dot githubusercontent entry present" || bad "leading-dot githubusercontent entry missing"
+
+echo "--- 10. next_free_range (L-2 second pass: /etc/subuid is COLON-separated) ---"
+# 10-host-bootstrap.sh re-execs itself under sudo when executed (and has no
+# main-guard), so it cannot be sourced safely — extract the pure function
+# textually instead. /etc/subuid(5) lines are "login:first:count".
+BS="${ROOT}/scripts/10-host-bootstrap.sh"
+nf() {
+    ( eval "$(sed -n '/^next_free_range()/,/^}/p' "${BS}")"
+      next_free_range "$1" )
+}
+T3="$(mktemp -d)"
+[ "$(nf "${T3}/nonexistent")" = "100000 165535" ] \
+    && ok "missing file -> default 100000-165535" || bad "missing-file default" "$(nf "${T3}/nonexistent")"
+: > "${T3}/empty"
+[ "$(nf "${T3}/empty")" = "100000 165535" ] \
+    && ok "empty file -> default 100000-165535" || bad "empty-file default" "$(nf "${T3}/empty")"
+printf 'alice:100000:65536\n' > "${T3}/one"
+[ "$(nf "${T3}/one")" = "165536 231071" ] \
+    && ok "existing range -> NEXT free range (no overlap)" \
+    || bad "did not detect alice:100000:65536 — would OVERLAP" "$(nf "${T3}/one")"
+printf 'alice:100000:65536\nbob:200000:65536\ncarol:300000:1000\n' > "${T3}/many"
+[ "$(nf "${T3}/many")" = "301000 366535" ] \
+    && ok "highest end (300999) drives the next range" || bad "multi-range next-free" "$(nf "${T3}/many")"
+printf 'garbage\nx:abc:def\nshort:100000\nalice:100000:65536\n' > "${T3}/junk"
+[ "$(nf "${T3}/junk")" = "165536 231071" ] \
+    && ok "garbage lines skipped, valid line still counted" || bad "garbage handling" "$(nf "${T3}/junk")"
+printf 'tiny:1000:1\n' > "${T3}/low"
+[ "$(nf "${T3}/low")" = "100000 165535" ] \
+    && ok "sub-100000 range ignored -> default" || bad "low-range handling" "$(nf "${T3}/low")"
+rm -rf "${T3}"
 
 echo "=================================================="
 echo "  ${PASS} passed, ${FAIL} failed, ${SKIP} skipped"

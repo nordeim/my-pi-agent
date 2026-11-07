@@ -48,6 +48,16 @@ else
         || { echo -e "${RED}canary creation FAILED — the workspace toolpath itself is broken${NC}"; exit 1; }
 fi
 
+# Dead-channel guard (second pass, audit H-1 residue): if `podman exec` into
+# the canary is broken, a NEGATIVE check would pass vacuously — any error
+# looks like "blocked" — and the suite could dishonestly tally passes.
+# Prove the exec channel first; nothing is verifiable through a dead channel.
+if ! ws true >/dev/null 2>&1; then
+    echo -e "${RED}canary ${CT} is NOT reachable (podman exec failed) — no check result is meaningful${NC}"
+    echo "  Debug: podman ps -a | grep ${CT} ; podman start ${CT} ; then re-run."
+    exit 1
+fi
+
 # --- 1. Isolation guarantees (negative checks are the point) ------------------
 section "Isolation guarantees"
 
