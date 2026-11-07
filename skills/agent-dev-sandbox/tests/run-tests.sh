@@ -13,6 +13,8 @@
 #   8. artifact containment   (M-9 regression: cp -rP never follows symlinks)
 #   9. doc-lint               (L-1/L-4: stale markers, edition drift, pins)
 #  10. next_free_range        (L-2 second pass: colon-separated /etc/subuid)
+#  11. cgroup-cap evidence    (R-6 third pass: pids/memory caps recorded in
+#                              isolation-audit.json; set -e safe capture)
 # Run after ANY edit to scripts/ or the docs. Exit 0 = all green.
 # ============================================================================
 set -uo pipefail
@@ -236,6 +238,23 @@ printf 'tiny:1000:1\n' > "${T3}/low"
 [ "$(nf "${T3}/low")" = "100000 165535" ] \
     && ok "sub-100000 range ignored -> default" || bad "low-range handling" "$(nf "${T3}/low")"
 rm -rf "${T3}"
+
+echo "--- 11. cgroup-cap evidence capture (R-6 third pass) ---"
+# ci-setup.sh records every run's pids/memory cgroup caps as audit EVIDENCE
+# (isolation-audit.json fields pids_max / memory_max). It deliberately does
+# NOT fail the audit on a `max` reading: rootless cgroup delegation varies
+# by host and 50-verify.sh treats the same condition as a SOFT warning
+# (references/troubleshooting.md §5) — the CI audit must not be stricter
+# than the Tier-1 gate it mirrors.
+CIS="${ROOT}/files/ci-setup.sh"
+grep -q -- '--arg pids_max' "${CIS}" && grep -q -- '--arg memory_max' "${CIS}" \
+    && grep -qF 'pids_max: $pids_max' "${CIS}" \
+    && ok "isolation-audit.json carries pids_max/memory_max evidence fields" \
+    || bad "ci-setup.sh lacks the cgroup-cap evidence fields"
+v="$(bash -euo pipefail -c 'a="$(cat /sys/fs/cgroup/pids.max.nonexistent 2>/dev/null || echo max)"; printf "%s" "${a}"' 2>/dev/null)" \
+    && [ "${v}" = "max" ] \
+    && ok "capture pattern survives set -e and falls back to max when the cgroup file is absent" \
+    || bad "capture pattern not set -e safe" "${v}"
 
 echo "=================================================="
 echo "  ${PASS} passed, ${FAIL} failed, ${SKIP} skipped"

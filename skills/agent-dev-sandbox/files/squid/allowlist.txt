@@ -17,6 +17,8 @@
 # NOTE (Squid): do not list a subdomain (a.example.com) before its
 # leading-dot entry (.example.com) in this file — Squid treats that as a
 # fatal configuration error at parse time.
+# NOTE: the gateway proxies only ports 80 and 443. Services on other ports
+# (e.g. 8443) require a squid.conf change, not an allowlist line.
 
 # --- OS package mirrors (apt on host images and inside Tier-2 VMs) ----------
 deb.debian.org

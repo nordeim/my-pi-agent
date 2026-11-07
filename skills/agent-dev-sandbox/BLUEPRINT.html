@@ -274,14 +274,17 @@ All external facts in this document were verified against live sources on
 <b>2026-11-05</b> (npm registry, Docker Hub, cloud.debian.org, podman
 documentation, the budget-wiser repository); audit remediations were applied
 and re-verified on <b>2026-11-06</b> (see <code>references/audit-remediation.md</code> —
-the external audit's 22 findings, their validation, and the fixes). Version
-pins appear as <code>ARG</code>s in <code>files/Containerfile</code>; bump them deliberately.</p>
+the external audit's 22 findings, their validation, and the fixes), a
+second-pass validation on <b>2026-11-07</b> closed four residual defects
+(S-1–S-4), and a third-pass review the same day validated and remediated
+its eight follow-up findings (R-1–R-8). Version pins appear as <code>ARG</code>s in
+<code>files/Containerfile</code>; bump them deliberately.</p>
       <div class="chips">
         <span class="chip"><b>14</b> sections</span>
-        <span class="chip"><b>4,227</b> words</span>
+        <span class="chip"><b>4,265</b> words</span>
         <span class="chip"><b>19</b> min read</span>
         <span class="chip">facts verified <b>2026-11-05</b></span>
-        <span class="chip">rendered <b>2026-11-06</b></span>
+        <span class="chip">rendered <b>2026-11-07</b></span>
       </div>
     </div>
     <div id="no-results"><b>No matches.</b><br>Try a shorter query — search covers section titles and body text.</div>
@@ -962,7 +965,11 @@ lockfile in CI), points npm/pip/uv/bun/pnpm caches at the shared tree,
 seeds browsers, optionally shallow-clones <code>CI_REPO_URL</code>, then — before any
 workload code runs — <strong>audits isolation</strong>: uid 1000, zero caps,
 NoNewPrivs, direct egress must fail, external DNS must fail, the proxy
-must 403 a known-denied domain and 200 an allowlisted one. Results land in
+must 403 a known-denied domain and 200 an allowlisted one; the run's
+pids/memory cgroup caps are recorded as evidence too (a <code>max</code> reading is
+reported, not failed — rootless cgroup delegation varies by host, so
+<code>50-verify.sh</code> treats the same condition as a soft warning; see
+troubleshooting §5). Results land in
 <code>artifacts/isolation-audit.json</code>; any failure exits <strong>66</strong> without running
 the command. Every CI run therefore carries its own evidence that the
 sandbox guarantees held <em>for that run</em>.</p>

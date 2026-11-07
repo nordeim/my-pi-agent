@@ -15,6 +15,18 @@ source and docs, Squid docs, QEMU docs, Node.js docs, the bun installer
 source, the budget-wiser repository, live Docker Hub and NodeSource
 endpoints).
 
+## Audit provenance
+
+- External audit report URL: https://01a1aedb-2643-732a-a055-34847c36e9cb.arena.site/
+  (user-generated, JavaScript-rendered; the findings were captured from the
+  page bundle and are recorded here — this file is the canonical
+  findings-and-dispositions record for every pass).
+- Session logs kept alongside this bundle: `remediation_log_1.md` (second
+  pass, S-1–S-4), `remediation_log_2.md` (third-pass review, R-1–R-8),
+  `remediation_log_3.md` (third-pass remediation session).
+- Validation method, every pass: full-file reads, executable reproductions,
+  primary-source checks.
+
 ## Verdicts and dispositions
 
 | ID | Sev | Verdict | Evidence summary | Disposition |
@@ -230,3 +242,45 @@ Second-pass verification run on this bundle: `bash -n` clean (13 scripts),
 ShellCheck 0.11.0 zero warnings, `tests/run-tests.sh` **45 passed / 0
 failed**, HTML byte-identical regeneration, doc-lint green, PDF spot-checks
 green. Still deferred to a live host: the same four items listed above.
+
+## Third-pass review — 2026-11-07 (R-1–R-8 + build-script fixes)
+
+A review of the remediated bundle (recorded as `remediation_log_2.md`)
+reported eight follow-up gaps. Each was validated against executable truth
+before remediation. Dispositions:
+
+| ID | Sev | Verdict | Disposition |
+|---|---|---|---|
+| R-1 | High | **False alarm** — `tests/run-tests.sh` is complete (243 lines) and green (45/45 executed); the "23 lines ending mid-function" was the reviewing session's raw-view truncation. The build script's ≥100-line integrity guard was retained | No file change |
+| R-2 | High | **Valid, already applied upstream** — the repo's `allowed-tools` line matches the recommended fix byte-for-byte (verified); the maintenance commands are agent-runnable again | No change needed |
+| R-3 | Med | **Partially valid** — `podman` (lifecycle scripts), `jq` (required on the host by `45-ci-run.sh`, checked by preflight), and `shellcheck` (the SKILL's own maintenance contract) are genuine host requirements; **`git` is not** — every host-side git invocation actually runs inside a container (`podman exec … git clone`; exhaustive grep), and the image bakes git | Applied as `["bash","sudo","podman","jq","shellcheck"]` in `SKILL.md` metadata |
+| R-4 | Med | **Valid** — the header stopped at the 2026-11-06 pass | Header now records the 2026-11-07 second pass and the third-pass review; HTML regenerated; PDF body regenerated (generator synced) with the cover reused — all three editions in sync |
+| R-5 | Low | **Valid** — pre-build size/count claims drift | `README.md` refreshed from the actual build: v2 archive name, measured size, sha256, test count, state entry, verification list |
+| R-6 | Low | **Gap valid; suggested hardening hazardous as written** — `audit_fail=1` on a `max` reading contradicts the bundle's own semantics: `50-verify.sh` treats `pids.max=max` as a SOFT warning because rootless cgroup delegation varies by host (troubleshooting §5); a hard check would fail every CI run (exit 66) on non-delegated hosts — stricter than the Tier-1 gate it mirrors | Applied as EVIDENCE, not failure: `isolation-audit.json` gains `pids_max`/`memory_max` (recorded and echoed, no fail); §12 + ci-setup header updated; 2 regression tests (structural — failing before/passing after — plus set -e survival); suite 45 → 47 |
+| R-7 | Low | **Valid** — `squid.conf` proxies only ports 80/443 (`acl web_ports port 80 443`), and the allowlist did not say so | Port note added to the `files/squid/allowlist.txt` header |
+| R-8 | Info | **Valid** — no provenance recorded | "Audit provenance" section added above |
+
+**Build-script defects found while validating**
+(`build-agent-dev-sandbox-html-tar.sh`, added to the repo alongside the
+review):
+
+| ID | Sev | Defect | Fix |
+|---|---|---|---|
+| B-1 | Fatal | `tar … -C skills agent-dev-sandbox` ran from the tmpdir root, where `skills/` does not exist (`my-pi-agent/skills/` does) — the archive step could never succeed | `-C my-pi-agent/skills` |
+| B-2 | High | The archive was written to `${OLDPWD}` = inside the bundle being archived (self-inclusion, "file changed as we read it") | Output dir captured at script start; the archive lands next to the invocation |
+| B-3 | Med | The R-4 patch needle spanned a line wrap in `BLUEPRINT.md` ("applied\nand re-verified") — a silent no-op on an unpatched repo | Wrap-tolerant regex patch, guarded against double application |
+| B-4 | Low | The lint gates covered only `files/*.sh`, missing the extensionless `files/ws-shell` that the bundle's documented 13-file gate includes | `files/ws-shell` added to the script's `bash -n` and shellcheck gates and to SKILL.md's maintenance command |
+| B-5 | Low | Built the superseded `agent-dev-sandbox-html.tar.gz` name | Archive name updated to `agent-dev-sandbox-html-v2.tar.gz` |
+| B-6 | Low | Embedded patch payloads diverged from the validated fixes (R-3 included `git`; R-7/R-8 payloads and anchors; R-2 rewrote unconditionally) | Payloads aligned with this remediation; every patch presence-guarded (idempotent no-op on a fixed repo) |
+
+New tests: group 11 (cgroup-cap evidence) — a structural assertion that
+`ci-setup.sh` carries the `pids_max`/`memory_max` evidence fields (captured
+failing before the fix), plus a set -e survival test of the capture
+pattern. Suite: 45 → 47, all green.
+
+Third-pass verification run on this bundle: `bash -n` clean (14 shell files
+including the build script), ShellCheck 0.11.0 zero warnings,
+`tests/run-tests.sh` **47 passed / 0 failed**, HTML regenerated from the MD
+(doc-lint heading parity green), PDF rebuilt (cover reused, body
+regenerated; text spot-checks: new claims present, stale markers absent).
+Still deferred to a live host: the same four items listed above.

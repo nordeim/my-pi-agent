@@ -13,8 +13,11 @@ All external facts in this document were verified against live sources on
 **2026-11-05** (npm registry, Docker Hub, cloud.debian.org, podman
 documentation, the budget-wiser repository); audit remediations were applied
 and re-verified on **2026-11-06** (see `references/audit-remediation.md` —
-the external audit's 22 findings, their validation, and the fixes). Version
-pins appear as `ARG`s in `files/Containerfile`; bump them deliberately.
+the external audit's 22 findings, their validation, and the fixes), a
+second-pass validation on **2026-11-07** closed four residual defects
+(S-1–S-4), and a third-pass review the same day validated and remediated
+its eight follow-up findings (R-1–R-8). Version pins appear as `ARG`s in
+`files/Containerfile`; bump them deliberately.
 
 ---
 
@@ -476,7 +479,11 @@ lockfile in CI), points npm/pip/uv/bun/pnpm caches at the shared tree,
 seeds browsers, optionally shallow-clones `CI_REPO_URL`, then — before any
 workload code runs — **audits isolation**: uid 1000, zero caps,
 NoNewPrivs, direct egress must fail, external DNS must fail, the proxy
-must 403 a known-denied domain and 200 an allowlisted one. Results land in
+must 403 a known-denied domain and 200 an allowlisted one; the run's
+pids/memory cgroup caps are recorded as evidence too (a `max` reading is
+reported, not failed — rootless cgroup delegation varies by host, so
+`50-verify.sh` treats the same condition as a soft warning; see
+troubleshooting §5). Results land in
 `artifacts/isolation-audit.json`; any failure exits **66** without running
 the command. Every CI run therefore carries its own evidence that the
 sandbox guarantees held *for that run*.

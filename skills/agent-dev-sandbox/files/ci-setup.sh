@@ -10,8 +10,9 @@
 # Order of operations (each step fails the run before untrusted code runs):
 #   1. export CI environment + point package-manager caches at /cache
 #   2. seed image-baked browsers into this run's ephemeral home
-#   3. ISOLATION SELF-AUDIT (direct egress / external DNS / proxy 403 + 200)
-#      -> writes /artifacts/isolation-audit.json, exits 66 on any failure
+#   3. ISOLATION SELF-AUDIT (direct egress / external DNS / proxy 403 + 200
+#      / resource-cap evidence) -> writes /artifacts/isolation-audit.json,
+#      exits 66 on any failure
 #   4. optional shallow clone of $CI_REPO_URL (cwd becomes the repo)
 #   5. exec the user command (the runner invokes:
 #        bash -lc 'source /usr/local/bin/ci-setup; exec "$@"' ci <cmd...>)
@@ -84,6 +85,16 @@ if [ "${CI_SKIP_AUDIT:-0}" != "1" ]; then
     a_nnp="$(awk '/^NoNewPrivs/ {print $2}' /proc/self/status)"
     [ "${a_nnp}" = "1" ] || audit_fail=1
 
+    # Resource caps are recorded as per-run EVIDENCE (third pass, R-6):
+    # 45-ci-run.sh caps every run (--pids-limit 1024, --memory …), but cgroup
+    # delegation for rootless podman varies by host — 50-verify.sh treats a
+    # missing delegation as a SOFT condition (references/troubleshooting.md
+    # §5), so the audit RECORDS the readings instead of failing on them: a
+    # `max` value is reported in the json for the operator to judge, while
+    # the fail-closed checks above keep proving the isolation guarantees.
+    a_pids="$(cat /sys/fs/cgroup/pids.max 2>/dev/null || echo max)"
+    a_mem="$(cat /sys/fs/cgroup/memory.max 2>/dev/null || echo max)"
+
     # Direct egress (proxy vars stripped) must FAIL at the network layer —
     # tested with an IP literal so DNS cannot mask the result, and classified
     # by curl's exit code: only 7 (unreachable) / 28 (timeout) count as
@@ -134,15 +145,18 @@ if [ "${CI_SKIP_AUDIT:-0}" != "1" ]; then
         --arg external_dns "${a_dns}" \
         --arg proxy_deny_status "${a_deny}" \
         --arg proxy_allow_status "${a_allow}" \
+        --arg pids_max "${a_pids}" \
+        --arg memory_max "${a_mem}" \
         --argjson pass "$(( 1 - audit_fail ))" \
         '{schema: "agent-sandbox.isolation-audit/1",
           run_id: $run_id,
           uid: $uid, caps_eff: $caps_eff, no_new_privs: $no_new_privs,
           direct_egress: $direct_egress, external_dns: $external_dns,
           proxy_deny_status: $proxy_deny_status, proxy_allow_status: $proxy_allow_status,
+          pids_max: $pids_max, memory_max: $memory_max,
           pass: ($pass == 1)}' > "${audit_json}"
 
-    echo "[ci-audit] uid=${a_uid} caps=${a_caps} no-new-privs=${a_nnp} direct-egress=${a_direct} external-dns=${a_dns} proxy(allow=${a_allow} deny=${a_deny})"
+    echo "[ci-audit] uid=${a_uid} caps=${a_caps} no-new-privs=${a_nnp} direct-egress=${a_direct} external-dns=${a_dns} proxy(allow=${a_allow} deny=${a_deny}) pids-max=${a_pids} memory-max=${a_mem}"
     if [ "${audit_fail}" -ne 0 ]; then
         echo "[ci-audit] FAILED — sandbox guarantees did NOT hold; command not run. See ${audit_json}" >&2
         exit 66

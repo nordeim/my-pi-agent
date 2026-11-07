@@ -5,12 +5,17 @@ identical tree:
 
 | Archive | Size | Extract |
 |---|---|---|
-| `agent-dev-sandbox-html.tar.gz` | ~656 KB | `tar xzf agent-dev-sandbox-html.tar.gz` |
+| `agent-dev-sandbox-html-v2.tar.gz` | ~666 KB | `tar xzf agent-dev-sandbox-html-v2.tar.gz` |
 
-This archive supersedes every earlier distribution (`agent-dev-sandbox-html.tar.gz`
-v1, `agent-dev-sandbox-html-v2.tar.gz`, `agent-dev-sandbox.zip`): it carries
-the full 2026-11-06 audit remediation, the 2026-11-06(c) lint fix, and the
-2026-11-07 second-pass validation fixes.
+This archive supersedes every earlier distribution: `agent-dev-sandbox.zip`,
+the 2026-11-05 `agent-dev-sandbox-html.tar.gz`, the pre-remediation archive
+that briefly used the same `-v2` name, and the 2026-11-07
+`agent-dev-sandbox-html.tar.gz` re-release. It carries the full 2026-11-06
+audit remediation, the 2026-11-06(c) lint fix, the 2026-11-07 second-pass
+validation fixes (S-1–S-4), and the 2026-11-07 third-pass review remediation
+(R-1–R-8 plus build-script fixes B-1–B-6). Wherever the archive is published,
+record its sha256 alongside it — that disambiguates it from the unrelated
+2026-11-05 archive that used the same `-v2` name.
 
 ## What is inside
 
@@ -32,12 +37,20 @@ the full 2026-11-06 audit remediation, the 2026-11-06(c) lint fix, and the
 - `references/` — troubleshooting (§1–§9), hardening, and
   `audit-remediation.md` (the 2026-11-06 external audit: all 22 findings
   validated against this bundle, with the fixes applied and re-verified —
-  plus the 2026-11-07 second-pass validation).
+  plus the 2026-11-07 second-pass validation and the third-pass review
+  remediation).
+- `remediation_log_1.md` … `remediation_log_3.md` — session logs of the
+  remediation rounds (second pass S-1–S-4; third-pass review R-1–R-8 and
+  its remediation) — provenance; `references/audit-remediation.md` remains
+  the canonical record.
 - `pdf-sources/` — editable build sources + the HTML generator and README
   (regenerate the HTML from the MD; the PDF pipeline is documented there).
 - `generate_blueprint_pdf.py` — the ReportLab body generator behind the PDF
   edition, kept for provenance (not runnable inside the bundle alone; see
   `pdf-sources/README.md`).
+- `build-agent-dev-sandbox-html-tar.sh` — reproduces this archive from the
+  GitHub repo: clone → patch-if-needed (idempotent) → lint/test gates →
+  `tar`, with a test-suite integrity guard.
 
 ## State of this bundle
 
@@ -57,7 +70,7 @@ the full 2026-11-06 audit remediation, the 2026-11-06(c) lint fix, and the
   it previously tripped SC1008/SC1113/SC2096 and escaped linting entirely.
   The bundle's own documented gate (SKILL.md: `shellcheck -x scripts/*.sh
   files/*.sh` must stay clean) now passes.
-- 2026-11-07: **second-pass validation of the remediation** — all 22
+- 2026-11-07 (second pass): **validation of the remediation** — all 22
   finding-fixes re-verified against executable truth (tests, shellcheck,
   byte-identical HTML regeneration from the MD, PDF text spot-checks);
   four residual defects found, fixed and regression-tested: the
@@ -70,32 +83,62 @@ the full 2026-11-06 audit remediation, the 2026-11-06(c) lint fix, and the
   `generate_blueprint_pdf.py` added to the SKILL manifest, pdf-sources
   README corrected, doc-lint description aligned with the actual tests.
   Suite grew 38 → 45 (all green). See `references/audit-remediation.md`,
-  "Second-pass validation". Packaged as `agent-dev-sandbox-html.tar.gz`.
+  "Second-pass validation".
+- 2026-11-07 (third pass): **remediation of the follow-up review**
+  (`remediation_log_2.md`, R-1–R-8) — every finding validated against
+  executable truth first: R-1 disproven (the test suite is intact, 243
+  lines, 45/45 green — the "truncation" was the reviewing session's raw
+  view); R-2 confirmed already applied upstream; R-3 applied with the
+  validated bin list (`podman`/`jq`/`shellcheck` added; `git` excluded —
+  no host script invokes it, it is baked into the image); R-4 the
+  BLUEPRINT header now records both follow-up passes and all three
+  editions were regenerated in sync (HTML from the MD; PDF body with the
+  generator synced, cover reused); R-6 the CI isolation audit now records
+  per-run `pids_max`/`memory_max` cgroup-cap evidence in
+  `isolation-audit.json` — recorded, not failed-on, consistent with
+  `50-verify.sh`'s soft handling of cgroup-delegation variance
+  (troubleshooting §5); R-7 allowlist header documents the ports 80/443
+  restriction; R-8 audit provenance recorded. The repo's
+  `build-agent-dev-sandbox-html-tar.sh` was itself defective and was
+  fixed (B-1 tar source path, B-2 archive output location, B-3 wrap-broken
+  R-4 patch needle, B-4 `files/ws-shell` missing from its lint gates,
+  B-5 superseded archive name, B-6 patch payload alignment) and verified
+  end-to-end against the live GitHub repo. Suite grew 45 → 47 (all
+  green). See `references/audit-remediation.md`, "Third-pass review".
+  Packaged as `agent-dev-sandbox-html-v2.tar.gz`.
 
 ## Verification performed
 
-- `bash -n` clean and **shellcheck zero warnings** over all scripts —
-  remediation-era run on 0.10, re-verified on 0.11.0 after (c) and again
-  after the 2026-11-07 second pass (`.shellcheckrc` documents the accepted
-  idioms).
-- `tests/run-tests.sh` → **45 passed / 0 failed** (validate_name reserved
+- `bash -n` clean and **shellcheck zero warnings** over all shell files
+  (14, including the extensionless `files/ws-shell` and the archive build
+  script) — remediation-era run on 0.10, re-verified on 0.11.0 after (c)
+  and again after the 2026-11-07 second and third passes (`.shellcheckrc`
+  documents the accepted idioms).
+- `tests/run-tests.sh` → **47 passed / 0 failed** (validate_name reserved
   names, resource validation, hostile-meta parsing, allow-domain rules, URL
   redaction, exit-code contract, mock deny-CONNECT 403 semantics plus
   set -e probe survival, `cp -rP` containment, doc-lint incl. MD↔HTML
-  heading parity and pin agreement, and the colon-parsing `next_free_range`
-  regressions) — re-run green after the second pass.
+  heading parity and pin agreement, the colon-parsing `next_free_range`
+  regressions, and the cgroup-cap evidence fields incl. set -e safe
+  capture) — re-run green after the third pass.
 - HTML: structure, anchor integrity, self-containment, JS syntax, content
   parity with the MD, interaction tests in a headless browser, VLM visual QA
-  (light/dark/mobile PASS) — from the (b)/(c) rounds; the 2026-11-07 pass
-  re-verified MD→HTML parity by regenerating the edition from the MD and
-  diffing **byte-identical** (BLUEPRINT.md is unchanged by the second pass).
-- PDF: regenerated from the remediated content; text spot-checks (new claims
-  present, stale claims absent) and VLM visual QA of cover, figure and
-  tables (PASS) — from the (b) round; the 2026-11-07 pass re-ran the text
-  spot-checks green (PDF stays in sync: its MD source is unchanged).
+  (light/dark/mobile PASS) — from the (b)/(c) rounds; the 2026-11-07
+  passes re-verified MD→HTML parity by regenerating the edition from the
+  MD (the second pass byte-identical; the third pass regenerated with the
+  new header and §12 wording, doc-lint heading parity green).
+- PDF: regenerated from the remediated content; text spot-checks (new
+  claims present, stale claims absent) and VLM visual QA of cover, figure
+  and tables (PASS) — from the (b) round; the 2026-11-07 passes re-ran
+  the text spot-checks green, and the third pass rebuilt the edition
+  (cover reused, body regenerated from the synced generator) with the
+  new header and §12 wording present.
+- Build script: `build-agent-dev-sandbox-html-tar.sh` executed end-to-end
+  against the live GitHub repo (patches applied, gates green, archive
+  built and listed) after the B-1…B-6 fixes.
 - Archive: gzip integrity, extraction diff against the source tree,
   executable-bit preservation (34/34), no nested archives, per-file md5
-  tar↔disk agreement — verified for this archive after the second pass.
+  tar↔disk agreement — verified for this archive after the third pass.
 - Not verifiable here (no podman/KVM): the live Phase-4 gate
   (`50-verify.sh` → `0 failed`), Squid's privilege drop under the hardened
   capability set, and the QEMU `restrict=on` behavior — these remain the
