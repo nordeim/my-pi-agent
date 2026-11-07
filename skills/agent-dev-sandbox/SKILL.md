@@ -8,7 +8,7 @@ read_when:
   - Creating KVM micro-VMs for untrusted code
   - Troubleshooting an existing agent-dev-sandbox deployment
 metadata: {"clawdbot":{"emoji":"🛡️","requires":{"bins":["bash","sudo"]}}}
-allowed-tools: Bash(scripts/00-preflight.sh:*), Bash(scripts/10-host-bootstrap.sh:*), Bash(scripts/20-build-image.sh:*), Bash(scripts/30-gateway.sh:*), Bash(scripts/40-workspace.sh:*), Bash(scripts/45-ci-run.sh:*), Bash(scripts/50-verify.sh:*), Bash(scripts/60-tier2-microvm.sh:*), Bash(sudo -E scripts/10-host-bootstrap.sh:*), Bash(podman ps:*), Bash(podman logs:*), Bash(podman inspect:*), Bash(podman image ls:*), Bash(bash scripts/*:*), Bash(./scripts/*:*)
+allowed-tools: Bash(scripts/00-preflight.sh:*), Bash(scripts/10-host-bootstrap.sh:*), Bash(scripts/20-build-image.sh:*), Bash(scripts/30-gateway.sh:*), Bash(scripts/40-workspace.sh:*), Bash(scripts/45-ci-run.sh:*), Bash(scripts/50-verify.sh:*), Bash(scripts/60-tier2-microvm.sh:*), Bash(sudo scripts/10-host-bootstrap.sh:*), Bash(sudo -E scripts/10-host-bootstrap.sh:*), Bash(tests/run-tests.sh:*), Bash(shellcheck:*), Bash(bash -n:*), Bash(podman ps:*), Bash(podman logs:*), Bash(podman inspect:*), Bash(podman image ls:*), Bash(podman network inspect:*), Bash(podman system df:*), Bash(bash scripts/*:*), Bash(./scripts/*:*)
 ---
 
 # Agent Dev Sandbox — build & operate
