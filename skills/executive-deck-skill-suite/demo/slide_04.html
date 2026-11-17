@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2026 Platform Strategy Review — Target Personas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'MiSans';
+            src: local('MiSans'), url('fonts/MiSans-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-display: swap;
+        }
+        body {
+            font-family: 'Roboto', 'MiSans', 'Noto Sans SC', sans-serif;
+            margin: 0;
+            background: #f4f4f4;
+        }
+        .ppt-slide {
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Light content page -->
+    <div class="ppt-slide bg-[#FEFEFE]">
+        <!-- 85px brand header -->
+        <header class="h-[85px] bg-[#0A2540] flex items-center justify-between px-12">
+            <div>
+                <p class="text-white/60 text-[11px] tracking-[0.2em] font-medium">CONFIDENTIAL &amp; PROPRIETARY</p>
+                <h2 class="text-white text-xl font-bold mt-1">2026 Platform Strategy Review</h2>
+            </div>
+            <div class="border border-white/30 rounded px-3 py-1.5 text-white/80 text-sm tracking-widest">ATLAS AI</div>
+        </header>
+
+        <!-- Content zone -->
+        <main class="p-12 pb-8">
+            <!-- Title ritual -->
+            <div class="flex items-end justify-between">
+                <div>
+                    <h1 class="text-[40px] font-bold text-[#0A2540] leading-tight">Target Personas</h1>
+                    <div class="w-20 h-1 bg-[#FF5722] mt-4"></div>
+                    <p class="text-[15px] text-[#0A2540]/60 mt-3 max-w-3xl">Winning the platform decision starts with the VP of Engineering — the budget owner who feels integration pain most.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-6 mt-4">
+                <!-- Left: pain points -->
+                <div class="col-span-4">
+                    <p class="text-[13px] font-semibold text-[#0A2540]/50 tracking-wider uppercase mb-3">Top Pain Points</p>
+                    <div class="space-y-2">
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-lg px-4 py-3 border-l-4 border-[#FF5722]">
+                            <div class="flex items-start gap-3">
+                                <i class="material-icons text-[#FF5722] text-xl mt-0.5">extension</i>
+                                <div>
+                                    <h4 class="text-[15px] font-bold text-[#0A2540]">Tool Sprawl</h4>
+                                    <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">17 average SaaS tools per team with no shared context between them.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-lg px-4 py-3 border-l-4 border-[#FF5722]">
+                            <div class="flex items-start gap-3">
+                                <i class="material-icons text-[#FF5722] text-xl mt-0.5">integration_instructions</i>
+                                <div>
+                                    <h4 class="text-[15px] font-bold text-[#0A2540]">Integration Debt</h4>
+                                    <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">Six-month backlogs for custom connectors block every new rollout.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-lg px-4 py-3 border-l-4 border-[#FF5722]">
+                            <div class="flex items-start gap-3">
+                                <i class="material-icons text-[#FF5722] text-xl mt-0.5">policy</i>
+                                <div>
+                                    <h4 class="text-[15px] font-bold text-[#0A2540]">Governance Gaps</h4>
+                                    <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">Shadow AI deployments grow with no audit trail for regulators.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-lg px-4 py-3 border-l-4 border-[#FF5722]">
+                            <div class="flex items-start gap-3">
+                                <i class="material-icons text-[#FF5722] text-xl mt-0.5">engineering</i>
+                                <div>
+                                    <h4 class="text-[15px] font-bold text-[#0A2540]">Talent Scarcity</h4>
+                                    <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">Platform engineers are impossible to hire; teams wait months to build.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center: persona card (the only navy card on a light page) -->
+                <div class="col-span-4">
+                    <div class="bg-[#0A2540] rounded-2xl p-8 text-center relative overflow-hidden">
+                        <!-- Decorative corner circles -->
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-[#FF5722]/10 rounded-full" data-decor aria-hidden="true"></div>
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-[#FF5722]/10 rounded-full" data-decor aria-hidden="true"></div>
+                        <div class="relative">
+                            <div class="w-20 h-20 bg-gradient-to-br from-[#FF5722] to-[#FF7043] rounded-full mx-auto flex items-center justify-center">
+                                <i class="material-icons text-white text-4xl">person</i>
+                            </div>
+                            <h3 class="text-white text-2xl font-bold mt-4">Sarah Chen</h3>
+                            <p class="text-[#FF5722] text-sm font-medium mt-1">VP Engineering, Global 2000</p>
+                            <div class="w-12 h-0.5 bg-[#FF5722] mx-auto my-4"></div>
+                            <p class="text-white/80 text-sm leading-relaxed italic">"I don't need another copilot. I need one platform my teams can build on — and that our auditors can trust."</p>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="bg-white/5 rounded-lg p-3">
+                                    <p class="text-[#FF5722] text-xl font-bold">2,400</p>
+                                    <p class="text-white/60 text-[11px] mt-1">Engineers in Org</p>
+                                </div>
+                                <div class="bg-white/5 rounded-lg p-3">
+                                    <p class="text-[#FF5722] text-xl font-bold">$18M</p>
+                                    <p class="text-white/60 text-[11px] mt-1">Annual AI Budget</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: decision chain -->
+                <div class="col-span-4">
+                    <p class="text-[13px] font-semibold text-[#0A2540]/50 tracking-wider uppercase mb-4">Decision Chain</p>
+                    <div class="space-y-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-[#FF5722] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold">1</div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-[#0A2540]">Problem Framing</h4>
+                                <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">Platform-versus-point-tools mandate set by the engineering leadership team.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-[#FF5722] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold">2</div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-[#0A2540]">Technical Eval</h4>
+                                <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">Four-week proof of concept with two product teams on real workloads.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-[#FF5722] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold">3</div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-[#0A2540]">Security Review</h4>
+                                <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">SOC 2, VPC deployment, customer-managed keys, and audit-log checks.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-[#FF5722] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold">4</div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-[#0A2540]">Exec Sign-off</h4>
+                                <p class="text-[12px] text-[#0A2540]/60 leading-relaxed mt-1">CFO-led ROI case with an 18-month payback commitment.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

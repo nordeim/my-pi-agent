@@ -1,0 +1,76 @@
+{
+  "deck": {
+    "title": "2026 Platform Strategy Review",
+    "brand": "ATLAS AI",
+    "classification": "CONFIDENTIAL & PROPRIETARY",
+    "language": "en",
+    "data_provenance": "DEMO — all figures are illustrative fiction for template validation",
+    "slides_dir": "/home/z/my-project/download/slides",
+    "images": {
+      "cover": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/e853e02f1793.jpg",
+      "closing": "https://z-cdn.chatglm.cn/image-search-mcp/images-ppt/e1aacd1d304b.jpg"
+    }
+  },
+  "slides": [
+    {
+      "file": "slide_01.html",
+      "archetype": "cover",
+      "title": "The Agentic Era",
+      "brief": "Series eyebrow chip: 2026 PLATFORM STRATEGY REVIEW. Title: The Agentic Era. Subtitle (~20 words): Atlas AI's strategy to lead enterprise autonomy — scaling our platform, partners, and presence across the Fortune 500. Meta card 4 pairs: 'Prepared by' → 'Strategy & Operations'; 'Date' → 'January 2026'; 'Classification' → 'Internal Use Only'; 'Version' → 'v2.1'. Classification line top-left: CONFIDENTIAL & PROPRIETARY. Brand box top-right: ATLAS AI. Background image: use deck.images.cover via CSS background-image on .ppt-slide."
+    },
+    {
+      "file": "slide_02.html",
+      "archetype": "vision-metrics",
+      "title": "Vision & Focus",
+      "brief": "Subtitle: Four strategic pillars guide our 2026 investment decisions, anchored by breakout platform momentum. Pillars (icon / title / description): 1) smart_toy / Agent Platform / Ship the industry's most reliable autonomous agent runtime for enterprise workloads. 2) hub / Open Ecosystem / Double the partner marketplace to 400+ integrations across every major SaaS platform. 3) security / Trust by Design / Extend zero-trust architecture with SOC 2 Type II, FedRAMP, and EU AI Act readiness. 4) public / Global Scale / Operate 14 regions at 99.99% uptime while entering Japan and Brazil markets. Metrics (value / label): 168% / ARR Growth YoY; 312 / Enterprise Customers; 71 / Enterprise NPS; 99.98% / Platform Uptime."
+    },
+    {
+      "file": "slide_03.html",
+      "archetype": "chart-drivers",
+      "title": "Market Position",
+      "brief": "Subtitle: Enterprise AI spend is consolidating around agentic platforms — and our segment is growing fastest. Left zone label: Key Growth Drivers. Drivers (number / title / description): 01 / Agentic Shift / Buyers now prioritize autonomous execution over chat interfaces, tripling agent tooling budgets. 02 / Platform Consolidation / Enterprises want one governed platform instead of 12 point tools; RFP counts dropped 40%. 03 / Developer Gravity / 12,000 active builders on the Atlas SDK create switching costs and marketplace pull. 04 / Compliance Pressure / EU AI Act and sector rules make auditable, in-VPC deployment a purchase requirement. Right chart card: icon pie_chart, title 'Enterprise AI Spend by Segment', subtitle 'Share of 2026 market', canvas id 'marketChart', data [34, 28, 22, 16] with labels Agent Platforms, Copilots & Assistants, Model APIs, Legacy Automation. Center text: $56B / 2026 Market. Legend rows in order: Agent Platforms 34%, Copilots & Assistants 28%, Model APIs 22%, Legacy Automation 16%. Chart follows references/chart-recipes.md exactly."
+    },
+    {
+      "file": "slide_04.html",
+      "archetype": "persona-triptych",
+      "title": "Target Personas",
+      "brief": "Subtitle: Winning the platform decision starts with the VP of Engineering — the budget owner who feels integration pain most. Left zone label: Top Pain Points. Pains (icon / title / description): extension / Tool Sprawl / 17 average SaaS tools per team with no shared context between them. integration_instructions / Integration Debt / Six-month backlogs for custom connectors block every new rollout. policy / Governance Gaps / Shadow AI deployments grow with no audit trail for regulators. engineering / Talent Scarcity / Platform engineers are impossible to hire; teams wait months to build. Center persona card: avatar icon person, name Sarah Chen, role VP Engineering, Global 2000. Quote: \"I don't need another copilot. I need one platform my teams can build on — and that our auditors can trust.\" Stats: 2,400 / Engineers in Org and $18M / Annual AI Budget. Right zone label: Decision Chain. Steps (1-4, title / description): 1 Problem Framing / Platform-versus-point-tools mandate set by the engineering leadership team. 2 Technical Eval / Four-week proof of concept with two product teams on real workloads. 3 Security Review / SOC 2, VPC deployment, customer-managed keys, and audit-log checks. 4 Exec Sign-off / CFO-led ROI case with an 18-month payback commitment."
+    },
+    {
+      "file": "slide_05.html",
+      "archetype": "dark-objectives",
+      "title": "2026 Strategic Objectives",
+      "brief": "DARK page: .ppt-slide bg-[#0A2540]; white title; subtitle: Three commitments define success for 2026 — each with a hard number attached. Title-block right chip: FY2026 Targets. Objective cards (icon / value / title / description): trending_up / $120M / ARR Target / Grow annual recurring revenue from $45M to $120M through platform contracts and land-and-expand across the Fortune 500. autorenew / 140% / Net Revenue Retention / Compound account value through agent workload growth, marketplace attach, and multi-region rollouts year over year. smart_toy / 50K / Daily Agent Workloads / Scale the runtime from 4K to 50K production workloads a day while holding p95 latency under 400ms. Bottom highlight (dark variant): icon insights, headline 'North-star metric: weekly active agent workloads', detail 'Every 2026 initiative ladders to this single measure of platform value.'"
+    },
+    {
+      "file": "slide_06.html",
+      "archetype": "pillar-matrix",
+      "title": "Strategic Pillars",
+      "brief": "Subtitle: Six coordinated programs translate the strategy into an executable 2026 operating plan. Pillars (icon / title / description / 2 tags): psychology / Agent Runtime 2.0 / Deterministic orchestration, replayable traces, and 400ms p95 latency for long-running workflows. / Reliability, Latency. extension / Marketplace 2.0 / 400 partner integrations with revenue share and one-click procurement for enterprise buyers. / Ecosystem, Revenue. shield / Zero-Trust Security / FedRAMP Moderate, EU AI Act controls, customer-managed keys, and immutable audit trails. / Compliance, Trust. terminal / Developer Cloud / Self-serve SDK, local emulator, and usage-based pricing to convert 12K builders into paying teams. / DX, Self-serve. account_balance / Vertical Solutions / Purpose-built agents for financial services, healthcare, and manufacturing with domain evals. / FS, Healthcare. language / Global Platform / 14 regions, data residency in 9 jurisdictions, and follow-the-sun support coverage. / Scale, Residency. Bottom highlight bar: icon flag, headline 'Execution principle: ship customer-visible value every quarter', detail 'No platform program runs longer than 90 days without an external release.'"
+    },
+    {
+      "file": "slide_07.html",
+      "archetype": "quarterly-roadmap",
+      "title": "2026 Execution Roadmap",
+      "brief": "Subtitle: Four phases carry the strategy from foundation to market leadership across 2026. Title-block right: status legend with On Track (orange dot) and At Risk (navy/40 dot). Quarters (quarter / status / phase / milestones, done=check_circle orange, pending=radio_button_unchecked navy/40): Q1 2026 / ON TRACK / Foundation / [done] Agent Runtime 2.0 GA, [done] SOC 2 Type II renewal, [done] Marketplace rev-share pilot (12 partners), [pending] FedRAMP kickoff. Q2 2026 / ON TRACK / Expansion / [done] Japan region launch, [pending] Financial-services agents beta, [pending] Developer Cloud self-serve GA, [pending] Usage-based pricing rollout. Q3 2026 / AT RISK / Scale / [pending] 25K daily workloads milestone, [pending] EU AI Act controls GA, [pending] Healthcare agents beta, [pending] Marketplace at 300 integrations. Q4 2026 / ON TRACK / Leadership / [pending] $120M ARR exit rate, [pending] FedRAMP Moderate authorization, [pending] Brazil region launch, [pending] Inaugural AgentCon conference. Progress card: label '2026 Strategic Initiatives Progress', percent 38%, fill w-[38%]."
+    },
+    {
+      "file": "slide_08.html",
+      "archetype": "milestone-timeline",
+      "title": "H1 2026 Launch Timeline",
+      "brief": "Subtitle: The first half of 2026 concentrates on compounding releases that lock in the platform narrative. Title-block right metric chip: 26 / Weeks to GA. Months (month / metric / metric label / tasks with arrow_forward icons): JANUARY / 2 / Platform Releases / Agent Runtime 2.0 GA; Immutable audit trail v2; SDK v3 public beta. FEBRUARY / 4 / Partner Integrations / Marketplace rev-share live; Salesforce connector; ServiceNow connector. MARCH / 6 / Enterprise Betas / FS vertical agents beta; Developer Cloud self-serve; Usage pricing pilot (40 accounts). APRIL / 1 / Flagship Event / AgentCon 2026 keynote; Board ARR-path review; Executive offsite. Bottom highlight bar: icon schedule, headline 'Critical path: Runtime 2.0 GA gates every downstream launch', detail 'Any slip compresses the beta window and puts the Q4 ARR exit rate at risk.'"
+    },
+    {
+      "file": "slide_09.html",
+      "archetype": "budget-risk",
+      "title": "Budget & Risk",
+      "brief": "Subtitle: A $30M plan weighted toward R&D, with the four risks we are actively managing. Left chart card: icon account_balance_wallet, title 'Budget Allocation', subtitle 'FY2026 distribution', canvas id 'budgetChart', data [45, 30, 15, 10] with labels R&D, GTM, Infrastructure, G&A. Center text: $30M / Total Budget. Legend rows (amounts): R&D $13.5M; GTM $9.0M; Infrastructure $4.5M; G&A $3.0M. Chart follows references/chart-recipes.md (h-[240px] canvas on this archetype). Right zone label: Key Risks & Mitigation. Risks (title / description / mitigation / severity): Runtime Reliability / Scaling from 4K to 50K daily workloads risks p95 latency breaches and cascading failures. / Chaos testing, per-tenant isolation, and a 400ms SLO with automated rollback. / HIGH. Pricing Pressure / Hyperscaler bundles could compress per-seat pricing by 20-30% in renewal cycles. / Shift revenue mix toward usage-based workloads and marketplace take-rate. / HIGH. Regulatory Timing / EU AI Act control deadlines may land before our Q3 GA date. / Dedicated compliance squad with external counsel review at every milestone. / MEDIUM. Talent Concentration / Deep runtime knowledge sits with six engineers; attrition is a single point of failure. / Pair-rotation program, documentation sprints, and two senior backfills in Q1. / MEDIUM."
+    },
+    {
+      "file": "slide_10.html",
+      "archetype": "closing",
+      "title": "Lead the Agentic Era",
+      "brief": "Series eyebrow chip: 2026 PLATFORM STRATEGY REVIEW. Title: Lead the Agentic Era. Subtitle: One platform, six pillars, and a $120M mandate — execution starts now. Highlight chips (icon / value / label): layers / 6 / Strategic Pillars; trending_up / $120M / ARR Target; smart_toy / 50K / Daily Agent Workloads. Contact bar: left 'Atlas AI — Strategy & Operations' with role line 'Platform Strategy Team'; right email strategy@atlas-ai.example.com (icon mail) and site www.atlas-ai.example.com (icon language). Background image: use deck.images.closing via CSS background-image on .ppt-slide."
+    }
+  ]
+}

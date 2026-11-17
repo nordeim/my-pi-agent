@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>[Deck Title] — [Page Title]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Chart pages ONLY: also load Chart.js -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <style>
+        @font-face {
+            font-family: 'MiSans';
+            src: local('MiSans'), url('fonts/MiSans-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-display: swap;
+        }
+        body {
+            font-family: 'Roboto', 'MiSans', 'Noto Sans SC', sans-serif;
+            margin: 0;
+            background: #f4f4f4;
+        }
+        .ppt-slide {
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Light content page. For the DARK variant: bg-[#0A2540] on .ppt-slide,
+         white title, white/60 subtitle, white/5 cards, white/10 borders. -->
+    <div class="ppt-slide bg-[#FEFEFE]">
+        <!-- 85px brand header (every content page; never on cover/closing) -->
+        <header class="h-[85px] bg-[#0A2540] flex items-center justify-between px-12">
+            <div>
+                <p class="text-white/60 text-[11px] tracking-[0.2em] font-medium">CONFIDENTIAL &amp; PROPRIETARY</p>
+                <h2 class="text-white text-xl font-bold mt-1">[Deck Title]</h2>
+            </div>
+            <div class="border border-white/30 rounded px-3 py-1.5 text-white/80 text-sm tracking-widest">[BRAND]</div>
+        </header>
+
+        <!-- Content zone -->
+        <main class="p-12 pb-8">
+            <!-- Title ritual: 40px title + orange underline + 15px subtitle -->
+            <div class="flex items-end justify-between">
+                <div>
+                    <h1 class="text-[40px] font-bold text-[#0A2540] leading-tight">[Page Title]</h1>
+                    <div class="w-20 h-1 bg-[#FF5722] mt-4"></div>
+                    <p class="text-[15px] text-[#0A2540]/60 mt-3 max-w-3xl">[One-sentence subtitle stating the page's single message.]</p>
+                </div>
+                <!-- Optional right slot: status chip / metric chip (see layout-catalog) -->
+            </div>
+
+            <!-- [CONTENT GRID — insert the archetype's content recipe here] -->
+
+            <!-- Optional bottom highlight bar
+            <div class="bg-gradient-to-r from-[#FF5722]/10 to-transparent border-l-4 border-[#FF5722] rounded-r-lg p-5 mt-8 flex items-center gap-4">
+                <i class="material-icons text-[#FF5722] text-2xl">[icon]</i>
+                <div>
+                    <p class="text-[15px] font-bold text-[#0A2540]">[Takeaway headline]</p>
+                    <p class="text-[13px] text-[#0A2540]/70 mt-1">[One-line supporting detail.]</p>
+                </div>
+            </div>
+            -->
+        </main>
+    </div>
+
+    <!-- Chart pages ONLY: init script goes AFTER the slide markup, before </body>
+    <script>
+        const centerTextPlugin = { ... };  // see references/chart-recipes.md
+        new Chart(document.getElementById('[canvasId]'), { ... });
+    </script>
+    -->
+</body>
+</html>

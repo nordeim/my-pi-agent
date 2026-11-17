@@ -1,0 +1,26 @@
+{
+  "skill_name": "building-executive-decks",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Make me a 10-slide deck for our board meeting: 'FY2026 Growth Strategy' for Meridian Logistics, a mid-market supply-chain SaaS. We grew ARR 85% last year to $42M and we're entering EMEA in Q3. I'll supply real figures where I have them; anything you invent, mark it as illustrative. English, and put 'MERIDIAN' in the logo box.",
+      "expected_output": "A slides directory with deck.json + 10 standalone 1280x720 HTML pages following the 10-archetype arc, navy/orange locked palette, header bar + title ritual on pages 2-9, full-bleed photo cover and closing, zero qa_check.py FAILs, and a handoff summary that labels which numbers are illustrative.",
+      "files": [],
+      "should_trigger": true
+    },
+    {
+      "id": 2,
+      "prompt": "用这个深蓝橙色的商务模板风格，给我做一份10页的中文年度汇报幻灯片，主题是绿源新能源事业部2026战略规划，数据用示意数据就行，logo位置写'绿源新能源'",
+      "expected_output": "Same 10-archetype structure but with ALL slide text in Simplified Chinese (MiSans/Noto fallback renders correctly), logo box shows 绿源新能源, illustrative data stated in the handoff, qa_check.py exit 0.",
+      "files": [],
+      "should_trigger": true
+    },
+    {
+      "id": 3,
+      "prompt": "I have an existing deck.pptx from last year — update slide 4's revenue chart with our new Q4 numbers and re-export it.",
+      "expected_output": "This skill does NOT trigger: the request is editing an existing .pptx binary, which belongs to the pptx skill (python-pptx / OOXML editing), not generating new HTML slides.",
+      "files": [],
+      "should_trigger": false
+    }
+  ]
+}

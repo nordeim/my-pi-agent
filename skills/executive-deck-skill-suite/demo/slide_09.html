@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2026 Platform Strategy Review — Budget &amp; Risk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @font-face {
+            font-family: 'MiSans';
+            src: local('MiSans'), url('fonts/MiSans-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-display: swap;
+        }
+        body {
+            font-family: 'Roboto', 'MiSans', 'Noto Sans SC', sans-serif;
+            margin: 0;
+            background: #f4f4f4;
+        }
+        .ppt-slide {
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="ppt-slide bg-[#FEFEFE]">
+        <!-- 85px brand header -->
+        <header class="h-[85px] bg-[#0A2540] flex items-center justify-between px-12">
+            <div>
+                <p class="text-white/60 text-[11px] tracking-[0.2em] font-medium">CONFIDENTIAL &amp; PROPRIETARY</p>
+                <h2 class="text-white text-xl font-bold mt-1">2026 Platform Strategy Review</h2>
+            </div>
+            <div class="border border-white/30 rounded px-3 py-1.5 text-white/80 text-sm tracking-widest">ATLAS AI</div>
+        </header>
+
+        <!-- Content zone -->
+        <main class="p-12 pb-8">
+            <!-- Title ritual -->
+            <div class="flex items-end justify-between">
+                <div>
+                    <h1 class="text-[40px] font-bold text-[#0A2540] leading-tight">Budget &amp; Risk</h1>
+                    <div class="w-20 h-1 bg-[#FF5722] mt-4"></div>
+                    <p class="text-[15px] text-[#0A2540]/60 mt-3 max-w-3xl">A $30M plan weighted toward R&amp;D, with the four risks we are actively managing.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-8 mt-6">
+                <!-- Left: budget doughnut -->
+                <div class="col-span-5">
+                    <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-xl p-6 border-2 border-[#0A2540]/10">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-[#FF5722] to-[#FF7043] rounded-xl flex items-center justify-center">
+                                <i class="material-icons text-white text-2xl">account_balance_wallet</i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-[#0A2540]">Budget Allocation</h3>
+                                <p class="text-[13px] text-[#0A2540]/60">FY2026 distribution</p>
+                            </div>
+                        </div>
+                        <div class="h-[240px] mt-4">
+                            <canvas id="budgetChart"></canvas>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-x-6 gap-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-[#FF5722]"></div>
+                                    <span class="text-[13px] text-[#0A2540]/80 font-medium">R&amp;D</span>
+                                </div>
+                                <span class="text-[13px] font-bold text-[#0A2540]">$13.5M</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-[#FF7043]"></div>
+                                    <span class="text-[13px] text-[#0A2540]/80 font-medium">GTM</span>
+                                </div>
+                                <span class="text-[13px] font-bold text-[#0A2540]">$9.0M</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-[#0A2540]"></div>
+                                    <span class="text-[13px] text-[#0A2540]/80 font-medium">Infrastructure</span>
+                                </div>
+                                <span class="text-[13px] font-bold text-[#0A2540]">$4.5M</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-[#0A2540]/70"></div>
+                                    <span class="text-[13px] text-[#0A2540]/80 font-medium">G&amp;A</span>
+                                </div>
+                                <span class="text-[13px] font-bold text-[#0A2540]">$3.0M</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: risk register -->
+                <div class="col-span-7">
+                    <p class="text-[13px] font-semibold text-[#0A2540]/50 tracking-wider uppercase mb-4">Key Risks &amp; Mitigation</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-xl p-5 border-l-4 border-[#FF5722]">
+                            <div class="flex items-center justify-between gap-4">
+                                <h4 class="text-[16px] font-bold text-[#0A2540]">Runtime Reliability</h4>
+                                <span class="bg-[#FF5722]/10 text-[#FF5722] text-xs font-bold px-3 py-1.5 rounded-full h-fit flex-shrink-0">HIGH</span>
+                            </div>
+                            <p class="text-[12px] text-[#0A2540]/60 mt-1">Scaling from 4K to 50K daily workloads risks p95 latency breaches and cascading failures.</p>
+                            <p class="text-[11px] font-semibold text-[#0A2540]/50 uppercase tracking-wider mt-3">Mitigation</p>
+                            <p class="text-[12px] text-[#0A2540]/70 mt-1">Chaos testing, per-tenant isolation, and a 400ms SLO with automated rollback.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-xl p-5 border-l-4 border-[#FF5722]">
+                            <div class="flex items-center justify-between gap-4">
+                                <h4 class="text-[16px] font-bold text-[#0A2540]">Pricing Pressure</h4>
+                                <span class="bg-[#FF5722]/10 text-[#FF5722] text-xs font-bold px-3 py-1.5 rounded-full h-fit flex-shrink-0">HIGH</span>
+                            </div>
+                            <p class="text-[12px] text-[#0A2540]/60 mt-1">Hyperscaler bundles could compress per-seat pricing by 20-30% in renewal cycles.</p>
+                            <p class="text-[11px] font-semibold text-[#0A2540]/50 uppercase tracking-wider mt-3">Mitigation</p>
+                            <p class="text-[12px] text-[#0A2540]/70 mt-1">Shift revenue mix toward usage-based workloads and marketplace take-rate.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-xl p-5 border-l-4 border-[#FF5722]">
+                            <div class="flex items-center justify-between gap-4">
+                                <h4 class="text-[16px] font-bold text-[#0A2540]">Regulatory Timing</h4>
+                                <span class="bg-[#0A2540]/10 text-[#0A2540] text-xs font-bold px-3 py-1.5 rounded-full h-fit flex-shrink-0">MEDIUM</span>
+                            </div>
+                            <p class="text-[12px] text-[#0A2540]/60 mt-1">EU AI Act control deadlines may land before our Q3 GA date.</p>
+                            <p class="text-[11px] font-semibold text-[#0A2540]/50 uppercase tracking-wider mt-3">Mitigation</p>
+                            <p class="text-[12px] text-[#0A2540]/70 mt-1">Dedicated compliance squad with external counsel review at every milestone.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#0A2540]/5 to-[#0A2540]/10 rounded-xl p-5 border-l-4 border-[#FF5722]">
+                            <div class="flex items-center justify-between gap-4">
+                                <h4 class="text-[16px] font-bold text-[#0A2540]">Talent Concentration</h4>
+                                <span class="bg-[#0A2540]/10 text-[#0A2540] text-xs font-bold px-3 py-1.5 rounded-full h-fit flex-shrink-0">MEDIUM</span>
+                            </div>
+                            <p class="text-[12px] text-[#0A2540]/60 mt-1">Deep runtime knowledge sits with six engineers; attrition is a single point of failure.</p>
+                            <p class="text-[11px] font-semibold text-[#0A2540]/50 uppercase tracking-wider mt-3">Mitigation</p>
+                            <p class="text-[12px] text-[#0A2540]/70 mt-1">Pair-rotation program, documentation sprints, and two senior backfills in Q1.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const centerTextPlugin = {
+            id: 'centerText',
+            afterDraw(chart) {
+                const { ctx } = chart;
+                const meta = chart.getDatasetMeta(0);
+                const x = meta.data[0].x;
+                const y = meta.data[0].y;
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 28px Roboto';
+                ctx.fillStyle = '#0A2540';
+                ctx.fillText('$30M', x, y - 5);
+                ctx.font = '500 13px Roboto';
+                ctx.fillStyle = '#0A254099';
+                ctx.fillText('Total Budget', x, y + 18);
+                ctx.restore();
+            }
+        };
+
+        new Chart(document.getElementById('budgetChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['R&D', 'GTM', 'Infrastructure', 'G&A'],
+                datasets: [{
+                    data: [45, 30, 15, 10],
+                    backgroundColor: ['#FF5722', '#FF7043', '#0A2540', '#0A2540B3'],
+                    borderWidth: 4,
+                    borderColor: '#FEFEFE',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: { display: false }
+                }
+            },
+            plugins: [centerTextPlugin]
+        });
+    </script>
+</body>
+</html>
