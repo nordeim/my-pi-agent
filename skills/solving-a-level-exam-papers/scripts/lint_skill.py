@@ -54,7 +54,7 @@ def main() -> int:
         if not (root / rel).exists():
             errs.append(f"missing required file: {rel}")
     for script in (root / "scripts").glob("*.py"):
-        if script.name in ALLOWED_BANNED:
+        if script.name in ALLOWED_BANNED or script.resolve() == SELF:
             continue
         src = script.read_text(encoding="utf-8")
         for token in BANNED:

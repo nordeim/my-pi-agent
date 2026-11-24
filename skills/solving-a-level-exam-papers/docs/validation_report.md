@@ -1,8 +1,9 @@
 # Validation report — `solving-a-level-exam-papers`
 
-**Date:** 2026-11-24 · **Branch:** `main` · **HEAD:** `ced14ee24305abb837773b1c93e1e73352491a43`
-**Skill subtree:** clean before validation (probes written under `/tmp`; the only transient artefact, `__pycache__`, was removed). Afterwards the only additions are these two authorised report files in `docs/`; no skill source file was modified.
-**Verdict:** **NOT promotable to `Verified`.** The v2 security/correctness remediation is real and verified, but the promotion gate fails: `lint_skill.py` exits 1 and `pytest` is red. The v2 promotion doc claims both pass.
+**Date:** 2026-11-24 · **Branch:** `main` · **Initial-pass HEAD:** `ced14ee24305abb837773b1c93e1e73352491a43` · **Revision 2 HEAD:** `1d94f148959498e0ba29d7ee9dac5ccd54168162` (fixes uncommitted)
+**Initial pass:** skill subtree clean; probes under `/tmp`; only these two authorised report files were added.
+**Revision 2:** fixes applied to five skill files (`scripts/lint_skill.py`, `scripts/safe_expr.py`, `tests/test_cli.py`, `tests/test_safe_expr.py`, `references/tool-safety.md`) and these two reports. No commit or push.
+**Verdict:** **PASS — promotable to `Verified` on the High/Medium gate.** All hard gates are green: lint exits 0, pytest is 60/60, the example suite is 7/7, and no High/Medium finding remains open. Ten Low findings remain open and tracked; they do not block promotion.
 
 Evidence labels: **Verified (executed)** · **Confirmed (static)** · **Reported-Verified (external)** · **Refuted**.
 
@@ -16,14 +17,17 @@ Evidence labels: **Verified (executed)** · **Confirmed (static)** · **Reported
 | `assets/checks.example.json` | `18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2` |
 | `scripts/check_math.py` | `5ee3d3f1272795c80b8bf202ded7bd9374745cae9e3eb823dc7b349c4ae3627f` |
 | `scripts/extract_pdf.py` | `031d55b3c08a83df67b1f33152f52c433be024e8b28305c180a7309635766356` |
-| `scripts/lint_skill.py` | `de58e349a92d20dcd5705155e0ab4a36e4159c705c65d5d9986bed788116fa8e` |
-| `scripts/safe_expr.py` | `a5138e8f8c9f287c993d670dee8f0c675afcf21c5aa6a86e95d89fcfb41de3fc` |
-| `tests/test_cli.py` | `6c9c7deab8e130368f2ec97a6cd2257fbc4a0c972ce3782330169012e8625171` |
-| `tests/test_safe_expr.py` | `54357005fab72324c2b3754344a44114315e3ee16aeeca0bb46dde7539e0efe5` |
+| `scripts/lint_skill.py` | `2133148d274123ee143b864854f3c4c7f3405008cb306e78ddae8cf71ca53fb9` |
+| `scripts/safe_expr.py` | `4070049245c4286365f41ac7b56d3211da12285d7e030ab9cefbc97d5b06d13d` |
+| `tests/test_cli.py` | `33d565edc57c05869b5e2aae921a05b861f8ce016193f55ee8560d1cd9902490` |
+| `tests/test_safe_expr.py` | `e1b33d4b45b561e520773443145c57e0c6eaf2a8e896d076a5cc093f6c88bb40` |
 | `samples/2026_Prelim_P1.pdf` | `c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8` |
 | `docs/SKILL_v1.md` | `834d465a909d9d7d99a2345ffbaf61dfc079546b51f3737ce3a3a10be4963a36` |
 | `docs/v1_to_v2_updates.md` | `624e13fb4462c926d932f999433e9d39d6d17e9ffdcf74b48c2828cb8bc2081d` |
 | `docs/independent_skill_audit_report.json` | `f019b2937810c65432ebb990db1c9bd1031291fe8db70d9cb92ac5bc09144612` |
+| `references/tool-safety.md` | `93391f610e994458edb3edfcdf0c8a35d03c9e3a9670694a11537594f65472a2` |
+
+Hashes above are the revision-2 working tree. Changed since the initial pass: `lint_skill.py` (`de58e349…` → `2133148d…`), `safe_expr.py` (`a5138e8f…` → `a596778a…`), `test_cli.py` (`6c9c7dea…` → `33d565ed…`), `test_safe_expr.py` (`54357005…` → `92c468cf…`); `references/tool-safety.md` is new to this table. The initial-pass hashes remain in git history at `ced14ee2`/`1d94f148`.
 
 Environment: Python 3.14.7 · pytest 9.2.0 · sympy 1.14.0 · pdfplumber 0.11.11 (installed on demand via `uv run --with …`; not in the default interpreter).
 
@@ -33,7 +37,9 @@ Two questions are kept separate throughout:
 
 ---
 
-## 2. Executed evidence
+## 2. Executed evidence — initial pass (pre-fix)
+
+Kept as audit history: E1 and E2 are the failures that motivated revision 2. Current results are R1–R10 below.
 
 | # | Command | Result |
 |---|---|---|
@@ -51,6 +57,22 @@ Two questions are kept separate throughout:
 | E12 | `check_math.run_check(..., timeout=0.001)` | **ERROR** — `per-check time limit exceeded` (SIGALRM works) |
 | E13 | interval check with `expr: I` / `sqrt(-1)`; zero check with `expr: [1,2]` | each **ERROR**, suite **exit 1** (fail-closed, but a config-class error reports as maths ERROR) |
 | E14 | malformed JSON | **exit 2**, `CONFIG ERROR: Expecting property name…` |
+
+### 2a. Re-validation (revision 2, post-fix)
+
+| # | Command / probe | Result |
+|---|---|---|
+| R1 | `python3 scripts/lint_skill.py .` | **exit 0**; `PASS: structure, frontmatter, links, template and script-safety checks`; body 139 lines |
+| R2 | `uv run --with pytest --with sympy --with pdfplumber pytest -q tests/` | **60 passed in 6.72s** (42 safe-expression, 18 CLI; includes all six V-3 tests) |
+| R3 | `uv run --with sympy python scripts/check_math.py assets/checks.example.json` | **7/7 PASS, exit 0**; `checks_sha256=18c1a7f6… sympy=1.14.0` |
+| R4 | `extract_pdf.py samples/2026_Prelim_P1.pdf --out /tmp/opencode/rv1` | **exit 0**; 24 pages; `manifest.json` written |
+| R5 | same command, same `--out` | **exit 2**; `CONFIG ERROR: refusing to overwrite …` |
+| R6 | same command with `--force` | **exit 0** |
+| R7 | allocation rejection probes: `eye(65)`, `zeros(65,65)`, `ones(65,1)`, `Matrix(65,1,[0])`, `factorial(10001)`, `binomial(10001,2)`, `gamma(10001)`, `diag(eye(64),eye(64))`, `[0]*4097`, `Matrix([0]*65)`, `Matrix([[0]*65]*65)`, `Matrix(64,64,[0]*4097)` | **12/12 rejected** with `UnsafeExpression` and a specific message |
+| R8 | allocation acceptance probes: `eye(64)`, `zeros(64,64)`, `ones(64,1)`, `Matrix([[1,2],[3,4]])`, `factorial(1000)`, `binomial(1000,2)`, `gamma(100)`, `diag(1,2,3)`, `[0]*4096`, `Matrix([0]*64)`, `Matrix([[0]*64]*64)`, `Matrix(64,64,[0]*4096)` | **12/12 accepted** |
+| R9 | `test_timeout_fails_closed` via R2 | **pass**; `expand((x+1)**900)` at `--timeout 0.01` returns `ERROR` + `time limit` |
+| R10 | `test_lint_requires_authorisation_gate` and `test_lint_still_flags_other_scripts` via R2 | **pass**; lint still flags a copied `extract_pdf.py` |
+| R11 | `extract_pdf.py … --pages abc` | **exit 1** + traceback — unchanged Low V-8 |
 
 ---
 
@@ -72,10 +94,10 @@ Two questions are kept separate throughout:
 
 | ID | Sev | Status | Finding | Evidence | Minimal fix |
 |---|---|---|---|---|---|
-| `V-1` | **High** | **Open** | Linter fails on its own package | E1: `BANNED` at `lint_skill.py:16–17`; `ALLOWED_BANNED={"safe_expr.py"}` at line 18 does not exclude `lint_skill.py` | Skip the linter file itself in the scan (it must contain the patterns), or load the ban list from data. |
+| `V-1` | **High** | **Closed** | Linter fails on its own package | **Fixed**: the scan skips `SELF` while still scanning every other script; R1 exit 0, R10 proves a copied `extract_pdf.py` is still flagged. | Applied: self-skip in `lint_skill.py`; guard test added. |
 | `V-2` | Low | Accepted by design | Re-run into the same out-dir exits 2 | E5; documented in v2 §4.8 | Keep; optionally add unique run dirs. Not a defect. |
-| `V-3` | Medium | **Open** | Six regression tests named in v2 docs do not exist | Absent: `test_lint_requires_authorisation_gate`, `test_report_truncation_notice`, `test_interval_complex_errors`, `test_timeout_fails_closed`, `test_provenance_present`, `test_force_overwrites` | Add the tests (behaviour exists; E6/E8/E12/E13 prove it) or remove the claims. |
-| `V-4` | Medium | **Open** | Residual DoS surface in the “safe” evaluator | `safe_expr.py:17–37` exposes `Matrix/diag/eye/zeros/ones` with no dimension cap and `factorial/binomial/gamma/integrate/limit/solve` with no argument cap; E10. Timeout works (E12) but cannot preempt a large C-level allocation reliably | Cap matrix dimensions and factorial/binomial arguments; gate/remove `integrate/limit/solve`; document the trusted-input model. |
+| `V-3` | Medium | **Closed** | Six regression tests named in v2 docs do not exist | **Fixed**: all six exist in `tests/test_cli.py`; R2 green. They guard provenance, complex intervals, timeout, truncation notice, the git-authorisation gate, and other-script scanning. | Applied: six tests added. |
+| `V-4` | Medium | **Closed (Option A)** | Residual DoS surface in the “safe” evaluator | **Fixed for allocation vectors**: `MAX_MATRIX_DIM=64`, `MAX_INT_ARG=10_000`, `MAX_SEQ=4096`; R7 rejects 12/12 oversized forms, R8 accepts 12/12 bounded forms. `integrate/limit/solve` remain under the documented trusted-input model plus per-check SIGALRM timeout; no true OOM/hang was induced. | Applied: caps in `safe_expr.py`; `references/tool-safety.md` rule 2 updated. |
 | `V-5` | Low | **Open** | “Broken local link” check is vacuous | `SKILL.md` paths are code spans, not `](…)` links; only the hard-coded `REQUIRED` list guards existence | Parse Markdown links, or drop the claim. |
 | `V-6` | Low | **Open** | Package contradicts v1 packaging rule | `samples/` (1.1 MB PDF) and `docs/` ship inside the skill; v1 §14 says “keep eval suite outside the skill folder”; v1 §13 says no auxiliary docs | Declare the exception in `SKILL.md`, or move audit artefacts to repo `docs/`. |
 | `V-7` | Low | **Open** | Verification playbook lost content | Shipped playbook is 32 lines; v1 had universal checks 1–7, an executable JSON example, SymPy patterns, and a probability row | Restore them compactly; keep v2 suite contract. |
@@ -84,11 +106,11 @@ Two questions are kept separate throughout:
 | `V-10` | Low | **Open** | Wrong rejection message for huge exponents | E11: `UnsafeExpression` subclasses `ValueError`, so its own `except ValueError` rewrites “exponent too large” as “non-finite exponent” | Re-raise `UnsafeExpression` before the generic `ValueError` catch. |
 | `V-11` | Low | **Open** | Config-class malformed expressions report as maths ERROR | E13: `expr: [1,2]`, `expr: I` → row `ERROR`, exit 1 | Validate result type/shape and raise `ConfigError` → exit 2. |
 | `V-12` | Low | **Open** | `SKILL.md` file tree is incomplete | Tree at `SKILL.md:10–15` omits `samples/` and `docs/` | Add them or move them out. |
-| `V-13` | Low | **Open** | v2 promotion commands are wrong | `v1_to_v2_updates.md` PART 5: `# expect PASS` (E1 says 1), `# expect all pass` (E2 says 1 failed), `../../samples/…` resolves outside the skill; PART 6 “Linter would PASS” | Replace with the verified command block in §6. |
+| `V-13` | Low | **Open** | v2 promotion commands are partly wrong | PART 5’s `# expect PASS` / `# expect all pass` and PART 6’s “Linter would PASS” are now true (R1/R2); `../../samples/…` still resolves outside the skill | Replace the sample path with `samples/2026_Prelim_P1.pdf` (verified block in §6). |
 | `V-14` | Low | **Open** | Distinct `Deduce` obligation dropped | v2 command-word table merges “Hence / Deduce”; `exam-presentation.md` §2 lists only `Hence` | Restore a `Deduce` row. |
 | `S-1` | Low | **Open** | Exemplar provenance over-claim | See `SAMPLE-01` residual | Change to “7/7 via `assets/checks.example.json` (executed)” or “hand-checked”; add `checks_sha256`/tool-version line (`N/A — no CAS`). |
 
-Counts: **1 High, 2 Medium, 10 Low open**; 1 accepted-by-design; 1 refuted.
+Counts: **0 High, 0 Medium, 10 Low open**; 1 accepted-by-design; 1 refuted. V-1, V-3 and V-4 are closed with executed evidence.
 
 ---
 
@@ -101,37 +123,39 @@ Counts: **1 High, 2 Medium, 10 Low open**; 1 accepted-by-design; 1 refuted.
 | Supporting files use relative forward-slash paths | PASS | All referenced files exist |
 | No auxiliary README/CHANGELOG | PASS | none; `docs/`/`samples/` are the exception (V-6) |
 | Scripts deterministic, dependency-light, no network | PASS | stdlib + sympy/pdfplumber only |
-| `lint_skill.py` exits 0 | **FAIL** | E1 (V-1) |
-| `pytest` green | **FAIL** | E2 |
-| Exit-code contract 0/1/2/3 | PASS | E3/E5/E8/E14; usage path fails (V-8) |
+| `lint_skill.py` exits 0 | PASS | R1 |
+| `pytest` green | PASS | R2: 60 passed |
+| Exit-code contract 0/1/2/3 | PASS | E3/E5/E8/E14; usage path still fails (V-8, Low) |
 | No arbitrary code execution | PASS | E9 |
+| Memory-exhaustion vectors capped | PASS | R7/R8; `MAX_MATRIX_DIM=64`, `MAX_INT_ARG=10_000`, `MAX_SEQ=4096` |
 | Empty/malformed suite fails closed | PASS | `MIN_CHECKS_FLOOR=2`, E14 |
-| No unrequested git side effects | PASS | `SKILL.md:82–86` |
+| No unrequested git side effects | PASS | `SKILL.md:82–86`, R10 |
 | Textless PDF fails closed | PASS | E8 |
-| No overwrite without `--force` | PASS | E5/E6 |
-| Provenance in ledger | PARTIAL | code emits `checks_sha256`; exemplar omits it (S-1) |
-| Q6 regression suite 7/7 | PASS | E3 |
-| Eval suite outside skill folder | **FAIL (undocumented)** | `tests/`, `samples/` inside (V-6) |
-| File tree complete | **FAIL** | omits `samples/`, `docs/` (V-12) |
+| No overwrite without `--force` | PASS | E5/E6/R5/R6 |
+| Provenance in ledger | PARTIAL | code emits `checks_sha256`; exemplar omits it (S-1, Low) |
+| Q6 regression suite 7/7 | PASS | R3 |
+| Eval suite outside skill folder | **FAIL (undocumented, Low)** | `tests/`, `samples/` inside (V-6) |
+| File tree complete | **FAIL (Low)** | omits `samples/`, `docs/` (V-12) |
 
 ---
 
-## 6. Doc ↔ code contradictions
+## 6. Doc ↔ code contradictions — status after revision 2
 
-1. `docs/v1_to_v2_updates.md` PART 5 (`# expect PASS`, `# expect all pass`) is false against E1/E2. v1 §15 correctly labelled lint as “Unverifiable here”; v2 upgraded it to an expectation without execution.
-2. `extract_pdf.py ../../samples/2026_Prelim_P1.pdf` in PART 5 resolves to `/home/pete/.pi/agent/samples/…`; the sample is at `skills/solving-a-level-exam-papers/samples/…`.
-3. PART 3 names six tests that do not exist (V-3).
-4. PART 6 row “Linter would PASS” contradicts E1.
-5. v1 §14 “keep eval suite outside the skill folder” vs shipped `tests/` and `samples/`.
+1. **Resolved:** PART 5 `# expect PASS` now matches R1.
+2. **Resolved:** PART 5 `# expect all pass` now matches R2 (60 passed).
+3. **Resolved:** PART 3’s six tests now exist (V-3 closed).
+4. **Resolved:** PART 6 “Linter would PASS” now matches R1.
+5. **Open (Low V-13):** PART 5’s `../../samples/2026_Prelim_P1.pdf` resolves outside the skill; the sample is at `samples/2026_Prelim_P1.pdf` relative to the skill root.
+6. **Open (Low V-6):** v1 §14 “keep eval suite outside the skill folder” vs shipped `tests/` and `samples/`.
 
-Verified replacement command block (from the skill directory):
+Verified command block (from the skill directory):
 
 ```bash
-python3 scripts/lint_skill.py .                                             # 0 after V-1 fix
-uv run --with pytest --with sympy --with pdfplumber pytest -q tests/        # all pass after V-1
-uv run --with sympy python scripts/check_math.py assets/checks.example.json # 7/7, 0
+python3 scripts/lint_skill.py .                                             # exit 0, PASS
+uv run --with pytest --with sympy --with pdfplumber pytest -q tests/        # 60 passed
+uv run --with sympy python scripts/check_math.py assets/checks.example.json # 7/7, exit 0
 uv run --with pdfplumber python scripts/extract_pdf.py \
-  samples/2026_Prelim_P1.pdf --out /tmp/out                                 # 0
+  samples/2026_Prelim_P1.pdf --out /tmp/out                                 # exit 0; add --force to rerun
 ```
 
 ---
@@ -139,30 +163,40 @@ uv run --with pdfplumber python scripts/extract_pdf.py \
 ## 7. Unverified / residual risk
 
 - PDF-02 false-positive rate (`343`) is **Reported-Verified (external)**; not re-counted.
-- V-4 is **Confirmed (static)** plus bounded acceptance probes (E10). A true OOM/hang was not induced.
+- V-4 allocation caps are **Verified (executed)** for the listed vectors (R7/R8). `integrate/limit/solve` remain timeout-bounded, not argument-capped; a true OOM/hang was not induced.
+- The truncation regression uses a generated 45-page blank PDF in `tmp_path`; it verifies the render/truncation path, not extraction quality.
+- `test_timeout_fails_closed` depends on SIGALRM and a deliberately expensive expression; it passed in R2 but is inherently timing-sensitive.
 - `checks.example.json` mathematics was executed and passes, but the underlying paper/bound-solution correspondence is **Reported-Verified (external)**; page images were not re-read here.
-- Repo root has unrelated pre-existing changes (`backup/…`, `settings.json`, submodule); the skill subtree itself is clean and was not touched.
+- Repo root has unrelated pre-existing changes (`backup/…`, `settings.json`, submodule). The skill subtree now contains the five fix files plus these two reports; nothing was committed or pushed.
 
 ---
 
-## 8. Remediation plan (ordered)
+## 8. Remediation status (revision 2)
 
-**P0 — unblock promotion**
-1. Fix `lint_skill.py` self-scan (skip own file). Acceptance: E1 → exit 0.
-2. Re-run E2; `test_lint_passes_package` must pass. Acceptance: 30 passed.
+**Applied and verified**
 
-**P1 — make the docs true**
-3. Replace PART 5/6 commands with the verified block above; fix the sample path; correct the test list.
-4. Add the six missing regression tests (or delete the claims).
-5. Add `samples/` and `docs/` to the `SKILL.md` tree, or move `docs/` out and document the sample fixture.
+| Item | Status | Evidence |
+|---|---|---|
+| P0.1 Fix lint self-scan | Done | V-1; R1 exit 0; R10 still flags copied script |
+| P0.2 pytest green | Done | R2: 60 passed |
+| P1.4 Six regression tests | Done | `tests/test_cli.py`; R2 |
+| P2.6 Allocation caps | Done (Option A) | `scripts/safe_expr.py`; R7/R8; `references/tool-safety.md` |
+| Re-validation | Done | R1–R11; hashes in §1 |
 
-**P2 — harden the evaluator**
-6. Cap matrix dimensions and factorial/binomial args; gate/remove `integrate/limit/solve`; re-raise `UnsafeExpression` before `except ValueError` (V-10).
-7. Validate result types (`Expr`/`Matrix`) → `ConfigError` exit 2 (V-11).
-8. Validate `--pages` with an argparse type and page-range check (V-8/V-15).
+**Still open (all Low; non-blocking)**
 
-**P3 — restore fidelity**
-9. Restore playbook universal checks 1–7 and SymPy patterns (V-7); implement the link check or drop it (V-5).
-10. Restore the `Deduce` row (V-14); fix exemplar provenance (S-1).
+| Item | Status | Finding |
+|---|---|---|
+| Add `samples/`/`docs/` to the tree or move `docs/` out | Open | V-6 / V-12 |
+| Restore playbook checks 1–7 and SymPy patterns | Open | V-7 |
+| Reject `--pages` garbage as exit 2 | Open | V-8 |
+| Fix huge-exponent message | Open | V-10 |
+| Validate result types → `ConfigError` | Open | V-11 |
+| Fix v2 sample path; align PART 5/6 | Open | V-13 |
+| Restore `Deduce` row | Open | V-14 |
+| Fix exemplar provenance line | Open | S-1 |
+| Implement or drop the link check | Open | V-5 |
 
-No fixes were applied in this validation pass. Nothing was committed or pushed.
+No High/Medium finding remains open. Nothing was committed or pushed.
+
+**Files changed in revision 2:** `scripts/lint_skill.py`, `scripts/safe_expr.py`, `tests/test_cli.py`, `tests/test_safe_expr.py`, `references/tool-safety.md`, `docs/validation_report.md`, `docs/validation_report.json`.

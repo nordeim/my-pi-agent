@@ -2,13 +2,17 @@
   "schemaVersion": "1.0",
   "report": "validation_report",
   "generatedAt": "2026-11-24",
+  "revision": 2,
+  "revisedAt": "2026-11-24",
   "target": {
     "skill": "solving-a-level-exam-papers",
     "path": "skills/solving-a-level-exam-papers",
     "repo": "nordeim/my-pi-agent",
     "branch": "main",
-    "head": "ced14ee24305abb837773b1c93e1e73352491a43",
-    "skillSubtreeClean": true
+    "head": "1d94f148959498e0ba29d7ee9dac5ccd54168162",
+    "initialPassHead": "ced14ee24305abb837773b1c93e1e73352491a43",
+    "skillSubtreeClean": false,
+    "skillSubtreeNote": "revision-2 fixes are uncommitted; initial pass was clean"
   },
   "environment": {
     "python": "3.14.7",
@@ -18,15 +22,17 @@
     "installMethod": "uv run --with (on demand; not in default interpreter)"
   },
   "verdict": {
-    "promotableToVerified": false,
-    "conformance": "FAIL",
-    "truthOfClaims": "PARTIAL",
-    "summary": "Security and correctness remediation is real and verified, but the promotion gate fails: lint exits 1 and pytest has 1 failure. The v2 promotion doc claims both pass."
+    "promotableToVerified": true,
+    "conformance": "PASS on hard gates; 2 Low FAIL rows (V-6, V-12) and 1 PARTIAL (S-1) tracked",
+    "truthOfClaims": "PASS on High/Medium claims; Low doc residuals (V-6, V-7, V-13, V-14, S-1) tracked",
+    "summary": "Revision 2 closes V-1, V-3 and V-4: lint exits 0, pytest is 60/60, the example suite is 7/7, and R7/R8 verify the allocation caps. No High/Medium finding remains open; ten Low findings are tracked and do not block promotion."
   },
   "summary": {
-    "openHigh": 1,
-    "openMedium": 2,
+    "openHigh": 0,
+    "openMedium": 0,
     "openLow": 10,
+    "closedHigh": 1,
+    "closedMedium": 2,
     "acceptedByDesign": 1,
     "refuted": 1,
     "externalFindingsClosed": 5,
@@ -39,14 +45,22 @@
       "assets/checks.example.json": "18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2",
       "scripts/check_math.py": "5ee3d3f1272795c80b8bf202ded7bd9374745cae9e3eb823dc7b349c4ae3627f",
       "scripts/extract_pdf.py": "031d55b3c08a83df67b1f33152f52c433be024e8b28305c180a7309635766356",
+      "scripts/lint_skill.py": "2133148d274123ee143b864854f3c4c7f3405008cb306e78ddae8cf71ca53fb9",
+      "scripts/safe_expr.py": "4070049245c4286365f41ac7b56d3211da12285d7e030ab9cefbc97d5b06d13d",
+      "tests/test_cli.py": "33d565edc57c05869b5e2aae921a05b861f8ce016193f55ee8560d1cd9902490",
+      "tests/test_safe_expr.py": "e1b33d4b45b561e520773443145c57e0c6eaf2a8e896d076a5cc093f6c88bb40",
+      "samples/2026_Prelim_P1.pdf": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8",
+      "docs/SKILL_v1.md": "834d465a909d9d7d99a2345ffbaf61dfc079546b51f3737ce3a3a10be4963a36",
+      "docs/v1_to_v2_updates.md": "624e13fb4462c926d932f999433e9d39d6d17e9ffdcf74b48c2828cb8bc2081d",
+      "docs/independent_skill_audit_report.json": "f019b2937810c65432ebb990db1c9bd1031291fe8db70d9cb92ac5bc09144612",
+      "references/tool-safety.md": "93391f610e994458edb3edfcdf0c8a35d03c9e3a9670694a11537594f65472a2"
+    },
+    "changedSinceInitialPass": {
       "scripts/lint_skill.py": "de58e349a92d20dcd5705155e0ab4a36e4159c705c65d5d9986bed788116fa8e",
       "scripts/safe_expr.py": "a5138e8f8c9f287c993d670dee8f0c675afcf21c5aa6a86e95d89fcfb41de3fc",
       "tests/test_cli.py": "6c9c7deab8e130368f2ec97a6cd2257fbc4a0c972ce3782330169012e8625171",
       "tests/test_safe_expr.py": "54357005fab72324c2b3754344a44114315e3ee16aeeca0bb46dde7539e0efe5",
-      "samples/2026_Prelim_P1.pdf": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8",
-      "docs/SKILL_v1.md": "834d465a909d9d7d99a2345ffbaf61dfc079546b51f3737ce3a3a10be4963a36",
-      "docs/v1_to_v2_updates.md": "624e13fb4462c926d932f999433e9d39d6d17e9ffdcf74b48c2828cb8bc2081d",
-      "docs/independent_skill_audit_report.json": "f019b2937810c65432ebb990db1c9bd1031291fe8db70d9cb92ac5bc09144612"
+      "references/tool-safety.md": "new in revision 2"
     }
   },
   "method": {
@@ -55,7 +69,7 @@
       "truth: documented claims when executed"
     ],
     "labels": ["Verified (executed)", "Confirmed (static)", "Reported-Verified (external)", "Refuted"],
-    "isolation": "All probes and outputs under /tmp; no skill files modified; no commits or pushes"
+    "isolation": "All probes and outputs under /tmp; revision-2 fixes modify five skill files and these two reports; no commits or pushes"
   },
   "findings": [
     {
@@ -63,12 +77,12 @@
       "origin": "self",
       "severity": "High",
       "confidence": "Verified (executed)",
-      "status": "Open",
+      "status": "Closed",
       "title": "Linter fails on its own package",
       "location": "scripts/lint_skill.py:16-18",
-      "evidence": "`python3 scripts/lint_skill.py .` exits 1 with 7 unsafe-pattern hits, all in lint_skill.py. BANNED at 16-17; ALLOWED_BANNED at 18 excludes only safe_expr.py.",
-      "impact": "Hard conformance gate fails; test_lint_passes_package is red; v2 promotion claims PASS.",
-      "recommendation": "Skip the linter file itself in the scan (it must contain the patterns), or load the ban list from a data file."
+      "evidence": "Fixed: the scan skips SELF while still scanning every other script. R1 exits 0 with PASS; R10 proves a copied extract_pdf.py is still flagged.",
+      "impact": "Hard conformance gate now passes.",
+      "recommendation": "Applied: self-skip guard plus test_lint_still_flags_other_scripts."
     },
     {
       "id": "V-2",
@@ -86,25 +100,25 @@
       "id": "V-3",
       "origin": "self",
       "severity": "Medium",
-      "confidence": "Confirmed (static)",
-      "status": "Open",
+      "confidence": "Verified (executed)",
+      "status": "Closed",
       "title": "Six regression tests named in v2 docs do not exist",
       "location": "tests/test_cli.py; docs/v1_to_v2_updates.md PART 3",
-      "evidence": "Absent: test_lint_requires_authorisation_gate, test_report_truncation_notice, test_interval_complex_errors, test_timeout_fails_closed, test_provenance_present, test_force_overwrites.",
-      "impact": "Documented QA coverage is overstated; behaviours exist but are unguarded.",
-      "recommendation": "Add the tests or remove the claims."
+      "evidence": "Fixed: all six tests exist and pass in R2 (60 passed): test_lint_requires_authorisation_gate, test_report_truncation_notice, test_interval_complex_errors, test_timeout_fails_closed, test_provenance_present, test_force_overwrites.",
+      "impact": "Documented QA coverage is now guarded.",
+      "recommendation": "Applied: six tests added."
     },
     {
       "id": "V-4",
       "origin": "self",
       "severity": "Medium",
-      "confidence": "Confirmed (static) + bounded probes",
-      "status": "Open",
+      "confidence": "Verified (executed)",
+      "status": "Closed (Option A)",
       "title": "Residual DoS surface in safe_expr",
       "location": "scripts/safe_expr.py:17-37",
-      "evidence": "No dimension cap for Matrix/diag/eye/zeros/ones; no argument cap for factorial/binomial/gamma/integrate/limit/solve. eye(1000), zeros(2000,2000), factorial(200000) accepted. Timeout interrupts Python work (ERROR) but cannot reliably preempt large C-level allocation.",
-      "impact": "Model-supplied or adversarial expressions can exhaust memory/CPU.",
-      "recommendation": "Cap matrix dimensions and factorial/binomial args; gate or remove integrate/limit/solve; document the trusted-input model."
+      "evidence": "Fixed for allocation vectors: MAX_MATRIX_DIM=64, MAX_INT_ARG=10000 and MAX_SEQ=4096. R7 rejects eye(65), zeros(65,65), ones(65,1), Matrix(65,1,[0]), factorial(10001), binomial(10001,2), gamma(10001), diag(eye(64),eye(64)), [0]*4097, Matrix([0]*65), Matrix([[0]*65]*65), Matrix(64,64,[0]*4097); R8 accepts the bounded forms. integrate/limit/solve remain under the trusted-input model plus per-check SIGALRM timeout; no true OOM/hang was induced.",
+      "impact": "Memory-exhaustion vectors are capped; CPU-heavy calls are timeout-bounded.",
+      "recommendation": "Applied: caps in safe_expr.py; references/tool-safety.md rule 2 documents the caps and timeout model."
     },
     {
       "id": "V-5",
@@ -208,11 +222,11 @@
       "severity": "Low",
       "confidence": "Verified (executed)",
       "status": "Open",
-      "title": "v2 promotion commands are wrong",
+      "title": "v2 promotion commands are partly wrong",
       "location": "docs/v1_to_v2_updates.md PART 5-6",
-      "evidence": "'# expect PASS' is false (exit 1); '# expect all pass' is false (1 failed); ../../samples path resolves outside the skill; PART 6 says 'Linter would PASS'.",
-      "impact": "A reviewer following the doc cannot reach Verified and will misdiagnose the failure.",
-      "recommendation": "Replace with the verified command block and correct paths."
+      "evidence": "After revision 2, '# expect PASS' and '# expect all pass' are true (R1/R2) and PART 6's 'Linter would PASS' is true; ../../samples still resolves outside the skill.",
+      "impact": "The only remaining defect is the sample path; a reviewer can otherwise reach Verified.",
+      "recommendation": "Replace ../../samples/2026_Prelim_P1.pdf with samples/2026_Prelim_P1.pdf in PART 5."
     },
     {
       "id": "V-14",
@@ -289,18 +303,19 @@
     {"requirement": "Relative forward-slash supporting paths", "status": "PASS"},
     {"requirement": "No auxiliary README/CHANGELOG", "status": "PASS"},
     {"requirement": "Scripts deterministic, dependency-light, no network", "status": "PASS"},
-    {"requirement": "lint_skill.py exits 0", "status": "FAIL", "note": "exit 1, V-1"},
-    {"requirement": "pytest green", "status": "FAIL", "note": "1 failed, 29 passed"},
-    {"requirement": "Exit-code contract", "status": "PASS", "note": "usage path fails, V-8"},
+    {"requirement": "lint_skill.py exits 0", "status": "PASS", "note": "R1"},
+    {"requirement": "pytest green", "status": "PASS", "note": "R2: 60 passed"},
+    {"requirement": "Exit-code contract", "status": "PASS", "note": "E3/E5/E8/E14; usage path still fails, V-8 Low"},
     {"requirement": "No arbitrary code execution", "status": "PASS"},
+    {"requirement": "Memory-exhaustion vectors capped", "status": "PASS", "note": "R7/R8; MAX_MATRIX_DIM=64, MAX_INT_ARG=10000, MAX_SEQ=4096"},
     {"requirement": "Empty/malformed suite fails closed", "status": "PASS"},
     {"requirement": "No unrequested git side effects", "status": "PASS"},
     {"requirement": "Textless PDF fails closed", "status": "PASS"},
-    {"requirement": "No overwrite without --force", "status": "PASS"},
-    {"requirement": "Provenance in ledger", "status": "PARTIAL", "note": "code yes; exemplar no"},
-    {"requirement": "Q6 suite 7/7", "status": "PASS"},
-    {"requirement": "Eval suite outside skill folder", "status": "FAIL", "note": "undocumented; V-6"},
-    {"requirement": "File tree complete", "status": "FAIL", "note": "V-12"}
+    {"requirement": "No overwrite without --force", "status": "PASS", "note": "R5/R6"},
+    {"requirement": "Provenance in ledger", "status": "PARTIAL", "note": "code yes; exemplar no (S-1, Low)"},
+    {"requirement": "Q6 suite 7/7", "status": "PASS", "note": "R3"},
+    {"requirement": "Eval suite outside skill folder", "status": "FAIL", "note": "undocumented exception; V-6 Low"},
+    {"requirement": "File tree complete", "status": "FAIL", "note": "V-12 Low"}
   ],
   "executedEvidence": [
     {"id": "E1", "command": "python3 scripts/lint_skill.py .", "result": "exit 1; body 139; 7 hits in lint_skill.py"},
@@ -318,48 +333,70 @@
     {"id": "E13", "command": "interval expr I; zero expr [1,2]", "result": "ERROR rows; exit 1"},
     {"id": "E14", "command": "check_math malformed JSON", "result": "exit 2 CONFIG ERROR"}
   ],
+  "executedEvidencePhase": "initial pass (pre-fix); E1/E2 are the failures that motivated revision 2",
+  "revalidationEvidence": [
+    {"id": "R1", "command": "python3 scripts/lint_skill.py .", "result": "exit 0; PASS; body 139 lines"},
+    {"id": "R2", "command": "pytest -q tests/", "result": "60 passed in 6.72s; 42 safe-expression + 18 CLI tests"},
+    {"id": "R3", "command": "check_math.py assets/checks.example.json", "result": "7/7 PASS exit 0; checks_sha256=18c1a7f6...; sympy 1.14.0"},
+    {"id": "R4", "command": "extract_pdf.py sample --out /tmp/opencode/rv1 (run 1)", "result": "exit 0; 24 pages; manifest"},
+    {"id": "R5", "command": "same (run 2)", "result": "exit 2; refuses overwrite"},
+    {"id": "R6", "command": "same --force (run 3)", "result": "exit 0"},
+    {"id": "R7", "command": "safe_expr oversized allocations", "result": "12/12 rejected with UnsafeExpression"},
+    {"id": "R8", "command": "safe_expr bounded allocations", "result": "12/12 accepted"},
+    {"id": "R9", "command": "test_timeout_fails_closed via R2", "result": "pass; ERROR + 'time limit'"},
+    {"id": "R10", "command": "lint gate/other-script tests via R2", "result": "pass; copied extract_pdf.py still flagged"},
+    {"id": "R11", "command": "extract_pdf.py --pages abc", "result": "exit 1 + traceback; V-8 Low unchanged"}
+  ],
   "docCodeContradictions": [
-    "PART 5 '# expect PASS' false (exit 1)",
-    "PART 5 '# expect all pass' false (1 failed)",
-    "PART 5 ../../samples path resolves outside the skill",
-    "PART 3 names six tests that do not exist",
-    "PART 6 'Linter would PASS' false",
-    "v1 section 14 'eval suite outside skill folder' vs shipped tests/ and samples/"
+    "RESOLVED: PART 5 '# expect PASS' now matches R1",
+    "RESOLVED: PART 5 '# expect all pass' now matches R2 (60 passed)",
+    "RESOLVED: PART 3 six tests now exist (V-3)",
+    "RESOLVED: PART 6 'Linter would PASS' now matches R1",
+    "OPEN (Low V-13): PART 5 ../../samples path resolves outside the skill",
+    "OPEN (Low V-6): v1 section 14 'eval suite outside skill folder' vs shipped tests/ and samples/"
   ],
   "unverified": [
     "PDF-02 343 false positives: Reported-Verified (external), not re-counted",
-    "V-4 OOM/hang not induced; bounded acceptance probes only",
+    "V-4 allocation caps verified (R7/R8), but integrate/limit/solve remain timeout-bounded and no true OOM/hang was induced",
+    "Truncation test uses a generated 45-page blank PDF; it verifies the render path, not extraction quality",
+    "test_timeout_fails_closed is timing-sensitive (SIGALRM plus a deliberately expensive expression)",
     "Paper/bound-solution correspondence: Reported-Verified (external)"
   ],
   "remediation": {
-    "P0": [
-      "Fix lint self-scan; lint exit 0",
-      "Re-run pytest; 30 passed"
+    "applied": [
+      "P0.1 lint self-scan fixed; R1 exit 0",
+      "P0.2 pytest green; R2 60 passed",
+      "P1.4 six regression tests added; R2",
+      "P2.6 allocation caps added; R7/R8; tool-safety rule 2 updated"
     ],
-    "P1": [
-      "Correct PART 5-6 commands, sample path, test list",
-      "Add six missing regression tests or delete claims",
-      "Fix SKILL.md tree / declare samples+docs exception"
-    ],
-    "P2": [
-      "Cap matrix and factorial/binomial args; gate integrate/limit/solve; fix exponent message",
-      "Validate result types to ConfigError",
-      "Validate --pages type and range"
-    ],
-    "P3": [
-      "Restore playbook universal checks and SymPy patterns; implement link check or drop",
-      "Restore Deduce row; fix exemplar provenance"
+    "remainingLow": [
+      "V-6/V-12 add samples+docs to tree or move docs out",
+      "V-7 restore playbook checks 1-7 and SymPy patterns",
+      "V-8 reject --pages garbage as exit 2",
+      "V-10 fix huge-exponent message",
+      "V-11 validate result types to ConfigError",
+      "V-13 fix v2 sample path",
+      "V-14 restore Deduce row",
+      "S-1 fix exemplar provenance line",
+      "V-5 implement or drop the link check"
     ]
   },
   "sideEffects": {
-    "skillSourceFilesModified": false,
+    "skillSourceFilesModified": true,
+    "modifiedFiles": [
+      "scripts/lint_skill.py",
+      "scripts/safe_expr.py",
+      "tests/test_cli.py",
+      "tests/test_safe_expr.py",
+      "references/tool-safety.md"
+    ],
     "reportsWritten": [
       "docs/validation_report.md",
       "docs/validation_report.json"
     ],
     "committed": false,
     "pushed": false,
-    "tempArtifacts": "/tmp/val-probes, /tmp/val-oor",
+    "tempArtifacts": "/tmp/opencode/rv1, /tmp/opencode/rv1.log, /tmp/opencode/rv2.log, /tmp/opencode/rv3.log, /tmp/opencode/rvbad.log",
     "cleanup": "removed scripts/__pycache__ and tests/__pycache__"
   }
 }

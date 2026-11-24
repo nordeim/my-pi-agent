@@ -34,3 +34,24 @@ def test_float_detected():
 def test_unknown_name_rejected():
     with pytest.raises(UnsafeExpression):
         parse("mystery(1)")
+
+
+@pytest.mark.parametrize("src", [
+    "eye(65)", "zeros(65,65)", "ones(65,1)", "Matrix(65, 1, [0])",
+    "factorial(10001)", "binomial(10001,2)", "gamma(10001)",
+    "diag(eye(64), eye(64))", "[0]*4097", "Matrix([0]*65)",
+    "Matrix([[0]*65]*65)", "Matrix(64, 64, [0]*4097)",
+])
+def test_oversized_allocations_rejected(src):
+    with pytest.raises(UnsafeExpression):
+        parse(src, symbols=("x",))
+
+
+@pytest.mark.parametrize("src", [
+    "eye(64)", "zeros(64,64)", "ones(64,1)", "Matrix([[1,2],[3,4]])",
+    "factorial(1000)", "binomial(1000,2)", "gamma(100)", "diag(1,2,3)",
+    "[0]*4096", "Matrix([0]*64)", "Matrix([[0]*64]*64)",
+    "Matrix(64, 64, [0]*4096)",
+])
+def test_bounded_allocations_allowed(src):
+    parse(src, symbols=("x",))

@@ -1,4 +1,4 @@
-import json, subprocess, sys
+import json, re, shutil, subprocess, sys
 from pathlib import Path
 import pytest
 
@@ -16,6 +16,14 @@ def suite(tmp_path, spec):
     p = tmp_path / "checks.json"
     p.write_text(json.dumps(spec), encoding="utf-8")
     return p
+
+
+def copy_skill(tmp_path):
+    dst = tmp_path / ROOT.name
+    shutil.copytree(ROOT, dst,
+                    ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache",
+                                                 "samples", "docs"))
+    return dst
 
 
 def test_example_suite_passes(tmp_path):
@@ -85,11 +93,13 @@ def test_injection_exit2_and_no_marker(tmp_path):
     assert r.returncode == 2 and not marker.exists()
 
 
-def blank_pdf(path):
+def blank_pdf(path, pages=1):
+    kids = " ".join(f"{3 + 2 * i} 0 R" for i in range(pages))
     objs = [b"<</Type/Catalog/Pages 2 0 R>>",
-            b"<</Type/Pages/Kids[3 0 R]/Count 1>>",
-            b"<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]/Resources<<>>/Contents 4 0 R>>",
-            b"<</Length 0>>stream\nendstream\n"]
+            f"<</Type/Pages/Kids[{kids}]/Count {pages}>>".encode()]
+    for i in range(pages):
+        objs.append(f"<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]/Resources<<>>/Contents {4 + 2 * i} 0 R>>".encode())
+        objs.append(b"<</Length 0>>stream\nendstream\n")
     out, offsets = bytearray(b"%PDF-1.4\n"), []
     for i, body in enumerate(objs, 1):
         offsets.append(len(out))
@@ -110,7 +120,7 @@ def test_textless_pdf_exit3(tmp_path):
     assert r.returncode == 3 and "NO_TEXT" in r.stdout and "G0 FAILED" in r.stderr
 
 
-def test_no_overwrite_then_force(tmp_path):
+def test_force_overwrites(tmp_path):
     pytest.importorskip("pdfplumber")
     pdf = tmp_path / "blank.pdf"
     blank_pdf(pdf)
@@ -127,3 +137,69 @@ def test_no_overwrite_then_force(tmp_path):
 def test_lint_passes_package():
     r = run("lint_skill.py", ROOT)
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_provenance_present(tmp_path):
+    pytest.importorskip("sympy")
+    r = run("check_math.py", suite(tmp_path, EXAMPLE))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "checks_sha256=" in r.stdout and "sympy=" in r.stdout
+
+
+def test_interval_complex_errors(tmp_path):
+    pytest.importorskip("sympy")
+    spec = {"symbols": ["x"], "checks": [
+        {"id": "O", "role": "original-condition", "kind": "equal",
+         "note": "1 = 1", "lhs": "1", "rhs": "1"},
+        {"id": "C", "role": "domain", "kind": "interval",
+         "note": "complex value", "expr": "I", "lo": "0", "hi": "1"},
+    ]}
+    r = run("check_math.py", suite(tmp_path, spec))
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "| C |" in r.stdout and "ERROR" in r.stdout
+
+
+def test_timeout_fails_closed(tmp_path):
+    pytest.importorskip("sympy")
+    spec = {"symbols": ["x"], "checks": [
+        {"id": "O", "role": "original-condition", "kind": "equal",
+         "note": "1 = 1", "lhs": "1", "rhs": "1"},
+        {"id": "T", "role": "sanity", "kind": "zero",
+         "note": "slow expression", "expr": "expand((x+1)**900)"},
+    ]}
+    out = tmp_path / "results.json"
+    r = run("check_math.py", suite(tmp_path, spec), "--timeout", "0.01", "--json", out)
+    assert r.returncode == 1, r.stdout + r.stderr
+    results = json.loads(out.read_text(encoding="utf-8"))["results"]
+    slow = next(x for x in results if x["id"] == "T")
+    assert slow["status"] == "ERROR" and "time limit" in slow["detail"]
+
+
+def test_report_truncation_notice(tmp_path):
+    pytest.importorskip("pdfplumber")
+    pdf = tmp_path / "many.pdf"
+    blank_pdf(pdf, pages=45)
+    r = run("extract_pdf.py", pdf, "--out", tmp_path / "o")
+    assert r.returncode == 3, r.stdout + r.stderr
+    assert "[OUTPUT TRUNCATED" in r.stdout and "manifest.json" in r.stdout
+
+
+def test_lint_requires_authorisation_gate(tmp_path):
+    dst = copy_skill(tmp_path)
+    md = dst / "SKILL.md"
+    text = re.sub(r"(?i)explicit authori[sz]ation", "approval",
+                  md.read_text(encoding="utf-8"))
+    md.write_text(text, encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "must gate git delivery" in r.stdout
+
+
+def test_lint_still_flags_other_scripts(tmp_path):
+    dst = copy_skill(tmp_path)
+    script = dst / "scripts" / "extract_pdf.py"
+    script.write_text(script.read_text(encoding="utf-8") + "\n# eval(\n",
+                      encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "unsafe pattern" in r.stdout and "extract_pdf.py" in r.stdout
