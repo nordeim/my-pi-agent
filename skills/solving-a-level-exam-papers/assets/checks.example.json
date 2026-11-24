@@ -1,0 +1,27 @@
+{
+  "symbols": ["u"],
+  "checks": [
+    {"id": "V1", "role": "original-condition", "kind": "equal",
+     "note": "w satisfies |w-9+4i|^2 = 9|w-1-4i|^2",
+     "lhs": "(3*sqrt(14)/5 - 9)**2 + (Rational(7,5) + 4)**2",
+     "rhs": "9*((3*sqrt(14)/5 - 1)**2 + (Rational(7,5) - 4)**2)"},
+    {"id": "V2", "role": "original-condition", "kind": "equal",
+     "note": "w lies on C: x^2+(y-5)^2=18",
+     "lhs": "(3*sqrt(14)/5)**2 + (Rational(7,5) - 5)**2", "rhs": "18"},
+    {"id": "V3", "role": "independent-method", "kind": "zero",
+     "note": "equal-distance line Re(w a) = 0 with a = sqrt(7)+3*sqrt(2)*I",
+     "expr": "re((3*sqrt(14)/5 + Rational(7,5)*I)*(sqrt(7) + 3*sqrt(2)*I))"},
+    {"id": "V4", "role": "independent-method", "kind": "zero",
+     "note": "tangency: repeated root of 25u^2-30*sqrt(14)u+126",
+     "expr": "discriminant(25*u**2 - 30*sqrt(14)*u + 126, u)"},
+    {"id": "V5", "role": "sanity", "kind": "equal",
+     "note": "|w| = sqrt(7) as in the bound solution",
+     "lhs": "(3*sqrt(14)/5)**2 + Rational(7,5)**2", "rhs": "7"},
+    {"id": "V6", "role": "domain", "kind": "interval",
+     "note": "theta = asin(3*sqrt(2)/5) lies in (0, pi/2)",
+     "expr": "asin(3*sqrt(2)/5)", "lo": "0", "hi": "pi/2"},
+    {"id": "V7", "role": "domain", "kind": "interval",
+     "note": "min arg = 3*pi/4 - asin(1/3) lies in (pi/2, pi)",
+     "expr": "3*pi/4 - asin(Rational(1,3))", "lo": "pi/2", "hi": "pi"}
+  ]
+}
