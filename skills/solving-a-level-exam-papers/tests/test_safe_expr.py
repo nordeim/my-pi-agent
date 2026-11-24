@@ -41,6 +41,8 @@ def test_unknown_name_rejected():
     "factorial(10001)", "binomial(10001,2)", "gamma(10001)",
     "diag(eye(64), eye(64))", "[0]*4097", "Matrix([0]*65)",
     "Matrix([[0]*65]*65)", "Matrix(64, 64, [0]*4097)",
+    "det([[0]*4096]*4096)", "inv([[0]*1000]*1000)",
+    "transpose([[0]*1000]*1000)", "det([0]*4096)",
 ])
 def test_oversized_allocations_rejected(src):
     with pytest.raises(UnsafeExpression):
