@@ -1,54 +1,169 @@
 #!/usr/bin/env python3
-"""Execute declared mathematical checks; emit a Markdown verification ledger.
+"""Execute declared mathematical checks; emit a provenance-bearing ledger.
 
-Usage: uv run --with sympy python scripts/check_math.py checks.json
-Exit code 1 if any check FAILs (never silently pass).
-
-Check kinds:
-  zero      : expr simplifies to 0
-  equal     : lhs - rhs simplifies to 0
-  interval  : lo < expr < hi        (numeric, strict)
-  approx    : |lhs - rhs| < tol     (default tol 1e-10)
+Exit: 0 all pass | 1 a check FAILED/ERRORED | 2 suite invalid or unsafe.
+Undated by default (reproducible); --stamp adds a UTC timestamp.
 """
 from __future__ import annotations
-import json, sys
+import argparse, hashlib, json, os, signal, sys, tempfile
+from pathlib import Path
 
-def main() -> None:
+import sympy as sp
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_expr import UnsafeExpression, is_inexact, parse  # noqa: E402
+
+KINDS = {"zero", "equal", "approx", "interval"}
+ROLES = {"original-condition", "independent-method", "domain", "sanity"}
+EXACT_KINDS = {"zero", "equal"}
+MIN_CHECKS_FLOOR, MAX_CHECKS, MAX_TOL = 2, 200, 1e-6
+REQUIRED = {"zero": ("expr",), "equal": ("lhs", "rhs"),
+            "approx": ("lhs", "rhs"), "interval": ("expr", "lo", "hi")}
+
+
+class ConfigError(ValueError):
+    pass
+
+
+def validate(spec, min_checks):
+    if min_checks < MIN_CHECKS_FLOOR:
+        raise ConfigError(f"--min-checks cannot be below {MIN_CHECKS_FLOOR} (gate G4)")
+    if not isinstance(spec, dict):
+        raise ConfigError("top level must be a JSON object")
+    checks = spec.get("checks")
+    if not isinstance(checks, list) or not checks:
+        raise ConfigError("'checks' must be a non-empty list; an empty suite is not a pass")
+    if len(checks) < min_checks:
+        raise ConfigError(f"{len(checks)} check(s) supplied; G4 requires >= {min_checks}")
+    if len(checks) > MAX_CHECKS:
+        raise ConfigError(f"more than {MAX_CHECKS} checks")
+    seen, roles = set(), []
+    for i, c in enumerate(checks):
+        where = f"checks[{i}]"
+        if not isinstance(c, dict):
+            raise ConfigError(f"{where} must be an object")
+        cid, kind, note = c.get("id"), c.get("kind"), c.get("note")
+        if not isinstance(cid, str) or not cid.strip():
+            raise ConfigError(f"{where}.id must be a non-empty string")
+        if cid in seen:
+            raise ConfigError(f"duplicate check id: {cid}")
+        seen.add(cid)
+        if kind not in KINDS:
+            raise ConfigError(f"{where}.kind must be one of {sorted(KINDS)}")
+        if not isinstance(note, str) or not note.strip():
+            raise ConfigError(f"{where}.note must state the claim being checked")
+        role = c.get("role")
+        if role is not None:
+            if role not in ROLES:
+                raise ConfigError(f"{where}.role must be one of {sorted(ROLES)}")
+            roles.append(role)
+        for field in REQUIRED[kind]:
+            if not isinstance(c.get(field), str):
+                raise ConfigError(f"{where}.{field} must be a string expression")
+        if "tol" in c:
+            try:
+                tol = float(c["tol"])
+            except (TypeError, ValueError):
+                raise ConfigError(f"{where}.tol must be numeric") from None
+            if not (0 < tol <= MAX_TOL):
+                raise ConfigError(f"{where}.tol must satisfy 0 < tol <= {MAX_TOL}")
+        if "inclusive" in c and not isinstance(c["inclusive"], bool):
+            raise ConfigError(f"{where}.inclusive must be a boolean")
+    if "original-condition" not in roles:
+        raise ConfigError("G4 requires >= 1 check with role 'original-condition'")
+    return checks
+
+
+class _Timeout(Exception):
+    pass
+
+
+def _alarm(signum, frame):
+    raise _Timeout("per-check time limit exceeded")
+
+
+def run_check(c, symbols, timeout):
+    if hasattr(signal, "SIGALRM"):
+        signal.signal(signal.SIGALRM, _alarm)
+        signal.setitimer(signal.ITIMER_REAL, timeout)
     try:
-        import sympy as sp
-    except ImportError:
-        sys.exit("sympy missing: uv run --with sympy python ...")
-    if len(sys.argv) != 2:
-        sys.exit("usage: check_math.py checks.json")
-    spec = json.load(open(sys.argv[1], encoding="utf-8"))
-    locals_ = {s: sp.Symbol(s) for s in spec.get("symbols", [])}
-    S = lambda t: sp.sympify(t, locals=locals_)
-    rows, failed = [], 0
-    for c in spec["checks"]:
-        kind, note, cid = c["kind"], c.get("note", ""), c["id"]
-        try:
-            if kind == "zero":
-                ok = sp.simplify(S(c["expr"])) == 0
-            elif kind == "equal":
-                ok = sp.simplify(S(c["lhs"]) - S(c["rhs"])) == 0
-            elif kind == "interval":
-                v = float(sp.N(S(c["expr"]), 30))
-                ok = float(sp.N(S(c["lo"]))) < v < float(sp.N(S(c["hi"])))
-            elif kind == "approx":
-                d = abs(complex(sp.N(S(c["lhs"]) - S(c["rhs"]), 30)))
-                ok = d < float(c.get("tol", 1e-10))
-            else:
-                raise ValueError(f"unknown kind {kind!r}")
-            status = "PASS" if ok else "FAIL"
-        except Exception as exc:                      # noqa: BLE001
-            ok, status = False, f"ERROR: {exc}"
-        failed += 0 if ok else 1
-        rows.append(f"| {cid} | {note} | {kind} | {status} |")
-    print("| # | Claim | Check | Result |")
-    print("|---|---|---|---|")
-    print("\n".join(rows))
-    print(f"\n{len(rows)-failed}/{len(rows)} checks passed.")
-    sys.exit(1 if failed else 0)
+        kind = c["kind"]
+        get = lambda k: parse(c[k], symbols)
+        if kind in EXACT_KINDS:
+            exprs = [get(k) for k in REQUIRED[kind]]
+            if any(is_inexact(e) for e in exprs):
+                raise ConfigError(f"{c['id']}: floats are forbidden in exact checks; use Rational(7,5)")
+            target = exprs[0] if kind == "zero" else exprs[0] - exprs[1]
+            ok = sp.simplify(target) == 0
+            detail = f"simplified: {sp.simplify(target)}"
+        elif kind == "approx":
+            d = sp.N(sp.Abs(get("lhs") - get("rhs")), 30)
+            tol = float(c.get("tol", 1e-10))
+            ok = bool(d.is_real) and float(d) < tol
+            detail = f"|difference| = {d}, tol = {tol}"
+        else:
+            v = sp.N(get("expr"), 30)
+            if not v.is_real:
+                raise ValueError("interval check requires a real value")
+            lo, hi = float(sp.N(get("lo"), 30)), float(sp.N(get("hi"), 30))
+            x = float(v)
+            ok = (lo <= x <= hi) if c.get("inclusive") else (lo < x < hi)
+            detail = f"value = {x}, bounds = ({lo}, {hi})"
+        return {"id": c["id"], "note": c["note"], "kind": kind,
+                "role": c.get("role", "-"), "status": "PASS" if ok else "FAIL",
+                "detail": detail}
+    except ConfigError:
+        raise
+    except UnsafeExpression as exc:
+        raise ConfigError(f"{c['id']}: unsafe expression: {exc}") from None
+    except Exception as exc:  # noqa: BLE001 - fail closed
+        return {"id": c["id"], "note": c.get("note", ""), "kind": c["kind"],
+                "role": c.get("role", "-"), "status": "ERROR", "detail": str(exc)}
+    finally:
+        if hasattr(signal, "SIGALRM"):
+            signal.setitimer(signal.ITIMER_REAL, 0)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("checks")
+    ap.add_argument("--min-checks", type=int, default=MIN_CHECKS_FLOOR)
+    ap.add_argument("--timeout", type=float, default=20.0)
+    ap.add_argument("--json")
+    ap.add_argument("--stamp", action="store_true")
+    a = ap.parse_args()
+    if not 0 < a.timeout <= 120:
+        print("CONFIG ERROR: --timeout must be in (0, 120]", file=sys.stderr)
+        return 2
+    raw = Path(a.checks).read_bytes()
+    try:
+        spec = json.loads(raw)
+        checks = validate(spec, a.min_checks)
+        rows = [run_check(c, spec.get("symbols", []), a.timeout) for c in checks]
+    except (ConfigError, OSError, json.JSONDecodeError) as exc:
+        print(f"CONFIG ERROR: {exc}", file=sys.stderr)
+        return 2
+    failed = sum(r["status"] != "PASS" for r in rows)
+    ledger = ["| # | Claim | Kind | Role | Result |", "|---|---|---|---|---|"]
+    ledger += [f"| {r['id']} | {r['note']} | {r['kind']} | {r['role']} | {r['status']} |"
+               for r in rows]
+    provenance = {"checks_sha256": hashlib.sha256(raw).hexdigest(),
+                  "sympy": sp.__version__, "python": sys.version.split()[0],
+                  "passed": len(rows) - failed, "total": len(rows)}
+    if a.stamp:
+        import datetime
+        provenance["generated_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    print("\n".join(ledger))
+    print(f"\n{len(rows) - failed}/{len(rows)} checks passed.")
+    print(f"provenance: checks_sha256={provenance['checks_sha256'][:16]}… sympy={sp.__version__}")
+    if a.json:
+        payload = {"provenance": provenance, "results": rows}
+        p = Path(a.json)
+        with tempfile.NamedTemporaryFile("w", dir=p.parent, delete=False, encoding="utf-8") as fh:
+            json.dump(payload, fh, indent=2)
+            tmp = fh.name
+        os.replace(tmp, p)
+    return 1 if failed else 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
