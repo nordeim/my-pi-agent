@@ -34,3 +34,18 @@ Premature rounding; degrees/radians mismatch; lost `±` on square roots;
 initial conditions; matrix multiplication order; using `det = 0` without
 checking independence; forgetting the Jacobian in substitution; unlabelled
 sketches; missing units; incomplete case analysis in "all possible values".
+
+## Round 2 — lessons from the independent skill audit
+| Incident | Root cause | Rule |
+|---|---|---|
+| `sympify` executed a payload | convenience parser on untrusted text | whitelist AST interpreter; no eval anywhere |
+| `0/0 checks passed`, exit 0 | no minimum-suite validation | fail closed; ≥2 checks, ≥1 original-condition |
+| `tol` accepted 1e9 | unbounded gate parameter | clamp tolerance; never weaken a gate |
+| Unconditional commit instruction | delivery conflated with authorisation | commit only when authorised; stage named files |
+| Textless PDF accepted | `or ""` swallowed the failure | per-page census; exit 3; OCR/visual fallback |
+| Outputs overwritten | fixed filenames, unconditional write | hash run-dir; refuse overwrite; atomic write |
+| 343 orphan-"1" hits, silent truncation | context-free regex, `[:4000]` | scope heuristics; cap; announce truncation |
+| Exemplar missed cover rules/handoff | template did not force them | template + linter enforce both |
+| No tests | shipped code unexercised | every finding becomes a regression test |
+**Meta-lesson:** a workflow document can be excellent while its helper code is
+unsafe. Audit the *executable* surface with the same rigour as the prose.
