@@ -1,0 +1,44 @@
+From github.com:nordeim/my-pi-agent
+   808b9a39..19538de0  main       -> origin/main
+Updating 808b9a39..19538de0
+Fast-forward
+ skills/solving-a-level-exam-papers/SKILL.md                            | 170 ++++++++++++++++++++++++++++++++++
+ skills/solving-a-level-exam-papers/assets/audit-template.md            |  25 +++++
+ skills/solving-a-level-exam-papers/assets/solution-template.md         |  33 +++++++
+ skills/solving-a-level-exam-papers/references/exam-presentation.md     |  67 ++++++++++++++
+ skills/solving-a-level-exam-papers/references/pitfalls-and-lessons.md  |  36 +++++++
+ skills/solving-a-level-exam-papers/references/source-fidelity.md       |  58 ++++++++++++
+ skills/solving-a-level-exam-papers/references/verification-playbook.md |  62 +++++++++++++
+ skills/solving-a-level-exam-papers/samples/2026_ Prelim_P1.pdf         | Bin 0 -> 1117524 bytes
+ skills/solving-a-level-exam-papers/samples/model_answer_6.md           | 453 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ skills/solving-a-level-exam-papers/samples/model_answer_6_corrected.md | 249 +++++++++++++++++++++++++++++++++++++++++++++++++
+ skills/solving-a-level-exam-papers/scripts/check_math.py               |  54 +++++++++++
+ skills/solving-a-level-exam-papers/scripts/extract_pdf.py              |  60 ++++++++++++
+ skills/solving-a-level-exam-papers/scripts/lint_skill.py               |  48 ++++++++++
+ 13 files changed, 1315 insertions(+)
+
+---
+
+From github.com:nordeim/my-pi-agent
+   02b434d8..7992e696  main       -> origin/main
+Updating 02b434d8..7992e696
+Fast-forward
+ skills/solving-a-level-exam-papers/SKILL.md                                 |  234 ++++++++---------
+ skills/solving-a-level-exam-papers/assets/audit-template.md                 |    5 +
+ skills/solving-a-level-exam-papers/assets/checks.example.json               |   27 ++
+ skills/solving-a-level-exam-papers/assets/solution-template.md              |   35 +--
+ skills/solving-a-level-exam-papers/docs/independent_skill_audit_report.json |  140 +++++++++++
+ skills/solving-a-level-exam-papers/docs/v1_to_v2_updates.md                 | 1139 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ skills/solving-a-level-exam-papers/references/exam-presentation.md          |    6 +
+ skills/solving-a-level-exam-papers/references/pitfalls-and-lessons.md       |   15 ++
+ skills/solving-a-level-exam-papers/references/source-fidelity.md            |    8 +
+ skills/solving-a-level-exam-papers/references/tool-safety.md                |   28 +++
+ skills/solving-a-level-exam-papers/references/verification-playbook.md      |   84 ++-----
+ skills/solving-a-level-exam-papers/samples/model_answer_6_corrected.md      |   14 ++
+ skills/solving-a-level-exam-papers/scripts/check_math.py                    |  207 +++++++++++----
+ skills/solving-a-level-exam-papers/scripts/extract_pdf.py                   |  178 +++++++++----
+ skills/solving-a-level-exam-papers/scripts/lint_skill.py                    |   78 ++++--
+ skills/solving-a-level-exam-papers/scripts/safe_expr.py                     |  108 ++++++++
+ skills/solving-a-level-exam-papers/tests/test_cli.py                        |  129 ++++++++++
+ skills/solving-a-level-exam-papers/tests/test_safe_expr.py                  |   36 +++
+ 18 files changed, 2145 insertions(+), 326 deletions(-)
