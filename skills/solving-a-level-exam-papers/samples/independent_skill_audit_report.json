@@ -1,0 +1,140 @@
+{
+  "repo": "nordeim/my-pi-agent",
+  "head": "02b434d87d96",
+  "referenceCommit": "19538de0",
+  "sourcePath": "skills/solving-a-level-exam-papers",
+  "pdfPath": "samples/2026_Prelim_P1.pdf",
+  "repositoryState": "Clean clone on main",
+  "postReferenceChange": "The only skill-tree change after 19538de0 is the PDF rename from 2026_ Prelim_P1.pdf to 2026_Prelim_P1.pdf.",
+  "recommendation": "Fix the checker’s unsafe expression parsing and empty-check behavior before relying on it. The written workflow is strong, but scripts and commit/output side effects need safeguards.",
+  "summary": {
+    "high": 1,
+    "medium": 4,
+    "low": 2,
+    "informational": 0,
+    "exactChecksPassed": 7,
+    "exactChecksTotal": 7
+  },
+  "findings": [
+    {
+      "id": "SEC-01",
+      "severity": "High",
+      "title": "Math expressions execute arbitrary Python",
+      "location": "scripts/check_math.py:23–27",
+      "category": "Security",
+      "confidence": "Verified",
+      "evidence": "A controlled check expression created a /tmp marker through sympy.sympify; the checker reported PASS and exited 0.",
+      "impact": "Running checks derived from user- or model-supplied content can execute code with the agent process’s permissions.",
+      "recommendation": "Do not pass untrusted strings to sympify. Parse a tightly restricted expression grammar, validate the JSON schema and expression size, and add a regression test for code-execution payloads."
+    },
+    {
+      "id": "GATE-01",
+      "severity": "Medium",
+      "title": "An empty verification suite passes",
+      "location": "scripts/check_math.py:26–27, 48–50",
+      "category": "Correctness",
+      "confidence": "Verified",
+      "evidence": "With {\"checks\": []}, the script prints ‘0/0 checks passed.’ and exits 0, although SKILL.md G4 requires at least two independent checks.",
+      "impact": "A caller can receive a successful process status without having verified any claim.",
+      "recommendation": "Reject missing, malformed, and empty check lists; enforce a non-zero minimum (and keep the skill’s two-independent-check requirement at the workflow gate)."
+    },
+    {
+      "id": "SAFE-01",
+      "severity": "Medium",
+      "title": "Delivery instructs an unrequested Git commit",
+      "location": "SKILL.md:103–107",
+      "category": "Side effects",
+      "confidence": "Reasoned",
+      "evidence": "G6 says to make a Conventional Commit whenever a Git repository is available, without requiring explicit user authorization or checking the staged file set.",
+      "impact": "An answer-generation or audit request can mutate repository history; a careless implementation may include unrelated staged work. This also conflicts with G5’s ‘no unrequested rewrite’ gate.",
+      "recommendation": "Commit only when explicitly requested. Before any authorized commit, inspect status and stage only the generated deliverable."
+    },
+    {
+      "id": "PDF-01",
+      "severity": "Medium",
+      "title": "Textless PDFs fail open without an OCR or visual fallback",
+      "location": "scripts/extract_pdf.py:27–30, 52–57",
+      "category": "Reliability",
+      "confidence": "Verified",
+      "evidence": "A generated one-page textless PDF produced an empty pages.txt and a normal ‘Wrote…’ message with exit code 0; the fidelity report did not warn that no question text was extracted.",
+      "impact": "Scanned pages can appear successfully processed even though no source text was ingested, undermining G0/G1 fidelity checks.",
+      "recommendation": "Fail or emit a prominent per-page no-text status, then require OCR or direct visual inspection before the workflow can pass G0."
+    },
+    {
+      "id": "DATA-01",
+      "severity": "Medium",
+      "title": "Default extraction outputs overwrite existing files",
+      "location": "scripts/extract_pdf.py:49–55",
+      "category": "Data integrity",
+      "confidence": "Verified",
+      "evidence": "Running against an output directory containing sentinel pages.txt and fidelity_report.txt replaced both files without warning.",
+      "impact": "A repeat run can destroy previously extracted evidence or unrelated files with the same names.",
+      "recommendation": "Refuse to overwrite existing output files by default, or write to a unique run directory and use an explicit overwrite option."
+    },
+    {
+      "id": "PDF-02",
+      "severity": "Low",
+      "title": "The fidelity heuristic is noisy and stdout is truncated",
+      "location": "scripts/extract_pdf.py:16, 35–45, 56",
+      "category": "Usability",
+      "confidence": "Verified",
+      "evidence": "On the 24-page supplied PDF, the report emitted 343 ‘orphan 1’ hits (including ordinary page/mark/numeral text); stdout prints only the first 4,000 report characters. Q6’s missing modulus bars and conjugate markers were nevertheless flagged.",
+      "impact": "High false-positive volume makes genuine symbol-loss warnings harder to prioritize; later findings can be hidden in terminal output.",
+      "recommendation": "Use context-aware, topic-scoped patterns; distinguish candidate flags from confirmed defects; print a truncation notice and report path when output is shortened."
+    },
+    {
+      "id": "SAMPLE-01",
+      "severity": "Low",
+      "title": "The corrected exemplar still omits two stated delivery checks",
+      "location": "SKILL.md:56–62, 103–105; samples/model_answer_6_corrected.md:6–15, 198–216",
+      "category": "Conformance",
+      "confidence": "Verified",
+      "evidence": "The corrected answer cites page 4 and labels transcription/mark-split confidence well, but does not record the cover-page accuracy rules verbatim or include the explicit verified/deferred handoff required by G0/G6.",
+      "impact": "The exemplar is strong mathematically but does not demonstrate every mandatory workflow gate, which weakens it as a conformance reference.",
+      "recommendation": "Add the relevant cover instruction (3 significant figures for non-exact values; 1 decimal place for angles in degrees) and an explicit verified/deferred handoff, or mark those items not applicable with a reason."
+    }
+  ],
+  "verification": [
+    {
+      "check": "Repository clone and scope",
+      "result": "PASS",
+      "evidence": "Clean main branch at 02b434d87d96. Since 19538de0, only the sample PDF filename changed to remove an embedded space."
+    },
+    {
+      "check": "Skill linter",
+      "result": "PASS",
+      "evidence": "lint_skill.py reports a 163-line body and valid structure/frontmatter/local links."
+    },
+    {
+      "check": "Original paper and bound solution",
+      "result": "PASS",
+      "evidence": "Rendered PDF page 4 and solution pages 16–18; confirmed the modulus bars, conjugate, fraction modulus, 0 < arg(a) < π/2, cover accuracy rules, and official Q6 results."
+    },
+    {
+      "check": "Corrected answer mathematics",
+      "result": "PASS 7/7",
+      "evidence": "Exact SymPy checks covered the Cartesian reduction, circle membership, substitution into the original modulus equation, equal-distance line, tangency discriminant, first-quadrant angle, and part (b) tangent point."
+    },
+    {
+      "check": "Checker security probe",
+      "result": "FAIL",
+      "evidence": "A controlled expression created a temporary marker via sympify; no repository files were changed."
+    },
+    {
+      "check": "Checker empty-input probe",
+      "result": "FAIL",
+      "evidence": "An empty checks list reported 0/0 passed with exit code 0."
+    },
+    {
+      "check": "PDF extraction behavior",
+      "result": "PASS WITH LIMITATIONS",
+      "evidence": "The extractor found Q6’s symbol-loss candidates, but silently accepted a textless PDF and overwrote existing output files in isolated tests."
+    }
+  ],
+  "sampleAssessment": {
+    "original": "The main Q6 results are correct, but the answer links an external diagram, has a dangling ‘Hence,’ before the circle form, and includes a ‘3 not 3²’ correction that the corrected file’s own change log calls bogus. It also lacks the required verification ledger and omits some explicit domain/branch checks.",
+    "corrected": "The v2 answer matches the bound solutions and its exact claims pass 7/7 independent checks. It removes the external link and bogus correction, clarifies notation, shows the circle equation, checks the principal range and denominator, and supplies an evidence ledger. Its source/mark-confidence labels are appropriately cautious.",
+    "limitation": "The original user prompt that preceded model_answer_6.md is not present in the repository, so the claim about what the user pasted cannot be independently compared. The PDF includes worked solutions, not a detailed mark scheme; per-step credit remains indicative."
+  },
+  "overallAssessment": "The skill has a strong, well-matched exam workflow: source fidelity before solving, command-word obligations, exact working, original-condition checks, explicit confidence, and a useful answer audit rubric. The supplied corrected answer demonstrates that these practices improve the sample substantially. The helper scripts and unconditional commit instruction are not production-safe as written; fix the High/Medium findings before relying on automated verification or repository delivery."
+}
