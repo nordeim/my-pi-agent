@@ -1,6 +1,11 @@
 # ACJC 2026 JC2 Preliminary Examination — H2 Further Mathematics 9649/01
 ## Question 6 — Unified Model Answer (v2, corrected) · Total 10 marks
 
+> **Cover rules (verbatim):** "Give non-exact numerical answers correct to
+> 3 significant figures, or 1 decimal place in the case of angles in degrees,
+> unless a different level of accuracy is specified in the question."
+> Unsupported GC answers are allowed unless a question states otherwise.
+
 ---
 
 ## 0. Source and transcription note
@@ -247,3 +252,12 @@ All checks below are **exact symbolic manipulations performed by hand**; no CAS 
 | SELF-1/2 | Fraction form adopted as primary; $\cos^{-1}$ form labelled as an identity |
 | SELF-3 | Problem-specific figures supplied (schematic + exact coordinates) |
 | ENH-1…5 | $A$ outside $C$; second tangent rejected; polar forms and $\lvert w\rvert=\sqrt7$; full verification; $w\neq-a^*$ |
+
+---
+
+## Handoff
+**Verified:** 7/7 exact checks (original modulus equation, circle membership,
+equal-distance line, tangency discriminant, |w|=√7, both domain intervals).
+**Deferred:** figures are ASCII schematics, not vector graphics; per-step mark
+splits are indicative (the PDF carries solutions, not a mark scheme); the
+typeset form of the fraction condition is a reconstruction from extraction.
