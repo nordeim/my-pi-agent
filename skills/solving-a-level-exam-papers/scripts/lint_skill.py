@@ -16,6 +16,7 @@ REQUIRED = [
 BANNED = ["sympify(", "parse_expr(", "eval(", "exec(", "__import__(",
           "os.system(", "shell=True"]
 ALLOWED_BANNED = {"safe_expr.py"}  # interpreter module: contains none of these
+SELF = Path(__file__).resolve()
 
 
 def main() -> int:

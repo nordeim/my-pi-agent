@@ -1,0 +1,365 @@
+{
+  "schemaVersion": "1.0",
+  "report": "validation_report",
+  "generatedAt": "2026-11-24",
+  "target": {
+    "skill": "solving-a-level-exam-papers",
+    "path": "skills/solving-a-level-exam-papers",
+    "repo": "nordeim/my-pi-agent",
+    "branch": "main",
+    "head": "ced14ee24305abb837773b1c93e1e73352491a43",
+    "skillSubtreeClean": true
+  },
+  "environment": {
+    "python": "3.14.7",
+    "pytest": "9.2.0",
+    "sympy": "1.14.0",
+    "pdfplumber": "0.11.11",
+    "installMethod": "uv run --with (on demand; not in default interpreter)"
+  },
+  "verdict": {
+    "promotableToVerified": false,
+    "conformance": "FAIL",
+    "truthOfClaims": "PARTIAL",
+    "summary": "Security and correctness remediation is real and verified, but the promotion gate fails: lint exits 1 and pytest has 1 failure. The v2 promotion doc claims both pass."
+  },
+  "summary": {
+    "openHigh": 1,
+    "openMedium": 2,
+    "openLow": 10,
+    "acceptedByDesign": 1,
+    "refuted": 1,
+    "externalFindingsClosed": 5,
+    "externalFindingsPartial": 1,
+    "externalFindingsClosedWithResidual": 1
+  },
+  "provenance": {
+    "sha256": {
+      "SKILL.md": "ce2cde66bbc65809a296caa2aceb4620bbada403914de0b8f0d6478dbd493327",
+      "assets/checks.example.json": "18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2",
+      "scripts/check_math.py": "5ee3d3f1272795c80b8bf202ded7bd9374745cae9e3eb823dc7b349c4ae3627f",
+      "scripts/extract_pdf.py": "031d55b3c08a83df67b1f33152f52c433be024e8b28305c180a7309635766356",
+      "scripts/lint_skill.py": "de58e349a92d20dcd5705155e0ab4a36e4159c705c65d5d9986bed788116fa8e",
+      "scripts/safe_expr.py": "a5138e8f8c9f287c993d670dee8f0c675afcf21c5aa6a86e95d89fcfb41de3fc",
+      "tests/test_cli.py": "6c9c7deab8e130368f2ec97a6cd2257fbc4a0c972ce3782330169012e8625171",
+      "tests/test_safe_expr.py": "54357005fab72324c2b3754344a44114315e3ee16aeeca0bb46dde7539e0efe5",
+      "samples/2026_Prelim_P1.pdf": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8",
+      "docs/SKILL_v1.md": "834d465a909d9d7d99a2345ffbaf61dfc079546b51f3737ce3a3a10be4963a36",
+      "docs/v1_to_v2_updates.md": "624e13fb4462c926d932f999433e9d39d6d17e9ffdcf74b48c2828cb8bc2081d",
+      "docs/independent_skill_audit_report.json": "f019b2937810c65432ebb990db1c9bd1031291fe8db70d9cb92ac5bc09144612"
+    }
+  },
+  "method": {
+    "axes": [
+      "conformance: shipped package vs its own documented claims",
+      "truth: documented claims when executed"
+    ],
+    "labels": ["Verified (executed)", "Confirmed (static)", "Reported-Verified (external)", "Refuted"],
+    "isolation": "All probes and outputs under /tmp; no skill files modified; no commits or pushes"
+  },
+  "findings": [
+    {
+      "id": "V-1",
+      "origin": "self",
+      "severity": "High",
+      "confidence": "Verified (executed)",
+      "status": "Open",
+      "title": "Linter fails on its own package",
+      "location": "scripts/lint_skill.py:16-18",
+      "evidence": "`python3 scripts/lint_skill.py .` exits 1 with 7 unsafe-pattern hits, all in lint_skill.py. BANNED at 16-17; ALLOWED_BANNED at 18 excludes only safe_expr.py.",
+      "impact": "Hard conformance gate fails; test_lint_passes_package is red; v2 promotion claims PASS.",
+      "recommendation": "Skip the linter file itself in the scan (it must contain the patterns), or load the ban list from a data file."
+    },
+    {
+      "id": "V-2",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Verified (executed)",
+      "status": "Accepted by design",
+      "title": "Re-run into same out-dir exits 2",
+      "location": "scripts/extract_pdf.py:26-34",
+      "evidence": "Run 2 same --out exits 2; --force exits 0. Disclosed in v2 section 4.8.",
+      "impact": "Fail-closed; no data loss. UX only.",
+      "recommendation": "Keep; optionally add unique run directories."
+    },
+    {
+      "id": "V-3",
+      "origin": "self",
+      "severity": "Medium",
+      "confidence": "Confirmed (static)",
+      "status": "Open",
+      "title": "Six regression tests named in v2 docs do not exist",
+      "location": "tests/test_cli.py; docs/v1_to_v2_updates.md PART 3",
+      "evidence": "Absent: test_lint_requires_authorisation_gate, test_report_truncation_notice, test_interval_complex_errors, test_timeout_fails_closed, test_provenance_present, test_force_overwrites.",
+      "impact": "Documented QA coverage is overstated; behaviours exist but are unguarded.",
+      "recommendation": "Add the tests or remove the claims."
+    },
+    {
+      "id": "V-4",
+      "origin": "self",
+      "severity": "Medium",
+      "confidence": "Confirmed (static) + bounded probes",
+      "status": "Open",
+      "title": "Residual DoS surface in safe_expr",
+      "location": "scripts/safe_expr.py:17-37",
+      "evidence": "No dimension cap for Matrix/diag/eye/zeros/ones; no argument cap for factorial/binomial/gamma/integrate/limit/solve. eye(1000), zeros(2000,2000), factorial(200000) accepted. Timeout interrupts Python work (ERROR) but cannot reliably preempt large C-level allocation.",
+      "impact": "Model-supplied or adversarial expressions can exhaust memory/CPU.",
+      "recommendation": "Cap matrix dimensions and factorial/binomial args; gate or remove integrate/limit/solve; document the trusted-input model."
+    },
+    {
+      "id": "V-5",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Confirmed (static)",
+      "status": "Open",
+      "title": "Broken-local-link check is vacuous",
+      "location": "scripts/lint_skill.py",
+      "evidence": "SKILL.md paths are code spans, not markdown links; only the hardcoded REQUIRED list guards existence.",
+      "impact": "Linter cannot detect broken relative links.",
+      "recommendation": "Parse markdown links, or drop the claim."
+    },
+    {
+      "id": "V-6",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Confirmed (static)",
+      "status": "Open",
+      "title": "Packaging contradicts v1 rules",
+      "location": "samples/; docs/; docs/SKILL_v1.md sections 13-14",
+      "evidence": "samples/ (1.1 MB PDF) and docs/ ship inside the skill; v1 says keep the eval suite outside the skill folder and no auxiliary docs.",
+      "impact": "Packaging rule is violated without disclosure.",
+      "recommendation": "Declare the exception in SKILL.md, or move audit artefacts to repo docs/."
+    },
+    {
+      "id": "V-7",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Confirmed (static)",
+      "status": "Open",
+      "title": "Verification playbook lost content",
+      "location": "references/verification-playbook.md",
+      "evidence": "Shipped playbook is 32 lines; v1 had universal checks 1-7, executable JSON example, SymPy patterns, and a probability row.",
+      "impact": "Weaker G4 guidance for topics outside the Q6 example.",
+      "recommendation": "Restore them compactly while keeping the v2 suite contract."
+    },
+    {
+      "id": "V-8",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Verified (executed)",
+      "status": "Open",
+      "title": "--pages accepts garbage and tracebacks",
+      "location": "scripts/extract_pdf.py:80",
+      "evidence": "--pages abc exits 1 with an uncaught ValueError traceback instead of exit 2.",
+      "impact": "Violates the documented usage/config exit-code contract.",
+      "recommendation": "Use an argparse type or catch ValueError and exit 2; reject non-positive and out-of-range pages."
+    },
+    {
+      "id": "V-9",
+      "origin": "self",
+      "severity": "None",
+      "confidence": "Refuted",
+      "status": "Refuted",
+      "title": "Textless PDF still fails open (hypothesis)",
+      "location": "scripts/extract_pdf.py",
+      "evidence": "--pages 999 yields pages=0, G0 FAILED, exit 3; test_textless_pdf_exit3 passes.",
+      "impact": "No defect.",
+      "recommendation": "None."
+    },
+    {
+      "id": "V-10",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Verified (executed)",
+      "status": "Open",
+      "title": "Wrong rejection message for huge exponents",
+      "location": "scripts/safe_expr.py",
+      "evidence": "2**100000 is rejected as 'non-finite exponent' because UnsafeExpression subclasses ValueError and is caught by its own except ValueError.",
+      "impact": "Fails closed, but the message misdiagnoses the cause.",
+      "recommendation": "Re-raise UnsafeExpression before the generic ValueError catch."
+    },
+    {
+      "id": "V-11",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Verified (executed)",
+      "status": "Open",
+      "title": "Config-class malformed expressions report as maths ERROR",
+      "location": "scripts/check_math.py",
+      "evidence": "expr [1,2] and expr I produce ERROR rows and exit 1, not config exit 2.",
+      "impact": "Blurs config vs maths failure semantics.",
+      "recommendation": "Validate result type (Expr/Matrix) and raise ConfigError."
+    },
+    {
+      "id": "V-12",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Confirmed (static)",
+      "status": "Open",
+      "title": "SKILL.md file tree is incomplete",
+      "location": "SKILL.md:10-15",
+      "evidence": "Tree omits samples/ and docs/ that ship.",
+      "impact": "Manifest does not match package.",
+      "recommendation": "Add them, or move docs/ out and document the sample fixture."
+    },
+    {
+      "id": "V-13",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Verified (executed)",
+      "status": "Open",
+      "title": "v2 promotion commands are wrong",
+      "location": "docs/v1_to_v2_updates.md PART 5-6",
+      "evidence": "'# expect PASS' is false (exit 1); '# expect all pass' is false (1 failed); ../../samples path resolves outside the skill; PART 6 says 'Linter would PASS'.",
+      "impact": "A reviewer following the doc cannot reach Verified and will misdiagnose the failure.",
+      "recommendation": "Replace with the verified command block and correct paths."
+    },
+    {
+      "id": "V-14",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Confirmed (static)",
+      "status": "Open",
+      "title": "Distinct Deduce obligation dropped",
+      "location": "SKILL.md command-word table; references/exam-presentation.md section 2",
+      "evidence": "v2 merges 'Hence / Deduce'; v1 had a distinct Deduce row.",
+      "impact": "One command-word obligation is no longer explicit.",
+      "recommendation": "Restore a Deduce row."
+    },
+    {
+      "id": "S-1",
+      "origin": "self",
+      "severity": "Low",
+      "confidence": "Confirmed (static)",
+      "status": "Open",
+      "title": "Exemplar provenance over-claim",
+      "location": "samples/model_answer_6_corrected.md:205, 258-263",
+      "evidence": "Handoff claims 'Verified: 7/7 exact checks' while section 5 says 'no CAS ... executed'; ledger omits checks_sha256/tool version required by the solution template.",
+      "impact": "Weakens the exemplar as a conformance reference.",
+      "recommendation": "Say '7/7 via assets/checks.example.json (executed)' or 'hand-checked'; add checks_sha256 N/A with reason."
+    }
+  ],
+  "externalClosure": [
+    {
+      "id": "SEC-01",
+      "severity": "High",
+      "status": "Closed",
+      "evidence": "sympify/parse_expr removed; safe_expr AST whitelist rejects attribute, subscript, dunder, lambda; unsafe payload exits 2 without side effect."
+    },
+    {
+      "id": "GATE-01",
+      "severity": "Medium",
+      "status": "Closed",
+      "evidence": "MIN_CHECKS_FLOOR=2, MAX_CHECKS=200; empty/missing/duplicate/malformed exit 2."
+    },
+    {
+      "id": "SAFE-01",
+      "severity": "Medium",
+      "status": "Closed",
+      "evidence": "SKILL.md:82-86 requires explicit authorisation, git status check, staging only the named deliverable, no add -A, no push/amend."
+    },
+    {
+      "id": "PDF-01",
+      "severity": "Medium",
+      "status": "Closed",
+      "evidence": "NO_TEXT_MIN_CHARS=20; G0 FAILED; exit 3 verified with empty corpus; regression test passes."
+    },
+    {
+      "id": "DATA-01",
+      "severity": "Medium",
+      "status": "Closed",
+      "evidence": "atomic_write refuses overwrite without --force; verified exit 2 then exit 0 with --force."
+    },
+    {
+      "id": "PDF-02",
+      "severity": "Low",
+      "status": "Partially closed",
+      "evidence": "Truncation notice and full-report path added; candidate tier retained; false-positive volume unchanged (343 reported externally, not re-counted)."
+    },
+    {
+      "id": "SAMPLE-01",
+      "severity": "Low",
+      "status": "Closed with residual",
+      "evidence": "Cover rules verbatim, fidelity table, and Verified/Deferred handoff present; residual provenance over-claim (S-1)."
+    }
+  ],
+  "conformance": [
+    {"requirement": "SKILL.md at root with frontmatter", "status": "PASS"},
+    {"requirement": "Body < 500 lines", "status": "PASS", "note": "139 lines"},
+    {"requirement": "Relative forward-slash supporting paths", "status": "PASS"},
+    {"requirement": "No auxiliary README/CHANGELOG", "status": "PASS"},
+    {"requirement": "Scripts deterministic, dependency-light, no network", "status": "PASS"},
+    {"requirement": "lint_skill.py exits 0", "status": "FAIL", "note": "exit 1, V-1"},
+    {"requirement": "pytest green", "status": "FAIL", "note": "1 failed, 29 passed"},
+    {"requirement": "Exit-code contract", "status": "PASS", "note": "usage path fails, V-8"},
+    {"requirement": "No arbitrary code execution", "status": "PASS"},
+    {"requirement": "Empty/malformed suite fails closed", "status": "PASS"},
+    {"requirement": "No unrequested git side effects", "status": "PASS"},
+    {"requirement": "Textless PDF fails closed", "status": "PASS"},
+    {"requirement": "No overwrite without --force", "status": "PASS"},
+    {"requirement": "Provenance in ledger", "status": "PARTIAL", "note": "code yes; exemplar no"},
+    {"requirement": "Q6 suite 7/7", "status": "PASS"},
+    {"requirement": "Eval suite outside skill folder", "status": "FAIL", "note": "undocumented; V-6"},
+    {"requirement": "File tree complete", "status": "FAIL", "note": "V-12"}
+  ],
+  "executedEvidence": [
+    {"id": "E1", "command": "python3 scripts/lint_skill.py .", "result": "exit 1; body 139; 7 hits in lint_skill.py"},
+    {"id": "E2", "command": "pytest -q tests/", "result": "1 failed, 29 passed in 7.62s; test_lint_passes_package"},
+    {"id": "E3", "command": "check_math.py assets/checks.example.json", "result": "7/7 PASS exit 0; checks_sha256=18c1a7f6...; sympy 1.14.0"},
+    {"id": "E4", "command": "extract_pdf.py sample --out /tmp (run 1)", "result": "exit 0; 24 pages; manifest"},
+    {"id": "E5", "command": "same (run 2)", "result": "exit 2; refuses overwrite"},
+    {"id": "E6", "command": "same --force (run 3)", "result": "exit 0"},
+    {"id": "E7", "command": "extract_pdf.py --pages abc", "result": "exit 1; ValueError traceback at line 80"},
+    {"id": "E8", "command": "extract_pdf.py --pages 999", "result": "exit 3; G0 FAILED; pages=0"},
+    {"id": "E9", "command": "safe_expr attr/subscript/dunder/lambda", "result": "all rejected"},
+    {"id": "E10", "command": "safe_expr eye(1000), zeros(2000,2000), factorial(200000)", "result": "all accepted; no size cap"},
+    {"id": "E11", "command": "safe_expr 2**100000", "result": "rejected; message 'non-finite exponent'"},
+    {"id": "E12", "command": "check_math.run_check timeout=0.001", "result": "ERROR per-check time limit exceeded"},
+    {"id": "E13", "command": "interval expr I; zero expr [1,2]", "result": "ERROR rows; exit 1"},
+    {"id": "E14", "command": "check_math malformed JSON", "result": "exit 2 CONFIG ERROR"}
+  ],
+  "docCodeContradictions": [
+    "PART 5 '# expect PASS' false (exit 1)",
+    "PART 5 '# expect all pass' false (1 failed)",
+    "PART 5 ../../samples path resolves outside the skill",
+    "PART 3 names six tests that do not exist",
+    "PART 6 'Linter would PASS' false",
+    "v1 section 14 'eval suite outside skill folder' vs shipped tests/ and samples/"
+  ],
+  "unverified": [
+    "PDF-02 343 false positives: Reported-Verified (external), not re-counted",
+    "V-4 OOM/hang not induced; bounded acceptance probes only",
+    "Paper/bound-solution correspondence: Reported-Verified (external)"
+  ],
+  "remediation": {
+    "P0": [
+      "Fix lint self-scan; lint exit 0",
+      "Re-run pytest; 30 passed"
+    ],
+    "P1": [
+      "Correct PART 5-6 commands, sample path, test list",
+      "Add six missing regression tests or delete claims",
+      "Fix SKILL.md tree / declare samples+docs exception"
+    ],
+    "P2": [
+      "Cap matrix and factorial/binomial args; gate integrate/limit/solve; fix exponent message",
+      "Validate result types to ConfigError",
+      "Validate --pages type and range"
+    ],
+    "P3": [
+      "Restore playbook universal checks and SymPy patterns; implement link check or drop",
+      "Restore Deduce row; fix exemplar provenance"
+    ]
+  },
+  "sideEffects": {
+    "skillSourceFilesModified": false,
+    "reportsWritten": [
+      "docs/validation_report.md",
+      "docs/validation_report.json"
+    ],
+    "committed": false,
+    "pushed": false,
+    "tempArtifacts": "/tmp/val-probes, /tmp/val-oor",
+    "cleanup": "removed scripts/__pycache__ and tests/__pycache__"
+  }
+}
