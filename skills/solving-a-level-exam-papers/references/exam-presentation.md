@@ -1,5 +1,11 @@
 # Examination presentation conventions (Singapore-Cambridge GCE A-Level)
 
+## 0. Capture the cover rules verbatim (mandatory)
+Quote the accuracy instruction from the paper's cover in the deliverable, e.g.
+"non-exact numerical answers to 3 significant figures, or 1 decimal place for
+angles in degrees, unless a different level of accuracy is specified", together
+with the calculator-support policy. These override defaults.
+
 ## 1. Read the cover page first
 Typical standing instructions (confirm per paper):
 - Non-exact numerical answers: **3 significant figures**; angles in degrees:
