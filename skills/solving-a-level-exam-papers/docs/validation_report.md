@@ -1,6 +1,6 @@
 # Validation report — `solving-a-level-exam-papers`
 
-> **Superseded by revision 3 (2026-11-24):** every finding left open below (V-5…V-14, S-1) is now closed, six further findings (V-15…V-20) were found and closed, and the suite is 97 passed. See [`revalidation_rev3.md`](revalidation_rev3.md). The text below is the revision-2 record and is kept unchanged.
+> **Superseded by revision 4 (2026-11-25):** revision 3 closed V-5…V-14/S-1 and V-15…V-20; revision 4 found and fixed V-21…V-25 and corrected the rev3 record. See [`revalidation_rev4.md`](revalidation_rev4.md). The text below is the revision-2 record and is kept unchanged.
 
 **Date:** 2026-11-24 · **Branch:** `main` · **Initial-pass HEAD:** `ced14ee24305abb837773b1c93e1e73352491a43` · **Revision 2 HEAD:** `1d94f148959498e0ba29d7ee9dac5ccd54168162` (fixes uncommitted)
 **Initial pass:** skill subtree clean; probes under `/tmp`; only these two authorised report files were added.

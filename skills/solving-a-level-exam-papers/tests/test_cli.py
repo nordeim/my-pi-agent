@@ -5,6 +5,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 EXAMPLE = json.loads((ROOT / "assets" / "checks.example.json").read_text())
+sys.path.insert(0, str(SCRIPTS))
+import extract_pdf  # noqa: E402
 
 
 def run(script, *args):
@@ -31,6 +33,15 @@ def test_example_suite_passes(tmp_path):
     assert r.returncode == 0, r.stdout + r.stderr
     assert "7/7 checks passed." in r.stdout
     assert "checks_sha256=" in r.stdout
+
+
+def test_ledger_escapes_pipes_and_newlines(tmp_path):
+    # Regression V-23: a pipe or newline in a note broke the Markdown ledger.
+    pytest.importorskip("sympy")
+    spec = two_check_suite({"kind": "zero", "expr": "0", "note": "a | b\nc"})
+    r = run("check_math.py", suite(tmp_path, spec))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "| a \\| b c |" in r.stdout
 
 
 def test_empty_suite_exit2(tmp_path):
@@ -131,6 +142,22 @@ def test_force_overwrites(tmp_path):
     assert r.returncode == 2 and sentinel.read_text() == "SENTINEL"
     r = run("extract_pdf.py", pdf, "--out", out, "--force")
     assert r.returncode == 3 and sentinel.read_text() != "SENTINEL"
+
+
+def test_render_refuses_existing_png_without_force(tmp_path):
+    # Regression V-25: --render wrote page images before the overwrite check.
+    pytest.importorskip("pdfplumber")
+    pdf = tmp_path / "blank.pdf"
+    blank_pdf(pdf)
+    out = tmp_path / "o"
+    out.mkdir()
+    sentinel = out / "page-1.png"
+    sentinel.write_bytes(b"SENTINEL")
+    r = run("extract_pdf.py", pdf, "--out", out, "--render")
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "refusing to overwrite" in r.stderr
+    assert sentinel.read_bytes() == b"SENTINEL"
+    assert not (out / "pages.txt").exists()
 
 
 def test_lint_passes_package():
@@ -328,6 +355,15 @@ def test_lint_flags_unlisted_tree_entry(tmp_path):
     assert r.returncode == 1 and "ghost/a.md" in r.stdout
 
 
+def test_lint_flags_unlisted_package_file(tmp_path):
+    # Regression V-24: a real file omitted from the tree passed the old check.
+    dst = copy_skill(tmp_path)
+    (dst / "docs" / "unlisted_orphan.md").write_text("x", encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "unlisted package file: docs/unlisted_orphan.md" in r.stdout
+
+
 def test_command_words_distinguish_hence_and_deduce():
     # Regression V-14: "Hence / Deduce" had been merged into a single obligation.
     skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
@@ -340,6 +376,22 @@ def test_skill_tree_lists_every_top_level_directory():
     skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
     for d in sorted(p.name for p in ROOT.iterdir() if p.is_dir() and not p.name.startswith((".", "__"))):
         assert f"├── {d}/" in skill or f"└── {d}/" in skill, f"tree omits {d}/"
+
+
+def test_unreadable_pdf_exit2(tmp_path, monkeypatch, capsys):
+    # Regression V-22: read_bytes() raised PermissionError as a traceback (exit 1).
+    pytest.importorskip("pdfplumber")
+    pdf = tmp_path / "locked.pdf"
+    pdf.write_bytes(b"%PDF-1.4\n")
+
+    def boom(self):
+        raise PermissionError(13, "Permission denied", str(self))
+
+    monkeypatch.setattr(Path, "read_bytes", boom)
+    monkeypatch.setattr(sys, "argv", ["extract_pdf.py", str(pdf)])
+    assert extract_pdf.main() == 2
+    err = capsys.readouterr().err
+    assert "CONFIG ERROR" in err and "Traceback" not in err
 
 
 def test_corrupt_pdf_exit2(tmp_path):

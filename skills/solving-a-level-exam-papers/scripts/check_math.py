@@ -154,6 +154,10 @@ def run_check(c, symbols, timeout):
             signal.setitimer(signal.ITIMER_REAL, 0)
 
 
+def _md_cell(value: object) -> str:
+    return str(value).replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("checks")
@@ -175,8 +179,8 @@ def main() -> int:
         return 2
     failed = sum(r["status"] != "PASS" for r in rows)
     ledger = ["| # | Claim | Kind | Role | Result |", "|---|---|---|---|---|"]
-    ledger += [f"| {r['id']} | {r['note']} | {r['kind']} | {r['role']} | {r['status']} |"
-               for r in rows]
+    ledger += [f"| {_md_cell(r['id'])} | {_md_cell(r['note'])} | {_md_cell(r['kind'])} | "
+               f"{_md_cell(r['role'])} | {_md_cell(r['status'])} |" for r in rows]
     provenance = {"checks_sha256": hashlib.sha256(raw).hexdigest(),
                   "sympy": sp.__version__, "python": sys.version.split()[0],
                   "passed": len(rows) - failed, "total": len(rows)}

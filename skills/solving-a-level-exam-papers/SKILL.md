@@ -15,13 +15,13 @@ skills/solving-a-level-exam-papers/
 ├── scripts/{safe_expr.py,check_math.py,extract_pdf.py,lint_skill.py}
 ├── tests/{test_safe_expr.py,test_cli.py}
 ├── samples/{2026_Prelim_P1.pdf,model_answer_6.md,model_answer_6_corrected.md}
-└── docs/{SKILL_v1.md,v1_to_v2_updates.md,independent_skill_audit_report.json,validation_report.md,validation_report.json,revalidation_rev3.md,remediation_plan.md,files_update_to_validate.txt}
+└── docs/{SKILL_v1.md,v1_to_v2_updates.md,independent_skill_audit_report.json,validation_report.md,validation_report.json,revalidation_rev3.md,revalidation_rev4.md,remediation_plan.md,files_update_to_validate.txt}
 ```
 
 `tests/`, `samples/` and `docs/` are never loaded at run time. They stay in the
 package on purpose so it is self-verifying (regression fixtures, exemplar
-answers, audit trail). To ship without them, delete the directories together
-with their tree entries above, then re-run the linter.
+answers, audit trail). The linter is written for this full package and requires
+`tests/`; do not strip those directories if you intend to run it.
 
 # Solving A-Level Exam Papers (PDF → examiner-standard solution)
 

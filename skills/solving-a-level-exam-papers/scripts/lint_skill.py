@@ -41,6 +41,11 @@ def referenced_paths(body: str) -> list[str]:
     return sorted(set(found))
 
 
+def tree_paths(body: str) -> set[str]:
+    return {p.rstrip(".,/") for raw in TREE_RX.findall(body)
+            for p in expand_braces(raw)}
+
+
 def unsafe_constructs(source: str) -> list[str]:
     hits = []
     for node in ast.walk(ast.parse(source)):
@@ -94,6 +99,20 @@ def main() -> int:
     for rel in referenced_paths(body):
         if not (root / rel).exists():
             errs.append(f"broken referenced path: {rel}")
+    listed = tree_paths(body)
+    for dirname in PACKAGE_DIRS.split("|"):
+        base = root / dirname
+        if not base.is_dir():
+            continue
+        for path in base.rglob("*"):
+            if not path.is_file():
+                continue
+            rel = path.relative_to(root)
+            if any(part.startswith((".", "__")) for part in rel.parts):
+                continue
+            rel_str = rel.as_posix()
+            if rel_str not in listed:
+                errs.append(f"unlisted package file: {rel_str}")
     for rel in REQUIRED:
         if not (root / rel).exists():
             errs.append(f"missing required file: {rel}")

@@ -1111,7 +1111,7 @@ typeset form of the fraction condition is a reconstruction from extraction.
 
 > **Erratum (revalidation rev 3, 2026-11-24):** the original sample path
 > `../../samples/…` resolved outside the skill and has been corrected below to
-> `samples/…` (V-13). The pytest total is now **89 passed** (it was 60 at
+> `samples/…` (V-13). The pytest total is now **97 passed** (it was 60 at
 > revision 2). See `revalidation_rev3.md` for the executed evidence.
 
 ```bash

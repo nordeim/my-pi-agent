@@ -23,7 +23,8 @@ carry an injection payload that an agent might copy into `checks.json`.
    `shell=True`), including aliases and imports; mentions in strings or
    comments are inert and not flagged.
 6. Filesystem: content-hash run directories, refuse overwrite without `--force`,
-   atomic writes.
+   atomic writes. Render PNGs are checked for existence before any page image is
+   written, so a refused run has no side effects.
 7. Git: commit only on explicit authorisation; inspect `git status --porcelain`;
    stage named files only; no `add -A`, no push, no history rewrite by default.
 

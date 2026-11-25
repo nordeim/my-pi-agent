@@ -9,10 +9,10 @@
     "path": "skills/solving-a-level-exam-papers",
     "repo": "nordeim/my-pi-agent",
     "branch": "main",
-    "head": "1d94f148959498e0ba29d7ee9dac5ccd54168162",
+    "head": "3d9c8bfe50cb05ce46a074c3c513a41e196bd527",
     "initialPassHead": "ced14ee24305abb837773b1c93e1e73352491a43",
-    "skillSubtreeClean": false,
-    "skillSubtreeNote": "revision-2 fixes are uncommitted; initial pass was clean"
+    "skillSubtreeClean": true,
+    "skillSubtreeNote": "revision-3 fixes were committed at 3d9c8bfe; revision-4 worktree changes are not in this historical record"
   },
   "environment": {
     "python": "3.14.7",
@@ -23,11 +23,12 @@
   },
   "verdict": {
     "promotableToVerified": true,
-    "summary": "Revision 3 closes all remaining Low findings and 6 new findings (V-15..V-20). Lint exits 0, pytest 97 passed, example suite 7/7. See docs/revalidation_rev3.md.",
+    "summary": "Revision 3 closed all remaining Low findings and 6 new findings (V-15..V-20). Lint exits 0, pytest 97 passed, example suite 7/7. Historical record; superseded by docs/revalidation_rev4.md.",
     "residual": [
       "integrate/limit/solve bounded by SIGALRM only",
       "no SIGALRM on Windows",
-      "PDF-02 false-positive volume Reported, not re-counted"
+      "PDF-02 false-positive volume Reported, not re-counted",
+      "Post-rev3 probes V-21..V-25; see docs/revalidation_rev4.md"
     ]
   },
   "summary": {
@@ -41,32 +42,32 @@
     "externalFindingsClosed": 5,
     "externalFindingsPartial": 1,
     "externalFindingsClosedWithResidual": 1,
-    "closedLowRev3": 14,
+    "closedLowRev3": 13,
     "closedMediumRev3": 3,
     "newFindingsRev3": 6
   },
   "provenance": {
     "sha256": {
-      "SKILL.md": "ce2cde66bbc65809a296caa2aceb4620bbada403914de0b8f0d6478dbd493327",
+      "SKILL.md": "9a83f3170a894039939e21764f79bc957bd6ca016fc62e1f8da1d456a17b1dfd",
       "assets/checks.example.json": "18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2",
-      "scripts/check_math.py": "5ee3d3f1272795c80b8bf202ded7bd9374745cae9e3eb823dc7b349c4ae3627f",
-      "scripts/extract_pdf.py": "031d55b3c08a83df67b1f33152f52c433be024e8b28305c180a7309635766356",
-      "scripts/lint_skill.py": "2133148d274123ee143b864854f3c4c7f3405008cb306e78ddae8cf71ca53fb9",
-      "scripts/safe_expr.py": "4070049245c4286365f41ac7b56d3211da12285d7e030ab9cefbc97d5b06d13d",
-      "tests/test_cli.py": "33d565edc57c05869b5e2aae921a05b861f8ce016193f55ee8560d1cd9902490",
-      "tests/test_safe_expr.py": "e1b33d4b45b561e520773443145c57e0c6eaf2a8e896d076a5cc093f6c88bb40",
+      "scripts/check_math.py": "cb605dbdecb1491a44fbbebf32e04d665c6ffb2bb340a3347c353a55e1fd2d1e",
+      "scripts/extract_pdf.py": "e2d29c842de56706c08e364acf779cdbcd7555944083b47544423ea982079130",
+      "scripts/lint_skill.py": "becf3193320ce9f5a13f4b5e62ace4fecbaaffa374563232926e0b733b25cc2c",
+      "scripts/safe_expr.py": "721c1b6c07d23f6deecc28a9060238e87ba4bcbaada3d71243c241a7cd1d7857",
+      "tests/test_cli.py": "ec6b55a34623965db9bc00a0723244bb53093769f7a13b0857ed6e5ab54094a9",
+      "tests/test_safe_expr.py": "24525a860f7a6822e210d1189d351cb7b2120e4ae4e4dc7da16fb02aa9136477",
       "samples/2026_Prelim_P1.pdf": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8",
       "docs/SKILL_v1.md": "834d465a909d9d7d99a2345ffbaf61dfc079546b51f3737ce3a3a10be4963a36",
-      "docs/v1_to_v2_updates.md": "624e13fb4462c926d932f999433e9d39d6d17e9ffdcf74b48c2828cb8bc2081d",
+      "docs/v1_to_v2_updates.md": "8ad69835f9211023554418b36f3b2f73faa10d1dc88fe6b69ce6562058e7c2eb",
       "docs/independent_skill_audit_report.json": "f019b2937810c65432ebb990db1c9bd1031291fe8db70d9cb92ac5bc09144612",
-      "references/tool-safety.md": "93391f610e994458edb3edfcdf0c8a35d03c9e3a9670694a11537594f65472a2"
+      "references/tool-safety.md": "41ee9868c5c44f9114ea3aaf21df7d003159f95fd99759987e51d4566e142d88"
     },
     "changedSinceInitialPass": {
-      "scripts/lint_skill.py": "de58e349a92d20dcd5705155e0ab4a36e4159c705c65d5d9986bed788116fa8e",
-      "scripts/safe_expr.py": "a5138e8f8c9f287c993d670dee8f0c675afcf21c5aa6a86e95d89fcfb41de3fc",
-      "tests/test_cli.py": "6c9c7deab8e130368f2ec97a6cd2257fbc4a0c972ce3782330169012e8625171",
-      "tests/test_safe_expr.py": "54357005fab72324c2b3754344a44114315e3ee16aeeca0bb46dde7539e0efe5",
-      "references/tool-safety.md": "new in revision 2"
+      "scripts/lint_skill.py": "becf3193320ce9f5a13f4b5e62ace4fecbaaffa374563232926e0b733b25cc2c",
+      "scripts/safe_expr.py": "721c1b6c07d23f6deecc28a9060238e87ba4bcbaada3d71243c241a7cd1d7857",
+      "tests/test_cli.py": "ec6b55a34623965db9bc00a0723244bb53093769f7a13b0857ed6e5ab54094a9",
+      "tests/test_safe_expr.py": "24525a860f7a6822e210d1189d351cb7b2120e4ae4e4dc7da16fb02aa9136477",
+      "references/tool-safety.md": "41ee9868c5c44f9114ea3aaf21df7d003159f95fd99759987e51d4566e142d88"
     }
   },
   "method": {
@@ -80,7 +81,7 @@
       "Reported-Verified (external)",
       "Refuted"
     ],
-    "isolation": "All probes and outputs under /tmp; revision-2 fixes modify five skill files and these two reports; no commits or pushes"
+    "isolation": "All probes and outputs under /tmp; revision-3 fixes modify the skill package and these reports; revision-3 fixes were committed at 3d9c8bfe; the skill itself made no commit or push"
   },
   "findings": [
     {
@@ -115,7 +116,7 @@
       "status": "Closed",
       "title": "Six regression tests named in v2 docs do not exist",
       "location": "tests/test_cli.py; docs/v1_to_v2_updates.md PART 3",
-      "evidence": "Fixed: all six tests exist and pass in R2 (60 passed): test_lint_requires_authorisation_gate, test_report_truncation_notice, test_interval_complex_errors, test_timeout_fails_closed, test_provenance_present, test_force_overwrites.",
+      "evidence": "Fixed: all six tests exist and pass in R2 (97 passed): test_lint_requires_authorisation_gate, test_report_truncation_notice, test_interval_complex_errors, test_timeout_fails_closed, test_provenance_present, test_force_overwrites.",
       "impact": "Documented QA coverage is now guarded.",
       "recommendation": "Applied: six tests added."
     },
@@ -370,7 +371,7 @@
     {
       "requirement": "Body < 500 lines",
       "status": "PASS",
-      "note": "139 lines"
+      "note": "149 lines"
     },
     {
       "requirement": "Relative forward-slash supporting paths",
@@ -392,12 +393,12 @@
     {
       "requirement": "pytest green",
       "status": "PASS",
-      "note": "R2: 60 passed"
+      "note": "R2: 97 passed"
     },
     {
       "requirement": "Exit-code contract",
       "status": "PASS",
-      "note": "E3/E5/E8/E14; usage path still fails, V-8 Low"
+      "note": "E3/E5/E8/E14; usage, IO, overwrite and corruption paths all exit 2"
     },
     {
       "requirement": "No arbitrary code execution",
@@ -427,8 +428,8 @@
     },
     {
       "requirement": "Provenance in ledger",
-      "status": "PARTIAL",
-      "note": "code yes; exemplar no (S-1, Low)"
+      "status": "PASS",
+      "note": "S-1 fixed in rev 3"
     },
     {
       "requirement": "Q6 suite 7/7",
@@ -437,13 +438,13 @@
     },
     {
       "requirement": "Eval suite outside skill folder",
-      "status": "FAIL",
-      "note": "undocumented exception; V-6 Low"
+      "status": "PASS",
+      "note": "documented exception; V-6"
     },
     {
       "requirement": "File tree complete",
-      "status": "FAIL",
-      "note": "V-12 Low"
+      "status": "PASS",
+      "note": "samples/, docs/ and every package file listed"
     }
   ],
   "executedEvidence": [
@@ -577,7 +578,7 @@
     }
   ],
   "docCodeContradictions": [
-    "RESOLVED: all previously open items (V-6, V-13) closed in rev 3"
+    "RESOLVED: V-6 documented exception, V-12 tree, V-13 path; post-rev3 findings tracked in rev4"
   ],
   "unverified": [
     "PDF-02 343 false positives: Reported-Verified (external), not re-counted",
@@ -589,26 +590,18 @@
   "remediation": {
     "applied": [
       "P0.1 lint self-scan fixed; R1 exit 0",
-      "P0.2 pytest green; R2 60 passed",
+      "P0.2 pytest green; R2 97 passed",
       "P1.4 six regression tests added; R2",
-      "P2.6 allocation caps added; R7/R8; tool-safety rule 2 updated"
+      "P2.6 allocation caps added; R7/R8; tool-safety rule 2 updated",
+      "rev 3: V-15..V-20 fixed; 33 regression tests added; 97 passed"
     ],
-    "remainingLow": [
-      "V-6/V-12 add samples+docs to tree or move docs out",
-      "V-7 restore playbook checks 1-7 and SymPy patterns",
-      "V-8 reject --pages garbage as exit 2",
-      "V-10 fix huge-exponent message",
-      "V-11 validate result types to ConfigError",
-      "V-13 fix v2 sample path",
-      "V-14 restore Deduce row",
-      "S-1 fix exemplar provenance line",
-      "V-5 implement or drop the link check"
-    ]
+    "remainingLow": []
   },
   "sideEffects": {
     "committed": false,
     "pushed": false,
-    "detail": "see docs/revalidation_rev3.md section 6 for final hashes"
+    "detail": "revision-3 fixes committed at 3d9c8bfe; the skill itself did not commit or push; revision-4 worktree changes are not in this historical record",
+    "revision3Committed": true
   },
   "revalidationEvidenceRev3": [
     {
@@ -637,9 +630,16 @@
       "result": "exit 2 each, no traceback"
     },
     {
+      "id": "R6",
+      "command": "playbook patterns (eigenpair, inverse, tangency discriminant, antiderivative)",
+      "result": "4/4 PASS"
+    },
+    {
       "id": "R7",
       "command": "repo root pytest -q tests/",
       "result": "411 passed, 8 skipped"
     }
-  ]
+  ],
+  "status": "historical",
+  "supersededBy": "docs/revalidation_rev4.md"
 }

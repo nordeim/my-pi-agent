@@ -40,9 +40,16 @@ def parse_pages(spec: str) -> list[tuple[int, int]]:
     return ranges
 
 
+def ensure_writable(paths: list[Path], force: bool) -> None:
+    if force:
+        return
+    for path in paths:
+        if path.exists():
+            raise FileExistsError(f"refusing to overwrite {path} (use --force)")
+
+
 def atomic_write(path: Path, text: str, force: bool) -> None:
-    if path.exists() and not force:
-        raise FileExistsError(f"refusing to overwrite {path} (use --force)")
+    ensure_writable([path], force)
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("w", dir=path.parent, delete=False,
                                      encoding="utf-8") as fh:
@@ -88,11 +95,15 @@ def main() -> int:
               file=sys.stderr)
         return 2
 
-    digest = hashlib.sha256(src.read_bytes()).hexdigest()
+    try:
+        digest = hashlib.sha256(src.read_bytes()).hexdigest()
+    except OSError as exc:
+        print(f"CONFIG ERROR: cannot read {src}: {exc}", file=sys.stderr)
+        return 2
     out = Path(a.out) if a.out else Path("out") / f"{src.stem}-{digest[:8]}"
     wanted = a.pages
 
-    pages, corpus = [], []
+    pages, corpus, render_pages = [], [], []
     try:
         doc = pdfplumber.open(str(src))
     except PdfOpenError as exc:
@@ -117,21 +128,34 @@ def main() -> int:
                           "flags_suppressed": max(0, len(flags) - MAX_FLAGS_PER_PAGE)})
             corpus.append(f"\n===== PDF PAGE {i} [{status}] =====\n{text}")
             if a.render and status == "NO_TEXT":
-                try:
-                    out.mkdir(parents=True, exist_ok=True)
-                    page.to_image(resolution=200).save(out / f"page-{i}.png")
-                except Exception as exc:  # noqa: BLE001
-                    print(f"render unavailable for page {i}: {exc}", file=sys.stderr)
+                render_pages.append((i, page))
 
-    no_text = [p["page"] for p in pages if p["status"] == "NO_TEXT"]
-    manifest = {"pdf": str(src), "sha256": digest, "pdfplumber": pdfplumber.__version__,
-                "pages_ingested": len(pages), "no_text_pages": no_text,
-                "gate_G0": "FAIL" if no_text or not pages else "PASS", "pages": pages}
+        no_text = [p["page"] for p in pages if p["status"] == "NO_TEXT"]
+        manifest = {"pdf": str(src), "sha256": digest, "pdfplumber": pdfplumber.__version__,
+                    "pages_ingested": len(pages), "no_text_pages": no_text,
+                    "gate_G0": "FAIL" if no_text or not pages else "PASS", "pages": pages}
+        targets = [out / "pages.txt", out / "manifest.json"]
+        targets += [out / f"page-{i}.png" for i, _ in render_pages]
+        try:
+            ensure_writable(targets, a.force)
+        except FileExistsError as exc:
+            print(f"CONFIG ERROR: {exc}", file=sys.stderr)
+            return 2
+        for i, page in render_pages:
+            try:
+                out.mkdir(parents=True, exist_ok=True)
+                page.to_image(resolution=200).save(out / f"page-{i}.png")
+            except Exception as exc:  # noqa: BLE001
+                print(f"render unavailable for page {i}: {exc}", file=sys.stderr)
+
     try:
         atomic_write(out / "pages.txt", "".join(corpus), a.force)
         atomic_write(out / "manifest.json", json.dumps(manifest, indent=2), a.force)
     except FileExistsError as exc:
         print(f"CONFIG ERROR: {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"CONFIG ERROR: cannot write {out}: {exc}", file=sys.stderr)
         return 2
 
     lines = [f"{src.name}  sha256={digest[:16]}…  pages={len(pages)}"]

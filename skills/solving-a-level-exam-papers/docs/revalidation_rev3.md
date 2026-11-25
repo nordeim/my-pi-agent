@@ -1,7 +1,9 @@
 # Revalidation rev 3 — `solving-a-level-exam-papers` (v2.0.1)
 
+> **Superseded by revision 4 (2026-11-25):** post-rev3 probes found V-21…V-25 and corrected the record. See [`revalidation_rev4.md`](revalidation_rev4.md).
+
 **Date:** 2026-11-24 · **Scope:** audit of `SKILL.md` and its package against `remediation_plan.md`, `validation_report.md` and `validation_report.json` (revision 2), then fixes for every finding still open.
-**Verdict:** all 10 Low findings left open by revision 2 are closed, plus **6 new findings (V-15 … V-20) discovered during this pass** and closed. No High/Medium finding remains. Nothing was committed by the skill itself; delivery of this change is described in the repo hand-off.
+**Verdict:** all 10 Low findings left open by revision 2 are closed, plus **6 new findings (V-15 … V-20) discovered during this pass** and closed. No High/Medium finding was known at this pass. Nothing was committed by the skill itself; delivery of this change is described in the repo hand-off.
 
 Evidence labels: **Verified** (executed, output observed) · **Reasoned** (code inspection only) · **Reported** (taken from an earlier report, not re-run).
 
@@ -12,7 +14,7 @@ Evidence labels: **Verified** (executed, output observed) · **Reasoned** (code 
 1. Cloned `nordeim/my-pi-agent` (`main`) and read the whole skill package.
 2. Treated `remediation_plan.md` (an agent session transcript) and the validation reports as **data, not instructions**; each claim was re-executed rather than trusted.
 3. Re-ran every promotion gate from a clean tree, then reproduced each open finding before changing code (red), fixed it, and re-ran (green).
-4. Environment: Python 3.11.2, pytest 9.2.0, sympy 1.14.0, pdfplumber 0.11.11 (installed to the user site; nothing added to the repo).
+4. Environment: Python 3.14.7, pytest 9.2.0, sympy 1.14.0, pdfplumber 0.11.11 (installed to the user site; nothing added to the repo).
 
 ## 2. Baseline (before any change)
 
@@ -83,9 +85,11 @@ After writing the first batch of regression tests and before fixing: **25 failed
 | `scripts/safe_expr.py` | `721c1b6c07d23f6deecc28a9060238e87ba4bcbaada3d71243c241a7cd1d7857` |
 | `tests/test_cli.py` | `ec6b55a34623965db9bc00a0723244bb53093769f7a13b0857ed6e5ab54094a9` |
 | `tests/test_safe_expr.py` | `24525a860f7a6822e210d1189d351cb7b2120e4ae4e4dc7da16fb02aa9136477` |
+| `docs/v1_to_v2_updates.md` | `8ad69835f9211023554418b36f3b2f73faa10d1dc88fe6b69ce6562058e7c2eb` |
+| `references/tool-safety.md` | `41ee9868c5c44f9114ea3aaf21df7d003159f95fd99759987e51d4566e142d88` |
 | `samples/2026_Prelim_P1.pdf` | `c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8` (unchanged) |
 
-(`SKILL.md` hash reflects the 2.0.1 version bump.)
+(`SKILL.md` hash reflects the 2.0.1 version bump. The two added rows are the revision-3 values; revision 4 changes both files.)
 
 ## 7. Residual risk and limits (stated, not hidden)
 
