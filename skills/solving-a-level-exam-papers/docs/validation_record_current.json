@@ -1,68 +1,74 @@
 {
   "schemaVersion": 1.0,
   "report": "validation_record_current",
-  "generatedAt": "2026-11-25",
-  "revision": 6,
+  "generatedAt": "2026-11-26",
+  "revision": 7,
   "target": {
     "skill": "solving-a-level-exam-papers",
     "path": "skills/solving-a-level-exam-papers",
     "repo": "nordeim/my-pi-agent",
     "branch": "main",
-    "head": "32084a2f86cd55bd94dee5e859d08f6146ea32bc",
+    "head": "4016d922dfd695b1cafcfd38ad7f9f4cff9b12a1",
+    "verifiedAt": "32084a2f86cd55bd94dee5e859d08f6146ea32bc",
+    "deliveredAt": "4016d922dfd695b1cafcfd38ad7f9f4cff9b12a1",
     "parent": "7c5cc0b8a2fc4ecce9f9371d52e774d076f07724",
-    "skillSubtreeClean": true
+    "skillSubtreeClean": true,
+    "subtreeNote": "Clean in both pinned exports; three record/report files were edited after verification with explicit authorisation."
   },
   "environment": {
     "python": "3.14.7",
     "pytest": "9.2.0",
     "sympy": "1.14.0",
     "pdfplumber": "0.11.11",
-    "installMethod": "uv run --with (on demand)"
+    "installMethod": "uv run --with (pinned versions; no environment delta from rev6)"
   },
   "status": "current",
   "supersedes": [
-    "docs/revalidation_rev4.md"
+    "docs/revalidation_rev6.md"
+  ],
+  "verificationScopes": [
+    "32084a2f86cd55bd94dee5e859d08f6146ea32bc",
+    "4016d922dfd695b1cafcfd38ad7f9f4cff9b12a1"
   ],
   "gates": {
     "R1_lint": {
-      "exit": 0,
-      "body_lines": 149,
-      "result": "PASS"
+      "pin": {"exit": 0, "body_lines": 149, "tree_files": 27, "result": "PASS"},
+      "head": {"exit": 0, "body_lines": 149, "tree_files": 30, "result": "PASS"},
+      "parent": {"exit": 1, "reason": "broken referenced path: samples/2026_Prelim_P1.pdf"}
     },
     "R2_suite": {
-      "collected": 101,
-      "runs": [
-        {
-          "passed": 101,
-          "failed": 0,
-          "skipped": 0
-        },
-        {
-          "passed": 101,
-          "failed": 0,
-          "skipped": 0
-        },
-        {
-          "passed": 101,
-          "failed": 0,
-          "skipped": 0
-        }
-      ]
+      "pin": {
+        "collected": 101,
+        "runs": [
+          {"passed": 101, "failed": 0, "skipped": 0},
+          {"passed": 101, "failed": 0, "skipped": 0},
+          {"passed": 101, "failed": 0, "skipped": 0}
+        ]
+      },
+      "head": {
+        "collected": 101,
+        "runs": [
+          {"passed": 101, "failed": 0, "skipped": 0},
+          {"passed": 101, "failed": 0, "skipped": 0},
+          {"passed": 101, "failed": 0, "skipped": 0}
+        ]
+      },
+      "antiVacuity": "no skip lines with -rs; no flake across three runs at each pin"
     },
     "R3_example": {
-      "passed": 7,
-      "total": 7,
-      "exit": 0,
-      "checks_sha256": "18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2"
+      "pin": {"passed": 7, "total": 7, "exit": 0},
+      "head": {"passed": 7, "total": 7, "exit": 0},
+      "checks_sha256": "18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2",
+      "sympy": "1.14.0"
     },
     "R4_ingest": {
-      "subset_pages": 4,
-      "full_pages": 24,
-      "gate_G0": "PASS",
-      "no_text_pages": [],
-      "exit": 0
+      "pin": {"subset_pages": 4, "full_pages": 24, "gate_G0": "PASS", "no_text_pages": [], "exit": 0},
+      "head": {"subset_pages": 4, "full_pages": 24, "gate_G0": "PASS", "no_text_pages": [], "exit": 0},
+      "pdf_sha256": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8"
     },
     "R5_negatives": {
+      "valueSemantics": "exit-code",
+      "schemaNote": "Each named key holds the observed process exit code, not a probe count. rev6 section 2 lists 11 table rows; the four bad-page probes are collapsed into bad_pages and render-textless into textless.",
       "bad_pages": 2,
       "out_of_range": 2,
       "overwrite_refusal": 2,
@@ -72,22 +78,66 @@
       "missing_file": 2,
       "missing_dependency": 2,
       "textless": 3,
-      "render_refusal": 2
+      "render_refusal": 2,
+      "probeInventory": [
+        {"probe": "pages=0", "exit": 2}, {"probe": "pages=2-1", "exit": 2},
+        {"probe": "pages=x", "exit": 2}, {"probe": "pages=1,,2", "exit": 2},
+        {"probe": "pages=+4", "exit": 2}, {"probe": "pages=-3", "exit": 2},
+        {"probe": "pages=1-99999999999", "exit": 2}, {"probe": "missing_file", "exit": 2},
+        {"probe": "missing_dependency(-S)", "exit": 2}, {"probe": "corrupt", "exit": 2},
+        {"probe": "unreadable", "exit": 2}, {"probe": "encrypted", "exit": 2},
+        {"probe": "textless", "exit": 3}, {"probe": "render_refusal(existing png)", "exit": 2},
+        {"probe": "render_textless(no collision)", "exit": 3},
+        {"probe": "overwrite_refusal", "exit": 2},
+        {"probe": "empty_suite", "exit": 2}, {"probe": "one_check", "exit": 2},
+        {"probe": "duplicate_ids", "exit": 2}, {"probe": "zero_original_condition", "exit": 2},
+        {"probe": "201_checks", "exit": 2}, {"probe": "min_checks_1", "exit": 2},
+        {"probe": "timeout_0", "exit": 2}, {"probe": "timeout_neg1", "exit": 2},
+        {"probe": "unsafe_eval", "exit": 2}, {"probe": "unsafe_import", "exit": 2},
+        {"probe": "matrix_vs_scalar", "exit": 2}, {"probe": "float_in_exact", "exit": 2},
+        {"probe": "reserved_symbol_pi", "exit": 2}, {"probe": "json_write_failure", "exit": 2},
+        {"probe": "heavy_expand900", "exit": 1}, {"probe": "heavy_integrate1000", "exit": 1},
+        {"probe": "heavy_matrix64", "exit": 1}, {"probe": "div_by_zero_zoo", "exit": 1},
+        {"probe": "factorial_10000", "exit": 1}, {"probe": "factorial_10001", "exit": 2},
+        {"probe": "eye_65", "exit": 2}, {"probe": "pow_1001", "exit": 2},
+        {"probe": "seq_4097", "exit": 2}
+      ],
+      "noTracebacks": true,
+      "resourceLimits": "timeout 70 + ulimit -v 4000000 on heavy SymPy probes"
     },
     "R6_playbook": {
-      "eigen": "2/2",
-      "inverse": "2/2",
-      "tangency": "2/2",
-      "antiderivative": "2/2"
+      "pin": {"eigen": "2/2", "inverse": "2/2", "tangency": "2/2", "antiderivative": "2/2"},
+      "head": {"eigen": "2/2", "inverse": "2/2", "tangency": "2/2", "antiderivative": "2/2"}
     },
     "R7_root": {
       "passed": 390,
       "skipped": 9,
       "failed": 0,
-      "note": "root tests only; skips are missing yaml/playwright, documented env errors"
+      "note": "root tests only at HEAD; skips are documented yaml/playwright env errors; rev5's 'expect != 390/9' is Refuted"
+    },
+    "redGreen": {
+      "red": "4 failed, 1 passed, 96 deselected (HEAD tests + parent scripts)",
+      "green": "5 passed, 96 deselected (HEAD)",
+      "parentFull": "2 failed, 95 passed",
+      "guards": [
+        "test_ledger_escapes_pipes_and_newlines",
+        "test_render_refuses_existing_png_without_force",
+        "test_lint_flags_unlisted_package_file",
+        "test_unreadable_pdf_exit2"
+      ]
     }
   },
   "provenance": {
+    "manifestScope": "30 files at HEAD 4016d92 before the three post-audit edits",
+    "selfHashExcluded": true,
+    "excludedFromManifest": [
+      "docs/revalidation_rev7.md",
+      "docs/validation_record_current.json"
+    ],
+    "postEditHashes": {
+      "SKILL.md": "59d030f4c619bc507798fd3eeff85eae9d22cb375fbb425c6c0398dc2a33f463",
+      "docs/revalidation_rev7.md": "ca236a77c0b9df41a1a6d8a85e2d7719b04daa1f6d34ead5d2100c0e50e2aef3"
+    },
     "sha256": {
       "SKILL.md": "2c7946a16c6722b3e1038d1fcb462293c3f525ab8c9657c5e28752e23139bc9d",
       "assets/audit-template.md": "0fc4403d4176c26a8f2c85418c74c51f4931c8f2ee3d5c314d1cb5759aa779fa",
@@ -99,6 +149,9 @@
       "docs/remediation_plan.md": "24811a8a09a44d7c346d26419b13d53ecb0b2019d6cebefa8606e174d387dc74",
       "docs/revalidation_rev3.md": "40944259d1410a1d466ddf540bcd85eda65e964e3765fbb39adecec9e6bfaab4",
       "docs/revalidation_rev4.md": "36b3cbd3def265b64309e8a1c2ebc73ac61f5f18b1795babdddbc7696bc825f2",
+      "docs/revalidation_rev5.md": "6f21f12cf9fdc51afab50ec39a1883d46e50a775322bc0b3b25f126e41d68787",
+      "docs/revalidation_rev6.md": "1102d430ebbbe53b3120e900315901227f1cdd1d083164b6a14efa8247a49a7c",
+      "docs/validation_record_current.json": "8e7428eca949db7ae9f1cfa9b1e53481796d6231b4ff6522fa22032ba5e5d955",
       "docs/v1_to_v2_updates.md": "ecf3ca6319c40290bf89531e382d4bdc2be56d27cfd72b2754ee9f1d7d65140a",
       "docs/validation_report.json": "44a2537242ee262e340b7cdfd526ebc10b3ff3817e2bf984177f306ea45cdb1e",
       "docs/validation_report.md": "147a64c7c73853cec2926931fcc454497703898a41d000f6baefc506acf04f3d",
@@ -118,9 +171,10 @@
       "tests/test_safe_expr.py": "24525a860f7a6822e210d1189d351cb7b2120e4ae4e4dc7da16fb02aa9136477"
     },
     "rev4_hashes_matched": "14/14",
-    "json_baseline_matched": "6/13 (7 differences explained by rev4 changes)",
+    "json_baseline_matched": "27/27 at pin (rev6 record); 6/13 historical baseline, 7 differences explained by rev4 changes",
     "pdf_blob": "e69a127ebd8c03336650e6d73d8d2dc77cb9a175",
-    "pdf_sha256": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8"
+    "pdf_sha256": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8",
+    "threeWayMatch": {"pin": "27/27", "head": "30/30 before edits", "postEdit": "31/31 expected"}
   },
   "findings": [
     {
@@ -128,7 +182,7 @@
       "title": "rev3 banner link malformed",
       "severity": "Info",
       "status": "Refuted",
-      "evidence": "docs/revalidation_rev3.md:3 link is well-formed; render/bytes clean.",
+      "evidence": "docs/revalidation_rev3.md:3 link is well-formed; bytes clean.",
       "fix": null
     },
     {
@@ -136,7 +190,7 @@
       "title": "rev2 report safe_expr hash internally inconsistent",
       "severity": "Low",
       "status": "Confirmed (historical erratum)",
-      "evidence": "docs/validation_report.md:23 table 40700492\u2026; :32 narrative a5138e8f\u2026 \u2192 a596778a\u2026. Frozen rev2 record.",
+      "evidence": "docs/validation_report.md:23 table 40700492…; :32 narrative a5138e8f… → a596778a…. Frozen rev2 record.",
       "fix": "Disclose only; do not rewrite the historical record."
     },
     {
@@ -144,68 +198,68 @@
       "title": "PDF dropped and restored",
       "severity": "Info",
       "status": "Confirmed",
-      "evidence": "Added 02b434d8; deleted in bulk cleanup 0f17edb4 (2026-11-25 16:37 +0800); restored 32084a2f. Blob e69a127e identical in all three; sha256 c5873a17\u2026.",
-      "fix": "No code fix; record provenance in the current record."
+      "evidence": "Added 02b434d8; deleted in bulk cleanup 0f17edb4; restored 32084a2f. Blob e69a127e identical in all three; sha256 c5873a17….",
+      "fix": "No code fix; provenance recorded."
     },
     {
       "id": "A-4",
       "title": "Commit hygiene / scope",
       "severity": "Info",
       "status": "Confirmed (hygiene only)",
-      "evidence": "32084a2f touches only this skill (12 files, +255/\u221272); author heinazhik; unsigned; non-Conventional message. Multi-skill scope hypothesis refuted.",
-      "fix": "None required; governance note: G6 binds the skill agent, not the human maintainer."
+      "evidence": "32084a2f touches only this skill (12 files, +255/−72); 4016d92 touches 4 files (+720/−1). Multi-skill scope hypothesis refuted.",
+      "fix": "None required; G6 binds the skill agent, not the human maintainer."
     },
     {
       "id": "N-1",
       "title": "CI never runs the skill suite",
       "severity": "Minor (repo)",
       "status": "Confirmed",
-      "evidence": "CI (.github/workflows/ci.yml) runs root tests/ on Python 3.11 with pytest + Playwright only; it installs no sympy/pdfplumber and no root test references the skill.",
+      "evidence": ".github/workflows/ci.yml runs root tests/ on Python 3.11 with pytest + Playwright only; no sympy/pdfplumber; no root test references the skill.",
       "location": ".github/workflows/ci.yml",
-      "fix": "Add a separate pinned-deps job for skills/.../tests/ (Python 3.14.7 + the four deps), or document the skill suite as a manual gate."
+      "fix": "Add a pinned-deps job for skills/.../tests/, or document the manual gate."
     },
     {
       "id": "N-2",
       "title": "11 package files had no prior hash baseline",
       "severity": "Minor (record)",
       "status": "Closed by rev6",
-      "evidence": "Full 27-file manifest recorded; none of the 11 was touched by 32084a2f.",
+      "evidence": "Full manifest recorded; none of the 11 was touched by 32084a2f.",
       "location": "docs/revalidation_rev6.md appendix",
       "fix": "Keep the manifest in the current record."
     },
     {
       "id": "N-3",
-      "title": "Staged rev5 report breaks lint",
+      "title": "Staged report breaks lint when unlisted",
       "severity": "Minor (delivery)",
-      "status": "Confirmed",
-      "evidence": "lint in worktree: FAIL unlisted package file: docs/revalidation_rev5.md; HEAD export: exit 0.",
-      "location": "SKILL.md tree / lint_skill.py:102",
-      "fix": "Add the report to the SKILL.md tree (28/29 files) before committing, or keep reports outside PACKAGE_DIRS."
+      "status": "Closed at HEAD; rule institutionalised",
+      "evidence": "4016d92 listed rev5/rev6/JSON in the tree; lint exit 0 at HEAD. This revision adds revalidation_rev7.md to the same tree line.",
+      "location": "SKILL.md tree",
+      "fix": "Add every new report to the SKILL.md tree in the same commit."
     },
     {
       "id": "N-4",
       "title": "_md_cell does not escape backslash",
       "severity": "Minor",
       "status": "Confirmed",
-      "evidence": "note `a\\\\|b` renders as `a\\\\\\\\|b`; the escaped pipe becomes a literal backslash plus a cell delimiter.",
+      "evidence": "note `a\\|b` renders as `a\\\\\\|b`; the escaped pipe becomes a literal backslash plus a cell delimiter. Ledger row observed: '| C0 | a\\\\|b | zero | original-condition | PASS |'.",
       "location": "scripts/check_math.py:157",
-      "fix": "Escape backslash first: str(value).replace('\\\\','\\\\\\\\').replace('|','\\\\|')\u2026"
+      "fix": "Escape backslash first: str(value).replace('\\\\','\\\\\\\\').replace('|','\\\\|')…"
     },
     {
       "id": "N-5",
       "title": "PDF provenance toggled by bulk cleanup commit",
       "severity": "Enhancement",
       "status": "Confirmed",
-      "evidence": "0f17edb4 deletes 100k+ lines of node_modules and the PDF as collateral; restore is byte-identical.",
+      "evidence": "0f17edb4 deletes node_modules and the PDF as collateral; restore is byte-identical.",
       "location": "samples/2026_Prelim_P1.pdf",
-      "fix": "No change needed; provenance recorded. Consider a path-scoped commit for the PDF if churn recurs."
+      "fix": "No change needed; provenance recorded."
     },
     {
       "id": "N-6",
       "title": "getattr lint bypass is not documented",
       "severity": "Minor",
       "status": "Confirmed",
-      "evidence": "No getattr/bypass limitation in references/ or SKILL.md; only in docs/remediation_plan.md (planning transcript). rev5 WP-5 assumed it was documented.",
+      "evidence": "No getattr/bypass limitation in references/ or SKILL.md; only in docs/remediation_plan.md.",
       "location": "references/tool-safety.md",
       "fix": "One line: lint is heuristic; dynamic dispatch can evade BANNED_*; safe_expr is the enforcement boundary."
     },
@@ -214,68 +268,142 @@
       "title": "Nested brace expansion is incorrect",
       "severity": "Minor",
       "status": "Confirmed",
-      "evidence": "`references/{a,{b,c}}.md` \u2192 ['a','b','a','c'] (duplicate, malformed). Flat braces used today, so no current false result.",
+      "evidence": "expand_braces('references/{a,{b,c}}.md') -> ['references/a.md','references/b.md','references/a.md','references/c.md'].",
       "location": "scripts/lint_skill.py:25",
-      "fix": "Reject nested braces explicitly, or replace regex expansion with a small recursive parser."
+      "fix": "Reject nested braces explicitly, or use a recursive parser that deduplicates."
     },
     {
       "id": "N-8",
       "title": "Partial output and temp-file leak on second write failure",
       "severity": "Minor",
       "status": "Confirmed",
-      "evidence": "manifest.json path as directory \u2192 pages.txt written, temp file tmp\u2026 left behind, exit 2.",
-      "location": "scripts/extract_pdf.py:52-58, 157",
-      "fix": "Write both files to temp, then replace; unlink temp in finally; or write manifest first and clean pages.txt on failure."
+      "evidence": "manifest.json path as directory -> exit 2 with pages.txt written and temp file left in the out dir.",
+      "location": "scripts/extract_pdf.py:52-58,157",
+      "fix": "Write both files to temp then replace; unlink temp in finally."
     },
     {
       "id": "N-9",
       "title": "Duplicate page specs accepted",
-      "severity": "Enhancement",
-      "status": "Confirmed",
-      "evidence": "--pages 1,1 \u2192 [(1,1),(1,1)]; page extracted twice.",
-      "location": "scripts/extract_pdf.py:26",
-      "fix": "Merge/dedupe ranges or reject overlapping specs."
+      "severity": "Info",
+      "status": "Partially refuted",
+      "evidence": "parse_pages('1,1') -> [(1,1),(1,1)], but the ingest loop is page-keyed: pages_ingested = 1, page numbers [1]. The rev6 claim 'page extracted twice' does not reproduce.",
+      "location": "scripts/extract_pdf.py:26,118-120",
+      "fix": "Optional: dedupe ranges in parse_pages to remove redundancy; no duplicate extraction to prevent."
     },
     {
       "id": "N-10",
       "title": "factorial(10000) yields ERROR not PASS/FAIL",
       "severity": "Minor",
       "status": "Confirmed",
-      "evidence": "Allowed by cap, but formatting the 35k-digit result raises ValueError (int\u2192str 4300-digit limit); check reports ERROR, exit 1 (fail-closed).",
+      "evidence": "factorial(10000) - 0 -> ERROR row, exit 1; factorial(10001) - 0 -> exit 2 at the cap.",
       "location": "scripts/check_math.py:149 / safe_expr.py factorial cap",
-      "fix": "Avoid stringifying huge integers for the detail (use is_zero / truncate via a safe formatter), or lower the factorial cap."
+      "fix": "Avoid stringifying huge integers for the detail, or lower the cap."
     },
     {
       "id": "N-11",
       "title": "Hidden-path exclusion blinds the completeness check",
       "severity": "Minor",
       "status": "Confirmed",
-      "evidence": "Adding scripts/__init__.py and scripts/.secret.py still exits 0: any package path component starting '.' or '__' is skipped.",
+      "evidence": "With scripts/__init__.py and scripts/.secret.py present in a correctly named scratch copy, lint still exits 0.",
       "location": "scripts/lint_skill.py:111",
-      "fix": "Exclude only known artifact dirs (.git, __pycache__, .pytest_cache, .venv) instead of all dot/dunder names."
+      "fix": "Exclude only known artifact dirs (.git, __pycache__, .pytest_cache, .venv)."
+    },
+    {
+      "id": "D-a",
+      "title": "rev7 hypothesis: JSON N-4 fix string lost backslashes",
+      "severity": "Info",
+      "status": "Refuted",
+      "evidence": "Raw bytes carry correct escapes; decoded fix str(value).replace('\\\\','\\\\\\\\').replace('|','\\\\|') executed successfully. Rendering layers, not the file, dropped backslashes.",
+      "fix": "None; use pinned-byte inspection over rendered/patch views."
+    },
+    {
+      "id": "D-b",
+      "title": "promotionSupersededBy missing from current record",
+      "severity": "Low",
+      "status": "Confirmed",
+      "evidence": "Revision 6 JSON has no promotionSupersededBy; historical validation_report.json still has verdict.promotableToVerified: true.",
+      "fix": "Added to this revision; historical record frozen."
+    },
+    {
+      "id": "D-c",
+      "title": "rev5 lacks executed/superseded banner",
+      "severity": "Low",
+      "status": "Confirmed",
+      "evidence": "docs/revalidation_rev5.md opens with conversational preamble and has no disposition banner.",
+      "fix": "Disclose only; do not rewrite the plan transcript."
+    },
+    {
+      "id": "D-d",
+      "title": "R5 JSON values are exit codes, not counts",
+      "severity": "Enhancement",
+      "status": "Confirmed",
+      "evidence": "JSON has 10 keys with values 2/2/2/2/2/2/2/2/3/2 matching rev6's exit codes; rev6 section 2 lists 11 probe rows.",
+      "fix": "valueSemantics and full probeInventory added to this revision."
+    },
+    {
+      "id": "D-e",
+      "title": "Manifest coverage gap and record currency",
+      "severity": "Low",
+      "status": "Confirmed",
+      "evidence": "The 3 delivery docs had no hash baseline; record status: current while head was pinned to 32084a2f.",
+      "fix": "30-file manifest, selfHashExcluded, verifiedAt/deliveredAt added."
+    },
+    {
+      "id": "D-f",
+      "title": "Inventory mirrors stale after HEAD delivery",
+      "severity": "Low",
+      "status": "Confirmed",
+      "evidence": "skills-inventory.md:3697 and docs/skills-inventory.md:3697 report Files: 26 (actual 30 pre-edit / 31 post-edit); mirrors generated 2026-11-25 16:48 before 4016d92 at 21:54.",
+      "fix": "Regenerate with tools/skills_docs.py on authorisation."
+    },
+    {
+      "id": "D-g",
+      "title": "N-4 evidence string over-escaped in rev6 JSON",
+      "severity": "Low",
+      "status": "Confirmed",
+      "evidence": "Decoded evidence had two backslashes before the pipe (a\\\\|b) where rev6 has one (a\\|b); the fix string was correct.",
+      "fix": "Evidence string corrected in this revision."
     }
   ],
   "summary": {
     "newHigh": 0,
     "newMedium": 0,
-    "newLow": 9,
+    "newLow": 14,
     "newEnhancement": 2,
-    "refuted": 1,
-    "historicalErrata": 1
+    "refuted": 2,
+    "partiallyRefuted": 1,
+    "historicalErrata": 1,
+    "countsExplained": "newLow = N-1,N-2,N-3,N-4,N-6,N-7,N-8,N-10,N-11 (9) + D-b,D-c,D-e,D-f,D-g (5); newEnhancement = N-5,D-d; refuted = A-1,D-a; partiallyRefuted = N-9; historicalErrata = A-2. A-3/A-4 are Info/Confirmed."
   },
   "verdict": {
     "promotableToVerified": true,
-    "promotedTo": "Verified at 32084a2f",
-    "basis": "14/14 rev4 hashes; lint 0; 101/101 \u00d73 with 0 skips; 7/7 with matching sha; exit-code battery clean; red\u2192green proven; no new High/Medium skill finding.",
+    "promotedTo": "Verified at 32084a2f; extended to 4016d92",
+    "rubrics": {"A": "PASS", "B": "PASS"},
+    "basis": "27/27 hashes at pin vs JSON and rev6; 30/30 at HEAD with 4 commit-explained drift entries; lint exit 0 at both pins; 101/101 x3 with 0 skips at both; 7/7 with full checks_sha256 match; R4-R6 clean; red->green proven (4 red -> 5 green) and parent 2 failed/95 passed; no new High/Medium skill finding.",
+    "promotionSupersededBy": null,
     "conditions": [
-      "Do not commit revalidation_rev5.md without adding it to the SKILL.md tree (N-3).",
-      "Verification is a manual gate: CI does not run the skill suite (N-1)."
+      "Verification is a manual gate: CI does not run the skill suite (N-1).",
+      "Record/delivery repairs D-b..D-g are non-blocking; historical records are frozen.",
+      "Paper<->model-answer mathematical correspondence remains Reported."
     ]
   },
+  "residualRisks": [
+    "Windows has no SIGALRM: per-check timeouts are not enforced there.",
+    "integrate/limit/solve/expand and large matrix powers are bounded only by the per-check timeout; a direct safe_expr.parse() caller has no timeout.",
+    "lint_skill.py is heuristic; getattr/dynamic dispatch can evade the scan (N-6); safe_expr is the enforcement boundary.",
+    "Non-atomic PNG writes and partial text output on exit 2/3 can leave artifacts (N-8).",
+    "Paper/bound-solution correspondence stays Reported; page images were not re-derived.",
+    "CI does not run the skill suite (N-1)."
+  ],
   "sideEffects": {
-    "repoWrites": false,
+    "repoWritesDuringAudit": false,
     "commits": false,
     "pushes": false,
-    "note": "Audit outputs were produced under /tmp/opencode/audit; no repository writes were made during verification."
+    "postAuditEdits": [
+      "docs/revalidation_rev7.md (new)",
+      "docs/validation_record_current.json -> revision 7",
+      "SKILL.md tree line adds revalidation_rev7.md"
+    ],
+    "note": "All probes and outputs were under /tmp/audit; edits were applied only after explicit authorisation; no commit or push was made."
   }
 }

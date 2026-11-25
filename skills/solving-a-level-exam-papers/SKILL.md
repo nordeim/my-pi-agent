@@ -15,7 +15,7 @@ skills/solving-a-level-exam-papers/
 ├── scripts/{safe_expr.py,check_math.py,extract_pdf.py,lint_skill.py}
 ├── tests/{test_safe_expr.py,test_cli.py}
 ├── samples/{2026_Prelim_P1.pdf,model_answer_6.md,model_answer_6_corrected.md}
-└── docs/{SKILL_v1.md,v1_to_v2_updates.md,independent_skill_audit_report.json,validation_report.md,validation_report.json,revalidation_rev3.md,revalidation_rev4.md,revalidation_rev5.md,revalidation_rev6.md,validation_record_current.json,remediation_plan.md,files_update_to_validate.txt}
+└── docs/{SKILL_v1.md,v1_to_v2_updates.md,independent_skill_audit_report.json,validation_report.md,validation_report.json,revalidation_rev3.md,revalidation_rev4.md,revalidation_rev5.md,revalidation_rev6.md,revalidation_rev7.md,validation_record_current.json,remediation_plan.md,files_update_to_validate.txt}
 ```
 
 `tests/`, `samples/` and `docs/` are never loaded at run time. They stay in the
