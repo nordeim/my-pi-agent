@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1.0,
+  "report": "validation_record_current",
+  "generatedAt": "2026-11-25",
+  "revision": 6,
+  "target": {
+    "skill": "solving-a-level-exam-papers",
+    "path": "skills/solving-a-level-exam-papers",
+    "repo": "nordeim/my-pi-agent",
+    "branch": "main",
+    "head": "32084a2f86cd55bd94dee5e859d08f6146ea32bc",
+    "parent": "7c5cc0b8a2fc4ecce9f9371d52e774d076f07724",
+    "skillSubtreeClean": true
+  },
+  "environment": {
+    "python": "3.14.7",
+    "pytest": "9.2.0",
+    "sympy": "1.14.0",
+    "pdfplumber": "0.11.11",
+    "installMethod": "uv run --with (on demand)"
+  },
+  "status": "current",
+  "supersedes": [
+    "docs/revalidation_rev4.md"
+  ],
+  "gates": {
+    "R1_lint": {
+      "exit": 0,
+      "body_lines": 149,
+      "result": "PASS"
+    },
+    "R2_suite": {
+      "collected": 101,
+      "runs": [
+        {
+          "passed": 101,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 101,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "passed": 101,
+          "failed": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    "R3_example": {
+      "passed": 7,
+      "total": 7,
+      "exit": 0,
+      "checks_sha256": "18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2"
+    },
+    "R4_ingest": {
+      "subset_pages": 4,
+      "full_pages": 24,
+      "gate_G0": "PASS",
+      "no_text_pages": [],
+      "exit": 0
+    },
+    "R5_negatives": {
+      "bad_pages": 2,
+      "out_of_range": 2,
+      "overwrite_refusal": 2,
+      "corrupt": 2,
+      "unreadable": 2,
+      "encrypted": 2,
+      "missing_file": 2,
+      "missing_dependency": 2,
+      "textless": 3,
+      "render_refusal": 2
+    },
+    "R6_playbook": {
+      "eigen": "2/2",
+      "inverse": "2/2",
+      "tangency": "2/2",
+      "antiderivative": "2/2"
+    },
+    "R7_root": {
+      "passed": 390,
+      "skipped": 9,
+      "failed": 0,
+      "note": "root tests only; skips are missing yaml/playwright, documented env errors"
+    }
+  },
+  "provenance": {
+    "sha256": {
+      "SKILL.md": "2c7946a16c6722b3e1038d1fcb462293c3f525ab8c9657c5e28752e23139bc9d",
+      "assets/audit-template.md": "0fc4403d4176c26a8f2c85418c74c51f4931c8f2ee3d5c314d1cb5759aa779fa",
+      "assets/checks.example.json": "18c1a7f6668c01f20c4c662eabb5692c87a7b391a9b7e9510787d7fba42489f2",
+      "assets/solution-template.md": "93c76879900ec05b489787ae9ae5bb07358e24eed4539f3ccc93f1ca75d5cee0",
+      "docs/SKILL_v1.md": "834d465a909d9d7d99a2345ffbaf61dfc079546b51f3737ce3a3a10be4963a36",
+      "docs/files_update_to_validate.txt": "d0c7cd1673118a862d2b285aa1c2c9963133cab886ec1f3ca0a305d39a397cd7",
+      "docs/independent_skill_audit_report.json": "f019b2937810c65432ebb990db1c9bd1031291fe8db70d9cb92ac5bc09144612",
+      "docs/remediation_plan.md": "24811a8a09a44d7c346d26419b13d53ecb0b2019d6cebefa8606e174d387dc74",
+      "docs/revalidation_rev3.md": "40944259d1410a1d466ddf540bcd85eda65e964e3765fbb39adecec9e6bfaab4",
+      "docs/revalidation_rev4.md": "36b3cbd3def265b64309e8a1c2ebc73ac61f5f18b1795babdddbc7696bc825f2",
+      "docs/v1_to_v2_updates.md": "ecf3ca6319c40290bf89531e382d4bdc2be56d27cfd72b2754ee9f1d7d65140a",
+      "docs/validation_report.json": "44a2537242ee262e340b7cdfd526ebc10b3ff3817e2bf984177f306ea45cdb1e",
+      "docs/validation_report.md": "147a64c7c73853cec2926931fcc454497703898a41d000f6baefc506acf04f3d",
+      "references/exam-presentation.md": "58f803191233acda921e6670c599d31e5643e34f2c706239f2998b89da3181f8",
+      "references/pitfalls-and-lessons.md": "96c1d26bef47a64a9586bff9b373c78f7cf3bdacab1a251566aecf7dacfb59bc",
+      "references/source-fidelity.md": "c2f041bfbc8aa2d34ec0481f02a23f54098aa1ad74bc3b7ad9c82d049b85edc6",
+      "references/tool-safety.md": "540b8960994d0aeb4a4defbdb3216282a206a42aab867b887ea6d796fd73d0d3",
+      "references/verification-playbook.md": "e0ee76a74397e02ac2af8c9606c71c0aaf8feb74e392ce663bd51852f32e34d1",
+      "samples/2026_Prelim_P1.pdf": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8",
+      "samples/model_answer_6.md": "c402db695257e82d014071152502b036288717f438b92c739fd0e72343915574",
+      "samples/model_answer_6_corrected.md": "aa83400aa09db55be2205ddb1a169c0b30ee5eac276fbcd5ff0eb6e975bc6629",
+      "scripts/check_math.py": "01869b6ac41f0073bac8f51d8921d0c0cd902960e138dab88ed6b2819c720428",
+      "scripts/extract_pdf.py": "ee30a0b706a0314daacb349366fd2c01263016834b1138a558badbb2532ec9a7",
+      "scripts/lint_skill.py": "e6ee849983b7bc63fa593e6a86611412221bc71448c40f25f8556431903b540f",
+      "scripts/safe_expr.py": "721c1b6c07d23f6deecc28a9060238e87ba4bcbaada3d71243c241a7cd1d7857",
+      "tests/test_cli.py": "0ce6305a48eb37f7d0f4ab7b3490443801e357d7a008299d934c46163949e040",
+      "tests/test_safe_expr.py": "24525a860f7a6822e210d1189d351cb7b2120e4ae4e4dc7da16fb02aa9136477"
+    },
+    "rev4_hashes_matched": "14/14",
+    "json_baseline_matched": "6/13 (7 differences explained by rev4 changes)",
+    "pdf_blob": "e69a127ebd8c03336650e6d73d8d2dc77cb9a175",
+    "pdf_sha256": "c5873a178e9538e78e1710d050e29bc25fc969bdfed29767c3948a2d558b57c8"
+  },
+  "findings": [
+    {
+      "id": "A-1",
+      "title": "rev3 banner link malformed",
+      "severity": "Info",
+      "status": "Refuted",
+      "evidence": "docs/revalidation_rev3.md:3 link is well-formed; render/bytes clean.",
+      "fix": null
+    },
+    {
+      "id": "A-2",
+      "title": "rev2 report safe_expr hash internally inconsistent",
+      "severity": "Low",
+      "status": "Confirmed (historical erratum)",
+      "evidence": "docs/validation_report.md:23 table 40700492\u2026; :32 narrative a5138e8f\u2026 \u2192 a596778a\u2026. Frozen rev2 record.",
+      "fix": "Disclose only; do not rewrite the historical record."
+    },
+    {
+      "id": "A-3",
+      "title": "PDF dropped and restored",
+      "severity": "Info",
+      "status": "Confirmed",
+      "evidence": "Added 02b434d8; deleted in bulk cleanup 0f17edb4 (2026-11-25 16:37 +0800); restored 32084a2f. Blob e69a127e identical in all three; sha256 c5873a17\u2026.",
+      "fix": "No code fix; record provenance in the current record."
+    },
+    {
+      "id": "A-4",
+      "title": "Commit hygiene / scope",
+      "severity": "Info",
+      "status": "Confirmed (hygiene only)",
+      "evidence": "32084a2f touches only this skill (12 files, +255/\u221272); author heinazhik; unsigned; non-Conventional message. Multi-skill scope hypothesis refuted.",
+      "fix": "None required; governance note: G6 binds the skill agent, not the human maintainer."
+    },
+    {
+      "id": "N-1",
+      "title": "CI never runs the skill suite",
+      "severity": "Minor (repo)",
+      "status": "Confirmed",
+      "evidence": "CI (.github/workflows/ci.yml) runs root tests/ on Python 3.11 with pytest + Playwright only; it installs no sympy/pdfplumber and no root test references the skill.",
+      "location": ".github/workflows/ci.yml",
+      "fix": "Add a separate pinned-deps job for skills/.../tests/ (Python 3.14.7 + the four deps), or document the skill suite as a manual gate."
+    },
+    {
+      "id": "N-2",
+      "title": "11 package files had no prior hash baseline",
+      "severity": "Minor (record)",
+      "status": "Closed by rev6",
+      "evidence": "Full 27-file manifest recorded; none of the 11 was touched by 32084a2f.",
+      "location": "docs/revalidation_rev6.md appendix",
+      "fix": "Keep the manifest in the current record."
+    },
+    {
+      "id": "N-3",
+      "title": "Staged rev5 report breaks lint",
+      "severity": "Minor (delivery)",
+      "status": "Confirmed",
+      "evidence": "lint in worktree: FAIL unlisted package file: docs/revalidation_rev5.md; HEAD export: exit 0.",
+      "location": "SKILL.md tree / lint_skill.py:102",
+      "fix": "Add the report to the SKILL.md tree (28/29 files) before committing, or keep reports outside PACKAGE_DIRS."
+    },
+    {
+      "id": "N-4",
+      "title": "_md_cell does not escape backslash",
+      "severity": "Minor",
+      "status": "Confirmed",
+      "evidence": "note `a\\\\|b` renders as `a\\\\\\\\|b`; the escaped pipe becomes a literal backslash plus a cell delimiter.",
+      "location": "scripts/check_math.py:157",
+      "fix": "Escape backslash first: str(value).replace('\\\\','\\\\\\\\').replace('|','\\\\|')\u2026"
+    },
+    {
+      "id": "N-5",
+      "title": "PDF provenance toggled by bulk cleanup commit",
+      "severity": "Enhancement",
+      "status": "Confirmed",
+      "evidence": "0f17edb4 deletes 100k+ lines of node_modules and the PDF as collateral; restore is byte-identical.",
+      "location": "samples/2026_Prelim_P1.pdf",
+      "fix": "No change needed; provenance recorded. Consider a path-scoped commit for the PDF if churn recurs."
+    },
+    {
+      "id": "N-6",
+      "title": "getattr lint bypass is not documented",
+      "severity": "Minor",
+      "status": "Confirmed",
+      "evidence": "No getattr/bypass limitation in references/ or SKILL.md; only in docs/remediation_plan.md (planning transcript). rev5 WP-5 assumed it was documented.",
+      "location": "references/tool-safety.md",
+      "fix": "One line: lint is heuristic; dynamic dispatch can evade BANNED_*; safe_expr is the enforcement boundary."
+    },
+    {
+      "id": "N-7",
+      "title": "Nested brace expansion is incorrect",
+      "severity": "Minor",
+      "status": "Confirmed",
+      "evidence": "`references/{a,{b,c}}.md` \u2192 ['a','b','a','c'] (duplicate, malformed). Flat braces used today, so no current false result.",
+      "location": "scripts/lint_skill.py:25",
+      "fix": "Reject nested braces explicitly, or replace regex expansion with a small recursive parser."
+    },
+    {
+      "id": "N-8",
+      "title": "Partial output and temp-file leak on second write failure",
+      "severity": "Minor",
+      "status": "Confirmed",
+      "evidence": "manifest.json path as directory \u2192 pages.txt written, temp file tmp\u2026 left behind, exit 2.",
+      "location": "scripts/extract_pdf.py:52-58, 157",
+      "fix": "Write both files to temp, then replace; unlink temp in finally; or write manifest first and clean pages.txt on failure."
+    },
+    {
+      "id": "N-9",
+      "title": "Duplicate page specs accepted",
+      "severity": "Enhancement",
+      "status": "Confirmed",
+      "evidence": "--pages 1,1 \u2192 [(1,1),(1,1)]; page extracted twice.",
+      "location": "scripts/extract_pdf.py:26",
+      "fix": "Merge/dedupe ranges or reject overlapping specs."
+    },
+    {
+      "id": "N-10",
+      "title": "factorial(10000) yields ERROR not PASS/FAIL",
+      "severity": "Minor",
+      "status": "Confirmed",
+      "evidence": "Allowed by cap, but formatting the 35k-digit result raises ValueError (int\u2192str 4300-digit limit); check reports ERROR, exit 1 (fail-closed).",
+      "location": "scripts/check_math.py:149 / safe_expr.py factorial cap",
+      "fix": "Avoid stringifying huge integers for the detail (use is_zero / truncate via a safe formatter), or lower the factorial cap."
+    },
+    {
+      "id": "N-11",
+      "title": "Hidden-path exclusion blinds the completeness check",
+      "severity": "Minor",
+      "status": "Confirmed",
+      "evidence": "Adding scripts/__init__.py and scripts/.secret.py still exits 0: any package path component starting '.' or '__' is skipped.",
+      "location": "scripts/lint_skill.py:111",
+      "fix": "Exclude only known artifact dirs (.git, __pycache__, .pytest_cache, .venv) instead of all dot/dunder names."
+    }
+  ],
+  "summary": {
+    "newHigh": 0,
+    "newMedium": 0,
+    "newLow": 9,
+    "newEnhancement": 2,
+    "refuted": 1,
+    "historicalErrata": 1
+  },
+  "verdict": {
+    "promotableToVerified": true,
+    "promotedTo": "Verified at 32084a2f",
+    "basis": "14/14 rev4 hashes; lint 0; 101/101 \u00d73 with 0 skips; 7/7 with matching sha; exit-code battery clean; red\u2192green proven; no new High/Medium skill finding.",
+    "conditions": [
+      "Do not commit revalidation_rev5.md without adding it to the SKILL.md tree (N-3).",
+      "Verification is a manual gate: CI does not run the skill suite (N-1)."
+    ]
+  },
+  "sideEffects": {
+    "repoWrites": false,
+    "commits": false,
+    "pushes": false,
+    "note": "Audit outputs were produced under /tmp/opencode/audit; no repository writes were made during verification."
+  }
+}
