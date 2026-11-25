@@ -202,7 +202,14 @@ $$\overrightarrow{OT}=\overrightarrow{OC}-(C\cdot\mathbf n)\mathbf n=(0,5)+5\sin
 
 ## 5. Verification ledger
 
-All checks below are **exact symbolic manipulations performed by hand**; no CAS or graphing calculator was executed. Decimals are indicative sanity values only, not exam answers.
+Rows 1–10 are exact hand algebra shown in full; rows 11–12 are labelled **Reasoned**. Independently, the seven checks in `assets/checks.example.json` were **executed** with `scripts/check_math.py` (they cover rows 2–6 and the two domain intervals, cf. row 9): 7/7 PASS, exit 0.
+
+| Provenance | Value |
+|---|---|
+| `checks_sha256` | `18c1a7f6668c01f2…` |
+| Tool versions | sympy 1.14.0 · Python 3.11.2 |
+
+Decimals are indicative sanity values only, not exam answers.
 
 | # | Check | Evidence | Status |
 |---|---|---|---|
@@ -256,8 +263,10 @@ All checks below are **exact symbolic manipulations performed by hand**; no CAS 
 ---
 
 ## Handoff
-**Verified:** 7/7 exact checks (original modulus equation, circle membership,
-equal-distance line, tangency discriminant, |w|=√7, both domain intervals).
+**Verified:** 7/7 exact checks executed via `assets/checks.example.json`
+(`checks_sha256=18c1a7f6668c01f2…`, sympy 1.14.0): original modulus equation,
+circle membership, equal-distance line, tangency discriminant, |w|=√7, both
+domain intervals. Ledger rows 1, 7, 8 and 10 are hand algebra only (not machine-checked).
 **Deferred:** figures are ASCII schematics, not vector graphics; per-step mark
 splits are indicative (the PDF carries solutions, not a mark scheme); the
 typeset form of the fraction condition is a reconstruction from extraction.

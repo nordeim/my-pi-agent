@@ -57,3 +57,19 @@ def test_oversized_allocations_rejected(src):
 ])
 def test_bounded_allocations_allowed(src):
     parse(src, symbols=("x",))
+
+
+def test_huge_exponent_reports_exponent_too_large():
+    # Regression V-10: UnsafeExpression subclasses ValueError and was re-labelled
+    # "non-finite exponent" by the surrounding except clause.
+    with pytest.raises(UnsafeExpression, match="exponent too large"):
+        parse("2**100000")
+
+
+@pytest.mark.parametrize("src", [
+    "2**[1]", "[1]**2", "-[1]", "[1]/2", "sqrt([1])", "[1]-[1]",
+])
+def test_ill_typed_expressions_raise_unsafe_expression(src):
+    # Regression V-17: raw AttributeError/TypeError/SympifyError leaked out of parse().
+    with pytest.raises(UnsafeExpression, match="ill-typed"):
+        parse(src)

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Execute declared mathematical checks; emit a provenance-bearing ledger.
 
-Exit: 0 all pass | 1 a check FAILED/ERRORED | 2 suite invalid or unsafe.
+Exit: 0 all pass | 1 a check FAILED/ERRORED | 2 suite invalid, unsafe, unreadable
+or results unwritable.
 Undated by default (reproducible); --stamp adds a UTC timestamp.
 """
 from __future__ import annotations
@@ -73,6 +74,34 @@ def validate(spec, min_checks):
     return checks
 
 
+def _difference(cid, lhs, rhs):
+    lhs_matrix, rhs_matrix = isinstance(lhs, sp.MatrixBase), isinstance(rhs, sp.MatrixBase)
+    if lhs_matrix != rhs_matrix:
+        raise ConfigError(f"{cid}: cannot compare a matrix with a scalar")
+    if not lhs_matrix and not (isinstance(lhs, sp.Expr) and isinstance(rhs, sp.Expr)):
+        raise ConfigError(f"{cid}: both sides must evaluate to scalars or matrices")
+    if lhs_matrix and lhs.shape != rhs.shape:
+        raise ConfigError(f"{cid}: matrix shapes differ: {lhs.shape} vs {rhs.shape}")
+    return lhs - rhs
+
+
+def _is_zero(cid, target):
+    if isinstance(target, sp.MatrixBase):
+        simplified = target.applyfunc(sp.simplify)
+        return bool(simplified.is_zero_matrix), simplified
+    if not isinstance(target, sp.Expr):
+        raise ConfigError(f"{cid}: expression must evaluate to a scalar or matrix")
+    simplified = sp.simplify(target)
+    return simplified == 0, simplified
+
+
+def _scalar(cid, value):
+    if not isinstance(value, sp.Expr):
+        raise ConfigError(f"{cid}: expression must evaluate to a scalar, "
+                          f"got {type(value).__name__}")
+    return value
+
+
 class _Timeout(Exception):
     pass
 
@@ -92,19 +121,21 @@ def run_check(c, symbols, timeout):
             exprs = [get(k) for k in REQUIRED[kind]]
             if any(is_inexact(e) for e in exprs):
                 raise ConfigError(f"{c['id']}: floats are forbidden in exact checks; use Rational(7,5)")
-            target = exprs[0] if kind == "zero" else exprs[0] - exprs[1]
-            ok = sp.simplify(target) == 0
-            detail = f"simplified: {sp.simplify(target)}"
+            target = exprs[0] if kind == "zero" else _difference(c["id"], *exprs)
+            ok, simplified = _is_zero(c["id"], target)
+            detail = f"simplified: {simplified}"
         elif kind == "approx":
-            d = sp.N(sp.Abs(get("lhs") - get("rhs")), 30)
+            lhs, rhs = _scalar(c["id"], get("lhs")), _scalar(c["id"], get("rhs"))
+            d = sp.N(sp.Abs(lhs - rhs), 30)
             tol = float(c.get("tol", 1e-10))
             ok = bool(d.is_real) and float(d) < tol
             detail = f"|difference| = {d}, tol = {tol}"
         else:
-            v = sp.N(get("expr"), 30)
+            v = sp.N(_scalar(c["id"], get("expr")), 30)
             if not v.is_real:
                 raise ValueError("interval check requires a real value")
-            lo, hi = float(sp.N(get("lo"), 30)), float(sp.N(get("hi"), 30))
+            lo = float(sp.N(_scalar(c["id"], get("lo")), 30))
+            hi = float(sp.N(_scalar(c["id"], get("hi")), 30))
             x = float(v)
             ok = (lo <= x <= hi) if c.get("inclusive") else (lo < x < hi)
             detail = f"value = {x}, bounds = ({lo}, {hi})"
@@ -134,8 +165,8 @@ def main() -> int:
     if not 0 < a.timeout <= 120:
         print("CONFIG ERROR: --timeout must be in (0, 120]", file=sys.stderr)
         return 2
-    raw = Path(a.checks).read_bytes()
     try:
+        raw = Path(a.checks).read_bytes()
         spec = json.loads(raw)
         checks = validate(spec, a.min_checks)
         rows = [run_check(c, spec.get("symbols", []), a.timeout) for c in checks]
@@ -158,10 +189,15 @@ def main() -> int:
     if a.json:
         payload = {"provenance": provenance, "results": rows}
         p = Path(a.json)
-        with tempfile.NamedTemporaryFile("w", dir=p.parent, delete=False, encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2)
-            tmp = fh.name
-        os.replace(tmp, p)
+        try:
+            with tempfile.NamedTemporaryFile("w", dir=p.parent, delete=False,
+                                             encoding="utf-8") as fh:
+                json.dump(payload, fh, indent=2)
+                tmp = fh.name
+            os.replace(tmp, p)
+        except OSError as exc:
+            print(f"CONFIG ERROR: cannot write {p}: {exc}", file=sys.stderr)
+            return 2
     return 1 if failed else 0
 
 

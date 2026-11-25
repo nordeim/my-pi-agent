@@ -2,17 +2,26 @@
 name: solving-a-level-exam-papers
 description: Produces examiner-standard, verified worked solutions to questions from Singapore-Cambridge GCE A-Level examination papers (H1/H2/H3 Mathematics, Further Mathematics and other quantitative subjects) supplied as PDF. Use when a user shares an exam paper PDF and asks to solve, check, audit or upgrade an answer to a numbered question, wants mark-scheme-quality working, exact answers or a model answer, or pastes OCR-garbled question text. Handles fail-closed PDF ingestion, reconstruction of symbols lost in extraction, mark-aware planning, exam presentation conventions, sandboxed symbolic verification with an evidence ledger, and severity-classified audits of existing answers.
 metadata:
-  version: 2.0.0
+  version: 2.0.1
   spec: anthropic-agent-skills
   domain: education-assessment
 ---
 
+```text
 skills/solving-a-level-exam-papers/
 ├── SKILL.md
 ├── references/{source-fidelity,exam-presentation,verification-playbook,pitfalls-and-lessons,tool-safety}.md
 ├── assets/{solution-template.md,audit-template.md,checks.example.json}
 ├── scripts/{safe_expr.py,check_math.py,extract_pdf.py,lint_skill.py}
-└── tests/{test_safe_expr.py,test_cli.py}
+├── tests/{test_safe_expr.py,test_cli.py}
+├── samples/{2026_Prelim_P1.pdf,model_answer_6.md,model_answer_6_corrected.md}
+└── docs/{SKILL_v1.md,v1_to_v2_updates.md,independent_skill_audit_report.json,validation_report.md,validation_report.json,revalidation_rev3.md,remediation_plan.md,files_update_to_validate.txt}
+```
+
+`tests/`, `samples/` and `docs/` are never loaded at run time. They stay in the
+package on purpose so it is self-verifying (regression fixtures, exemplar
+answers, audit trail). To ship without them, delete the directories together
+with their tree entries above, then re-run the linter.
 
 # Solving A-Level Exam Papers (PDF → examiner-standard solution)
 
@@ -90,7 +99,8 @@ quote evidence; give a minimal fix. Audit your own prior answer identically.
 | Command | Obligation |
 |---|---|
 | Show that / Prove | Forward derivation to the given result; no calculator-only support |
-| Hence / Deduce | Must visibly reuse the earlier result |
+| Hence | Must visibly reuse the immediately preceding result; no independent restart |
+| Deduce | Conclude from a stated earlier result or given fact; cite it, no fresh derivation |
 | Write down / State | Answer alone |
 | Find the exact value | No decimals |
 | Explain | Reasoned sentences with the mathematical cause |

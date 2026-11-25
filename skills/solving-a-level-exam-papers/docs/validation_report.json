@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "report": "validation_report",
   "generatedAt": "2026-11-24",
-  "revision": 2,
+  "revision": 3,
   "revisedAt": "2026-11-24",
   "target": {
     "skill": "solving-a-level-exam-papers",
@@ -23,21 +23,27 @@
   },
   "verdict": {
     "promotableToVerified": true,
-    "conformance": "PASS on hard gates; 2 Low FAIL rows (V-6, V-12) and 1 PARTIAL (S-1) tracked",
-    "truthOfClaims": "PASS on High/Medium claims; Low doc residuals (V-6, V-7, V-13, V-14, S-1) tracked",
-    "summary": "Revision 2 closes V-1, V-3 and V-4: lint exits 0, pytest is 60/60, the example suite is 7/7, and R7/R8 verify the allocation caps. No High/Medium finding remains open; ten Low findings are tracked and do not block promotion."
+    "summary": "Revision 3 closes all remaining Low findings and 6 new findings (V-15..V-20). Lint exits 0, pytest 97 passed, example suite 7/7. See docs/revalidation_rev3.md.",
+    "residual": [
+      "integrate/limit/solve bounded by SIGALRM only",
+      "no SIGALRM on Windows",
+      "PDF-02 false-positive volume Reported, not re-counted"
+    ]
   },
   "summary": {
     "openHigh": 0,
     "openMedium": 0,
-    "openLow": 10,
+    "openLow": 0,
     "closedHigh": 1,
     "closedMedium": 2,
     "acceptedByDesign": 1,
     "refuted": 1,
     "externalFindingsClosed": 5,
     "externalFindingsPartial": 1,
-    "externalFindingsClosedWithResidual": 1
+    "externalFindingsClosedWithResidual": 1,
+    "closedLowRev3": 14,
+    "closedMediumRev3": 3,
+    "newFindingsRev3": 6
   },
   "provenance": {
     "sha256": {
@@ -68,7 +74,12 @@
       "conformance: shipped package vs its own documented claims",
       "truth: documented claims when executed"
     ],
-    "labels": ["Verified (executed)", "Confirmed (static)", "Reported-Verified (external)", "Refuted"],
+    "labels": [
+      "Verified (executed)",
+      "Confirmed (static)",
+      "Reported-Verified (external)",
+      "Refuted"
+    ],
     "isolation": "All probes and outputs under /tmp; revision-2 fixes modify five skill files and these two reports; no commits or pushes"
   },
   "findings": [
@@ -125,7 +136,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Confirmed (static)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "Broken-local-link check is vacuous",
       "location": "scripts/lint_skill.py",
       "evidence": "SKILL.md paths are code spans, not markdown links; only the hardcoded REQUIRED list guards existence.",
@@ -137,7 +148,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Confirmed (static)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "Packaging contradicts v1 rules",
       "location": "samples/; docs/; docs/SKILL_v1.md sections 13-14",
       "evidence": "samples/ (1.1 MB PDF) and docs/ ship inside the skill; v1 says keep the eval suite outside the skill folder and no auxiliary docs.",
@@ -149,7 +160,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Confirmed (static)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "Verification playbook lost content",
       "location": "references/verification-playbook.md",
       "evidence": "Shipped playbook is 32 lines; v1 had universal checks 1-7, executable JSON example, SymPy patterns, and a probability row.",
@@ -161,7 +172,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Verified (executed)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "--pages accepts garbage and tracebacks",
       "location": "scripts/extract_pdf.py:80",
       "evidence": "--pages abc exits 1 with an uncaught ValueError traceback instead of exit 2.",
@@ -185,7 +196,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Verified (executed)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "Wrong rejection message for huge exponents",
       "location": "scripts/safe_expr.py",
       "evidence": "2**100000 is rejected as 'non-finite exponent' because UnsafeExpression subclasses ValueError and is caught by its own except ValueError.",
@@ -197,7 +208,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Verified (executed)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "Config-class malformed expressions report as maths ERROR",
       "location": "scripts/check_math.py",
       "evidence": "expr [1,2] and expr I produce ERROR rows and exit 1, not config exit 2.",
@@ -209,7 +220,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Confirmed (static)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "SKILL.md file tree is incomplete",
       "location": "SKILL.md:10-15",
       "evidence": "Tree omits samples/ and docs/ that ship.",
@@ -221,7 +232,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Verified (executed)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "v2 promotion commands are partly wrong",
       "location": "docs/v1_to_v2_updates.md PART 5-6",
       "evidence": "After revision 2, '# expect PASS' and '# expect all pass' are true (R1/R2) and PART 6's 'Linter would PASS' is true; ../../samples still resolves outside the skill.",
@@ -233,7 +244,7 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Confirmed (static)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "Distinct Deduce obligation dropped",
       "location": "SKILL.md command-word table; references/exam-presentation.md section 2",
       "evidence": "v2 merges 'Hence / Deduce'; v1 had a distinct Deduce row.",
@@ -245,12 +256,66 @@
       "origin": "self",
       "severity": "Low",
       "confidence": "Confirmed (static)",
-      "status": "Open",
+      "status": "Closed (rev 3)",
       "title": "Exemplar provenance over-claim",
       "location": "samples/model_answer_6_corrected.md:205, 258-263",
       "evidence": "Handoff claims 'Verified: 7/7 exact checks' while section 5 says 'no CAS ... executed'; ledger omits checks_sha256/tool version required by the solution template.",
       "impact": "Weakens the exemplar as a conformance reference.",
       "recommendation": "Say '7/7 via assets/checks.example.json (executed)' or 'hand-checked'; add checks_sha256 N/A with reason."
+    },
+    {
+      "id": "V-15",
+      "severity": "Medium",
+      "status": "Closed (rev 3)",
+      "title": "Missing checks file raised a traceback",
+      "fix": "read_bytes() outside try",
+      "regressionTest": "test_missing_checks_file_exit2",
+      "discoveredIn": "revision 3"
+    },
+    {
+      "id": "V-16",
+      "severity": "Medium",
+      "status": "Closed (rev 3)",
+      "title": "True matrix identity reported FAIL",
+      "fix": "Matrix - Matrix == 0 is always False",
+      "regressionTest": "test_true_matrix_identity_passes",
+      "discoveredIn": "revision 3"
+    },
+    {
+      "id": "V-17",
+      "severity": "Low",
+      "status": "Closed (rev 3)",
+      "title": "Ill-typed expressions leaked raw TypeError/AttributeError/SympifyError",
+      "fix": "parse() now raises UnsafeExpression('ill-typed ...')",
+      "regressionTest": "test_ill_typed_expressions_raise_unsafe_expression",
+      "discoveredIn": "revision 3"
+    },
+    {
+      "id": "V-18",
+      "severity": "Low",
+      "status": "Closed (rev 3)",
+      "title": "Corrupt PDF raised PdfminerException traceback (exit 1)",
+      "fix": "caught at pdfplumber.open -> exit 2",
+      "regressionTest": "test_corrupt_pdf_exit2",
+      "discoveredIn": "revision 3"
+    },
+    {
+      "id": "V-19",
+      "severity": "Medium",
+      "status": "Closed (rev 3)",
+      "title": "Linter text scan flagged every copy of lint_skill.py",
+      "fix": "replaced by AST scan; no exemptions",
+      "regressionTest": "test_lint_ignores_inert_mentions_and_copies_of_itself",
+      "discoveredIn": "revision 3"
+    },
+    {
+      "id": "V-20",
+      "severity": "Low",
+      "status": "Closed (rev 3)",
+      "title": "Tree check could not detect unlisted/ghost entries",
+      "fix": "tree lines parsed directly",
+      "regressionTest": "test_lint_flags_unlisted_tree_entry",
+      "discoveredIn": "revision 3"
     }
   ],
   "externalClosure": [
@@ -298,62 +363,221 @@
     }
   ],
   "conformance": [
-    {"requirement": "SKILL.md at root with frontmatter", "status": "PASS"},
-    {"requirement": "Body < 500 lines", "status": "PASS", "note": "139 lines"},
-    {"requirement": "Relative forward-slash supporting paths", "status": "PASS"},
-    {"requirement": "No auxiliary README/CHANGELOG", "status": "PASS"},
-    {"requirement": "Scripts deterministic, dependency-light, no network", "status": "PASS"},
-    {"requirement": "lint_skill.py exits 0", "status": "PASS", "note": "R1"},
-    {"requirement": "pytest green", "status": "PASS", "note": "R2: 60 passed"},
-    {"requirement": "Exit-code contract", "status": "PASS", "note": "E3/E5/E8/E14; usage path still fails, V-8 Low"},
-    {"requirement": "No arbitrary code execution", "status": "PASS"},
-    {"requirement": "Memory-exhaustion vectors capped", "status": "PASS", "note": "R7/R8; MAX_MATRIX_DIM=64, MAX_INT_ARG=10000, MAX_SEQ=4096"},
-    {"requirement": "Empty/malformed suite fails closed", "status": "PASS"},
-    {"requirement": "No unrequested git side effects", "status": "PASS"},
-    {"requirement": "Textless PDF fails closed", "status": "PASS"},
-    {"requirement": "No overwrite without --force", "status": "PASS", "note": "R5/R6"},
-    {"requirement": "Provenance in ledger", "status": "PARTIAL", "note": "code yes; exemplar no (S-1, Low)"},
-    {"requirement": "Q6 suite 7/7", "status": "PASS", "note": "R3"},
-    {"requirement": "Eval suite outside skill folder", "status": "FAIL", "note": "undocumented exception; V-6 Low"},
-    {"requirement": "File tree complete", "status": "FAIL", "note": "V-12 Low"}
+    {
+      "requirement": "SKILL.md at root with frontmatter",
+      "status": "PASS"
+    },
+    {
+      "requirement": "Body < 500 lines",
+      "status": "PASS",
+      "note": "139 lines"
+    },
+    {
+      "requirement": "Relative forward-slash supporting paths",
+      "status": "PASS"
+    },
+    {
+      "requirement": "No auxiliary README/CHANGELOG",
+      "status": "PASS"
+    },
+    {
+      "requirement": "Scripts deterministic, dependency-light, no network",
+      "status": "PASS"
+    },
+    {
+      "requirement": "lint_skill.py exits 0",
+      "status": "PASS",
+      "note": "R1"
+    },
+    {
+      "requirement": "pytest green",
+      "status": "PASS",
+      "note": "R2: 60 passed"
+    },
+    {
+      "requirement": "Exit-code contract",
+      "status": "PASS",
+      "note": "E3/E5/E8/E14; usage path still fails, V-8 Low"
+    },
+    {
+      "requirement": "No arbitrary code execution",
+      "status": "PASS"
+    },
+    {
+      "requirement": "Memory-exhaustion vectors capped",
+      "status": "PASS",
+      "note": "R7/R8; MAX_MATRIX_DIM=64, MAX_INT_ARG=10000, MAX_SEQ=4096"
+    },
+    {
+      "requirement": "Empty/malformed suite fails closed",
+      "status": "PASS"
+    },
+    {
+      "requirement": "No unrequested git side effects",
+      "status": "PASS"
+    },
+    {
+      "requirement": "Textless PDF fails closed",
+      "status": "PASS"
+    },
+    {
+      "requirement": "No overwrite without --force",
+      "status": "PASS",
+      "note": "R5/R6"
+    },
+    {
+      "requirement": "Provenance in ledger",
+      "status": "PARTIAL",
+      "note": "code yes; exemplar no (S-1, Low)"
+    },
+    {
+      "requirement": "Q6 suite 7/7",
+      "status": "PASS",
+      "note": "R3"
+    },
+    {
+      "requirement": "Eval suite outside skill folder",
+      "status": "FAIL",
+      "note": "undocumented exception; V-6 Low"
+    },
+    {
+      "requirement": "File tree complete",
+      "status": "FAIL",
+      "note": "V-12 Low"
+    }
   ],
   "executedEvidence": [
-    {"id": "E1", "command": "python3 scripts/lint_skill.py .", "result": "exit 1; body 139; 7 hits in lint_skill.py"},
-    {"id": "E2", "command": "pytest -q tests/", "result": "1 failed, 29 passed in 7.62s; test_lint_passes_package"},
-    {"id": "E3", "command": "check_math.py assets/checks.example.json", "result": "7/7 PASS exit 0; checks_sha256=18c1a7f6...; sympy 1.14.0"},
-    {"id": "E4", "command": "extract_pdf.py sample --out /tmp (run 1)", "result": "exit 0; 24 pages; manifest"},
-    {"id": "E5", "command": "same (run 2)", "result": "exit 2; refuses overwrite"},
-    {"id": "E6", "command": "same --force (run 3)", "result": "exit 0"},
-    {"id": "E7", "command": "extract_pdf.py --pages abc", "result": "exit 1; ValueError traceback at line 80"},
-    {"id": "E8", "command": "extract_pdf.py --pages 999", "result": "exit 3; G0 FAILED; pages=0"},
-    {"id": "E9", "command": "safe_expr attr/subscript/dunder/lambda", "result": "all rejected"},
-    {"id": "E10", "command": "safe_expr eye(1000), zeros(2000,2000), factorial(200000)", "result": "all accepted; no size cap"},
-    {"id": "E11", "command": "safe_expr 2**100000", "result": "rejected; message 'non-finite exponent'"},
-    {"id": "E12", "command": "check_math.run_check timeout=0.001", "result": "ERROR per-check time limit exceeded"},
-    {"id": "E13", "command": "interval expr I; zero expr [1,2]", "result": "ERROR rows; exit 1"},
-    {"id": "E14", "command": "check_math malformed JSON", "result": "exit 2 CONFIG ERROR"}
+    {
+      "id": "E1",
+      "command": "python3 scripts/lint_skill.py .",
+      "result": "exit 1; body 139; 7 hits in lint_skill.py"
+    },
+    {
+      "id": "E2",
+      "command": "pytest -q tests/",
+      "result": "1 failed, 29 passed in 7.62s; test_lint_passes_package"
+    },
+    {
+      "id": "E3",
+      "command": "check_math.py assets/checks.example.json",
+      "result": "7/7 PASS exit 0; checks_sha256=18c1a7f6...; sympy 1.14.0"
+    },
+    {
+      "id": "E4",
+      "command": "extract_pdf.py sample --out /tmp (run 1)",
+      "result": "exit 0; 24 pages; manifest"
+    },
+    {
+      "id": "E5",
+      "command": "same (run 2)",
+      "result": "exit 2; refuses overwrite"
+    },
+    {
+      "id": "E6",
+      "command": "same --force (run 3)",
+      "result": "exit 0"
+    },
+    {
+      "id": "E7",
+      "command": "extract_pdf.py --pages abc",
+      "result": "exit 1; ValueError traceback at line 80"
+    },
+    {
+      "id": "E8",
+      "command": "extract_pdf.py --pages 999",
+      "result": "exit 3; G0 FAILED; pages=0"
+    },
+    {
+      "id": "E9",
+      "command": "safe_expr attr/subscript/dunder/lambda",
+      "result": "all rejected"
+    },
+    {
+      "id": "E10",
+      "command": "safe_expr eye(1000), zeros(2000,2000), factorial(200000)",
+      "result": "all accepted; no size cap"
+    },
+    {
+      "id": "E11",
+      "command": "safe_expr 2**100000",
+      "result": "rejected; message 'non-finite exponent'"
+    },
+    {
+      "id": "E12",
+      "command": "check_math.run_check timeout=0.001",
+      "result": "ERROR per-check time limit exceeded"
+    },
+    {
+      "id": "E13",
+      "command": "interval expr I; zero expr [1,2]",
+      "result": "ERROR rows; exit 1"
+    },
+    {
+      "id": "E14",
+      "command": "check_math malformed JSON",
+      "result": "exit 2 CONFIG ERROR"
+    }
   ],
   "executedEvidencePhase": "initial pass (pre-fix); E1/E2 are the failures that motivated revision 2",
   "revalidationEvidence": [
-    {"id": "R1", "command": "python3 scripts/lint_skill.py .", "result": "exit 0; PASS; body 139 lines"},
-    {"id": "R2", "command": "pytest -q tests/", "result": "60 passed in 6.72s; 42 safe-expression + 18 CLI tests"},
-    {"id": "R3", "command": "check_math.py assets/checks.example.json", "result": "7/7 PASS exit 0; checks_sha256=18c1a7f6...; sympy 1.14.0"},
-    {"id": "R4", "command": "extract_pdf.py sample --out /tmp/opencode/rv1 (run 1)", "result": "exit 0; 24 pages; manifest"},
-    {"id": "R5", "command": "same (run 2)", "result": "exit 2; refuses overwrite"},
-    {"id": "R6", "command": "same --force (run 3)", "result": "exit 0"},
-    {"id": "R7", "command": "safe_expr oversized allocations", "result": "12/12 rejected with UnsafeExpression"},
-    {"id": "R8", "command": "safe_expr bounded allocations", "result": "12/12 accepted"},
-    {"id": "R9", "command": "test_timeout_fails_closed via R2", "result": "pass; ERROR + 'time limit'"},
-    {"id": "R10", "command": "lint gate/other-script tests via R2", "result": "pass; copied extract_pdf.py still flagged"},
-    {"id": "R11", "command": "extract_pdf.py --pages abc", "result": "exit 1 + traceback; V-8 Low unchanged"}
+    {
+      "id": "R1",
+      "command": "python3 scripts/lint_skill.py .",
+      "result": "exit 0; PASS; body 139 lines"
+    },
+    {
+      "id": "R2",
+      "command": "pytest -q tests/",
+      "result": "60 passed in 6.72s; 42 safe-expression + 18 CLI tests"
+    },
+    {
+      "id": "R3",
+      "command": "check_math.py assets/checks.example.json",
+      "result": "7/7 PASS exit 0; checks_sha256=18c1a7f6...; sympy 1.14.0"
+    },
+    {
+      "id": "R4",
+      "command": "extract_pdf.py sample --out /tmp/opencode/rv1 (run 1)",
+      "result": "exit 0; 24 pages; manifest"
+    },
+    {
+      "id": "R5",
+      "command": "same (run 2)",
+      "result": "exit 2; refuses overwrite"
+    },
+    {
+      "id": "R6",
+      "command": "same --force (run 3)",
+      "result": "exit 0"
+    },
+    {
+      "id": "R7",
+      "command": "safe_expr oversized allocations",
+      "result": "12/12 rejected with UnsafeExpression"
+    },
+    {
+      "id": "R8",
+      "command": "safe_expr bounded allocations",
+      "result": "12/12 accepted"
+    },
+    {
+      "id": "R9",
+      "command": "test_timeout_fails_closed via R2",
+      "result": "pass; ERROR + 'time limit'"
+    },
+    {
+      "id": "R10",
+      "command": "lint gate/other-script tests via R2",
+      "result": "pass; copied extract_pdf.py still flagged"
+    },
+    {
+      "id": "R11",
+      "command": "extract_pdf.py --pages abc",
+      "result": "exit 1 + traceback; V-8 Low unchanged"
+    }
   ],
   "docCodeContradictions": [
-    "RESOLVED: PART 5 '# expect PASS' now matches R1",
-    "RESOLVED: PART 5 '# expect all pass' now matches R2 (60 passed)",
-    "RESOLVED: PART 3 six tests now exist (V-3)",
-    "RESOLVED: PART 6 'Linter would PASS' now matches R1",
-    "OPEN (Low V-13): PART 5 ../../samples path resolves outside the skill",
-    "OPEN (Low V-6): v1 section 14 'eval suite outside skill folder' vs shipped tests/ and samples/"
+    "RESOLVED: all previously open items (V-6, V-13) closed in rev 3"
   ],
   "unverified": [
     "PDF-02 343 false positives: Reported-Verified (external), not re-counted",
@@ -382,21 +606,40 @@
     ]
   },
   "sideEffects": {
-    "skillSourceFilesModified": true,
-    "modifiedFiles": [
-      "scripts/lint_skill.py",
-      "scripts/safe_expr.py",
-      "tests/test_cli.py",
-      "tests/test_safe_expr.py",
-      "references/tool-safety.md"
-    ],
-    "reportsWritten": [
-      "docs/validation_report.md",
-      "docs/validation_report.json"
-    ],
     "committed": false,
     "pushed": false,
-    "tempArtifacts": "/tmp/opencode/rv1, /tmp/opencode/rv1.log, /tmp/opencode/rv2.log, /tmp/opencode/rv3.log, /tmp/opencode/rvbad.log",
-    "cleanup": "removed scripts/__pycache__ and tests/__pycache__"
-  }
+    "detail": "see docs/revalidation_rev3.md section 6 for final hashes"
+  },
+  "revalidationEvidenceRev3": [
+    {
+      "id": "R1",
+      "command": "python3 scripts/lint_skill.py .",
+      "result": "exit 0; PASS; body 149 lines"
+    },
+    {
+      "id": "R2",
+      "command": "pytest -q tests/",
+      "result": "97 passed"
+    },
+    {
+      "id": "R3",
+      "command": "check_math.py assets/checks.example.json",
+      "result": "7/7 exit 0; checks_sha256=18c1a7f6668c01f2...; sympy 1.14.0"
+    },
+    {
+      "id": "R4",
+      "command": "extract_pdf.py samples/2026_Prelim_P1.pdf --pages 4,16-18",
+      "result": "exit 0; 4 pages"
+    },
+    {
+      "id": "R5",
+      "command": "bad --pages / out-of-range / overwrite refusal / corrupt PDF / missing checks file",
+      "result": "exit 2 each, no traceback"
+    },
+    {
+      "id": "R7",
+      "command": "repo root pytest -q tests/",
+      "result": "411 passed, 8 skipped"
+    }
+  ]
 }

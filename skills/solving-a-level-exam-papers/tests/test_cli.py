@@ -21,8 +21,7 @@ def suite(tmp_path, spec):
 def copy_skill(tmp_path):
     dst = tmp_path / ROOT.name
     shutil.copytree(ROOT, dst,
-                    ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache",
-                                                 "samples", "docs"))
+                    ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"))
     return dst
 
 
@@ -198,8 +197,156 @@ def test_lint_requires_authorisation_gate(tmp_path):
 def test_lint_still_flags_other_scripts(tmp_path):
     dst = copy_skill(tmp_path)
     script = dst / "scripts" / "extract_pdf.py"
-    script.write_text(script.read_text(encoding="utf-8") + "\n# eval(\n",
+    script.write_text(script.read_text(encoding="utf-8") + "\nresult = eval('1')\n",
                       encoding="utf-8")
     r = run("lint_skill.py", dst)
     assert r.returncode == 1, r.stdout + r.stderr
     assert "unsafe pattern" in r.stdout and "extract_pdf.py" in r.stdout
+
+
+@pytest.mark.parametrize("snippet", [
+    "run = eval\n",                                  # alias, invisible to a call-text scan
+    "result = eval ('1')\n",                         # whitespace defeats a literal 'eval(' match
+    "from sympy import sympify\n",
+    "import subprocess\nsubprocess.run('ls', shell=True)\n",
+    "import os\nos.system('true')\n",
+])
+def test_lint_flags_executable_unsafe_constructs(tmp_path, snippet):
+    dst = copy_skill(tmp_path)
+    script = dst / "scripts" / "extract_pdf.py"
+    script.write_text(script.read_text(encoding="utf-8") + "\n" + snippet, encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1 and "unsafe pattern" in r.stdout, r.stdout + r.stderr
+
+
+def test_lint_ignores_inert_mentions_and_copies_of_itself(tmp_path):
+    # Regression V-19: the text scan flagged every copy of lint_skill.py (its own
+    # ban list), so linting a sibling skill that ships the same script failed.
+    dst = copy_skill(tmp_path)
+    script = dst / "scripts" / "extract_pdf.py"
+    script.write_text(script.read_text(encoding="utf-8") +
+                      '\n# never call eval( or sympify( here\nNOTE = "exec( is banned"\n',
+                      encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_lint_flags_unparseable_script(tmp_path):
+    dst = copy_skill(tmp_path)
+    (dst / "scripts" / "broken.py").write_text("def (:\n", encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1 and "does not parse" in r.stdout
+
+
+def two_check_suite(extra):
+    return {"checks": [
+        {"id": "O", "role": "original-condition", "kind": "equal",
+         "note": "1 = 1", "lhs": "1", "rhs": "1"},
+        {"id": "X", "role": "sanity", "note": "check under test", **extra},
+    ]}
+
+
+def test_missing_checks_file_exit2(tmp_path):
+    # Regression V-15: read_bytes() sat outside the try block and raised a traceback.
+    pytest.importorskip("sympy")
+    r = run("check_math.py", tmp_path / "absent.json")
+    assert r.returncode == 2 and "CONFIG ERROR" in r.stderr
+    assert "Traceback" not in r.stderr
+
+
+@pytest.mark.parametrize("extra", [
+    {"kind": "zero", "expr": "[1, 2]"},
+    {"kind": "approx", "lhs": "[1, 2]", "rhs": "1"},
+    {"kind": "interval", "expr": "eye(2)", "lo": "0", "hi": "1"},
+    {"kind": "equal", "lhs": "eye(2)", "rhs": "1"},
+])
+def test_non_scalar_or_mismatched_result_exit2(tmp_path, extra):
+    # Regression V-11: config-class type errors must be exit 2, not a maths ERROR.
+    pytest.importorskip("sympy")
+    r = run("check_math.py", suite(tmp_path, two_check_suite(extra)))
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "CONFIG ERROR" in r.stderr
+
+
+def test_true_matrix_identity_passes(tmp_path):
+    # Regression V-16: Matrix - Matrix was compared with `== 0` and reported a false FAIL.
+    pytest.importorskip("sympy")
+    spec = two_check_suite({"kind": "equal",
+                            "lhs": "Matrix([[1,2],[3,4]])*Matrix([[1],[0]])",
+                            "rhs": "Matrix([[1],[3]])"})
+    r = run("check_math.py", suite(tmp_path, spec))
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_matrix_zero_and_false_matrix_claim(tmp_path):
+    pytest.importorskip("sympy")
+    ok = run("check_math.py", suite(tmp_path, two_check_suite(
+        {"kind": "zero", "expr": "Matrix([[1,2],[3,4]])*inv(Matrix([[1,2],[3,4]])) - eye(2)"})))
+    assert ok.returncode == 0, ok.stdout + ok.stderr
+    bad = run("check_math.py", suite(tmp_path, two_check_suite(
+        {"kind": "equal", "lhs": "Matrix([[1,2],[3,4]])", "rhs": "Matrix([[1,2],[3,5]])"})))
+    assert bad.returncode == 1 and "FAIL" in bad.stdout
+
+
+@pytest.mark.parametrize("pages", ["abc", "3-1", "0", "1,,2", "-2", "1-2-3"])
+def test_pages_garbage_exit2(tmp_path, pages):
+    # Regression V-8: int() ValueError escaped as a traceback with exit 1.
+    pytest.importorskip("pdfplumber")
+    pdf = tmp_path / "blank.pdf"
+    blank_pdf(pdf)
+    r = run("extract_pdf.py", pdf, "--out", tmp_path / "o", "--pages", pages)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "Traceback" not in r.stderr and "--pages" in r.stderr
+
+
+def test_pages_out_of_range_exit2(tmp_path):
+    # --pages 999 used to report "G0 FAILED ... ALL" (exit 3), masking a usage error.
+    pytest.importorskip("pdfplumber")
+    pdf = tmp_path / "blank.pdf"
+    blank_pdf(pdf, pages=2)
+    r = run("extract_pdf.py", pdf, "--out", tmp_path / "o", "--pages", "1,5")
+    assert r.returncode == 2 and "out of range" in r.stderr
+
+
+def test_lint_flags_broken_referenced_path(tmp_path):
+    # Regression V-5: the old link check only parsed ](...) links, which SKILL.md never uses.
+    dst = copy_skill(tmp_path)
+    md = dst / "SKILL.md"
+    md.write_text(md.read_text(encoding="utf-8") + "\nSee `references/nope.md`.\n",
+                  encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "references/nope.md" in r.stdout
+
+
+def test_lint_flags_unlisted_tree_entry(tmp_path):
+    dst = copy_skill(tmp_path)
+    md = dst / "SKILL.md"
+    text = md.read_text(encoding="utf-8").replace("├── assets/", "├── ghost/{a,b}.md\n├── assets/", 1)
+    md.write_text(text, encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1 and "ghost/a.md" in r.stdout
+
+
+def test_command_words_distinguish_hence_and_deduce():
+    # Regression V-14: "Hence / Deduce" had been merged into a single obligation.
+    skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    assert "| Hence |" in skill and "| Deduce |" in skill
+    assert "**\"Deduce\"**" in (ROOT / "references" / "exam-presentation.md").read_text(encoding="utf-8")
+
+
+def test_skill_tree_lists_every_top_level_directory():
+    # Regression V-12: the file tree omitted samples/ and docs/.
+    skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    for d in sorted(p.name for p in ROOT.iterdir() if p.is_dir() and not p.name.startswith((".", "__"))):
+        assert f"├── {d}/" in skill or f"└── {d}/" in skill, f"tree omits {d}/"
+
+
+def test_corrupt_pdf_exit2(tmp_path):
+    # Regression V-18: a non-PDF input escaped as a PdfminerException traceback (exit 1).
+    pytest.importorskip("pdfplumber")
+    bad = tmp_path / "bad.pdf"
+    bad.write_text("this is not a pdf", encoding="utf-8")
+    r = run("extract_pdf.py", bad, "--out", tmp_path / "o")
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "CONFIG ERROR" in r.stderr and "Traceback" not in r.stderr

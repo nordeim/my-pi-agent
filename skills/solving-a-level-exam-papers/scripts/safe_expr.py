@@ -173,10 +173,13 @@ def _ev(node, env):
             base, ex = _ev(node.left, env), _ev(node.right, env)
             if ex.is_number:
                 try:
-                    if abs(float(sp.N(ex))) > MAX_POW:
-                        raise UnsafeExpression("exponent too large")
+                    magnitude = abs(float(sp.N(ex)))
                 except (TypeError, ValueError, OverflowError):
                     raise UnsafeExpression("non-finite exponent") from None
+                # Compared outside the try: UnsafeExpression is a ValueError and
+                # would otherwise be re-labelled "non-finite exponent".
+                if magnitude > MAX_POW:
+                    raise UnsafeExpression("exponent too large")
             return base ** ex
         if isinstance(node.op, ast.BitXor):
             raise UnsafeExpression("'^' is not supported; use '**' for powers")
@@ -235,7 +238,12 @@ def parse(text, symbols=()):
         if s in FUNCS or s in CONSTS:
             raise UnsafeExpression(f"symbol shadows a reserved name: {s}")
         env[s] = sp.Symbol(s)
-    return _ev(tree.body, env)
+    try:
+        return _ev(tree.body, env)
+    except UnsafeExpression:
+        raise
+    except (TypeError, AttributeError, sp.SympifyError) as exc:
+        raise UnsafeExpression(f"ill-typed expression: {exc}") from None
 
 
 def is_inexact(expr) -> bool:

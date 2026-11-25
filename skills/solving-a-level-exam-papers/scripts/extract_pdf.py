@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail-closed, non-destructive PDF ingestion with scoped fidelity candidates.
 
-Exit: 0 OK | 2 configuration/IO error | 3 one or more pages have NO TEXT.
+Exit: 0 OK | 2 configuration/IO/usage error | 3 one or more pages have NO TEXT.
 """
 from __future__ import annotations
 import argparse, hashlib, json, os, re, sys, tempfile
@@ -21,6 +21,23 @@ RULES = [
     ("matrix-candidate", re.compile(r"(?:-?\d+\s+){5,}-?\d+"),
      lambda s: not re.search(r"[\[\]()]", s)),
 ]
+
+
+def parse_pages(spec: str) -> list[tuple[int, int]]:
+    """Parse '4,16-18' into inclusive 1-based ranges; ranges are never expanded."""
+    ranges = []
+    for chunk in spec.split(","):
+        m = re.fullmatch(r"([0-9]+)(?:-([0-9]+))?", chunk.strip())
+        if not m:
+            raise argparse.ArgumentTypeError(
+                f"invalid page spec {chunk!r}; use e.g. 4,16-18 (1-based)")
+        lo = int(m.group(1))
+        hi = int(m.group(2) or lo)
+        if lo < 1 or hi < lo:
+            raise argparse.ArgumentTypeError(
+                f"invalid page range {chunk!r}; pages are 1-based and ranges ascending")
+        ranges.append((lo, hi))
+    return ranges
 
 
 def atomic_write(path: Path, text: str, force: bool) -> None:
@@ -55,7 +72,7 @@ def main() -> int:
     ap.add_argument("pdf")
     ap.add_argument("--out")
     ap.add_argument("--force", action="store_true")
-    ap.add_argument("--pages", help="e.g. 4,16-18 (1-based)")
+    ap.add_argument("--pages", type=parse_pages, help="e.g. 4,16-18 (1-based)")
     ap.add_argument("--render", action="store_true", help="write PNGs for NO_TEXT pages")
     a = ap.parse_args()
 
@@ -65,6 +82,7 @@ def main() -> int:
         return 2
     try:
         import pdfplumber
+        from pdfplumber.utils.exceptions import PdfminerException as PdfOpenError
     except ImportError:
         print("CONFIG ERROR: uv run --with pdfplumber python scripts/extract_pdf.py ...",
               file=sys.stderr)
@@ -72,17 +90,22 @@ def main() -> int:
 
     digest = hashlib.sha256(src.read_bytes()).hexdigest()
     out = Path(a.out) if a.out else Path("out") / f"{src.stem}-{digest[:8]}"
-    wanted = None
-    if a.pages:
-        wanted = set()
-        for chunk in a.pages.split(","):
-            lo, _, hi = chunk.partition("-")
-            wanted.update(range(int(lo), int(hi or lo) + 1))
+    wanted = a.pages
 
     pages, corpus = [], []
-    with pdfplumber.open(str(src)) as doc:
+    try:
+        doc = pdfplumber.open(str(src))
+    except PdfOpenError as exc:
+        print(f"CONFIG ERROR: cannot open {src} as a PDF: {exc}", file=sys.stderr)
+        return 2
+    with doc:
+        total = len(doc.pages)
+        if wanted and max(hi for _, hi in wanted) > total:
+            print(f"CONFIG ERROR: --pages out of range; {src.name} has {total} page(s)",
+                  file=sys.stderr)
+            return 2
         for i, page in enumerate(doc.pages, 1):
-            if wanted and i not in wanted:
+            if wanted and not any(lo <= i <= hi for lo, hi in wanted):
                 continue
             text = page.extract_text() or ""
             n = len(re.sub(r"\s", "", text))

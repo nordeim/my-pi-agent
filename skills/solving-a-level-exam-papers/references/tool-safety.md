@@ -18,14 +18,18 @@ carry an injection payload that an agent might copy into `checks.json`.
    non-zero exit and an explicit message. Never report success for work not done.
 4. Never weaken a gate to pass it: no larger `tol`, no smaller `--min-checks`,
    no deleted checks, no relaxed parser.
-5. Filesystem: content-hash run directories, refuse overwrite without `--force`,
+5. `lint_skill.py` scans scripts by AST for executable use of the banned names
+   (`eval`, `exec`, `__import__`, `sympify`, `parse_expr`, `os.system`,
+   `shell=True`), including aliases and imports; mentions in strings or
+   comments are inert and not flagged.
+6. Filesystem: content-hash run directories, refuse overwrite without `--force`,
    atomic writes.
-6. Git: commit only on explicit authorisation; inspect `git status --porcelain`;
+7. Git: commit only on explicit authorisation; inspect `git status --porcelain`;
    stage named files only; no `add -A`, no push, no history rewrite by default.
 
 ## Exit codes
 | Script | 0 | 1 | 2 | 3 |
 |---|---|---|---|---|
-| check_math.py | all pass | check FAIL/ERROR | suite invalid/unsafe | — |
-| extract_pdf.py | text ingested | — | config/IO/overwrite refusal | NO_TEXT pages |
-| lint_skill.py | conformant | non-conformant | — | — |
+| check_math.py | all pass | check FAIL/ERROR | suite invalid, unsafe, ill-typed, unreadable; results unwritable | — |
+| extract_pdf.py | text ingested | — | config/IO/usage: bad `--pages`, out-of-range page, corrupt PDF, overwrite refusal | NO_TEXT pages |
+| lint_skill.py | conformant | non-conformant (incl. unparseable script) | — | — |

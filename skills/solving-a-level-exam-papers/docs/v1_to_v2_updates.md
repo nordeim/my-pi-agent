@@ -1109,11 +1109,16 @@ typeset form of the fraction condition is a reconstruction from extraction.
 
 # PART 5 — Promotion to `Verified` (run these; I could not)
 
+> **Erratum (revalidation rev 3, 2026-11-24):** the original sample path
+> `../../samples/…` resolved outside the skill and has been corrected below to
+> `samples/…` (V-13). The pytest total is now **89 passed** (it was 60 at
+> revision 2). See `revalidation_rev3.md` for the executed evidence.
+
 ```bash
 cd skills/solving-a-level-exam-papers
 python scripts/lint_skill.py .                                   # expect PASS
 uv run --with sympy python scripts/check_math.py assets/checks.example.json   # expect 7/7, exit 0
-uv run --with pdfplumber python scripts/extract_pdf.py ../../samples/2026_Prelim_P1.pdf  # exit 0, manifest.json
+uv run --with pdfplumber python scripts/extract_pdf.py samples/2026_Prelim_P1.pdf --out /tmp/out  # exit 0; add --force to rerun
 uv run --with pytest --with sympy --with pdfplumber pytest -q tests/           # expect all pass
 echo $?   # after each: 0 pass · 1 maths FAIL · 2 invalid suite · 3 NO_TEXT
 ```

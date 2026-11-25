@@ -20,7 +20,9 @@ Typical standing instructions (confirm per paper):
 See the table in `SKILL.md`. Additional traps:
 - **"By letting z = x + iy …"** prescribes the method: a purely geometric or
   GC-only solution forfeits credit.
-- **"Hence"** forbids an independent restart.
+- **"Hence"** forbids an independent restart: the previous result must be visibly used.
+- **"Deduce"** asks for a conclusion drawn from a stated earlier result or given
+  fact; cite that result and do not re-derive from scratch.
 - **"Show that"** forbids working backwards from the printed result.
 - **"Find the exact minimum"** forbids a decimal answer.
 

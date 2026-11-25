@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Validate skill structure, frontmatter, links, and script safety patterns."""
+"""Validate skill structure, frontmatter, referenced paths, and script safety patterns."""
 from __future__ import annotations
-import re, sys
+import ast, re, sys
 from pathlib import Path
 
 NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
@@ -13,10 +13,50 @@ REQUIRED = [
     "scripts/safe_expr.py", "scripts/check_math.py",
     "scripts/extract_pdf.py", "scripts/lint_skill.py",
 ]
-BANNED = ["sympify(", "parse_expr(", "eval(", "exec(", "__import__(",
-          "os.system(", "shell=True"]
-ALLOWED_BANNED = {"safe_expr.py"}  # interpreter module: contains none of these
-SELF = Path(__file__).resolve()
+# Executable constructs only: mentions inside strings or comments are inert, so no
+# script (including this one) needs an exemption.
+BANNED_NAMES = {"eval", "exec", "__import__", "sympify", "parse_expr"}
+BANNED_ATTRS = {"sympify", "parse_expr"}
+PACKAGE_DIRS = "references|assets|scripts|tests|samples|docs"
+PATH_RX = re.compile(rf"(?<![\w/.-])((?:{PACKAGE_DIRS})/[\w./{{}},-]*)")
+BRACE_RX = re.compile(r"\{([^{}]*)\}")
+
+
+def expand_braces(path: str) -> list[str]:
+    m = BRACE_RX.search(path)
+    if not m:
+        return [path]
+    return [alt for opt in m.group(1).split(",")
+            for alt in expand_braces(path[:m.start()] + opt + path[m.end():])]
+
+
+TREE_RX = re.compile(r"^[├└]── (\S+)$", re.M)
+
+
+def referenced_paths(body: str) -> list[str]:
+    """Package-relative paths named in prose, code spans and the file tree."""
+    found = []
+    for raw in PATH_RX.findall(body) + TREE_RX.findall(body):
+        found += [p.rstrip(".,/") for p in expand_braces(raw)]
+    return sorted(set(found))
+
+
+def unsafe_constructs(source: str) -> list[str]:
+    hits = []
+    for node in ast.walk(ast.parse(source)):
+        line = getattr(node, "lineno", 0)
+        if isinstance(node, ast.Name) and node.id in BANNED_NAMES:
+            hits.append(f"{node.id} (line {line})")
+        elif isinstance(node, ast.alias) and node.name in BANNED_NAMES:
+            hits.append(f"import {node.name}")
+        elif isinstance(node, ast.Attribute):
+            owner = node.value.id if isinstance(node.value, ast.Name) else ""
+            if node.attr in BANNED_ATTRS or (owner == "os" and node.attr == "system"):
+                hits.append(f"{owner + '.' if owner else ''}{node.attr} (line {line})")
+        elif (isinstance(node, ast.keyword) and node.arg == "shell"
+              and isinstance(node.value, ast.Constant) and node.value.value is True):
+            hits.append("shell=True")
+    return hits
 
 
 def main() -> int:
@@ -48,18 +88,22 @@ def main() -> int:
     if n > 500:
         errs.append(f"body is {n} lines (>500): move detail into references/")
     for link in re.findall(r"\]\(([^)]+)\)", body):
-        if not link.startswith(("http://", "https://")) and not (root / link).exists():
+        target = link.split("#", 1)[0]
+        if target and not link.startswith(("http://", "https://")) and not (root / target).exists():
             errs.append(f"broken local link: {link}")
+    for rel in referenced_paths(body):
+        if not (root / rel).exists():
+            errs.append(f"broken referenced path: {rel}")
     for rel in REQUIRED:
         if not (root / rel).exists():
             errs.append(f"missing required file: {rel}")
-    for script in (root / "scripts").glob("*.py"):
-        if script.name in ALLOWED_BANNED or script.resolve() == SELF:
+    for script in sorted((root / "scripts").glob("*.py")):
+        try:
+            hits = unsafe_constructs(script.read_text(encoding="utf-8"))
+        except SyntaxError as exc:
+            errs.append(f"scripts/{script.name} does not parse: {exc.msg} (line {exc.lineno})")
             continue
-        src = script.read_text(encoding="utf-8")
-        for token in BANNED:
-            if token in src:
-                errs.append(f"unsafe pattern {token!r} in scripts/{script.name}")
+        errs += [f"unsafe pattern {hit} in scripts/{script.name}" for hit in hits]
     tmpl = root / "assets" / "solution-template.md"
     if tmpl.exists():
         t = tmpl.read_text(encoding="utf-8").lower()
@@ -77,7 +121,7 @@ def main() -> int:
         for e in errs:
             print("  -", e)
         return 1
-    print("PASS: structure, frontmatter, links, template and script-safety checks")
+    print("PASS: structure, frontmatter, referenced paths, template and script-safety checks")
     return 0
 
 
