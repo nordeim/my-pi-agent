@@ -241,13 +241,15 @@ python3 scripts/github_folder_downloader.py --self-test     # expect exit 0
 python3 scripts/github_folder_downloader.py --version       # expect 3.1.0
 sha256sum scripts/github_folder_downloader.py               # record the FULL hash as your baseline
 ```
-The q4 delivery ledger reports 2121 lines / 94305 bytes and a truncated SHA-256; recompute and record the full hash locally rather than matching the truncated value. Treat "passes" claims as unverified until observed.
+The q4 delivery ledger reports 2121 lines / 94305 bytes and a truncated SHA-256 (`957484af0bfaf1ff…ada884e3fa`), which does not match the shipped script (2123 lines / 94351 bytes). Record the full hash above as the local baseline; treat "passes" claims as unverified until observed. The superseded v3.0 script is retained as `scripts/github_folder_downloader_v3.0.py` and does not support the CLI documented here.
 
 ## Files in this skill
 
 ```text
 skills/github_folder_downloader/
 ├── SKILL.md
+├── docs/                                  # q3/q4 audit and delivery records
 └── scripts/
-    └── github_folder_downloader.py   # q4 v3.1.0, verbatim, stdlib only
+    ├── github_folder_downloader.py         # canonical q4 v3.1.0, stdlib only
+    └── github_folder_downloader_v3.0.py    # superseded v3.0, kept for reference
 ```
