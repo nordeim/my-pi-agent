@@ -108,7 +108,10 @@ def main() -> int:
             if not path.is_file():
                 continue
             rel = path.relative_to(root)
-            if any(part.startswith((".", "__")) for part in rel.parts):
+            # Skip only known artifact directories; excluding every dot/dunder
+            # component blinds the check to hidden package files (N-11).
+            if any(part in {".git", "__pycache__", ".pytest_cache", ".venv"}
+                   for part in rel.parts):
                 continue
             rel_str = rel.as_posix()
             if rel_str not in listed:

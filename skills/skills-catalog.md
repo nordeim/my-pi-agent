@@ -1,6 +1,6 @@
 # Skills Catalog
 
-> **342 valid skills** in 10 categories, plus 92 unique bundled sub-skills. Regenerated on 2026-11-24 by `tools/skills_docs.py`; only folders under `skills/` whose own `SKILL.md` passes the Agent Skills spec and Claude's platform rules are listed (see [Validation & exclusions](#validation--exclusions)).
+> **343 valid skills** in 10 categories, plus 92 unique bundled sub-skills. Regenerated on 2026-11-27 by `tools/skills_docs.py`; only folders under `skills/` whose own `SKILL.md` passes the Agent Skills spec and Claude's platform rules are listed (see [Validation & exclusions](#validation--exclusions)).
 
 ---
 
@@ -404,6 +404,7 @@
 | **agent-dev-sandbox** | Build and operate a secure, egress-restricted development environment for AI coding agents on a Debian 13 host — hardened rootless Podman workspaces behind an allowlist Squid gateway, an optional KVM micro-VM tier for untrusted code, with Python 3.13, Node.js 24, Bun, pnpm, uv, Playwright, Chromium, agent-browser, Claude Code, Codex, and OpenCode preinstalled. Use when asked to set up, build, verify, or troubleshoot an isolated agent sandbox / hardened dev environment on Debian 13. |
 | **composio-cli** | Help users operate the published Composio CLI to find the right tool, connect accounts, inspect schemas, execute tools, subscribe to trigger events with `composio listen`, script workflows with `composio run`, and call authenticated app APIs with `composio proxy`. Use when the user asks how to do something with `composio`, wants to run a known tool slug, needs to discover a slug with `composio search`, fix a missing connection with `composio link`, inspect tool inputs with `--get-schema` or `--dry-run`, troubleshoot top-level CLI flows, or explicitly needs `composio dev` guidance. |
 | **deploy-nod-from-source** | Deploy Nod (github.com/n8n-io/nod), the open-source personal AI agent from n8n, from source on Ubuntu 24.04 LTS or Debian 13 (Trixie). Builds the official self-host Docker stack from a pinned release tag (Node.js/Fastify server, PostgreSQL, firewalled workspace sandbox, Chromium browser container, optional Caddy HTTPS), generates secrets, configures SSH-tunnel or public-HTTPS access, and covers verification, hardening, backup, restore, updates, and token rotation. Use when asked to install, deploy, self-host, update, back up, restore, or troubleshoot Nod from source on a Linux server. |
+| **github-folder-downloader** | Download and mirror a single GitHub repository folder (subdirectory) to a local path without cloning the whole repository. Uses a targeted GitHub API/raw tier with ZIP and TAR.GZ archive fallback, atomic commits, and rollback. Use when the user asks to fetch, download, sync, mirror, or update a specific GitHub folder, directory, subfolder, or skills folder, or provides a URL like https://github.com/OWNER/REPO/tree/REF/PATH and wants only that path. Supports ref/commit pinning, slash-branch disambiguation, dry-run planning, JSON summaries, size/file/depth limits, symlink/LFS policies, and an offline self-test. Requires Python 3.10+; standard library only. |
 | **how-to-git-push-using-ssh-wrapper** | Push commits from this checkout to the GitHub SSH remote using ssh_git_wrapper_v3.py and an externally-supplied deploy key that is never stored in the repository. Use when pushing main to GitHub over SSH from a sandbox or CI environment without a resident ~/.ssh identity, when authenticating git push with a pasted or ephemeral ed25519 key, when a post-push remote-ref verification is required, or when no OpenSSH binary exists and a paramiko-backed ssh shim must be deployed. |
 | **land-and-deploy** | Land and deploy workflow. (gstack) |
 | **luxeverse-architect** | LuxeVerse Architect Skill Comprehensive Architectural & Execution Framework for Cinematic, Production-Grade, Anti-Generic Web Platforms |
@@ -608,7 +609,7 @@ A folder is indexed only if `skills/<folder>/SKILL.md` exists and passes both ru
 
 Spec deviations that Claude Code accepts are *warnings*, not exclusions (YAML-list `allowed-tools`, non-string `metadata` values, non-spec top-level keys such as `author`/`version`, bodies over 500 lines). Warning counts across indexed skills: `ALLOWED_TOOLS_LIST` x32, `BODY_LENGTH` x104, `METADATA_NON_STRING` x17, `UNKNOWN_KEYS` x132.
 
-Result: **342 valid top-level skills** of 349 folders with a `SKILL.md`; 7 excluded; 22 grouping folders; 125 nested `SKILL.md` files inside valid skills are parts of those skills and are not indexed separately.
+Result: **343 valid top-level skills** of 350 folders with a `SKILL.md`; 7 excluded; 22 grouping folders; 125 nested `SKILL.md` files inside valid skills are parts of those skills and are not indexed separately.
 
 ### Excluded: top-level folders with an invalid `SKILL.md` (7)
 
@@ -639,7 +640,7 @@ These were **not modified**; fixing them is a separate, reviewable change.
 
 ### Loose files in `skills/` (not skills: no sub-folder)
 
-`CODE_REVIEW_CONSOLIDATION_SUMMARY.txt`, `INVENTORY.txt`, `_archived_skills_to_delete.tgz`, `agents-skill.md`, `bundled_skills_selection_for_modern_web_project.md`, `droid-skills-list.md`, `prompt-to-add-description.txt`, `proposed_consolidation_code_review_audit.txt`, `proposed_consolidation_execution_feedback.txt`, `skill-creator-selector.md`, `skills-catalog.md`.
+`CODE_REVIEW_CONSOLIDATION_SUMMARY.txt`, `INVENTORY.txt`, `agents-skill.md`, `bundled_skills_selection_for_modern_web_project.md`, `droid-skills-list.md`, `prompt-to-add-description.txt`, `proposed_consolidation_code_review_audit.txt`, `proposed_consolidation_execution_feedback.txt`, `skill-creator-selector.md`, `skills-catalog.md`.
 
 ---
 

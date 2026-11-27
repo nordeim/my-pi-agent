@@ -1,7 +1,7 @@
 # Skills Inventory — my-pi-agent
 
-> Generated 2026-11-24 by `tools/skills_docs.py` from a live scan (`tools/skills_audit.py`). **Consistent with `skills/skills-catalog.md`.**
-> **342 valid skills** (each in its own folder with a spec- and Claude-compliant `SKILL.md`), 92 unique bundled sub-skills merged from 138 copies, 7 excluded folders.
+> Generated 2026-11-27 by `tools/skills_docs.py` from a live scan (`tools/skills_audit.py`). **Consistent with `skills/skills-catalog.md`.**
+> **343 valid skills** (each in its own folder with a spec- and Claude-compliant `SKILL.md`), 92 unique bundled sub-skills merged from 138 copies, 7 excluded folders.
 
 ---
 
@@ -25,7 +25,7 @@
 7. **Planning, Workflow & Project Management** — 54 skills — [jump](#7-planning-workflow--project-management)
 8. **Documentation & Content Creation** — 38 skills — [jump](#8-documentation--content-creation)
 9. **Career, Learning & Personal Development** — 13 skills — [jump](#9-career-learning--personal-development)
-10. **DevOps, Infrastructure & External Integrations** — 14 skills — [jump](#10-devops-infrastructure--external-integrations)
+10. **DevOps, Infrastructure & External Integrations** — 15 skills — [jump](#10-devops-infrastructure--external-integrations)
 
 ---
 
@@ -109,7 +109,7 @@
 - **Path**: `skills/astro-7`
 - **SKILL.md**: [`skills/astro-7/SKILL.md`](/skills/astro-7/SKILL.md)
 - **Title**: Astro 5/6/7 — Content-Focused Web Framework (Islands Architecture)
-- **Files**: 8
+- **Files**: 7
 - **Structure**: flat
 - **License**: Proprietary. LICENSE.txt has complete terms
 - **Flags**: `BODY_LENGTH`
@@ -202,7 +202,7 @@
 - **Path**: `skills/design`
 - **SKILL.md**: [`skills/design/SKILL.md`](/skills/design/SKILL.md)
 - **Title**: Design Skill（设计技能）
-- **Files**: 561
+- **Files**: 543
 - **Structure**: flat
 - **Flags**: `UNKNOWN_KEYS`
 
@@ -727,7 +727,7 @@
 - **Path**: `skills/ui-styling`
 - **SKILL.md**: [`skills/ui-styling/SKILL.md`](/skills/ui-styling/SKILL.md)
 - **Title**: UI Styling Skill
-- **Files**: 98
+- **Files**: 97
 - **Structure**: references, scripts
 - **License**: MIT
 - **Version**: 1.0.0
@@ -740,7 +740,7 @@
 - **Path**: `skills/ui-ux-pro-max`
 - **SKILL.md**: [`skills/ui-ux-pro-max/SKILL.md`](/skills/ui-ux-pro-max/SKILL.md)
 - **Title**: ui-ux-pro-max
-- **Files**: 56
+- **Files**: 55
 - **Structure**: assets, references, scripts
 
 > UI/UX design intelligence and implementation guidance for building polished interfaces. Use when the user asks for UI design, UX flows, information architecture, visual style direction, design systems/tokens, component specs, copy/microcopy, accessibility, or to generate/critique/refine frontend UI (HTML/CSS/JS, React, Next.js, Vue, Svelte, Tailwind). Includes workflows for (1) generating new UI layouts and styling, (2) improving existing UI/UX, (3) producing design-system tokens and component guidelines, and (4) turning UX recommendations into concrete code changes.
@@ -797,7 +797,7 @@
 - **Path**: `skills/web-frameworks`
 - **SKILL.md**: [`skills/web-frameworks/SKILL.md`](/skills/web-frameworks/SKILL.md)
 - **Title**: Web Frameworks Skill Group
-- **Files**: 18
+- **Files**: 16
 - **Structure**: references, scripts
 - **License**: MIT
 - **Version**: 1.0.0
@@ -951,7 +951,7 @@
 - **Path**: `skills/kimi-docx`
 - **SKILL.md**: [`skills/kimi-docx/SKILL.md`](/skills/kimi-docx/SKILL.md)
 - **Title**: Part 1: Goals
-- **Files**: 29
+- **Files**: 27
 - **Structure**: assets, references, scripts
 - **Flags**: `BODY_LENGTH`
 
@@ -972,8 +972,8 @@
 - **Path**: `skills/kimi-xlsx`
 - **SKILL.md**: [`skills/kimi-xlsx/SKILL.md`](/skills/kimi-xlsx/SKILL.md)
 - **Title**: Create workbook
-- **Files**: 3
-- **Structure**: scripts
+- **Files**: 2
+- **Structure**: flat
 - **Flags**: `BODY_LENGTH`
 
 > Specialized utility for advanced manipulation, analysis, and creation of spreadsheet files, including (but not limited to) XLSX, XLSM, CSV formats. Core functionalities include formula deployment, complex formatting (including automatic currency formatting for financial tasks), data visualization, and mandatory post-processing recalculation.
@@ -1308,7 +1308,7 @@
 - **Path**: `skills/trustskill`
 - **SKILL.md**: [`skills/trustskill/SKILL.md`](/skills/trustskill/SKILL.md)
 - **Title**: TrustSkill v3.1 - Advanced Skill Security Scanner
-- **Files**: 62
+- **Files**: 56
 - **Structure**: references, scripts
 - **Version**: 3.1.0
 - **Flags**: `UNKNOWN_KEYS`
@@ -1451,7 +1451,7 @@
 - **Path**: `skills/microsoft-foundry`
 - **SKILL.md**: [`skills/microsoft-foundry/SKILL.md`](/skills/microsoft-foundry/SKILL.md)
 - **Title**: Microsoft Foundry Skill
-- **Files**: 164
+- **Files**: 163
 - **Structure**: references
 - **License**: MIT
 - **Author**: Microsoft
@@ -1876,7 +1876,7 @@
 - **Path**: `skills/skill-creator`
 - **SKILL.md**: [`skills/skill-creator/SKILL.md`](/skills/skill-creator/SKILL.md)
 - **Title**: Skill Creator
-- **Files**: 21
+- **Files**: 20
 - **Structure**: assets, references, scripts
 - **License**: Complete terms in LICENSE.txt
 - **Duplicate**: essentially identical to `skill-creator-zai`
@@ -1888,7 +1888,7 @@
 - **Path**: `skills/skill-creator-zai`
 - **SKILL.md**: [`skills/skill-creator-zai/SKILL.md`](/skills/skill-creator-zai/SKILL.md)
 - **Title**: Skill Creator
-- **Files**: 18
+- **Files**: 17
 - **Structure**: assets, references, scripts
 - **Duplicate**: essentially identical to `skill-creator`
 
@@ -2853,8 +2853,8 @@
 - **Path**: `skills/pandoc-docx-template`
 - **SKILL.md**: [`skills/pandoc-docx-template/SKILL.md`](/skills/pandoc-docx-template/SKILL.md)
 - **Title**: Pandoc DOCX Template
-- **Files**: 19
-- **Structure**: scripts, templates
+- **Files**: 12
+- **Structure**: scripts
 
 > Use this skill when converting Markdown to Word DOCX or DOCX back to Markdown with Pandoc, especially when the output should use the bundled Chinese Word reference templates, heading numbering variants, list indentation variants, SCI paper templates, and Lua filters for HTML tags, image captions, font color, and inline code styles.
 
@@ -3341,7 +3341,7 @@
 - **Path**: `skills/literature-survey`
 - **SKILL.md**: [`skills/literature-survey/SKILL.md`](/skills/literature-survey/SKILL.md)
 - **Title**: Literature Survey
-- **Files**: 11
+- **Files**: 9
 - **Structure**: references, templates
 
 > Use when the user wants a comprehensive literature survey on a specific research topic. Outputs a complete PDF survey (6–20 pages, 60+ real citations, 100+ recommended) with LaTeX source, taxonomy figures, and a classified literature table. Single-stage, no Python runtime.
@@ -3375,7 +3375,7 @@
 - **Path**: `skills/markdown-to-web`
 - **SKILL.md**: [`skills/markdown-to-web/SKILL.md`](/skills/markdown-to-web/SKILL.md)
 - **Title**: markdown-to-web — Validation Review & Unified Skill Specification
-- **Files**: 37
+- **Files**: 35
 - **Structure**: flat
 - **Version**: 4.1.1
 - **Flags**: `UNKNOWN_KEYS`, `BODY_LENGTH`
@@ -3694,7 +3694,7 @@
 - **Path**: `skills/solving-a-level-exam-papers`
 - **SKILL.md**: [`skills/solving-a-level-exam-papers/SKILL.md`](/skills/solving-a-level-exam-papers/SKILL.md)
 - **Title**: Solving A-Level Exam Papers (PDF → examiner-standard solution)
-- **Files**: 26
+- **Files**: 38
 - **Structure**: assets, references, scripts
 - **Version**: 2.0.1
 
@@ -3713,14 +3713,14 @@
 
 ## 10. DevOps, Infrastructure & External Integrations
 
-> **14 skills** in this category.
+> **15 skills** in this category.
 
 ### `agent-dev-sandbox`
 
 - **Path**: `skills/agent-dev-sandbox`
 - **SKILL.md**: [`skills/agent-dev-sandbox/SKILL.md`](/skills/agent-dev-sandbox/SKILL.md)
 - **Title**: Agent Dev Sandbox — build & operate
-- **Files**: 40
+- **Files**: 39
 - **Structure**: references, scripts
 - **Flags**: `METADATA_NON_STRING`, `UNKNOWN_KEYS`
 
@@ -3746,6 +3746,16 @@
 - **Version**: 1.0.0
 
 > Deploy Nod (github.com/n8n-io/nod), the open-source personal AI agent from n8n, from source on Ubuntu 24.04 LTS or Debian 13 (Trixie). Builds the official self-host Docker stack from a pinned release tag (Node.js/Fastify server, PostgreSQL, firewalled workspace sandbox, Chromium browser container, optional Caddy HTTPS), generates secrets, configures SSH-tunnel or public-HTTPS access, and covers verification, hardening, backup, restore, updates, and token rotation. Use when asked to install, deploy, self-host, update, back up, restore, or troubleshoot Nod from source on a Linux server.
+
+### `github-folder-downloader`
+
+- **Path**: `skills/github-folder-downloader`
+- **SKILL.md**: [`skills/github-folder-downloader/SKILL.md`](/skills/github-folder-downloader/SKILL.md)
+- **Title**: GitHub Folder Downloader
+- **Files**: 16
+- **Structure**: scripts
+
+> Download and mirror a single GitHub repository folder (subdirectory) to a local path without cloning the whole repository. Uses a targeted GitHub API/raw tier with ZIP and TAR.GZ archive fallback, atomic commits, and rollback. Use when the user asks to fetch, download, sync, mirror, or update a specific GitHub folder, directory, subfolder, or skills folder, or provides a URL like https://github.com/OWNER/REPO/tree/REF/PATH and wants only that path. Supports ref/commit pinning, slash-branch disambiguation, dry-run planning, JSON summaries, size/file/depth limits, symlink/LFS policies, and an offline self-test. Requires Python 3.10+; standard library only.
 
 ### `how-to-git-push-using-ssh-wrapper`
 
@@ -4059,7 +4069,7 @@ A folder is indexed only if `skills/<folder>/SKILL.md` exists and passes both ru
 
 Spec deviations that Claude Code accepts are *warnings*, not exclusions (YAML-list `allowed-tools`, non-string `metadata` values, non-spec top-level keys such as `author`/`version`, bodies over 500 lines). Warning counts across indexed skills: `ALLOWED_TOOLS_LIST` x32, `BODY_LENGTH` x104, `METADATA_NON_STRING` x17, `UNKNOWN_KEYS` x132.
 
-Result: **342 valid top-level skills** of 349 folders with a `SKILL.md`; 7 excluded; 22 grouping folders; 125 nested `SKILL.md` files inside valid skills are parts of those skills and are not indexed separately.
+Result: **343 valid top-level skills** of 350 folders with a `SKILL.md`; 7 excluded; 22 grouping folders; 125 nested `SKILL.md` files inside valid skills are parts of those skills and are not indexed separately.
 
 ### Excluded: top-level folders with an invalid `SKILL.md` (7)
 
@@ -4090,5 +4100,5 @@ These were **not modified**; fixing them is a separate, reviewable change.
 
 ### Loose files in `skills/` (not skills: no sub-folder)
 
-`CODE_REVIEW_CONSOLIDATION_SUMMARY.txt`, `INVENTORY.txt`, `_archived_skills_to_delete.tgz`, `agents-skill.md`, `bundled_skills_selection_for_modern_web_project.md`, `droid-skills-list.md`, `prompt-to-add-description.txt`, `proposed_consolidation_code_review_audit.txt`, `proposed_consolidation_execution_feedback.txt`, `skill-creator-selector.md`, `skills-catalog.md`.
+`CODE_REVIEW_CONSOLIDATION_SUMMARY.txt`, `INVENTORY.txt`, `agents-skill.md`, `bundled_skills_selection_for_modern_web_project.md`, `droid-skills-list.md`, `prompt-to-add-description.txt`, `proposed_consolidation_code_review_audit.txt`, `proposed_consolidation_execution_feedback.txt`, `skill-creator-selector.md`, `skills-catalog.md`.
 

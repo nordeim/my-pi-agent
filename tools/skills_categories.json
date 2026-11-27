@@ -24,6 +24,7 @@
   "10": "Skills for cloud, deployment, external services, search, research, and tooling."
  },
  "skills": {
+ "github-folder-downloader": 10,
   "aesthetic": 2,
   "agent-browser": 1,
   "agent-dev-sandbox": 10,

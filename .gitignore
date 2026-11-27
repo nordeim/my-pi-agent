@@ -27,6 +27,10 @@ extensions/summaries/config.private.json.*.tmp
 *.swp
 .DS_Store
 
+# Python build artifacts
+__pycache__/
+*.pyc
+
 # Local editor settings
 .vscode/
 .idea/

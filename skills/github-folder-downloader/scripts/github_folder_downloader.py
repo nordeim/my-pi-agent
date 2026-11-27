@@ -77,7 +77,7 @@ from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import IO, Final, TypeVar, cast
 
-__version__: Final = "3.1.0"
+__version__: Final = "3.1.1"
 
 LOG: Final = logging.getLogger("github-folder-downloader")
 
@@ -738,12 +738,18 @@ def default_branch(client: Client, owner: str, repo: str) -> str:
 
 
 def commit_for_ref(client: Client, owner: str, repo: str, ref: str) -> tuple[str, str] | None:
-    """Return (commit_sha, root_tree_sha); None ONLY when the ref does not exist."""
+    """Return (commit_sha, root_tree_sha); None ONLY when the ref does not exist.
+
+    GitHub answers a non-ref path segment with 422 ("No commit found for SHA")
+    rather than 404, so both statuses mean "not a ref" here. Without the 422
+    arm, a bare tree/REF/PATH URL aborted the slash-split resolution loop with
+    a RetrievalError instead of trying the next split (q4 triage finding).
+    """
     url = f"{repo_api(client, owner, repo)}/commits/{encode_path(ref)}"
     try:
         data = json_object(client.json(url), "commit")
     except DownloadError as exc:
-        if exc.status == 404:
+        if exc.status in (404, 422):
             return None
         raise  # rate limits, auth and server faults must not masquerade as a miss
     sha = string_field(data, "sha", "commit")
@@ -1963,6 +1969,24 @@ def run_self_test() -> int:
             self.assertEqual(parse_url("https://github.com/o/r/tree/main"),
                              ("o", "r", ["main"], "tree"))
             self.assertEqual(parse_url("https://github.com/o/r.git/"), ("o", "r", [], "root"))
+            # Regression (q4 triage): GitHub answers a non-ref tail with 422, not
+            # 404; commit_for_ref must treat both as "not a ref" so the slash-split
+            # resolution loop keeps trying instead of aborting with RetrievalError.
+            seen: list[str] = []
+            import json as _json
+            payload = io.BytesIO(_json.dumps({
+                "sha": "a" * 40,
+                "commit": {"tree": {"sha": "b" * 40}}}).encode())
+            four22 = err(f"{API_BASE}/repos/o/r/commits/skills%2Fdocs", 422)
+            four22.fp = payload  # commit_for_ref reads via client.json -> read_bytes
+            def fake_open(req: urllib.request.Request, timeout: float) -> Resp:
+                seen.append(req.full_url)
+                if "commits/skills" in req.full_url:
+                    raise four22
+                return Resp(payload.getvalue(), {"Content-Type": "application/json"})
+            with mock.patch.object(mod, "_open_request", fake_open):
+                resolved = commit_for_ref(Client(Config()), "o", "r", "skills/docs")
+            self.assertIsNone(resolved)
             for url in ("http://github.com/o/r/tree/main/d", "https://gitlab.com/o/r/tree/main/d",
                         "https://github.com/o/r/blob/main/d.md",
                         "https://u:p@github.com/o/r/tree/main/d",

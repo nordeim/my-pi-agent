@@ -7,10 +7,10 @@ allowed-tools: Bash, Read
 # GitHub Folder Downloader
 
 Fetch one folder from a GitHub repository — not the whole repo, not a clone.
-Bundled script: `scripts/github_folder_downloader.py` (v3.1.0, single file, stdlib only).
+Bundled script: `scripts/github_folder_downloader.py` (v3.1.1, single file, stdlib only).
 
 All commands below assume the working directory is this skill's folder
-(`skills/github_folder_downloader/`). From elsewhere, prefix the script path accordingly.
+(`skills/github-folder-downloader/`). From elsewhere, prefix the script path accordingly.
 
 ## When to use this skill
 
@@ -195,7 +195,7 @@ Retained archives live in `<dest>/.ghfd-archives/` (0600) and never fail a succe
 ### 11. Offline verification / version
 ```bash
 python3 scripts/github_folder_downloader.py --self-test   # no network; exit 0 expected
-python3 scripts/github_folder_downloader.py --version     # 3.1.0
+python3 scripts/github_folder_downloader.py --version     # 3.1.1
 ```
 
 ## Agent workflow (follow in order)
@@ -238,18 +238,18 @@ python3 scripts/github_folder_downloader.py --version     # 3.1.0
 ```bash
 python3 -m py_compile scripts/github_folder_downloader.py
 python3 scripts/github_folder_downloader.py --self-test     # expect exit 0
-python3 scripts/github_folder_downloader.py --version       # expect 3.1.0
+python3 scripts/github_folder_downloader.py --version       # expect 3.1.1
 sha256sum scripts/github_folder_downloader.py               # record the FULL hash as your baseline
 ```
-The q4 delivery ledger reports 2121 lines / 94305 bytes and a truncated SHA-256 (`957484af0bfaf1ff…ada884e3fa`), which does not match the shipped script (2123 lines / 94351 bytes). Record the full hash above as the local baseline; treat "passes" claims as unverified until observed. The superseded v3.0 script is retained as `scripts/github_folder_downloader_v3.0.py` and does not support the CLI documented here.
+The q4 delivery ledger reported 2121 lines / 94305 bytes and a truncated SHA-256 (`957484af0bfaf1ff…ada884e3fa`), which did not match the then-shipped script (2123 lines / 94351 bytes, v3.1.0). **v3.1.1 (2026-11-27 remediation)** fixes the q4 triage finding: `commit_for_ref` now treats GitHub's HTTP 422 ("No commit found for SHA") like 404, so bare `…/tree/REF/PATH` URLs resolve through the slash-split loop instead of failing with `RetrievalError`; a red→green regression is embedded in `--self-test`. Record the full hash above as the local baseline. The superseded v3.0 script is retained as `scripts/github_folder_downloader_v3.0.py` and does not support the CLI documented here.
 
 ## Files in this skill
 
 ```text
-skills/github_folder_downloader/
+skills/github-folder-downloader/
 ├── SKILL.md
 ├── docs/                                  # q3/q4 audit and delivery records
 └── scripts/
-    ├── github_folder_downloader.py         # canonical q4 v3.1.0, stdlib only
+    ├── github_folder_downloader.py         # canonical v3.1.1, stdlib only
     └── github_folder_downloader_v3.0.py    # superseded v3.0, kept for reference
 ```

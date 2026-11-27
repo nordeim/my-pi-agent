@@ -364,6 +364,19 @@ def test_lint_flags_unlisted_package_file(tmp_path):
     assert "unlisted package file: docs/unlisted_orphan.md" in r.stdout
 
 
+def test_lint_flags_hidden_and_dunder_package_files(tmp_path):
+    # Regression N-11: excluding every dot/dunder path component let
+    # scripts/__init__.py and scripts/.secret.py slip past the completeness
+    # check; only known artifact directories are skipped now.
+    dst = copy_skill(tmp_path)
+    (dst / "scripts" / "__init__.py").write_text("", encoding="utf-8")
+    (dst / "scripts" / ".secret.py").write_text("x = 1\n", encoding="utf-8")
+    r = run("lint_skill.py", dst)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "unlisted package file: scripts/__init__.py" in r.stdout
+    assert "unlisted package file: scripts/.secret.py" in r.stdout
+
+
 def test_command_words_distinguish_hence_and_deduce():
     # Regression V-14: "Hence / Deduce" had been merged into a single obligation.
     skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
