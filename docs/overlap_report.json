@@ -1,0 +1,4421 @@
+{
+  "repo_total": 350,
+  "sandbox_total": 241,
+  "common": 237,
+  "repo_only": [
+    "agent-dev-sandbox",
+    "ai-news-collectors",
+    "aminer-academic-search",
+    "aminer-daily-paper",
+    "aminer-deep-search",
+    "aminer-free-academic",
+    "anti-pua",
+    "architect",
+    "astro-7-patterns",
+    "auto-target-tracker",
+    "blog-writer",
+    "brutalist-portfolio-nextjs",
+    "careful",
+    "cheat-sheet",
+    "claude-design",
+    "cloudflare-tunnel",
+    "coding-agent",
+    "composio-cli",
+    "content-strategy",
+    "context7-docs",
+    "context7-mcp",
+    "cso",
+    "cyber-ppt",
+    "deploy-nod-from-source",
+    "design",
+    "diagram",
+    "django-6",
+    "document-generate",
+    "dream-interpreter",
+    "e2e-testing-lessons",
+    "emil-design-eng",
+    "experiment-suite",
+    "finance",
+    "fix-merge-conflicts",
+    "framework-templates",
+    "frontend-design",
+    "frontend-development",
+    "full-page-screenshot",
+    "gaokao-collect-student-info",
+    "gaokao-fetch-volunteers",
+    "gaokao-generate-report",
+    "gaokao-recommend-majors",
+    "gaokao-recommend-schools",
+    "get-fortune-analysis",
+    "gift-evaluator",
+    "github-folder-downloader",
+    "greploop-apps",
+    "hono",
+    "htmx",
+    "humanizer",
+    "image-understand",
+    "interview-designer",
+    "interview-prep",
+    "investigate",
+    "jd-resume-tailor",
+    "job-intent-tracker",
+    "literature-survey",
+    "market-research-reports",
+    "marketing-mode",
+    "memory-architect",
+    "mindfulness-meditation",
+    "multi-search-engine",
+    "new-feature",
+    "nextjs16-full-stack",
+    "nextjs16-react19-tailwindv4-trpcv11-drizzle-better-auth",
+    "pandoc-docx-template",
+    "personal-portfolio",
+    "plan-eng-review",
+    "podcast-generate",
+    "ponytail",
+    "pr",
+    "principle-attack-the-premise",
+    "principle-guard-the-context-window",
+    "principle-minimize-reader-load",
+    "principle-sequence-verifiable-units",
+    "principle-test-behavior-not-implementation",
+    "python-patterns",
+    "qingyan-research",
+    "quiz-html",
+    "quiz-mastery",
+    "rails-8",
+    "react-native-expo",
+    "react19-ts6-vite8-tailwindv4-mvp",
+    "research-explorer",
+    "resume-builder",
+    "rootless-postgresql",
+    "sanity-migration",
+    "scaffold-ui",
+    "seo-content-writer",
+    "setup-ts-deep-modules",
+    "show-me-your-work",
+    "solving-a-level-exam-papers",
+    "static-spa-parish-site",
+    "stock-analysis",
+    "storyboard-manager",
+    "study-buddy",
+    "tailwind-patterns",
+    "tdd",
+    "teach",
+    "test-driven-development",
+    "to-distill-project-into-skill",
+    "triage",
+    "ui-ux-pro-max",
+    "unslop",
+    "using-agent-skills",
+    "version-management",
+    "video-generation",
+    "visual-design-foundations",
+    "web-search",
+    "web-shader-extractor",
+    "why",
+    "writing-plans",
+    "writing-shape"
+  ],
+  "sandbox_only": [
+    "ASR",
+    "LLM",
+    "TTS",
+    "VLM"
+  ],
+  "matches": [
+    {
+      "name": "aesthetic",
+      "repo_files": 7,
+      "sandbox_files": 7,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "assets/design-guideline-template.md",
+        "assets/design-story-template.md",
+        "references/design-principles.md",
+        "references/design-resources.md",
+        "references/micro-interactions.md",
+        "references/storytelling-design.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "agent-browser",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": false,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "agents-md",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "analyzing-us-bigtech-stocks",
+      "repo_files": 14,
+      "sandbox_files": 14,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "assets/fact_base.template.json",
+        "assets/slides_brief.template.json",
+        "references/fact-base-schema.md",
+        "references/methodology.md",
+        "references/postmortem-framework.md",
+        "references/report-design.md",
+        "scripts/a11y_audit.mjs",
+        "scripts/audit_all.sh",
+        "scripts/fact_base_audit.py",
+        "scripts/overflow_audit.mjs",
+        "scripts/provenance_seal.py",
+        "scripts/quant_helpers.py",
+        "scripts/source_snapshot.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "animate",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "RECIPES.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "animate-expo",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "RECIPES.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "animation-performance",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "animation-vocabulary",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "api-and-interface-design",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "api-patterns",
+      "repo_files": 12,
+      "sandbox_files": 12,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "api-style.md",
+        "auth.md",
+        "documentation.md",
+        "graphql.md",
+        "rate-limiting.md",
+        "response.md",
+        "rest.md",
+        "scripts/api_validator.py",
+        "security-testing.md",
+        "trpc.md",
+        "versioning.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "apple-design",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "ask-matt",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "PHASE-BOUNDARIES.md",
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "ask-sonner",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "API.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "asr",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "scripts/asr.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "astro-7",
+      "repo_files": 7,
+      "sandbox_files": 8,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "astro-5-skill-improvement-plan.md",
+        "astro-7-SKILL.md",
+        "draft-update-d.md",
+        "draft-update-q.md",
+        "draft-update-s.md",
+        "draft-update-z.md"
+      ],
+      "sandbox_only_files": [
+        "draft-update-s.zip"
+      ],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "authjs-vs-better-auth",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "avant-garde-design-v4",
+      "repo_files": 21,
+      "sandbox_files": 21,
+      "skill_md_identical": true,
+      "identical_files": [
+        "CHANGELOG.md",
+        "README.md",
+        "SKILL.md",
+        "plan.md",
+        "references/01-strategic-positioning.md",
+        "references/02-tailwind-v4-deep-dive.md",
+        "references/03-tailwind-v4-pitfalls.md",
+        "references/04-accessibility-checklist.md",
+        "references/05-component-patterns.md",
+        "references/06-debugging-playbook.md",
+        "references/07-mobile-navigation.md",
+        "references/08-mobile-nav-debugging.md",
+        "references/09-color-palettes.md",
+        "references/10-design-directions.md",
+        "references/11-tech-commitments.md",
+        "references/12-anti-generic-checklist.md",
+        "references/13-patterns-catalog.md",
+        "references/14-animation-standards.md",
+        "references/15-performance-budgets.md",
+        "references/16-nextjs-optimization.md",
+        "version.json"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "background-terminals",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "before-and-after",
+      "repo_files": 7,
+      "sandbox_files": 7,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE",
+        "SKILL.md",
+        "scripts/adapters/0x0st.sh",
+        "scripts/adapters/blob.sh",
+        "scripts/adapters/gist.sh",
+        "scripts/capture.sh",
+        "scripts/upload-and-copy.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "benchmark-checklist",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "big-tech-earnings-postmortem",
+      "repo_files": 10,
+      "sandbox_files": 10,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "assets/checks.json",
+        "assets/fact_base_lite.template.json",
+        "scripts/a11y_audit.mjs",
+        "scripts/fact_base_lite_audit.py",
+        "scripts/note_audit.py",
+        "scripts/note_overflow_audit.mjs",
+        "scripts/provenance_seal.py",
+        "scripts/quant_helpers.py",
+        "scripts/source_snapshot.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "bigtech-equity-research",
+      "repo_files": 19,
+      "sandbox_files": 19,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "assets/checks.json",
+        "assets/fact_base_lite.template.json",
+        "reference/formulas.md",
+        "reference/methodology.md",
+        "reference/peers.md",
+        "reference/segment-maps.json",
+        "reference/segment-maps.md",
+        "reference/sourcing-and-confidence.md",
+        "scripts/a11y_audit.mjs",
+        "scripts/fact_base_lite_audit.py",
+        "scripts/note_audit.py",
+        "scripts/note_overflow_audit.mjs",
+        "scripts/provenance_seal.py",
+        "scripts/quant_helpers.py",
+        "scripts/segment_map_check.py",
+        "scripts/source_snapshot.py",
+        "templates/evidence-ledger.md",
+        "templates/report-structure.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "blast-radius",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "break-ui",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "CATALOG.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "browser-automation",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "browser-testing-with-devtools",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "charts",
+      "repo_files": 12,
+      "sandbox_files": 12,
+      "skill_md_identical": false,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "references/_rules.md",
+        "references/d3.md",
+        "references/echarts.md",
+        "references/matplotlib.md",
+        "references/mermaid.md",
+        "references/mindmap-css.md",
+        "references/playwright-css.md",
+        "references/radial-grid.md",
+        "references/seaborn.md",
+        "setup.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "chief-of-staff",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "chrome-devtools-mcp",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "ci-cd-and-automation",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "claude-md",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "clean-code",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "clone-app-pat-pro",
+      "repo_files": 15,
+      "sandbox_files": 15,
+      "skill_md_identical": true,
+      "identical_files": [
+        "README.md",
+        "SKILL.md",
+        "references/00-contract.md",
+        "references/01-recon.md",
+        "references/02-extraction.md",
+        "references/03-design-spec.md",
+        "references/04-architecture.md",
+        "references/05-build.md",
+        "references/06-qa.md",
+        "references/07-polish.md",
+        "references/08-extend.md",
+        "references/stage-prompts.md",
+        "references/tooling.md",
+        "scripts/assert-styles.mjs",
+        "scripts/partition_bugs.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "code-quality-standards",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "code-review",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "code-review-and-audit",
+      "repo_files": 6,
+      "sandbox_files": 6,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/review-modes.md",
+        "references/severity-matrix.md",
+        "scripts/audit_runner.py",
+        "scripts/checklist_runner.py",
+        "scripts/templates/audit_report.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "code-review-checklist",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "code-simplification",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "code-structure",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "codebase-design",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "DEEPENING.md",
+        "DESIGN-IT-TWICE.md",
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "codex-ppt",
+      "repo_files": 39,
+      "sandbox_files": 39,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "docs/backend-selection.md",
+        "docs/cli-api-fallback.md",
+        "docs/image-model-configuration.md",
+        "docs/outline-style-and-sample.md",
+        "docs/project-assembly-and-reporting.md",
+        "docs/slide-generation-and-subagents.md",
+        "docs/style-library.md",
+        "docs/user-supplied-assets.md",
+        "docs/workflow-gates-and-progress.md",
+        "prompts/slide-worker.md",
+        "references/\u515a\u653f\u7ea2\u98ce\u683c.md",
+        "references/\u521b\u610f\u6742\u5fd7\u98ce.md",
+        "references/\u590d\u53e4\u6241\u5e73\u63d2\u753b\u98ce.md",
+        "references/\u624b\u7ed8\u6280\u672f\u89e3\u91ca\u98ce.md",
+        "references/\u624b\u7ed8\u767d\u677f\u98ce.md",
+        "references/\u6559\u5b66\u8bfe\u4ef6\u98ce.md",
+        "references/\u6570\u636e\u4eea\u8868\u76d8\u98ce.md",
+        "references/\u6e05\u723d\u4e13\u4e1a\u98ce.md",
+        "references/\u6e29\u6696\u624b\u5de5\u98ce.md",
+        "references/\u7535\u5b50\u58a8\u6c34\u6742\u5fd7\u98ce.md",
+        "references/\u79d1\u7814\u7b54\u8fa9\u98ce.md",
+        "references/\u9ea6\u80af\u9521\u98ce\u683c.md",
+        "requirements.txt",
+        "scripts/assemble_ppt.py",
+        "scripts/codex_ppt_runtime.py",
+        "scripts/image_gen.py",
+        "scripts/image_providers/__init__.py",
+        "scripts/image_providers/atlascloud.py",
+        "scripts/image_providers/base.py",
+        "scripts/image_providers/factory.py",
+        "scripts/image_providers/openai_compatible.py",
+        "scripts/prepare_slide_prompts.py",
+        "scripts/record_slide_blocker.py",
+        "scripts/record_slide_dispatch.py",
+        "scripts/record_slide_result.py",
+        "scripts/remove_chroma_key.py",
+        "scripts/slide_job_status.py",
+        "scripts/slide_run_state.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "comfyui-workflow-scaffold",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/link-patterns.md",
+        "references/node-catalog.md",
+        "references/workflow-schema.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "content-analysis",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "ExtractWisdom/SKILL.md",
+        "ExtractWisdom/Workflows/Extract.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "context-anchor",
+      "repo_files": 6,
+      "sandbox_files": 6,
+      "skill_md_identical": true,
+      "identical_files": [
+        "README.md",
+        "SKILL.md",
+        "_meta.json",
+        "scripts/anchor-v2.sh",
+        "scripts/anchor.sh",
+        "scripts/anchor.sh.backup.20260303_125235"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "context-engineering",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "context-restore",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "context-save",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "correct",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "create-verification-skill",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/feature-map-example/README.md",
+        "references/feature-map-example/create-note.md",
+        "references/feature-map-example/search.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "debugging-and-error-recovery",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "deprecation-and-migration",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "design-consultation",
+      "repo_files": 5,
+      "sandbox_files": 5,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/manifest.json",
+        "sections/proposal-and-preview.md",
+        "sections/proposal-and-preview.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "design-review",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "design-shotgun",
+      "repo_files": 5,
+      "sandbox_files": 5,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/doctrine.md",
+        "sections/doctrine.md.tmpl",
+        "sections/manifest.json"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "deslop",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "deslop-shared-libs",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "devex-review",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "diagnosing-bugs",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "scripts/hitl-loop.template.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "distill-codebase-skill",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "document-release",
+      "repo_files": 7,
+      "sandbox_files": 7,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/audit-scope.md",
+        "sections/audit-scope.md.tmpl",
+        "sections/manifest.json",
+        "sections/release-body.md",
+        "sections/release-body.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "documentation-and-adrs",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "docx",
+      "repo_files": 35,
+      "sandbox_files": 35,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "references/chart-templates.md",
+        "references/common-rules.md",
+        "references/decorations.md",
+        "references/design-system.md",
+        "references/docx-js-advanced.md",
+        "references/docx-js-core.md",
+        "references/faq.md",
+        "references/math-formulas.md",
+        "references/ooxml.md",
+        "references/toc.md",
+        "routes/comment.md",
+        "routes/create.md",
+        "routes/edit.md",
+        "routes/format.md",
+        "routes/read.md",
+        "scenes/academic.md",
+        "scenes/contract.md",
+        "scenes/copywriting.md",
+        "scenes/exam.md",
+        "scenes/official-doc.md",
+        "scenes/report.md",
+        "scenes/resume.md",
+        "scripts/__init__.py",
+        "scripts/add_toc_placeholders.py",
+        "scripts/document.py",
+        "scripts/postcheck.py",
+        "scripts/templates/comments.xml",
+        "scripts/templates/commentsExtended.xml",
+        "scripts/templates/commentsExtensible.xml",
+        "scripts/templates/commentsIds.xml",
+        "scripts/templates/people.xml",
+        "scripts/utilities.py",
+        "setup.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "docx-generation",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "domain-modeling",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "ADR-FORMAT.md",
+        "GLOSSARY-FORMAT.md",
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "dotnet-9",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "e-commerce-nextjs16-monorepo",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "ecommerce-website-scaffold",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "encrypt-decrypt",
+      "repo_files": 6,
+      "sandbox_files": 6,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/windows-os-compatibility.md",
+        "review.md",
+        "scripts/filecrypt.py",
+        "scripts/test_filecrypt.py",
+        "validation_report.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "eval-plan",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "evidence-driven-testing",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "scripts/evidence.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "fastapi-sqlalchemy",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "fastify",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "figure-it-out",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "find-animation-opportunities",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "fix-ci",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "flutter",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "freeze",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "bin/check-freeze.sh",
+        "bin/freeze-state.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "frontend-ui-engineering",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "frontend-ui-testing-journey",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/mobile-navigation.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "fullstack-dev",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": false,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "get-pr-comments",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "git-guardrails-claude-code",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "scripts/block-dangerous-git.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "git-workflow-and-versioning",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "go-web",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "greploop",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE",
+        "SKILL.md",
+        "references/gitlab-api.md",
+        "references/graphql-queries.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "grill-me",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "grill-with-docs",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "grilling",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "guard",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "handoff",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "how",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/explainer-prompt.md",
+        "references/explorer-prompt.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "how-to-git-push-using-ssh-wrapper",
+      "repo_files": 5,
+      "sandbox_files": 5,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "scripts/git_pull_ssh_wrapper.py",
+        "scripts/ssh_git_wrapper_v3.bak",
+        "scripts/ssh_git_wrapper_v3.py",
+        "scripts/ssh_git_wrapper_v4.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "idea-refine",
+      "repo_files": 5,
+      "sandbox_files": 5,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "examples.md",
+        "frameworks.md",
+        "refinement-criteria.md",
+        "scripts/idea-refine.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "image-edit",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": false,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "scripts/image-edit.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "image-generation",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": false,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "scripts/image-generation.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "image-search",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": false,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "implement",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "implement-spec",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "improve-animations",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "AUDIT.md",
+        "PLAN-TEMPLATE.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "HTML-REPORT.md",
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "incremental-implementation",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "keystonejs-6",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "kimi-docx",
+      "repo_files": 27,
+      "sandbox_files": 29,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "assets/templates/CJKExample.cs",
+        "assets/templates/Example.cs",
+        "assets/templates/KimiDocx.csproj",
+        "assets/templates/Program.cs",
+        "references/EditingGuide.md",
+        "scripts/__init__.py",
+        "scripts/docx",
+        "scripts/docx_lib/__init__.py",
+        "scripts/docx_lib/business_rules.py",
+        "scripts/docx_lib/constants.py",
+        "scripts/docx_lib/editing/__init__.py",
+        "scripts/docx_lib/editing/comments.py",
+        "scripts/docx_lib/editing/context.py",
+        "scripts/docx_lib/editing/helpers.py",
+        "scripts/docx_lib/editing/revisions.py",
+        "scripts/docx_lib/editing/tests/test_xml_tolerance.py",
+        "scripts/docx_lib/editing/xml_tolerance.py",
+        "scripts/docx_lib/element_order.py",
+        "scripts/fix_element_order.py",
+        "scripts/generate_backgrounds.py",
+        "scripts/generate_chart.py",
+        "scripts/generate_inkwash_backgrounds.py",
+        "scripts/validate_all.py",
+        "scripts/validate_docx.py",
+        "validator/Validator.deps.json",
+        "validator/Validator.runtimeconfig.json"
+      ],
+      "sandbox_only_files": [
+        "validator/Validator",
+        "validator/Validator.pdb"
+      ],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "kimi-pdf",
+      "repo_files": 18,
+      "sandbox_files": 18,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "routes/html.md",
+        "routes/latex.md",
+        "routes/process.md",
+        "scripts/browser_helper.js",
+        "scripts/cmd_convert.py",
+        "scripts/cmd_extract.py",
+        "scripts/cmd_form.py",
+        "scripts/cmd_meta.py",
+        "scripts/cmd_pages.py",
+        "scripts/compile_latex.py",
+        "scripts/html_to_pdf.js",
+        "scripts/package-lock.json",
+        "scripts/package.json",
+        "scripts/paged.polyfill.js",
+        "scripts/pdf.py",
+        "scripts/pdf.sh",
+        "scripts/setup.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "kimi-xlsx",
+      "repo_files": 2,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "pivot-table.md"
+      ],
+      "sandbox_only_files": [
+        "scripts/KimiXlsx"
+      ],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "kubernetes-env-setup",
+      "repo_files": 8,
+      "sandbox_files": 8,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "VALIDATION-PLAN.md",
+        "azure_linux_4.0.md",
+        "hardened-k8s-guide-showcase.html",
+        "review-2.md",
+        "review-3.md",
+        "review-4.md",
+        "review.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "land-and-deploy",
+      "repo_files": 9,
+      "sandbox_files": 9,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/first-run-validation.md",
+        "sections/first-run-validation.md.tmpl",
+        "sections/manifest.json",
+        "sections/merge-and-deploy.md",
+        "sections/merge-and-deploy.md.tmpl",
+        "sections/readiness-gate.md",
+        "sections/readiness-gate.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "laravel-12",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "learn",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "lint-and-validate",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "scripts/lint_runner.py",
+        "scripts/type_coverage.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "llm",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "scripts/chat.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "loop-builder",
+      "repo_files": 67,
+      "sandbox_files": 67,
+      "skill_md_identical": true,
+      "identical_files": [
+        "AGENTS.md",
+        "LICENSE",
+        "README.md",
+        "SKILL.md",
+        "docs/design-spec.md",
+        "docs/superpowers/plans/2026-06-19-skill-bank.md",
+        "docs/superpowers/plans/2026-06-20-catalog-multipath-ref.md",
+        "docs/superpowers/plans/2026-06-20-skill-bank-semantic-search.md",
+        "docs/superpowers/plans/2026-06-20-skill-bank-two-tier.md",
+        "docs/superpowers/plans/2026-06-22-feedback-to-issue.md",
+        "docs/superpowers/specs/2026-06-19-skill-bank-design.md",
+        "docs/superpowers/specs/2026-06-20-catalog-multipath-ref-design.md",
+        "docs/superpowers/specs/2026-06-20-skill-bank-semantic-search-design.md",
+        "docs/superpowers/specs/2026-06-20-skill-bank-two-tier-design.md",
+        "docs/superpowers/specs/2026-06-22-feedback-to-issue-design.md",
+        "evals/evals.json",
+        "references/deploy-claude-managed-agents.md",
+        "references/feedback-to-issue.md",
+        "references/loops-and-loop-engineering.md",
+        "references/pattern-evaluator-optimizer.md",
+        "references/pattern-orchestrator-workers.md",
+        "references/pattern-ralph.md",
+        "references/pattern-react-deterministic-verifier.md",
+        "references/skill-bank/catalog/awesome-claude-skills.md",
+        "references/skill-bank/catalog/claude-for-legal.md",
+        "references/skill-bank/catalog/ecc.md",
+        "references/skill-bank/catalog/gstack.md",
+        "references/skill-bank/catalog/superpowers.md",
+        "references/skill-bank/recommended.md",
+        "references/skill-bank/search-agent.md",
+        "references/skill-bank/sources.yml",
+        "scripts/build_skill_bank_catalog.sh",
+        "scripts/feedback/cli.py",
+        "scripts/feedback/dedupe.py",
+        "scripts/feedback/feedback_log.py",
+        "scripts/feedback/file_issue.py",
+        "scripts/feedback/sanitize.py",
+        "scripts/format_catalog.sh",
+        "scripts/lint_skill_bank_catalog.sh",
+        "scripts/lint_skill_bank_recommended.sh",
+        "scripts/refresh_skill_bank.sh",
+        "scripts/tests/feedback/test_cli.py",
+        "scripts/tests/feedback/test_dedupe.py",
+        "scripts/tests/feedback/test_feedback_log.py",
+        "scripts/tests/feedback/test_file_issue.py",
+        "scripts/tests/feedback/test_sanitize.py",
+        "scripts/tests/fixtures/p1_failing.json",
+        "scripts/tests/fixtures/p1_passing.json",
+        "scripts/tests/fixtures/skill_bank/catalog_bad.md",
+        "scripts/tests/fixtures/skill_bank/catalog_expected.md",
+        "scripts/tests/fixtures/skill_bank/catalog_good.md",
+        "scripts/tests/fixtures/skill_bank/catalog_src/alpha/SKILL.md",
+        "scripts/tests/fixtures/skill_bank/catalog_src/beta/SKILL.md",
+        "scripts/tests/fixtures/skill_bank/catalog_src/delta/SKILL.md",
+        "scripts/tests/fixtures/skill_bank/catalog_src/epsilon/SKILL.md",
+        "scripts/tests/fixtures/skill_bank/catalog_src/gamma/SKILL.md",
+        "scripts/tests/fixtures/skill_bank/index_bad.md",
+        "scripts/tests/fixtures/skill_bank/index_good.md",
+        "scripts/tests/fixtures/skill_bank/upstream_drift.txt",
+        "scripts/tests/fixtures/skill_bank/upstream_empty.txt",
+        "scripts/tests/fixtures/skill_bank/upstream_insync.txt",
+        "scripts/tests/fixtures/skill_bank/upstream_stale.txt",
+        "scripts/tests/test_feedback.sh",
+        "scripts/tests/test_skill_bank.sh",
+        "scripts/tests/test_verifiers.sh",
+        "scripts/verifier_template.sh",
+        "scripts/verify_no_p1_unassigned.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "luxeverse-architect",
+      "repo_files": 10,
+      "sandbox_files": 10,
+      "skill_md_identical": true,
+      "identical_files": [
+        "README.md",
+        "SKILL.md",
+        "luxeverse-architect-skill/README.md",
+        "luxeverse-architect-skill/SKILL.md",
+        "update.md",
+        "update_2.md",
+        "update_3.md",
+        "update_4.md",
+        "validation.md",
+        "validation_2.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "mac-mlx-local-inference",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "make-pdf",
+      "repo_files": 52,
+      "sandbox_files": 52,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "src/asideClient.ts",
+        "src/cli.ts",
+        "src/commands.ts",
+        "src/diagram-prepass.ts",
+        "src/docx-images.ts",
+        "src/html-to-docx.d.ts",
+        "src/html-to-vdom.d.ts",
+        "src/image-policy.ts",
+        "src/image-size.ts",
+        "src/orchestrator.ts",
+        "src/pdftotext.ts",
+        "src/print-css.ts",
+        "src/render.ts",
+        "src/setup.ts",
+        "src/smartypants.ts",
+        "src/toc-pages.ts",
+        "src/types.ts",
+        "test/asideClient.test.ts",
+        "test/cli-args.test.ts",
+        "test/cli-exit-codes.test.ts",
+        "test/diagram-prepass.test.ts",
+        "test/docx-image-size.test.ts",
+        "test/e2e/ci-prereqs.test.ts",
+        "test/e2e/combined-gate.test.ts",
+        "test/e2e/diagram-gate.test.ts",
+        "test/e2e/emoji-gate.test.ts",
+        "test/e2e/format-gate.test.ts",
+        "test/e2e/landscape-gate.test.ts",
+        "test/e2e/toc-gate.test.ts",
+        "test/fixtures/combined-gate.expected.txt",
+        "test/fixtures/combined-gate.md",
+        "test/fixtures/diagram-assets/huge-noise.png",
+        "test/fixtures/diagram-assets/red-box.png",
+        "test/fixtures/diagram-assets/wide-arch.png",
+        "test/fixtures/diagram-assets/wide-screenshot.png",
+        "test/fixtures/diagram-gate.md",
+        "test/fixtures/docx-images/doc.md",
+        "test/fixtures/docx-images/document.golden.xml",
+        "test/fixtures/docx-images/square.gif",
+        "test/fixtures/docx-images/tall.jpg",
+        "test/fixtures/docx-images/wide.png",
+        "test/fixtures/emoji-gate.md",
+        "test/fixtures/landscape-gate.md",
+        "test/image-policy.test.ts",
+        "test/pdftotext.test.ts",
+        "test/render-offline-sanitize.test.ts",
+        "test/render.test.ts",
+        "test/setup-smoke.test.ts",
+        "test/toc-anchors.test.ts",
+        "test/toc-pages.test.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "make-pr-easy-to-review",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "markdown-to-html",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "markdown-to-web",
+      "repo_files": 35,
+      "sandbox_files": 37,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "comparative_analysis_d.md",
+        "comparative_analysis_k.md",
+        "comparative_analysis_q4.1.md",
+        "comparative_analysis_q4.1_validation.md",
+        "comparative_analysis_q4.md",
+        "comparative_analysis_z.md",
+        "comparative_analysis_z2.md",
+        "draft_d.md",
+        "draft_d2.md",
+        "draft_k.md",
+        "draft_q.md",
+        "draft_q2.md",
+        "draft_q3.md",
+        "draft_q4.1.md",
+        "draft_q_plan.md",
+        "draft_z.md",
+        "draft_z2.md",
+        "markdown-to-web_SKILL_v2.1.0.md",
+        "markdown-to-web_SKILL_v4.1.1.md",
+        "markdown-to-web_SKILL_v4.1.md",
+        "markdown-to-web_SKILL_v4.md",
+        "original_SKILL.md",
+        "unified_skill_IMPLEMENTATION_PLAN.md",
+        "unified_skill_v4.1.1_IMPLEMENTATION_PLAN.md",
+        "unified_skill_v4.1_IMPLEMENTATION_PLAN.md",
+        "unified_skill_v4.1_IMPLEMENTATION_PLAN_validated.md",
+        "unified_skill_v4_IMPLEMENTATION_PLAN.md",
+        "v2.1.0_implementation_plan.md",
+        "v4_chunks/chunk1_frontmatter_part1.md",
+        "v4_chunks/chunk2_part2_sec1to9.md",
+        "v4_chunks/chunk3_part2_sec10to15.md",
+        "v4_chunks/chunk4_part2_sec16to22.md",
+        "v4_chunks/chunk5_appendices_closing.md",
+        "validation_v4.1.1.md"
+      ],
+      "sandbox_only_files": [
+        "markdown-to-web-SKILL.pdf",
+        "markdown-to-web.zip"
+      ],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "memory-architecture",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "health-check.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "microsoft-foundry",
+      "repo_files": 163,
+      "sandbox_files": 163,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "finetuning/SKILL.md",
+        "finetuning/references/agentic-rft.md",
+        "finetuning/references/dataset-formats.md",
+        "finetuning/references/deployment.md",
+        "finetuning/references/evaluation.md",
+        "finetuning/references/grader-design.md",
+        "finetuning/references/hyperparameters.md",
+        "finetuning/references/large-file-uploads.md",
+        "finetuning/references/platform-gotchas.md",
+        "finetuning/references/reward-hacking.md",
+        "finetuning/references/training-curves.md",
+        "finetuning/references/training-types.md",
+        "finetuning/references/vision-fine-tuning.md",
+        "finetuning/scripts/calibrate_grader.py",
+        "finetuning/scripts/check_training.py",
+        "finetuning/scripts/cleanup.py",
+        "finetuning/scripts/common.py",
+        "finetuning/scripts/convert_dataset.py",
+        "finetuning/scripts/deploy_model.py",
+        "finetuning/scripts/evaluate_model.py",
+        "finetuning/scripts/generate_distillation_data.py",
+        "finetuning/scripts/monitor_training.py",
+        "finetuning/scripts/score_dataset.py",
+        "finetuning/scripts/submit_training.py",
+        "finetuning/scripts/validate/data_stats.py",
+        "finetuning/scripts/validate/validate_dpo.py",
+        "finetuning/scripts/validate/validate_rft.py",
+        "finetuning/scripts/validate/validate_sft.py",
+        "finetuning/workflows/dataset-creation.md",
+        "finetuning/workflows/diagnose-poor-results.md",
+        "finetuning/workflows/full-pipeline.md",
+        "finetuning/workflows/iterative-training.md",
+        "finetuning/workflows/quickstart.md",
+        "foundry-agent/agent-optimizer/agent-optimizer.md",
+        "foundry-agent/agent-optimizer/references/azd-setup.md",
+        "foundry-agent/agent-optimizer/references/eval-yaml.md",
+        "foundry-agent/agent-optimizer/references/optimize-workflow.md",
+        "foundry-agent/agent-optimizer/references/python-patterns.md",
+        "foundry-agent/agent-optimizer/references/scaffold.md",
+        "foundry-agent/azd-guidance/azd-guidance.md",
+        "foundry-agent/azd-guidance/references/azd-ai-cli.md",
+        "foundry-agent/cicd/cicd.md",
+        "foundry-agent/create/create-hosted.md",
+        "foundry-agent/create/create-prompt.md",
+        "foundry-agent/create/quick-start-hosted.md",
+        "foundry-agent/create/references/agent-tools.md",
+        "foundry-agent/create/references/agentframework.md",
+        "foundry-agent/create/references/enable-incoming-a2a.md",
+        "foundry-agent/create/references/foundry-tool-catalog.md",
+        "foundry-agent/create/references/guardrails/guardrail-api-create.md",
+        "foundry-agent/create/references/guardrails/guardrail-attach.md",
+        "foundry-agent/create/references/guardrails/guardrail-manage.md",
+        "foundry-agent/create/references/local-run.md",
+        "foundry-agent/create/references/sdk-operations.md",
+        "foundry-agent/create/references/skills/skill-attach.md",
+        "foundry-agent/create/references/skills/skill-manage.md",
+        "foundry-agent/create/references/skills/skill-toolbox-attach.md",
+        "foundry-agent/create/references/tool-a2a.md",
+        "foundry-agent/create/references/tool-azure-ai-search.md",
+        "foundry-agent/create/references/tool-bing-grounding.md",
+        "foundry-agent/create/references/tool-code-interpreter.md",
+        "foundry-agent/create/references/tool-fabric-iq.md",
+        "foundry-agent/create/references/tool-file-search.md",
+        "foundry-agent/create/references/tool-function-calling.md",
+        "foundry-agent/create/references/tool-mcp.md",
+        "foundry-agent/create/references/tool-memory.md",
+        "foundry-agent/create/references/tool-openapi.md",
+        "foundry-agent/create/references/tool-tool-search.md",
+        "foundry-agent/create/references/tool-web-search.md",
+        "foundry-agent/create/references/tool-work-iq.md",
+        "foundry-agent/create/references/toolbox-reference.md",
+        "foundry-agent/create/references/tools.md",
+        "foundry-agent/create/references/use-toolbox-in-hosted-agent.md",
+        "foundry-agent/create/scripts/check-canvas-entry.ps1",
+        "foundry-agent/create/scripts/check-canvas-entry.sh",
+        "foundry-agent/create/scripts/resolve-project-id.ps1",
+        "foundry-agent/create/scripts/resolve-project-id.sh",
+        "foundry-agent/create/scripts/verify-environment.ps1",
+        "foundry-agent/create/scripts/verify-environment.sh",
+        "foundry-agent/deploy/deploy.md",
+        "foundry-agent/eval-datasets/eval-datasets.md",
+        "foundry-agent/eval-datasets/references/dataset-comparison.md",
+        "foundry-agent/eval-datasets/references/dataset-curation.md",
+        "foundry-agent/eval-datasets/references/dataset-organization.md",
+        "foundry-agent/eval-datasets/references/dataset-versioning.md",
+        "foundry-agent/eval-datasets/references/eval-lineage.md",
+        "foundry-agent/eval-datasets/references/eval-regression.md",
+        "foundry-agent/eval-datasets/references/eval-trending.md",
+        "foundry-agent/eval-datasets/references/generate-seed-dataset.md",
+        "foundry-agent/eval-datasets/references/trace-to-dataset.md",
+        "foundry-agent/invocations-ws/invocations-ws.md",
+        "foundry-agent/invocations-ws/references/invocations-ws-protocol.md",
+        "foundry-agent/invoke/invoke.md",
+        "foundry-agent/invoke/references/file-operations.md",
+        "foundry-agent/invoke/references/invocations-protocol.md",
+        "foundry-agent/invoke/references/session-management.md",
+        "foundry-agent/observe/observe.md",
+        "foundry-agent/observe/references/analyze-results.md",
+        "foundry-agent/observe/references/cicd-monitoring.md",
+        "foundry-agent/observe/references/compare-iterate.md",
+        "foundry-agent/observe/references/continuous-eval.md",
+        "foundry-agent/observe/references/deploy-and-setup.md",
+        "foundry-agent/observe/references/evaluate-step.md",
+        "foundry-agent/observe/references/evaluation-suite-generation.md",
+        "foundry-agent/observe/references/optimize-deploy.md",
+        "foundry-agent/routine/references/azure-yaml.md",
+        "foundry-agent/routine/references/cli-crud.md",
+        "foundry-agent/routine/routine.md",
+        "foundry-agent/trace/references/analyze-failures.md",
+        "foundry-agent/trace/references/analyze-latency.md",
+        "foundry-agent/trace/references/conversation-detail.md",
+        "foundry-agent/trace/references/eval-correlation.md",
+        "foundry-agent/trace/references/kql-templates.md",
+        "foundry-agent/trace/references/search-traces.md",
+        "foundry-agent/trace/references/tracing-insights-api.md",
+        "foundry-agent/trace/trace.md",
+        "foundry-agent/troubleshoot/troubleshoot.md",
+        "models/deploy-model/SKILL.md",
+        "models/deploy-model/TEST_PROMPTS.md",
+        "models/deploy-model/capacity/SKILL.md",
+        "models/deploy-model/capacity/scripts/discover_and_rank.ps1",
+        "models/deploy-model/capacity/scripts/discover_and_rank.sh",
+        "models/deploy-model/capacity/scripts/query_capacity.ps1",
+        "models/deploy-model/capacity/scripts/query_capacity.sh",
+        "models/deploy-model/customize/EXAMPLES.md",
+        "models/deploy-model/customize/SKILL.md",
+        "models/deploy-model/customize/references/customize-guides.md",
+        "models/deploy-model/customize/references/customize-workflow.md",
+        "models/deploy-model/preset/EXAMPLES.md",
+        "models/deploy-model/preset/SKILL.md",
+        "models/deploy-model/preset/references/preset-workflow.md",
+        "models/deploy-model/preset/references/workflow.md",
+        "models/deploy-model/scripts/generate_deployment_url.ps1",
+        "models/deploy-model/scripts/generate_deployment_url.sh",
+        "project/connections.md",
+        "project/create/create-foundry-project.md",
+        "quota/quota.md",
+        "quota/references/capacity-planning.md",
+        "quota/references/error-resolution.md",
+        "quota/references/optimization.md",
+        "quota/references/ptu-guide.md",
+        "quota/references/troubleshooting.md",
+        "quota/references/workflows.md",
+        "rbac/rbac.md",
+        "references/agent-metadata-contract.md",
+        "references/auth-best-practices.md",
+        "references/sdk/foundry-sdk-py.md",
+        "references/standard-agent-setup.md",
+        "resource/create/create-foundry-resource.md",
+        "resource/create/references/patterns.md",
+        "resource/create/references/troubleshooting.md",
+        "resource/create/references/workflows.md",
+        "resource/private-network/private-network.md",
+        "resource/private-network/references/custom-template-adaptation.md",
+        "resource/private-network/references/deploy.md",
+        "resource/private-network/references/end-to-end-test.md",
+        "resource/private-network/references/intake.md",
+        "resource/private-network/references/post-deployment-validation.md",
+        "resource/private-network/references/scaffold.md",
+        "resource/private-network/references/template-index.md",
+        "resource/private-network/references/vpn-dns-setup.bicep",
+        "resource/private-network/references/vpn-dns-setup.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "migrate-to-shoehorn",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "minimax-docx",
+      "repo_files": 74,
+      "sandbox_files": 74,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE",
+        "SKILL.md",
+        "assets/styles/academic_styles.xml",
+        "assets/styles/corporate_styles.xml",
+        "assets/styles/default_styles.xml",
+        "assets/xsd/aesthetic-rules.xsd",
+        "assets/xsd/business-rules.xsd",
+        "assets/xsd/common-types.xsd",
+        "assets/xsd/wml-subset.xsd",
+        "references/cjk_typography.md",
+        "references/cjk_university_template_guide.md",
+        "references/comments_guide.md",
+        "references/design_good_bad_examples.md",
+        "references/design_principles.md",
+        "references/openxml_element_order.md",
+        "references/openxml_encyclopedia_part1.md",
+        "references/openxml_encyclopedia_part2.md",
+        "references/openxml_encyclopedia_part3.md",
+        "references/openxml_namespaces.md",
+        "references/openxml_units.md",
+        "references/scenario_a_create.md",
+        "references/scenario_b_edit_content.md",
+        "references/scenario_c_apply_template.md",
+        "references/track_changes_guide.md",
+        "references/troubleshooting.md",
+        "references/typography_guide.md",
+        "references/xsd_validation_guide.md",
+        "scripts/doc_to_docx.sh",
+        "scripts/docx_preview.sh",
+        "scripts/dotnet/MiniMaxAIDocx.Cli/MiniMaxAIDocx.Cli.csproj",
+        "scripts/dotnet/MiniMaxAIDocx.Cli/Program.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/AnalyzeCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/ApplyTemplateCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/CreateCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/DiffCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/EditContentCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/FixOrderCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/MergeRunsCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Commands/ValidateCommand.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/MiniMaxAIDocx.Core.csproj",
+        "scripts/dotnet/MiniMaxAIDocx.Core/OpenXml/CommentSynchronizer.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/OpenXml/ElementOrder.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/OpenXml/NamespaceConstants.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/OpenXml/RunMerger.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/OpenXml/StyleAnalyzer.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/OpenXml/TrackChangesHelper.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/OpenXml/UnitConverter.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/AestheticRecipeSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/AestheticRecipeSamples_Batch1.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/AestheticRecipeSamples_Batch2.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/AestheticRecipeSamples_Batch3.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/AestheticRecipeSamples_Batch4.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/CharacterFormattingSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/DocumentCreationSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/FieldAndTocSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/FootnoteAndCommentSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/HeaderFooterSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/ImageSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/ListAndNumberingSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/ParagraphFormattingSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/StyleSystemSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/TableSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Samples/TrackChangesSamples.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Typography/CjkHelper.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Typography/FontDefaults.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Typography/PageSizes.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Validation/BusinessRuleValidator.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Validation/GateCheckValidator.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Validation/ValidationResult.cs",
+        "scripts/dotnet/MiniMaxAIDocx.Core/Validation/XsdValidator.cs",
+        "scripts/dotnet/MiniMaxAIDocx.slnx",
+        "scripts/env_check.sh",
+        "scripts/setup.ps1",
+        "scripts/setup.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "minimax-pdf",
+      "repo_files": 12,
+      "sandbox_files": 12,
+      "skill_md_identical": true,
+      "identical_files": [
+        "README.md",
+        "SKILL.md",
+        "design/design.md",
+        "scripts/cover.py",
+        "scripts/fill_inspect.py",
+        "scripts/fill_write.py",
+        "scripts/make.sh",
+        "scripts/merge.py",
+        "scripts/palette.py",
+        "scripts/reformat_parse.py",
+        "scripts/render_body.py",
+        "scripts/render_cover.js"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "minimax-xlsx",
+      "repo_files": 24,
+      "sandbox_files": 24,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/create.md",
+        "references/edit.md",
+        "references/fix.md",
+        "references/format.md",
+        "references/ooxml-cheatsheet.md",
+        "references/read-analyze.md",
+        "references/validate.md",
+        "scripts/formula_check.py",
+        "scripts/libreoffice_recalc.py",
+        "scripts/shared_strings_builder.py",
+        "scripts/style_audit.py",
+        "scripts/xlsx_add_column.py",
+        "scripts/xlsx_insert_row.py",
+        "scripts/xlsx_pack.py",
+        "scripts/xlsx_reader.py",
+        "scripts/xlsx_shift_rows.py",
+        "scripts/xlsx_unpack.py",
+        "templates/minimal_xlsx/[Content_Types].xml",
+        "templates/minimal_xlsx/xl/_rels/workbook.xml.rels",
+        "templates/minimal_xlsx/xl/sharedStrings.xml",
+        "templates/minimal_xlsx/xl/styles.xml",
+        "templates/minimal_xlsx/xl/workbook.xml",
+        "templates/minimal_xlsx/xl/worksheets/sheet1.xml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "mobile-native",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "n8n-workflow-automation",
+      "repo_files": 6,
+      "sandbox_files": 6,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/01-workflow-json-structure.md",
+        "references/02-expression-syntax.md",
+        "references/03-common-nodes.md",
+        "references/04-workflow-patterns.md",
+        "references/n8n-llms-full.txt"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nestjs",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs-postgresql-single-app",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs-react-expert",
+      "repo_files": 11,
+      "sandbox_files": 11,
+      "skill_md_identical": true,
+      "identical_files": [
+        "1-async-eliminating-waterfalls.md",
+        "2-bundle-bundle-size-optimization.md",
+        "3-server-server-side-performance.md",
+        "4-client-client-side-data-fetching.md",
+        "5-rerender-re-render-optimization.md",
+        "6-rendering-rendering-performance.md",
+        "7-js-javascript-performance.md",
+        "8-advanced-advanced-patterns.md",
+        "SKILL.md",
+        "scripts/convert_rules.py",
+        "scripts/react_performance_checker.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs-typescript-patterns",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "review.md",
+        "update-2.md",
+        "update.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs16-react19-next-auth5-drizzle-orm",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs16-react19-postgres17",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs16-react19-tailwind4-auth5-video-gen",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL_ALIGNMENT_REPORT_v9.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs16-react19-tailwind4-better-auth-monorepo",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs16-react19-tailwind4-drizzle-orm-postgres17-rsc",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs16-react19-tailwind4-full-stack",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "nextjs16-tailwind4",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "office-hours",
+      "repo_files": 9,
+      "sandbox_files": 9,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/design-and-handoff.md",
+        "sections/design-and-handoff.md.tmpl",
+        "sections/manifest.json",
+        "sections/phase-2a-startup-diagnostic.md",
+        "sections/phase-2a-startup-diagnostic.md.tmpl",
+        "sections/phase-2b-builder-brainstorm.md",
+        "sections/phase-2b-builder-brainstorm.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "officecli",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "orchestrator-toolkit",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "pdf",
+      "repo_files": 41,
+      "sandbox_files": 38,
+      "skill_md_identical": false,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "briefs/academic.md",
+        "briefs/creative-fixed-canvas.md",
+        "briefs/creative-flow.md",
+        "briefs/creative.md",
+        "briefs/poster.md",
+        "briefs/process.md",
+        "briefs/report.md",
+        "briefs/resume.md",
+        "configs/components.md",
+        "configs/fonts.md",
+        "configs/visual_framework.md",
+        "env_setup/env_check.sh",
+        "env_setup/font_list.txt",
+        "env_setup/setup.md",
+        "env_setup/setup_mac_linux.sh",
+        "env_setup/setup_windows.ps1",
+        "references/resume-academic.tex",
+        "references/resume-altacv.tex",
+        "scripts/cover_validate.js",
+        "scripts/design_engine.py",
+        "scripts/html2pdf-next.js",
+        "scripts/html2poster.js",
+        "scripts/pdf.py",
+        "scripts/pdf_qa.py",
+        "scripts/poster_validate.py",
+        "scripts/setup.sh",
+        "scripts/toc_validate.py",
+        "typesetting/charts.md",
+        "typesetting/cover-backgrounds.md",
+        "typesetting/cover.md",
+        "typesetting/fill-engine.md",
+        "typesetting/geometry.md",
+        "typesetting/overflow.md",
+        "typesetting/pagination.md",
+        "typesetting/palette.md",
+        "typesetting/typography.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [
+        "package-lock.json",
+        "package.json",
+        "typesetting/cover-legacy.md"
+      ],
+      "differing_files": [
+        "briefs/academic.md",
+        "briefs/creative.md",
+        "briefs/report.md",
+        "briefs/resume.md",
+        "configs/fonts.md"
+      ]
+    },
+    {
+      "name": "pdf-old-20260806",
+      "repo_files": 39,
+      "sandbox_files": 39,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "briefs/academic.md",
+        "briefs/creative-fixed-canvas.md",
+        "briefs/creative-flow.md",
+        "briefs/creative.md",
+        "briefs/poster.md",
+        "briefs/process-advanced.md",
+        "briefs/process.md",
+        "briefs/report.md",
+        "briefs/resume.md",
+        "configs/components.md",
+        "configs/fonts.md",
+        "configs/visual_framework.md",
+        "env_setup/env_check.sh",
+        "env_setup/font_list.txt",
+        "env_setup/setup.md",
+        "env_setup/setup_mac_linux.sh",
+        "env_setup/setup_windows.ps1",
+        "references/resume-academic.tex",
+        "references/resume-altacv.tex",
+        "scripts/cover_validate.js",
+        "scripts/design_engine.py",
+        "scripts/html2pdf-next.js",
+        "scripts/html2poster.js",
+        "scripts/pdf.py",
+        "scripts/pdf_qa.py",
+        "scripts/poster_validate.py",
+        "scripts/setup.sh",
+        "scripts/toc_validate.py",
+        "typesetting/charts.md",
+        "typesetting/cover-backgrounds.md",
+        "typesetting/cover.md",
+        "typesetting/fill-engine.md",
+        "typesetting/geometry.md",
+        "typesetting/overflow.md",
+        "typesetting/pagination.md",
+        "typesetting/palette.md",
+        "typesetting/typography.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "performance-optimization",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "phoenix-1-7",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "pi-agent-customize-system-prompt",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "pick-ui-library",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "plan-ceo-review",
+      "repo_files": 9,
+      "sandbox_files": 9,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "bin/mode-handoff-hook",
+        "bin/mode-handoff-hook.ts",
+        "sections/checklist.md",
+        "sections/checklist.md.tmpl",
+        "sections/manifest.json",
+        "sections/review-sections.md",
+        "sections/review-sections.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "plan-design-review",
+      "repo_files": 7,
+      "sandbox_files": 7,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/checklist.md",
+        "sections/checklist.md.tmpl",
+        "sections/manifest.json",
+        "sections/review-sections.md",
+        "sections/review-sections.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "plan-devex-review",
+      "repo_files": 8,
+      "sandbox_files": 8,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "dx-hall-of-fame.md",
+        "sections/checklist.md",
+        "sections/checklist.md.tmpl",
+        "sections/manifest.json",
+        "sections/review-sections.md",
+        "sections/review-sections.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "plan-writing",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "planning-and-task-breakdown",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "playwright-cli",
+      "repo_files": 11,
+      "sandbox_files": 11,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/README.md",
+        "references/element-attributes.md",
+        "references/playwright-tests.md",
+        "references/request-mocking.md",
+        "references/running-code.md",
+        "references/session-management.md",
+        "references/storage-state.md",
+        "references/test-generation.md",
+        "references/tracing.md",
+        "references/video-recording.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "poteto-mode",
+      "repo_files": 72,
+      "sandbox_files": 72,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "playbooks/authoring-a-skill.md",
+        "playbooks/autonomous-run.md",
+        "playbooks/autopilot-full.md",
+        "playbooks/autopilot-stack.md",
+        "playbooks/babysit.md",
+        "playbooks/bug-fix.md",
+        "playbooks/eval.md",
+        "playbooks/feature.md",
+        "playbooks/hillclimb.md",
+        "playbooks/investigation.md",
+        "playbooks/multi-phase-plan.md",
+        "playbooks/opening-a-pr.md",
+        "playbooks/orchestrate.md",
+        "playbooks/pause-safely.md",
+        "playbooks/perf-issue.md",
+        "playbooks/prototype.md",
+        "playbooks/refactoring.md",
+        "playbooks/runtime-forensics.md",
+        "playbooks/session-pickup.md",
+        "playbooks/shipping.md",
+        "playbooks/trace-forensics.md",
+        "playbooks/visual-parity.md",
+        "playbooks/worktree-cleanup.md",
+        "references/agents/comment-sicko.md",
+        "references/bugbot-triage.md",
+        "references/codex-tools.md",
+        "references/copilot-tools.md",
+        "references/licenses/LICENSE",
+        "references/licenses/LICENSE-cursor-team-kit",
+        "references/licenses/LICENSE-thermos",
+        "references/licenses/NOTICE.md",
+        "references/merge-safety.md",
+        "references/muse-tools.md",
+        "references/pi-tools.md",
+        "references/resume-storage.md",
+        "scripts/bootstrap.ts",
+        "scripts/bun.lock",
+        "scripts/check-plan.mjs",
+        "scripts/check-plan.test.ts",
+        "scripts/check-playbooks.mjs",
+        "scripts/orch/orch.test.ts",
+        "scripts/orch/orch.ts",
+        "scripts/orch/store.ts",
+        "scripts/package.json",
+        "scripts/resume.mjs",
+        "scripts/tsconfig.json",
+        "scripts/watch-pr/cli.test.ts",
+        "scripts/watch-pr/cli.ts",
+        "scripts/watch-pr/deadline.ts",
+        "scripts/watch-pr/fakes.test-helper.ts",
+        "scripts/watch-pr/github.test.ts",
+        "scripts/watch-pr/github.ts",
+        "scripts/watch-pr/integrity.test.ts",
+        "scripts/watch-pr/landing.ts",
+        "scripts/watch-pr/live-merge-safety.mjs",
+        "scripts/watch-pr/policy.test.ts",
+        "scripts/watch-pr/policy.ts",
+        "scripts/watch-pr/render.ts",
+        "scripts/watch-pr/ship-pr",
+        "scripts/watch-pr/shipping-cli.test.ts",
+        "scripts/watch-pr/shipping-cli.ts",
+        "scripts/watch-pr/shipping.test-helper.ts",
+        "scripts/watch-pr/shipping.test.ts",
+        "scripts/watch-pr/shipping.ts",
+        "scripts/watch-pr/transport.test.ts",
+        "scripts/watch-pr/tsconfig.json",
+        "scripts/watch-pr/types.compile.ts",
+        "scripts/watch-pr/types.ts",
+        "scripts/watch-pr/watch-pr",
+        "scripts/watch-pr/wrapper.test.ts",
+        "scripts/worktree-audit.mjs"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "powershell-windows",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "pptx",
+      "repo_files": 14,
+      "sandbox_files": 14,
+      "skill_md_identical": false,
+      "identical_files": [
+        "SKILL.md",
+        "batch_html2pptx.js",
+        "html2pptx1.js",
+        "ooxml/scripts/pack.py",
+        "ooxml/scripts/unpack.py",
+        "ooxml/scripts/validate.py",
+        "ooxml/scripts/validation/__init__.py",
+        "ooxml/scripts/validation/base.py",
+        "ooxml/scripts/validation/docx.py",
+        "ooxml/scripts/validation/pptx.py",
+        "ooxml/scripts/validation/redlining.py",
+        "scripts/check_slides.py",
+        "scripts/extract_html_style.py",
+        "scripts/extract_pptx_style.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "pptx-generator",
+      "repo_files": 6,
+      "sandbox_files": 6,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/design-system.md",
+        "references/editing.md",
+        "references/pitfalls.md",
+        "references/pptxgenjs.md",
+        "references/slide-types.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "pptx-unified",
+      "repo_files": 13,
+      "sandbox_files": 13,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/anti-patterns.md",
+        "references/global-css-template.md",
+        "references/layout-catalog.md",
+        "references/palette-presets.md",
+        "references/stage-1-clarify.md",
+        "references/stage-2-research.md",
+        "references/stage-3-plan.md",
+        "references/stage-4-build.md",
+        "references/stage-5-export.md",
+        "references/typography-pairings.md",
+        "scripts/export_pptx.sh",
+        "scripts/validate_brief.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-boundary-discipline",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-build-the-lever",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-explain-the-number",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-fix-root-causes",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-laziness-protocol",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-make-operations-idempotent",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-model-the-domain",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-never-block-on-the-human",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-prove-it-works",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "project-architecture-document-md",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "prototype",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LOGIC.md",
+        "SKILL.md",
+        "UI.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "qa",
+      "repo_files": 20,
+      "sandbox_files": 20,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "references/issue-taxonomy.md",
+        "sections/browser-setup.md",
+        "sections/browser-setup.md.tmpl",
+        "sections/browser-verify.md",
+        "sections/browser-verify.md.tmpl",
+        "sections/exploratory.md",
+        "sections/exploratory.md.tmpl",
+        "sections/manifest.json",
+        "sections/qa-patterns.md",
+        "sections/qa-patterns.md.tmpl",
+        "sections/scope.md",
+        "sections/scope.md.tmpl",
+        "sections/system-functional.md",
+        "sections/system-functional.md.tmpl",
+        "sections/test-bootstrap.md",
+        "sections/test-bootstrap.md.tmpl",
+        "templates/functional-report-template.md",
+        "templates/qa-report-template.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "react19-vite-spa-fastify-drizzle-sqlite",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "readme-md",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "recall",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "replicate-web-app",
+      "repo_files": 5,
+      "sandbox_files": 5,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL-v3.md",
+        "SKILL-v4-enhanced.md",
+        "SKILL-v5.1.md",
+        "SKILL-v5.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "research",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "retro",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "review",
+      "repo_files": 25,
+      "sandbox_files": 25,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "TODOS-format.md",
+        "checklist.md",
+        "design-checklist.md",
+        "gate-integrity.md",
+        "greptile-triage.md",
+        "sections/adversarial.md",
+        "sections/adversarial.md.tmpl",
+        "sections/manifest.json",
+        "sections/plan-completion.md",
+        "sections/plan-completion.md.tmpl",
+        "sections/review-army.md",
+        "sections/review-army.md.tmpl",
+        "sections/shared-code-reuse.md",
+        "sections/shared-code-reuse.md.tmpl",
+        "specialists/api-contract.md",
+        "specialists/data-migration.md",
+        "specialists/maintainability.md",
+        "specialists/performance.md",
+        "specialists/red-team.md",
+        "specialists/security.md",
+        "specialists/simplification.md",
+        "specialists/state-machines.md",
+        "specialists/testing.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "review-animations",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "STANDARDS.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "rust-web",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "sanity-best-practices",
+      "repo_files": 25,
+      "sandbox_files": 25,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/angular.md",
+        "references/app-sdk.md",
+        "references/astro.md",
+        "references/blueprints.md",
+        "references/functions.md",
+        "references/get-started.md",
+        "references/groq.md",
+        "references/hydrogen.md",
+        "references/image.md",
+        "references/localization.md",
+        "references/migration-html-import.md",
+        "references/migration.md",
+        "references/nextjs.md",
+        "references/nuxt.md",
+        "references/page-builder.md",
+        "references/portable-text.md",
+        "references/project-structure.md",
+        "references/remix.md",
+        "references/schema.md",
+        "references/seo.md",
+        "references/studio-structure.md",
+        "references/svelte.md",
+        "references/typegen.md",
+        "references/visual-editing.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "sanity-io-deploy",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "scaffold-exercises",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "security-and-hardening",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "setup-pre-commit",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "ship",
+      "repo_files": 33,
+      "sandbox_files": 33,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/adversarial.md",
+        "sections/adversarial.md.tmpl",
+        "sections/apple-release.md",
+        "sections/apple-release.md.tmpl",
+        "sections/capy-pr.md",
+        "sections/capy-pr.md.tmpl",
+        "sections/changelog.md",
+        "sections/changelog.md.tmpl",
+        "sections/documentation.md",
+        "sections/documentation.md.tmpl",
+        "sections/greptile-early.md",
+        "sections/greptile-early.md.tmpl",
+        "sections/greptile.md",
+        "sections/greptile.md.tmpl",
+        "sections/handoff.md",
+        "sections/handoff.md.tmpl",
+        "sections/manifest.json",
+        "sections/measure.md",
+        "sections/measure.md.tmpl",
+        "sections/plan-completion.md",
+        "sections/plan-completion.md.tmpl",
+        "sections/pr-body.md",
+        "sections/pr-body.md.tmpl",
+        "sections/review-army.md",
+        "sections/review-army.md.tmpl",
+        "sections/shared-code-reuse.md",
+        "sections/shared-code-reuse.md.tmpl",
+        "sections/test-coverage.md",
+        "sections/test-coverage.md.tmpl",
+        "sections/tests.md",
+        "sections/tests.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "shipping-and-launch",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "skill-creator",
+      "repo_files": 20,
+      "sandbox_files": 18,
+      "skill_md_identical": false,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "agents/analyzer.md",
+        "agents/comparator.md",
+        "agents/grader.md",
+        "assets/eval_review.html",
+        "eval-viewer/generate_review.py",
+        "eval-viewer/viewer.html",
+        "references/schemas.md",
+        "scripts/aggregate_benchmark.py",
+        "scripts/generate_report.py",
+        "scripts/improve_description.py",
+        "scripts/package_skill.py",
+        "scripts/quick_validate.py",
+        "scripts/run_eval.py",
+        "scripts/run_loop.py",
+        "scripts/utils.py"
+      ],
+      "sandbox_only_files": [
+        "scripts/__init__.py"
+      ],
+      "repo_only_files": [
+        "references/output-patterns.md",
+        "references/workflows.md",
+        "scripts/init_skill.py"
+      ],
+      "differing_files": []
+    },
+    {
+      "name": "skill-creator-zai",
+      "repo_files": 17,
+      "sandbox_files": 18,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "agents/analyzer.md",
+        "agents/comparator.md",
+        "agents/grader.md",
+        "assets/eval_review.html",
+        "eval-viewer/generate_review.py",
+        "eval-viewer/viewer.html",
+        "references/schemas.md",
+        "scripts/aggregate_benchmark.py",
+        "scripts/generate_report.py",
+        "scripts/improve_description.py",
+        "scripts/package_skill.py",
+        "scripts/quick_validate.py",
+        "scripts/run_eval.py",
+        "scripts/run_loop.py",
+        "scripts/utils.py"
+      ],
+      "sandbox_only_files": [
+        "scripts/__init__.py"
+      ],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "skill-finder-cn",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "_meta.json",
+        "package.json",
+        "scripts/search.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "solidstart",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "source-driven-development",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "spec",
+      "repo_files": 5,
+      "sandbox_files": 5,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl",
+        "sections/gate-and-file.md",
+        "sections/gate-and-file.md.tmpl",
+        "sections/manifest.json"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "spec-driven-development",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "spring-boot-3",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "subagents",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "super-frontend-design",
+      "repo_files": 18,
+      "sandbox_files": 18,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "assets/decision-trees.md",
+        "assets/design-guideline-template.md",
+        "assets/design-story-template.md",
+        "docs/wool-sneakers-design-guideline.md",
+        "docs/wool-sneakers-design-story.md",
+        "references/01-philosophy-strategy.md",
+        "references/02-tech-stack-setup.md",
+        "references/03-design-system.md",
+        "references/04-component-architecture.md",
+        "references/05-performance-optimization.md",
+        "references/06-accessibility-compliance.md",
+        "references/07-visual-design-motion.md",
+        "references/08-quality-assurance.md",
+        "scripts/react_performance_checker.py",
+        "scripts/shadcn_add.py",
+        "scripts/tailwind_config_gen.py",
+        "scripts/ux_audit.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "svelte-5-sveltekit",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "task-review",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "tauri-2",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "tdd-workflow",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "technical-writing",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "template-skill",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "test-audit",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "testing-patterns",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "scripts/test_runner.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "thermo-nuclear-code-quality-review",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "thermo-nuclear-review",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "to-questionnaire",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "to-spec",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "to-tickets",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "tools-cli",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "tools-cli"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "translation-engine",
+      "repo_files": 9,
+      "sandbox_files": 9,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "TE10_DomainPack_Authoring_Guide.md",
+        "TE10_FewShots.md",
+        "TE10_Pack_Academic.md",
+        "TE10_Pack_Engineering.md",
+        "TE10_Pack_Financial.md",
+        "TE10_Pack_Legal.md",
+        "TE10_Pack_Medical.md",
+        "TE10_wrapper_minimal.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "trustskill",
+      "repo_files": 55,
+      "sandbox_files": 61,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE",
+        "README.md",
+        "README_VALIDATION_REPORT.md",
+        "SKILL.md",
+        "SKILL.md_UPDATE_PLAN.md",
+        "SKILL.md_VALIDATION_REPORT.md",
+        "TRUSTSKILL_V3_VALIDATION_REPORT.md",
+        "V3_ENHANCEMENT_PLAN.md",
+        "enhancement_plan.md",
+        "prompts.md",
+        "pytest.ini",
+        "references/security_patterns.md",
+        "scripts/batch_scan.py",
+        "scripts/scan_skill.py",
+        "scripts/scan_skill.sh",
+        "security_categories/hh1",
+        "security_scan_results/AGGREGATED_REPORT.md",
+        "security_scan_results/SECURITY_AUDIT_REPORT.md",
+        "security_scan_results/aggregate_results.py",
+        "security_scan_results/comparison_report.py",
+        "src/__init__.py",
+        "src/analyzers/ast_analyzer.py",
+        "src/analyzers/base.py",
+        "src/analyzers/dependency_analyzer.py",
+        "src/analyzers/regex_analyzer.py",
+        "src/analyzers/secret_analyzer.py",
+        "src/analyzers/taint_analyzer.py",
+        "src/cli.py",
+        "src/config/__init__.py",
+        "src/config/loader.py",
+        "src/config/validator.py",
+        "src/formatters/base.py",
+        "src/formatters/json_formatter.py",
+        "src/formatters/markdown_formatter.py",
+        "src/formatters/text_formatter.py",
+        "src/rules.py",
+        "src/scanner.py",
+        "src/types.py",
+        "src/utils/__init__.py",
+        "src/utils/entropy.py",
+        "status.md",
+        "tests/__init__.py",
+        "tests/conftest.py",
+        "tests/integration/__init__.py",
+        "tests/integration/test_cli.py",
+        "tests/integration/test_scanner.py",
+        "tests/run_tests.py",
+        "tests/test_v31_enhancements.py",
+        "tests/unit/__init__.py",
+        "tests/unit/test_analyzers.py",
+        "tests/unit/test_config.py",
+        "tests/unit/test_formatters.py",
+        "tests/unit/test_rules.py",
+        "tests/unit/test_secret_detection.py",
+        "tests/unit/test_types.py"
+      ],
+      "sandbox_only_files": [
+        "security_categories/command_injection.txt",
+        "security_categories/credential_access.txt",
+        "security_categories/data_exfiltration.txt",
+        "security_categories/file_deletion.txt",
+        "security_categories/hardcoded_secrets.txt",
+        "security_categories/sensitive_file_access.txt"
+      ],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "tts",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "tts.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "ui-styling",
+      "repo_files": 97,
+      "sandbox_files": 97,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "canvas-fonts/ArsenalSC-OFL.txt",
+        "canvas-fonts/ArsenalSC-Regular.ttf",
+        "canvas-fonts/BigShoulders-Bold.ttf",
+        "canvas-fonts/BigShoulders-OFL.txt",
+        "canvas-fonts/BigShoulders-Regular.ttf",
+        "canvas-fonts/Boldonse-OFL.txt",
+        "canvas-fonts/Boldonse-Regular.ttf",
+        "canvas-fonts/BricolageGrotesque-Bold.ttf",
+        "canvas-fonts/BricolageGrotesque-OFL.txt",
+        "canvas-fonts/BricolageGrotesque-Regular.ttf",
+        "canvas-fonts/CrimsonPro-Bold.ttf",
+        "canvas-fonts/CrimsonPro-Italic.ttf",
+        "canvas-fonts/CrimsonPro-OFL.txt",
+        "canvas-fonts/CrimsonPro-Regular.ttf",
+        "canvas-fonts/DMMono-OFL.txt",
+        "canvas-fonts/DMMono-Regular.ttf",
+        "canvas-fonts/EricaOne-OFL.txt",
+        "canvas-fonts/EricaOne-Regular.ttf",
+        "canvas-fonts/GeistMono-Bold.ttf",
+        "canvas-fonts/GeistMono-OFL.txt",
+        "canvas-fonts/GeistMono-Regular.ttf",
+        "canvas-fonts/Gloock-OFL.txt",
+        "canvas-fonts/Gloock-Regular.ttf",
+        "canvas-fonts/IBMPlexMono-Bold.ttf",
+        "canvas-fonts/IBMPlexMono-OFL.txt",
+        "canvas-fonts/IBMPlexMono-Regular.ttf",
+        "canvas-fonts/IBMPlexSerif-Bold.ttf",
+        "canvas-fonts/IBMPlexSerif-BoldItalic.ttf",
+        "canvas-fonts/IBMPlexSerif-Italic.ttf",
+        "canvas-fonts/IBMPlexSerif-Regular.ttf",
+        "canvas-fonts/InstrumentSans-Bold.ttf",
+        "canvas-fonts/InstrumentSans-BoldItalic.ttf",
+        "canvas-fonts/InstrumentSans-Italic.ttf",
+        "canvas-fonts/InstrumentSans-OFL.txt",
+        "canvas-fonts/InstrumentSans-Regular.ttf",
+        "canvas-fonts/InstrumentSerif-Italic.ttf",
+        "canvas-fonts/InstrumentSerif-Regular.ttf",
+        "canvas-fonts/Italiana-OFL.txt",
+        "canvas-fonts/Italiana-Regular.ttf",
+        "canvas-fonts/JetBrainsMono-Bold.ttf",
+        "canvas-fonts/JetBrainsMono-OFL.txt",
+        "canvas-fonts/JetBrainsMono-Regular.ttf",
+        "canvas-fonts/Jura-Light.ttf",
+        "canvas-fonts/Jura-Medium.ttf",
+        "canvas-fonts/Jura-OFL.txt",
+        "canvas-fonts/LibreBaskerville-OFL.txt",
+        "canvas-fonts/LibreBaskerville-Regular.ttf",
+        "canvas-fonts/Lora-Bold.ttf",
+        "canvas-fonts/Lora-BoldItalic.ttf",
+        "canvas-fonts/Lora-Italic.ttf",
+        "canvas-fonts/Lora-OFL.txt",
+        "canvas-fonts/Lora-Regular.ttf",
+        "canvas-fonts/NationalPark-Bold.ttf",
+        "canvas-fonts/NationalPark-OFL.txt",
+        "canvas-fonts/NationalPark-Regular.ttf",
+        "canvas-fonts/NothingYouCouldDo-OFL.txt",
+        "canvas-fonts/NothingYouCouldDo-Regular.ttf",
+        "canvas-fonts/Outfit-Bold.ttf",
+        "canvas-fonts/Outfit-OFL.txt",
+        "canvas-fonts/Outfit-Regular.ttf",
+        "canvas-fonts/PixelifySans-Medium.ttf",
+        "canvas-fonts/PixelifySans-OFL.txt",
+        "canvas-fonts/PoiretOne-OFL.txt",
+        "canvas-fonts/PoiretOne-Regular.ttf",
+        "canvas-fonts/RedHatMono-Bold.ttf",
+        "canvas-fonts/RedHatMono-OFL.txt",
+        "canvas-fonts/RedHatMono-Regular.ttf",
+        "canvas-fonts/Silkscreen-OFL.txt",
+        "canvas-fonts/Silkscreen-Regular.ttf",
+        "canvas-fonts/SmoochSans-Medium.ttf",
+        "canvas-fonts/SmoochSans-OFL.txt",
+        "canvas-fonts/Tektur-Medium.ttf",
+        "canvas-fonts/Tektur-OFL.txt",
+        "canvas-fonts/Tektur-Regular.ttf",
+        "canvas-fonts/WorkSans-Bold.ttf",
+        "canvas-fonts/WorkSans-BoldItalic.ttf",
+        "canvas-fonts/WorkSans-Italic.ttf",
+        "canvas-fonts/WorkSans-OFL.txt",
+        "canvas-fonts/WorkSans-Regular.ttf",
+        "canvas-fonts/YoungSerif-OFL.txt",
+        "canvas-fonts/YoungSerif-Regular.ttf",
+        "references/canvas-design-system.md",
+        "references/shadcn-accessibility.md",
+        "references/shadcn-components.md",
+        "references/shadcn-theming.md",
+        "references/tailwind-customization.md",
+        "references/tailwind-responsive.md",
+        "references/tailwind-utilities.md",
+        "scripts/requirements.txt",
+        "scripts/shadcn_add.py",
+        "scripts/tailwind_config_gen.py",
+        "scripts/tests/coverage-ui.json",
+        "scripts/tests/requirements.txt",
+        "scripts/tests/test_shadcn_add.py",
+        "scripts/tests/test_tailwind_config_gen.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "unfreeze",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "SKILL.md.tmpl"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "verification-and-review-protocol",
+      "repo_files": 4,
+      "sandbox_files": 4,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/code-review-reception.md",
+        "references/requesting-code-review.md",
+        "references/verification-before-completion.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "video-understand",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": false,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "scripts/video-understand.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "vlm",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "scripts/vlm.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "vue-3-nuxt",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "vulnerability-scanner",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "checklists.md",
+        "scripts/security_scan.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "wait-what",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "wayfinder",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "web-app-foundation",
+      "repo_files": 5,
+      "sandbox_files": 5,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL-v1.2.md",
+        "SKILL-v1.5.md",
+        "SKILL-v1.md",
+        "SKILL-v2.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "web-application",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "codebase-evaluation-report.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "web-application-engineering",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "Codebase_Evaluation_Report.md",
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "web-design-guidelines",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "web-frameworks",
+      "repo_files": 16,
+      "sandbox_files": 17,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/nextjs-app-router.md",
+        "references/nextjs-data-fetching.md",
+        "references/nextjs-optimization.md",
+        "references/nextjs-server-components.md",
+        "references/remix-icon-integration.md",
+        "references/turborepo-caching.md",
+        "references/turborepo-pipelines.md",
+        "references/turborepo-setup.md",
+        "scripts/nextjs_init.py",
+        "scripts/requirements.txt",
+        "scripts/tests/coverage-web.json",
+        "scripts/tests/requirements.txt",
+        "scripts/tests/test_nextjs_init.py",
+        "scripts/tests/test_turborepo_migrate.py",
+        "scripts/turborepo_migrate.py"
+      ],
+      "sandbox_only_files": [
+        "scripts/__init__.py"
+      ],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "web-reader",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "scripts/web-reader.ts"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "webapp-testing",
+      "repo_files": 7,
+      "sandbox_files": 7,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "examples/console_logging.py",
+        "examples/element_discovery.py",
+        "examples/static_html_automation.py",
+        "scripts/playwright_runner.py",
+        "scripts/with_server.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "webapp-testing-journey",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "references/mobile-navigation.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "wizard",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "template.sh"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "write-swift",
+      "repo_files": 1,
+      "sandbox_files": 1,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "writing-beats",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "writing-for-agents",
+      "repo_files": 3,
+      "sandbox_files": 3,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL-MECHANICS.md",
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "writing-fragments",
+      "repo_files": 2,
+      "sandbox_files": 2,
+      "skill_md_identical": true,
+      "identical_files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    },
+    {
+      "name": "xlsx",
+      "repo_files": 21,
+      "sandbox_files": 21,
+      "skill_md_identical": true,
+      "identical_files": [
+        "LICENSE.txt",
+        "SKILL.md",
+        "engines/chart-templates.md",
+        "engines/chart.md",
+        "engines/design.md",
+        "engines/vba-templates.md",
+        "quality/pipeline.md",
+        "scenes/advanced.md",
+        "scenes/analyze-recipes.md",
+        "scenes/analyze.md",
+        "scenes/convert.md",
+        "scenes/create.md",
+        "scenes/edit-patterns.md",
+        "scenes/edit.md",
+        "scenes/finance.md",
+        "scenes/finance_lite.md",
+        "scenes/vba.md",
+        "setup.sh",
+        "templates/base.py",
+        "templates/palettes.py",
+        "xlsx.py"
+      ],
+      "sandbox_only_files": [],
+      "repo_only_files": [],
+      "differing_files": []
+    }
+  ]
+}
